@@ -95,37 +95,37 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		})
 
 		It("Does full damage against targets without armor or barrier", func() {
-			totalHealthDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := spear.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(4))
 		})
 
 		It("Armor reduces damage against physical attacks", func() {
 			bandit.Armor = 3
-			totalHealthDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := spear.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(1))
 		})
 
 		It("Barrier absorbs damage against physical attacks and is depleted first", func() {
 			bandit.MaxBarrier = 4
 			bandit.CurrentBarrier = 1
-			totalHealthDamage, totalBarrierDamage := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(3))
-			Expect(totalBarrierDamage).To(Equal(1))
+			Expect(initialBarrierDamage).To(Equal(1))
 		})
 
 		It("Will deal no damage if barrier is strong enough", func() {
 			bandit.MaxBarrier = 4
 			bandit.CurrentBarrier = 4
-			totalHealthDamage, totalBarrierDamage := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
-			Expect(totalBarrierDamage).To(Equal(4))
+			Expect(initialBarrierDamage).To(Equal(4))
 		})
 
 		It("May deal no damage if armor is strong enough", func() {
 			bandit.Armor = 4
-			totalHealthDamage, totalBarrierDamage := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
-			Expect(totalBarrierDamage).To(Equal(0))
+			Expect(initialBarrierDamage).To(Equal(0))
 		})
 	})
 
@@ -144,30 +144,52 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		})
 
 		It("Does full damage against targets without armor or barrier", func() {
-			totalHealthDamage, _ := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := blot.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(6))
 		})
 
 		It("Ignores Armor when using spell attacks", func() {
 			bandit.Armor = 9001
-			totalHealthDamage, _ := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := blot.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(6))
 		})
 
 		It("Barrier absorbs damage against spell attacks and is depleted first", func() {
 			bandit.MaxBarrier = 4
 			bandit.CurrentBarrier = 1
-			totalHealthDamage, totalBarrierDamage := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := blot.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(5))
-			Expect(totalBarrierDamage).To(Equal(1))
+			Expect(initialBarrierDamage).To(Equal(1))
 		})
 
 		It("Will deal no damage if barrier is strong enough", func() {
 			bandit.MaxBarrier = 9001
 			bandit.CurrentBarrier = 9001
-			totalHealthDamage, totalBarrierDamage := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := blot.GetDamageAgainstTarget(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
-			Expect(totalBarrierDamage).To(Equal(6))
+			Expect(initialBarrierDamage).To(Equal(6))
+		})
+
+		It("Can deal extra Barrier damage if the barrier absorbs the attack", func() {
+			bandit.MaxBarrier = 8
+			bandit.CurrentBarrier = 8
+			blot.ExtraBarrierDamage = 2
+
+			totalHealthDamage, initialBarrierDamage, extraBarrierDamage := blot.GetDamageAgainstTarget(teros, bandit)
+			Expect(totalHealthDamage).To(Equal(0))
+			Expect(initialBarrierDamage).To(Equal(6))
+			Expect(extraBarrierDamage).To(Equal(2))
+		})
+
+		It("Knows extra Barrier damage is reduced if the barrier is depleted", func() {
+			bandit.MaxBarrier = 8
+			bandit.CurrentBarrier = 7
+			blot.ExtraBarrierDamage = 2
+
+			totalHealthDamage, initialBarrierDamage, extraBarrierDamage := blot.GetDamageAgainstTarget(teros, bandit)
+			Expect(totalHealthDamage).To(Equal(0))
+			Expect(initialBarrierDamage).To(Equal(6))
+			Expect(extraBarrierDamage).To(Equal(1))
 		})
 	})
 

@@ -12,19 +12,21 @@ const (
 
 // AttackingPower is a power designed to deal damage.
 type AttackingPower struct {
-	Name        string
-	PowerType   PowerType
-	ToHitBonus  int
-	DamageBonus int
+	Name               string
+	PowerType          PowerType
+	ToHitBonus         int
+	DamageBonus        int
+	ExtraBarrierDamage int
 }
 
 // NewAttackingPower generates a AttackingPower with default values.
 func NewAttackingPower(name string) AttackingPower {
 	newAttackingPower := AttackingPower{
-		Name:        name,
-		PowerType:   PowerTypePhysical,
-		ToHitBonus:  0,
-		DamageBonus: 0,
+		Name:               name,
+		PowerType:          PowerTypePhysical,
+		ToHitBonus:         0,
+		DamageBonus:        0,
+		ExtraBarrierDamage: 0,
 	}
 	return newAttackingPower
 }
@@ -51,16 +53,30 @@ func (power *AttackingPower) GetToHitPenalty(target *Squaddie) (toHitPenalty int
 }
 
 // GetDamageAgainstTarget factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func (power *AttackingPower) GetDamageAgainstTarget(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage int) {
+func (power *AttackingPower) GetDamageAgainstTarget(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	damageToAbsorb := power.GetTotalDamageBonus(attacker)
+	remainingBarrier := target.CurrentBarrier
 
 	var barrierFullyAbsorbsDamage bool = (target.CurrentBarrier > damageToAbsorb)
 	if barrierFullyAbsorbsDamage {
 		barrierDamage = damageToAbsorb
+		remainingBarrier = remainingBarrier - barrierDamage
 		damageToAbsorb = 0
 	} else {
 		barrierDamage = target.CurrentBarrier
+		remainingBarrier = 0
 		damageToAbsorb = damageToAbsorb - target.CurrentBarrier
+	}
+
+	if power.ExtraBarrierDamage > 0 {
+		var barrierFullyAbsorbsExtraBarrierDamage bool = (remainingBarrier > power.ExtraBarrierDamage)
+		if barrierFullyAbsorbsExtraBarrierDamage {
+			extraBarrierDamage = power.ExtraBarrierDamage
+			remainingBarrier = remainingBarrier - power.ExtraBarrierDamage
+		} else {
+			extraBarrierDamage = remainingBarrier
+			remainingBarrier = 0
+		}
 	}
 
 	var armorCanAbsorbDamage bool = (power.PowerType == PowerTypePhysical)
@@ -76,5 +92,5 @@ func (power *AttackingPower) GetDamageAgainstTarget(attacker *Squaddie, target *
 		healthDamage = damageToAbsorb
 	}
 
-	return healthDamage, barrierDamage
+	return healthDamage, barrierDamage, extraBarrierDamage
 }
