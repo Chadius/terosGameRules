@@ -41,3 +41,40 @@ func (power *AttackingPower) GetTotalDamageBonus(squaddie *Squaddie) (damageBonu
 	}
 	return power.DamageBonus + squaddie.Mind
 }
+
+// GetToHitPenalty calculates how much the target can reduce the chance of getting hit by the attacking power.
+func (power *AttackingPower) GetToHitPenalty(target *Squaddie) (toHitPenalty int) {
+	if power.PowerType == PowerTypePhysical {
+		return target.Dodge
+	}
+	return target.Deflect
+}
+
+// GetDamageAgainstTarget factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
+func (power *AttackingPower) GetDamageAgainstTarget(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage int) {
+	damageToAbsorb := power.GetTotalDamageBonus(attacker)
+
+	var barrierFullyAbsorbsDamage bool = (target.CurrentBarrier > damageToAbsorb)
+	if barrierFullyAbsorbsDamage {
+		barrierDamage = damageToAbsorb
+		damageToAbsorb = 0
+	} else {
+		barrierDamage = target.CurrentBarrier
+		damageToAbsorb = damageToAbsorb - target.CurrentBarrier
+	}
+
+	var armorCanAbsorbDamage bool = (power.PowerType == PowerTypePhysical)
+	if armorCanAbsorbDamage {
+
+		var armorFullyAbsorbsDamage bool = (target.Armor > damageToAbsorb)
+		if armorFullyAbsorbsDamage {
+			healthDamage = 0
+		} else {
+			healthDamage = damageToAbsorb - target.Armor
+		}
+	} else {
+		healthDamage = damageToAbsorb
+	}
+
+	return healthDamage, barrierDamage
+}
