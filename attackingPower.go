@@ -94,3 +94,55 @@ func (power *AttackingPower) GetDamageAgainstTarget(attacker *Squaddie, target *
 
 	return healthDamage, barrierDamage, extraBarrierDamage
 }
+
+// AttackingPowerSummary gives a summary of the chance to hit and damage dealt by attacks. Expected damage counts the number of 36ths so we can use ints for fractional math.
+type AttackingPowerSummary struct {
+	ChanceToHit           int
+	DamageTaken           int
+	ExpectedDamage        int
+	BarrierDamageTaken    int
+	ExpectedBarrierDamage int
+}
+
+// GetExpectedDamage provides a quick summary of an attack as well as the multiplied estimate
+func (power *AttackingPower) GetExpectedDamage(attacker *Squaddie, target *Squaddie) (battleSummary *AttackingPowerSummary) {
+	toHitBonus := power.GetTotalToHitBonus(attacker)
+	toHitPenalty := power.GetToHitPenalty(target)
+	totalChanceToHit := GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
+
+	healthDamage, barrierDamage, extraBarrierDamage := power.GetDamageAgainstTarget(attacker, target)
+
+	return &AttackingPowerSummary{
+		ChanceToHit:           totalChanceToHit,
+		DamageTaken:           healthDamage,
+		ExpectedDamage:        totalChanceToHit * healthDamage,
+		BarrierDamageTaken:    barrierDamage + extraBarrierDamage,
+		ExpectedBarrierDamage: (barrierDamage + extraBarrierDamage) * totalChanceToHit,
+	}
+}
+
+// GetChanceToHitBasedOnHitRate is a smarter look up table.
+func GetChanceToHitBasedOnHitRate(toHitBonus int) (chanceOutOf36 int) {
+	if toHitBonus > 4 {
+		return 36
+	}
+
+	if toHitBonus < -5 {
+		return 0
+	}
+
+	toHitChanceReference := map[int]int{
+		4:  35,
+		3:  33,
+		2:  30,
+		1:  26,
+		0:  21,
+		-1: 15,
+		-2: 10,
+		-3: 6,
+		-4: 3,
+		-5: 1,
+	}
+
+	return toHitChanceReference[toHitBonus]
+}

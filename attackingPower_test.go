@@ -36,6 +36,25 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		Expect(totalToHitBonus).To(Equal(3))
 	})
 
+	It("Calculates the crit chance based on To Hit Bonus", func() {
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(9001)).To(Equal(36))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(5)).To(Equal(36))
+
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-6)).To(Equal(0))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-9001)).To(Equal(0))
+
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(4)).To(Equal(35))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(3)).To(Equal(33))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(2)).To(Equal(30))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(1)).To(Equal(26))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(0)).To(Equal(21))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-1)).To(Equal(15))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-2)).To(Equal(10))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-3)).To(Equal(6))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-4)).To(Equal(3))
+		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-5)).To(Equal(1))
+	})
+
 	Context("Calculate damage bonus", func() {
 		BeforeEach(func() {
 			teros.Strength = 2
@@ -193,4 +212,53 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		})
 	})
 
+	Context("Calculate expected damage", func() {
+		var (
+			bandit *terosbattleserver.Squaddie
+		)
+
+		BeforeEach(func() {
+			tempSquaddie := terosbattleserver.NewSquaddie("Bandit")
+			bandit = &tempSquaddie
+			bandit.Name = "Bandit"
+		})
+
+		It("Give summary of the physical attack", func() {
+			bandit.Armor = 1
+			bandit.Dodge = 1
+			bandit.MaxBarrier = 4
+			bandit.CurrentBarrier = 1
+
+			teros.Strength = 1
+			spear.DamageBonus = 3
+
+			teros.Mind = 2
+			blot.DamageBonus = 4
+
+			attackingPowerSummary := spear.GetExpectedDamage(teros, bandit)
+			Expect(attackingPowerSummary.ChanceToHit).To(Equal(15))
+			Expect(attackingPowerSummary.DamageTaken).To(Equal(2))
+			Expect(attackingPowerSummary.ExpectedDamage).To(Equal(30))
+			Expect(attackingPowerSummary.BarrierDamageTaken).To(Equal(1))
+			Expect(attackingPowerSummary.ExpectedBarrierDamage).To(Equal(15))
+		})
+
+		It("Give summary of the spell attack with barrier burn", func() {
+			bandit.Armor = 1
+			bandit.Dodge = 1
+			bandit.MaxBarrier = 10
+			bandit.CurrentBarrier = 10
+
+			teros.Aim = 3
+			teros.Mind = 2
+			blot.DamageBonus = 4
+			blot.ExtraBarrierDamage = 3
+			attackingPowerSummary := blot.GetExpectedDamage(teros, bandit)
+			Expect(attackingPowerSummary.ChanceToHit).To(Equal(33))
+			Expect(attackingPowerSummary.DamageTaken).To(Equal(0))
+			Expect(attackingPowerSummary.ExpectedDamage).To(Equal(0))
+			Expect(attackingPowerSummary.BarrierDamageTaken).To(Equal(9))
+			Expect(attackingPowerSummary.ExpectedBarrierDamage).To(Equal(9 * 33))
+		})
+	})
 })
