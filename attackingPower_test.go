@@ -261,4 +261,39 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			Expect(attackingPowerSummary.ExpectedBarrierDamage).To(Equal(9 * 33))
 		})
 	})
+
+	Context("Critical Hits", func() {
+		var (
+			bandit *terosbattleserver.Squaddie
+		)
+
+		BeforeEach(func() {
+			tempSquaddie := terosbattleserver.NewSquaddie("Bandit")
+			bandit = &tempSquaddie
+			bandit.Name = "Bandit"
+
+			teros.Strength = 1
+			spear.DamageBonus = 3
+		})
+
+		It("Can look up the chance of a critical hit", func() {
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(9001)).To(Equal(36))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(12)).To(Equal(36))
+
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(-6)).To(Equal(0))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(0)).To(Equal(0))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(1)).To(Equal(0))
+
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(2)).To(Equal(1))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(3)).To(Equal(3))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(4)).To(Equal(6))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(5)).To(Equal(10))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(6)).To(Equal(15))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(7)).To(Equal(21))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(8)).To(Equal(26))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(9)).To(Equal(30))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(10)).To(Equal(33))
+			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(11)).To(Equal(35))
+		})
+	})
 })

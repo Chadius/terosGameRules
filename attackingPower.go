@@ -146,3 +146,30 @@ func GetChanceToHitBasedOnHitRate(toHitBonus int) (chanceOutOf36 int) {
 
 	return toHitChanceReference[toHitBonus]
 }
+
+// GetChanceToCritBasedOnThreshold is a smarter look up table.
+func GetChanceToCritBasedOnThreshold(critThreshold int) (chanceOutOf36 int) {
+	if critThreshold > 11 {
+		return 36
+	}
+
+	if critThreshold < 2 {
+		return 0
+	}
+
+	critChanceReference := map[int]int{
+		11: 35,
+		10: 33,
+		9:  30,
+		8:  26,
+		7:  21,
+		6:  15,
+		5:  10,
+		4:  6,
+		3:  3,
+		2:  1,
+	}
+
+	return critChanceReference[critThreshold]
+
+}
