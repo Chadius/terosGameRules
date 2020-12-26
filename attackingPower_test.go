@@ -76,6 +76,12 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			totalDamageBonus := blot.GetTotalDamageBonus(teros)
 			Expect(totalDamageBonus).To(Equal(9))
 		})
+
+		It("Calculates the Critical Damage bonus of physical attacks", func() {
+			totalDamageBonus := spear.GetCriticalDamageBonus(teros)
+			Expect(totalDamageBonus).To(Equal(8))
+		})
+
 	})
 
 	Context("Calculate to hit penalties values against powers", func() {
@@ -114,20 +120,20 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		})
 
 		It("Does full damage against targets without armor or barrier", func() {
-			totalHealthDamage, _, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := spear.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(4))
 		})
 
 		It("Armor reduces damage against physical attacks", func() {
 			bandit.Armor = 3
-			totalHealthDamage, _, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := spear.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(1))
 		})
 
 		It("Barrier absorbs damage against physical attacks and is depleted first", func() {
 			bandit.MaxBarrier = 4
 			bandit.CurrentBarrier = 1
-			totalHealthDamage, initialBarrierDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := spear.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(3))
 			Expect(initialBarrierDamage).To(Equal(1))
 		})
@@ -135,14 +141,14 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		It("Will deal no damage if barrier is strong enough", func() {
 			bandit.MaxBarrier = 4
 			bandit.CurrentBarrier = 4
-			totalHealthDamage, initialBarrierDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := spear.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
 			Expect(initialBarrierDamage).To(Equal(4))
 		})
 
 		It("May deal no damage if armor is strong enough", func() {
 			bandit.Armor = 4
-			totalHealthDamage, initialBarrierDamage, _ := spear.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := spear.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
 			Expect(initialBarrierDamage).To(Equal(0))
 		})
@@ -163,20 +169,20 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		})
 
 		It("Does full damage against targets without armor or barrier", func() {
-			totalHealthDamage, _, _ := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := blot.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(6))
 		})
 
 		It("Ignores Armor when using spell attacks", func() {
 			bandit.Armor = 9001
-			totalHealthDamage, _, _ := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, _, _ := blot.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(6))
 		})
 
 		It("Barrier absorbs damage against spell attacks and is depleted first", func() {
 			bandit.MaxBarrier = 4
 			bandit.CurrentBarrier = 1
-			totalHealthDamage, initialBarrierDamage, _ := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := blot.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(5))
 			Expect(initialBarrierDamage).To(Equal(1))
 		})
@@ -184,7 +190,7 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		It("Will deal no damage if barrier is strong enough", func() {
 			bandit.MaxBarrier = 9001
 			bandit.CurrentBarrier = 9001
-			totalHealthDamage, initialBarrierDamage, _ := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, _ := blot.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
 			Expect(initialBarrierDamage).To(Equal(6))
 		})
@@ -194,7 +200,7 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			bandit.CurrentBarrier = 8
 			blot.ExtraBarrierDamage = 2
 
-			totalHealthDamage, initialBarrierDamage, extraBarrierDamage := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, extraBarrierDamage := blot.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
 			Expect(initialBarrierDamage).To(Equal(6))
 			Expect(extraBarrierDamage).To(Equal(2))
@@ -205,7 +211,7 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			bandit.CurrentBarrier = 7
 			blot.ExtraBarrierDamage = 2
 
-			totalHealthDamage, initialBarrierDamage, extraBarrierDamage := blot.GetDamageAgainstTarget(teros, bandit)
+			totalHealthDamage, initialBarrierDamage, extraBarrierDamage := blot.GetHowTargetDistributesDamage(teros, bandit)
 			Expect(totalHealthDamage).To(Equal(0))
 			Expect(initialBarrierDamage).To(Equal(6))
 			Expect(extraBarrierDamage).To(Equal(1))
@@ -294,6 +300,34 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(9)).To(Equal(30))
 			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(10)).To(Equal(33))
 			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(11)).To(Equal(35))
+		})
+
+		It("Adds the chance to crit to the attack summary", func() {
+			spear.CriticalHitThreshold = 4
+			attackingPowerSummary := spear.GetExpectedDamage(teros, bandit)
+			Expect(attackingPowerSummary.ChanceToCrit).To(Equal(6))
+		})
+
+		It("Doubles the damage before applying armor and barrier to the attack summary", func() {
+			bandit.Armor = 1
+			bandit.MaxBarrier = 4
+			bandit.CurrentBarrier = 4
+			spear.CriticalHitThreshold = 4
+			attackingPowerSummary := spear.GetExpectedDamage(teros, bandit)
+			Expect(attackingPowerSummary.CriticalDamageTaken).To(Equal(3))
+			Expect(attackingPowerSummary.CriticalBarrierDamageTaken).To(Equal(4))
+			Expect(attackingPowerSummary.CriticalExpectedDamage).To(Equal(3 * 21))
+			Expect(attackingPowerSummary.CriticalExpectedBarrierDamage).To(Equal(4 * 21))
+		})
+
+		It("Does not factor critcal effects if the attack cannot crit", func() {
+			spear.CriticalHitThreshold = 0
+			attackingPowerSummary := spear.GetExpectedDamage(teros, bandit)
+			Expect(attackingPowerSummary.ChanceToCrit).To(Equal(0))
+			Expect(attackingPowerSummary.CriticalDamageTaken).To(Equal(0))
+			Expect(attackingPowerSummary.CriticalBarrierDamageTaken).To(Equal(0))
+			Expect(attackingPowerSummary.CriticalExpectedDamage).To(Equal(0))
+			Expect(attackingPowerSummary.CriticalExpectedBarrierDamage).To(Equal(0))
 		})
 	})
 })
