@@ -1,6 +1,8 @@
 package terosbattleserver_test
 
 import (
+	"encoding/json"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -71,5 +73,37 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		toHitBonus, damageBonus := teros.GetOffensiveStatsWithSpell()
 		Expect(toHitBonus).To(Equal(2))
 		Expect(damageBonus).To(Equal(4))
+	})
+
+	It("Can create a Squaddie using JSON", func() {
+		byteStream := []byte(`{
+			"name": "Teros",
+			"aim": 5
+		}`)
+		teros, err := terosbattleserver.NewSquaddieFromJSON(byteStream)
+		Expect(err).To(BeNil())
+		Expect(teros.Name).To(Equal("Teros"))
+		Expect(teros.Aim).To(Equal(5))
+	})
+
+	It("Throws an error if Squaddie is created with wrong affiliation", func() {
+		byteStream := []byte(`{
+			"Name": "Teros",
+			"Affiliation": "Unknown Affiliation"
+		}`)
+		_, err := terosbattleserver.NewSquaddieFromJSON(byteStream)
+		Expect(err).NotTo(BeNil())
+		Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
+	})
+
+	It("Can Marshall a Squaddie", func() {
+		teros := terosbattleserver.NewSquaddie("T'eros")
+		teros.Armor = 2
+		teros.Dodge = 3
+		teros.Deflect = 4
+		teros.MaxBarrier = 1
+		byteStream, err := json.Marshal(teros)
+		Expect(err).To(BeNil())
+		Expect(byteStream).To(Equal([]byte(`{"name":"T'eros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2}`)))
 	})
 })
