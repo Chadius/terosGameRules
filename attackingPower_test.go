@@ -55,6 +55,12 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-5)).To(Equal(1))
 	})
 
+	It("Will get a random ID if none is given", func() {
+		powerWithoutID := terosbattleserver.NewAttackingPower("New Attack")
+		Expect(powerWithoutID.ID).NotTo(BeNil())
+		Expect(powerWithoutID.ID).NotTo(Equal(""))
+	})
+
 	Context("Calculate damage bonus", func() {
 		BeforeEach(func() {
 			teros.Strength = 2
@@ -335,11 +341,13 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		It("Can create powers from JSON", func() {
 			byteStream := []byte(`{
 				"name": "Scimitar",
+				"id": "deadbeef",
 				"damage_bonus": 2
 			}`)
 			scimitar, err := terosbattleserver.NewAttackingPowerFromJSON(byteStream)
 			Expect(err).To(BeNil())
 			Expect(scimitar.Name).To(Equal("Scimitar"))
+			Expect(scimitar.ID).To(Equal("deadbeef"))
 			Expect(scimitar.DamageBonus).To(Equal(2))
 		})
 

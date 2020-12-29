@@ -20,6 +20,7 @@ const (
 // AttackingPower is a power designed to deal damage.
 type AttackingPower struct {
 	Name                 string    `json:"name" yaml:"name"`
+	ID                   string    `json:"id" yaml:"id"`
 	PowerType            PowerType `json:"power_type" yaml:"power_type"`
 	ToHitBonus           int       `json:"to_hit_bonus" yaml:"to_hit_bonus"`
 	DamageBonus          int       `json:"damage_bonus" yaml:"damage_bonus"`
@@ -31,6 +32,7 @@ type AttackingPower struct {
 func NewAttackingPower(name string) AttackingPower {
 	newAttackingPower := AttackingPower{
 		Name:                 name,
+		ID:                   StringWithCharset(8, "abcdefgh0123456789"),
 		PowerType:            PowerTypePhysical,
 		ToHitBonus:           0,
 		DamageBonus:          0,
