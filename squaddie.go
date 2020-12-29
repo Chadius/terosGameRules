@@ -3,6 +3,8 @@ package terosbattleserver
 import (
 	"encoding/json"
 	"fmt"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Squaddie struct {
@@ -45,13 +47,36 @@ func NewSquaddie(name string) Squaddie {
 func NewSquaddieFromJSON(data []byte) (newSquaddie Squaddie, err error) {
 	newSquaddie = NewSquaddie("NewSquaddieFromJSON")
 	err = json.Unmarshal(data, &newSquaddie)
-
-	if newSquaddie.Affiliation != "Player" {
-		err = fmt.Errorf("Squaddie has unknown affiliation: '%s'", newSquaddie.Affiliation)
+	if err != nil {
+		return newSquaddie, err
 	}
 
+	err = checkSquaddieForErrors(newSquaddie)
 	newSquaddie.SetHPToMax()
 	return newSquaddie, err
+}
+
+// NewSquaddieFromYAML reads the YAML byte stream to create a new Squaddie.
+// 	Defaults to NewSquaddie.
+func NewSquaddieFromYAML(data []byte) (newSquaddie Squaddie, err error) {
+	newSquaddie = NewSquaddie("NewSquaddieFromYAML")
+	err = yaml.Unmarshal(data, &newSquaddie)
+	if err != nil {
+		return newSquaddie, err
+	}
+
+	err = checkSquaddieForErrors(newSquaddie)
+	newSquaddie.SetHPToMax()
+	return newSquaddie, err
+}
+
+// checkSquaddieForErrors makes sure the created squaddie doesn't have an error.
+func checkSquaddieForErrors(newSquaddie Squaddie) (newError error) {
+	if newSquaddie.Affiliation != "Player" {
+		return fmt.Errorf("Squaddie has unknown affiliation: '%s'", newSquaddie.Affiliation)
+	}
+
+	return nil
 }
 
 // SetHPToMax restores the Squaddie's HitPoints.
