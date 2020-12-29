@@ -330,4 +330,38 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			Expect(attackingPowerSummary.CriticalExpectedBarrierDamage).To(Equal(0))
 		})
 	})
+
+	Context("Creating powers from datastreams", func() {
+		It("Can create powers from JSON", func() {
+			byteStream := []byte(`{
+				"name": "Scimitar",
+				"damage_bonus": 2
+			}`)
+			scimitar, err := terosbattleserver.NewAttackingPowerFromJSON(byteStream)
+			Expect(err).To(BeNil())
+			Expect(scimitar.Name).To(Equal("Scimitar"))
+			Expect(scimitar.DamageBonus).To(Equal(2))
+		})
+
+		It("Throws an error if Power is created with wrong power type in JSON", func() {
+			byteStream := []byte(`{
+				"name": "Scimitar",
+				"power_type": "mystery"
+			}`)
+			_, err := terosbattleserver.NewAttackingPowerFromJSON(byteStream)
+			Expect(err).NotTo(BeNil())
+			Expect(err.Error()).To(Equal("Power 'Scimitar' has unknown power_type: 'mystery'"))
+		})
+
+		It("Can create a Power using YAML", func() {
+			byteStream := []byte(`
+name: Scimitar
+damage_bonus: 2
+`)
+			scimitar, err := terosbattleserver.NewAttackingPowerFromYAML(byteStream)
+			Expect(err).To(BeNil())
+			Expect(scimitar.Name).To(Equal("Scimitar"))
+			Expect(scimitar.DamageBonus).To(Equal(2))
+		})
+	})
 })

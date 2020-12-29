@@ -111,11 +111,13 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		byteStream := []byte(`
 name: Teros
 aim: 5
+max_barrier: 3
 `)
 		teros, err := terosbattleserver.NewSquaddieFromYAML(byteStream)
 		Expect(err).To(BeNil())
 		Expect(teros.Name).To(Equal("Teros"))
 		Expect(teros.Aim).To(Equal(5))
+		Expect(teros.MaxBarrier).To(Equal(3))
 	})
 
 	It("Throws an error if Squaddie is created with wrong affiliation in YAML", func() {

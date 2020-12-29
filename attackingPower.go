@@ -1,5 +1,12 @@
 package terosbattleserver
 
+import (
+	"encoding/json"
+	"fmt"
+
+	"gopkg.in/yaml.v2"
+)
+
 // PowerType defines the expected sources the power could be conjured from.
 type PowerType string
 
@@ -12,12 +19,12 @@ const (
 
 // AttackingPower is a power designed to deal damage.
 type AttackingPower struct {
-	Name                 string
-	PowerType            PowerType
-	ToHitBonus           int
-	DamageBonus          int
-	ExtraBarrierDamage   int
-	CriticalHitThreshold int
+	Name                 string    `json:"name" yaml:"name"`
+	PowerType            PowerType `json:"power_type" yaml:"power_type"`
+	ToHitBonus           int       `json:"to_hit_bonus" yaml:"to_hit_bonus"`
+	DamageBonus          int       `json:"damage_bonus" yaml:"damage_bonus"`
+	ExtraBarrierDamage   int       `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
+	CriticalHitThreshold int       `json:"critical_hit_threshold" yaml:"critical_hit_threshold"`
 }
 
 // NewAttackingPower generates a AttackingPower with default values.
@@ -31,6 +38,42 @@ func NewAttackingPower(name string) AttackingPower {
 		CriticalHitThreshold: 0,
 	}
 	return newAttackingPower
+}
+
+// NewAttackingPowerFromJSON reads the JSON byte stream to create a new Squaddie.
+// 	Defaults to NewAttackingPower.
+func NewAttackingPowerFromJSON(data []byte) (newAttackingPower AttackingPower, err error) {
+	newAttackingPower = NewAttackingPower("NewAttackingPowerFromJSON")
+	err = json.Unmarshal(data, &newAttackingPower)
+	if err != nil {
+		return newAttackingPower, err
+	}
+
+	err = checkAttackingPowerForErrors(newAttackingPower)
+	return newAttackingPower, err
+}
+
+// NewAttackingPowerFromYAML reads the JSON byte stream to create a new Squaddie.
+// 	Defaults to NewAttackingPower.
+func NewAttackingPowerFromYAML(data []byte) (newAttackingPower AttackingPower, err error) {
+	newAttackingPower = NewAttackingPower("NewAttackingPowerFromYAML")
+	err = yaml.Unmarshal(data, &newAttackingPower)
+	if err != nil {
+		return newAttackingPower, err
+	}
+
+	err = checkAttackingPowerForErrors(newAttackingPower)
+	return newAttackingPower, err
+}
+
+// checkAttackingPowerForErrors returns the first validation error it finds.
+func checkAttackingPowerForErrors(newAttackingPower AttackingPower) (newError error) {
+	if newAttackingPower.PowerType != PowerTypePhysical &&
+		newAttackingPower.PowerType != PowerTypeSpell {
+		return fmt.Errorf("Power '%s' has unknown power_type: '%s'", newAttackingPower.Name, newAttackingPower.PowerType)
+	}
+
+	return nil
 }
 
 // GetTotalToHitBonus calculates the total to hit bonus for the attacking squaddie and attacking power
