@@ -10,8 +10,8 @@ import (
 var _ = Describe("Calculate combination of Attacking Power and Squaddie", func() {
 	var (
 		teros *terosbattleserver.Squaddie
-		spear *terosbattleserver.AttackingPower
-		blot  *terosbattleserver.AttackingPower
+		spear *terosbattleserver.Power
+		blot  *terosbattleserver.Power
 	)
 
 	BeforeEach(func() {
@@ -30,7 +30,7 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 
 	It("Calculates the To Hit Bonus", func() {
 		teros.Aim = 2
-		blot.ToHitBonus = 1
+		blot.AttackingEffect.ToHitBonus = 1
 
 		totalToHitBonus := blot.GetTotalToHitBonus(teros)
 		Expect(totalToHitBonus).To(Equal(3))
@@ -67,10 +67,10 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			teros.Mind = 3
 
 			spear.PowerType = terosbattleserver.PowerTypePhysical
-			spear.DamageBonus = 2
+			spear.AttackingEffect.DamageBonus = 2
 
 			blot.PowerType = terosbattleserver.PowerTypeSpell
-			blot.DamageBonus = 6
+			blot.AttackingEffect.DamageBonus = 6
 		})
 
 		It("Calculates the Damage bonus of physical attacks", func() {
@@ -87,7 +87,6 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			totalDamageBonus := spear.GetCriticalDamageBonus(teros)
 			Expect(totalDamageBonus).To(Equal(8))
 		})
-
 	})
 
 	Context("Calculate to hit penalties values against powers", func() {
@@ -340,10 +339,10 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 	Context("Creating powers from datastreams", func() {
 		It("Can create powers from JSON", func() {
 			byteStream := []byte(`{
-				"name": "Scimitar",
-				"id": "deadbeef",
-				"damage_bonus": 2
-			}`)
+					"name": "Scimitar",
+					"id": "deadbeef",
+					"damage_bonus": 2
+				}`)
 			scimitar, err := terosbattleserver.NewAttackingPowerFromJSON(byteStream)
 			Expect(err).To(BeNil())
 			Expect(scimitar.Name).To(Equal("Scimitar"))

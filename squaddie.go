@@ -20,7 +20,7 @@ type Squaddie struct {
 	CurrentBarrier   int    `json:"current_barrier" yaml:"current_barrier"`
 	MaxBarrier       int    `json:"max_barrier" yaml:"max_barrier"`
 	Armor            int    `json:"armor" yaml:"armor"`
-	innatePowers     []*AttackingPower
+	innatePowers     []*Power
 }
 
 // NewSquaddie generates a squaddie with default values.
@@ -58,7 +58,7 @@ func NewSquaddieFromJSON(data []byte) (newSquaddie Squaddie, err error) {
 }
 
 // GetInnatePowersFromRepository uses a list of power names and retrieves them from the repository.
-func (squaddie *Squaddie) GetInnatePowersFromRepository(powerNames []string, powerRepository []*AttackingPower) {
+func (squaddie *Squaddie) GetInnatePowersFromRepository(powerNames []string, powerRepository []*Power) {
 	for _, name := range powerNames {
 		for _, power := range powerRepository {
 			if name == power.Name {
@@ -97,44 +97,26 @@ func (squaddie *Squaddie) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(&struct {
 		*Alias
-		AttackingPowerIDNames []*PowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
+		PowerIDNames []*PowerIDName `json:"powers" yaml:"powers"`
 	}{
-		Alias:                 (*Alias)(squaddie),
-		AttackingPowerIDNames: squaddie.GetInnatePowerIDNames(),
+		Alias:        (*Alias)(squaddie),
+		PowerIDNames: squaddie.GetInnatePowerIDNames(),
 	})
 }
 
-// UnmarshalJSON from json package is overridden.
-func (squaddie *Squaddie) UnmarshalJSON(byteStream []byte) error {
-	type Alias Squaddie
-	aux := &struct {
-		AttackingPowerIDNames []*PowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
-		*Alias
-	}{
-		Alias: (*Alias)(squaddie),
-	}
-
-	err := json.Unmarshal(byteStream, &aux)
-	if err != nil {
-		return err
-	}
-
-	return nil
+// GetInnatePowerNamesFromJSON gets the names of the powers from the JSON bytestream.
+func GetInnatePowerNamesFromJSON(byteStream []byte) ([]string, error) {
+	return getInnatePowerNamesFromByteStream(byteStream, json.Unmarshal)
 }
 
-// GetAttackingPowerNamesFromJSON gets the names of the powers from the JSON bytestream.
-func GetAttackingPowerNamesFromJSON(byteStream []byte) ([]string, error) {
-	return getAttackingPowerNamesFromByteStream(byteStream, json.Unmarshal)
-}
-
-// GetAttackingPowerNamesFromYAML gets the names of the powers from the YAML bytestream.
-func GetAttackingPowerNamesFromYAML(byteStream []byte) ([]string, error) {
-	return getAttackingPowerNamesFromByteStream(byteStream, yaml.Unmarshal)
+// GetInnatePowerNamesFromYAML gets the names of the powers from the YAML bytestream.
+func GetInnatePowerNamesFromYAML(byteStream []byte) ([]string, error) {
+	return getInnatePowerNamesFromByteStream(byteStream, yaml.Unmarshal)
 }
 
 type unmarshalFunc func([]byte, interface{}) error
 
-func getAttackingPowerNamesFromByteStream(byteStream []byte, unmarshal unmarshalFunc) ([]string, error) {
+func getInnatePowerNamesFromByteStream(byteStream []byte, unmarshal unmarshalFunc) ([]string, error) {
 	aux := &struct {
 		AttackingPowerNames []string `json:"innate_powers" yaml:"innate_powers"`
 	}{}
@@ -176,7 +158,7 @@ func (squaddie *Squaddie) GetOffensiveStatsWithSpell() (toHitBonus, damageBonus 
 }
 
 // GainInnatePower gives the Squaddie access to the power.
-func (squaddie *Squaddie) GainInnatePower(newPower *AttackingPower) {
+func (squaddie *Squaddie) GainInnatePower(newPower *Power) {
 	squaddie.innatePowers = append(squaddie.innatePowers, newPower)
 }
 

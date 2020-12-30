@@ -111,12 +111,12 @@ var _ = Describe("Calculate Squaddie stats", func() {
 			Expect(err).To(BeNil())
 			Expect(teros.Name).To(Equal("Teros"))
 
-			attackingPowerNames, err := terosbattleserver.GetAttackingPowerNamesFromJSON(byteStream)
+			attackingPowerNames, err := terosbattleserver.GetInnatePowerNamesFromJSON(byteStream)
 			Expect(err).To(BeNil())
 			Expect(len(attackingPowerNames)).To(Equal(1))
 			Expect(attackingPowerNames[0]).To(Equal("Attack Formation A"))
 
-			teros.GetInnatePowersFromRepository(attackingPowerNames, []*terosbattleserver.AttackingPower{&attackA})
+			teros.GetInnatePowersFromRepository(attackingPowerNames, []*terosbattleserver.Power{&attackA})
 			attackIDNamePairs := teros.GetInnatePowerIDNames()
 			Expect(len(attackIDNamePairs)).To(Equal(1))
 			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
@@ -131,7 +131,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 			teros.MaxBarrier = 1
 			byteStream, err := json.Marshal(&teros)
 			Expect(err).To(BeNil())
-			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"attacking_powers":[]}`)))
+			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"powers":[]}`)))
 		})
 
 		It("Can Marshall a Squaddie with powers into JSON", func() {
@@ -146,8 +146,8 @@ var _ = Describe("Calculate Squaddie stats", func() {
 			byteStream, err := json.Marshal(&teros)
 			Expect(err).To(BeNil())
 
-			attackingPowersJSON := fmt.Sprintf(`"attacking_powers":[{"name":"Attack Formation A","id":"%s"}]`, attackA.ID)
-			Expect(byteStream).To(Equal([]byte(fmt.Sprintf(`{"name":"Teros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,%s}`, attackingPowersJSON))))
+			powersJSON := fmt.Sprintf(`"powers":[{"name":"Attack Formation A","id":"%s"}]`, attackA.ID)
+			Expect(byteStream).To(Equal([]byte(fmt.Sprintf(`{"name":"Teros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,%s}`, powersJSON))))
 		})
 
 		It("Can create a Squaddie using YAML", func() {
@@ -184,12 +184,12 @@ innate_powers: ["Attack Formation A"]
 			Expect(err).To(BeNil())
 			Expect(teros.Name).To(Equal("Teros"))
 
-			attackingPowerNames, err := terosbattleserver.GetAttackingPowerNamesFromYAML(byteStream)
+			attackingPowerNames, err := terosbattleserver.GetInnatePowerNamesFromYAML(byteStream)
 			Expect(err).To(BeNil())
 			Expect(len(attackingPowerNames)).To(Equal(1))
 			Expect(attackingPowerNames[0]).To(Equal("Attack Formation A"))
 
-			teros.GetInnatePowersFromRepository(attackingPowerNames, []*terosbattleserver.AttackingPower{&attackA})
+			teros.GetInnatePowersFromRepository(attackingPowerNames, []*terosbattleserver.Power{&attackA})
 			attackIDNamePairs := teros.GetInnatePowerIDNames()
 			Expect(len(attackIDNamePairs)).To(Equal(1))
 			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))

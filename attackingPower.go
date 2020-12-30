@@ -24,67 +24,73 @@ const (
 	PowerTypeSpell = "Spell"
 )
 
-// PowerHeader is the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
-type PowerHeader struct {
+// Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
+type Power struct {
 	PowerIDName `yaml:",inline"`
-	PowerType            PowerType `json:"power_type" yaml:"power_type"`
+	PowerType   PowerType `json:"power_type" yaml:"power_type"`
+	*AttackingEffect
 }
 
-// AttackingPower is a power designed to deal damage.
-type AttackingPower struct {
-	PowerHeader          `yaml:",inline"`
-	ToHitBonus           int       `json:"to_hit_bonus" yaml:"to_hit_bonus"`
-	DamageBonus          int       `json:"damage_bonus" yaml:"damage_bonus"`
-	ExtraBarrierDamage   int       `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
-	CriticalHitThreshold int       `json:"critical_hit_threshold" yaml:"critical_hit_threshold"`
+// AttackingEffect is a power designed to deal damage.
+type AttackingEffect struct {
+	ToHitBonus           int `json:"to_hit_bonus" yaml:"to_hit_bonus"`
+	DamageBonus          int `json:"damage_bonus" yaml:"damage_bonus"`
+	ExtraBarrierDamage   int `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
+	CriticalHitThreshold int `json:"critical_hit_threshold" yaml:"critical_hit_threshold"`
 }
 
-// NewAttackingPower generates a AttackingPower with default values.
-func NewAttackingPower(name string) AttackingPower {
-	newAttackingPower := AttackingPower{
-		PowerHeader: PowerHeader{
-			PowerIDName: PowerIDName{
-				Name: name,
-				ID:   StringWithCharset(8, "abcdefgh0123456789"),
-			},
-			PowerType:            PowerTypePhysical,
+// NewAttackingPower generates a Power with default values.
+func NewAttackingPower(name string) Power {
+	newAttackingPower := Power{
+		PowerIDName: PowerIDName{
+			Name: name,
+			ID:   StringWithCharset(8, "abcdefgh0123456789"),
 		},
-		ToHitBonus:           0,
-		DamageBonus:          0,
-		ExtraBarrierDamage:   0,
-		CriticalHitThreshold: 0,
+		PowerType: PowerTypePhysical,
+		AttackingEffect: &AttackingEffect{
+			ToHitBonus:           0,
+			DamageBonus:          0,
+			ExtraBarrierDamage:   0,
+			CriticalHitThreshold: 0,
+		},
 	}
 	return newAttackingPower
 }
 
 // NewAttackingPowerFromJSON reads the JSON byte stream to create a new Squaddie.
 // 	Defaults to NewAttackingPower.
-func NewAttackingPowerFromJSON(data []byte) (newAttackingPower AttackingPower, err error) {
-	newAttackingPower = NewAttackingPower("NewAttackingPowerFromJSON")
+func NewAttackingPowerFromJSON(data []byte) (newPower Power, err error) {
+	newAttackingPower := NewAttackingPower("NewAttackingPowerFromJSON")
 	err = json.Unmarshal(data, &newAttackingPower)
 	if err != nil {
 		return newAttackingPower, err
 	}
 
-	err = checkAttackingPowerForErrors(newAttackingPower)
+	err = checkAttackingEffectForErrors(&newAttackingPower)
 	return newAttackingPower, err
 }
 
 // NewAttackingPowerFromYAML reads the JSON byte stream to create a new Squaddie.
 // 	Defaults to NewAttackingPower.
-func NewAttackingPowerFromYAML(data []byte) (newAttackingPower AttackingPower, err error) {
-	newAttackingPower = NewAttackingPower("NewAttackingPowerFromYAML")
+func NewAttackingPowerFromYAML(data []byte) (newPower Power, err error) {
+	newAttackingPower := NewAttackingPower("NewAttackingPowerFromYAML")
 	err = yaml.Unmarshal(data, &newAttackingPower)
 	if err != nil {
 		return newAttackingPower, err
 	}
 
-	err = checkAttackingPowerForErrors(newAttackingPower)
+	attackingEffect := &AttackingEffect{}
+	err = yaml.Unmarshal(data, &attackingEffect)
+	if err != nil {
+		return newAttackingPower, err
+	}
+	newAttackingPower.AttackingEffect = attackingEffect
+
+	err = checkAttackingEffectForErrors(&newAttackingPower)
 	return newAttackingPower, err
 }
 
-// checkAttackingPowerForErrors returns the first validation error it finds.
-func checkAttackingPowerForErrors(newAttackingPower AttackingPower) (newError error) {
+func checkAttackingEffectForErrors(newAttackingPower *Power) (newError error) {
 	if newAttackingPower.PowerType != PowerTypePhysical &&
 		newAttackingPower.PowerType != PowerTypeSpell {
 		return fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newAttackingPower.Name, newAttackingPower.PowerType)
@@ -94,25 +100,25 @@ func checkAttackingPowerForErrors(newAttackingPower AttackingPower) (newError er
 }
 
 // GetTotalToHitBonus calculates the total to hit bonus for the attacking squaddie and attacking power
-func (power *AttackingPower) GetTotalToHitBonus(squaddie *Squaddie) (toHit int) {
-	return power.ToHitBonus + squaddie.Aim
+func (power *Power) GetTotalToHitBonus(squaddie *Squaddie) (toHit int) {
+	return power.AttackingEffect.ToHitBonus + squaddie.Aim
 }
 
 // GetTotalDamageBonus calculates the total Damage bonus for the attacking squaddie and attacking power
-func (power *AttackingPower) GetTotalDamageBonus(squaddie *Squaddie) (damageBonus int) {
+func (power *Power) GetTotalDamageBonus(squaddie *Squaddie) (damageBonus int) {
 	if power.PowerType == PowerTypePhysical {
-		return power.DamageBonus + squaddie.Strength
+		return power.AttackingEffect.DamageBonus + squaddie.Strength
 	}
-	return power.DamageBonus + squaddie.Mind
+	return power.AttackingEffect.DamageBonus + squaddie.Mind
 }
 
 // GetCriticalDamageBonus calculates the total Critical Hit Damage bonus for the attacking squaddie and attacking power
-func (power *AttackingPower) GetCriticalDamageBonus(squaddie *Squaddie) (damageBonus int) {
+func (power *Power) GetCriticalDamageBonus(squaddie *Squaddie) (damageBonus int) {
 	return 2 * power.GetTotalDamageBonus(squaddie)
 }
 
 // GetToHitPenalty calculates how much the target can reduce the chance of getting hit by the attacking power.
-func (power *AttackingPower) GetToHitPenalty(target *Squaddie) (toHitPenalty int) {
+func (power *Power) GetToHitPenalty(target *Squaddie) (toHitPenalty int) {
 	if power.PowerType == PowerTypePhysical {
 		return target.Dodge
 	}
@@ -120,19 +126,19 @@ func (power *AttackingPower) GetToHitPenalty(target *Squaddie) (toHitPenalty int
 }
 
 // GetHowTargetDistributesDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func (power *AttackingPower) GetHowTargetDistributesDamage(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func (power *Power) GetHowTargetDistributesDamage(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	damageToAbsorb := power.GetTotalDamageBonus(attacker)
 	return power.calculateHowTargetTakesDamage(attacker, target, damageToAbsorb)
 }
 
 // GetHowTargetDistributesCriticalDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func (power *AttackingPower) GetHowTargetDistributesCriticalDamage(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func (power *Power) GetHowTargetDistributesCriticalDamage(attacker *Squaddie, target *Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	damageToAbsorb := power.GetCriticalDamageBonus(attacker)
 	return power.calculateHowTargetTakesDamage(attacker, target, damageToAbsorb)
 }
 
 // calculateHowTargetTakesDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func (power *AttackingPower) calculateHowTargetTakesDamage(attacker *Squaddie, target *Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func (power *Power) calculateHowTargetTakesDamage(attacker *Squaddie, target *Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	remainingBarrier := target.CurrentBarrier
 
 	var barrierFullyAbsorbsDamage bool = target.CurrentBarrier > damageToAbsorb
@@ -188,7 +194,7 @@ type AttackingPowerSummary struct {
 }
 
 // GetExpectedDamage provides a quick summary of an attack as well as the multiplied estimate
-func (power *AttackingPower) GetExpectedDamage(attacker *Squaddie, target *Squaddie) (battleSummary *AttackingPowerSummary) {
+func (power *Power) GetExpectedDamage(attacker *Squaddie, target *Squaddie) (battleSummary *AttackingPowerSummary) {
 	toHitBonus := power.GetTotalToHitBonus(attacker)
 	toHitPenalty := power.GetToHitPenalty(target)
 	totalChanceToHit := GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
