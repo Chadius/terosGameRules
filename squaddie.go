@@ -20,6 +20,7 @@ type Squaddie struct {
 	CurrentBarrier   int    `json:"current_barrier" yaml:"current_barrier"`
 	MaxBarrier       int    `json:"max_barrier" yaml:"max_barrier"`
 	Armor            int    `json:"armor" yaml:"armor"`
+	innatePowers     []*AttackingPower
 }
 
 // NewSquaddie generates a squaddie with default values.
@@ -79,6 +80,19 @@ func checkSquaddieForErrors(newSquaddie Squaddie) (newError error) {
 	return nil
 }
 
+// MarshalJSON from json package is overridden.
+func (squaddie *Squaddie) MarshalJSON() ([]byte, error) {
+	type Alias Squaddie
+
+	return json.Marshal(&struct {
+		*Alias
+		AttackingPowerIDNames []*AttackingPowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
+	}{
+		Alias:                 (*Alias)(squaddie),
+		AttackingPowerIDNames: squaddie.GetInnatePowerIDNames(),
+	})
+}
+
 // SetHPToMax restores the Squaddie's HitPoints.
 func (squaddie *Squaddie) SetHPToMax() {
 	squaddie.CurrentHitPoints = squaddie.MaxHitPoints
@@ -107,4 +121,18 @@ func (squaddie *Squaddie) GetOffensiveStatsWithPhysical() (toHitBonus, damageBon
 // GetOffensiveStatsWithSpell calculates the squaddie's bonuses with Spell attacks.
 func (squaddie *Squaddie) GetOffensiveStatsWithSpell() (toHitBonus, damageBonus int) {
 	return squaddie.Aim, squaddie.Mind
+}
+
+// GainInnatePower gives the Squaddie access to the power.
+func (squaddie *Squaddie) GainInnatePower(newPower *AttackingPower) {
+	squaddie.innatePowers = append(squaddie.innatePowers, newPower)
+}
+
+// GetInnatePowerIDNames returns a list of all the powers the squaddie has access to.
+func (squaddie *Squaddie) GetInnatePowerIDNames() []*AttackingPowerIDName {
+	powerIDNames := []*AttackingPowerIDName{}
+	for _, power := range squaddie.innatePowers {
+		powerIDNames = append(powerIDNames, &AttackingPowerIDName{Name: power.Name, ID: power.ID})
+	}
+	return powerIDNames
 }

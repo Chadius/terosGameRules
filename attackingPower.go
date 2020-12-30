@@ -253,3 +253,10 @@ func GetChanceToCritBasedOnThreshold(critThreshold int) (chanceOutOf36 int) {
 
 	return critChanceReference[critThreshold]
 }
+
+// AttackingPowerIDName is a pair of ID and Name items used to quickly identify
+//   a Power.
+type AttackingPowerIDName struct {
+	Name string `json:"name" yaml:"name"`
+	ID   string `json:"id" yaml:"id"`
+}
