@@ -7,6 +7,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// PowerIDName is a pair of ID and Name items used to quickly identify
+//   a PowerHeader.
+type PowerIDName struct {
+	Name string `json:"name" yaml:"name"`
+	ID   string `json:"id" yaml:"id"`
+}
+
 // PowerType defines the expected sources the power could be conjured from.
 type PowerType string
 
@@ -17,11 +24,15 @@ const (
 	PowerTypeSpell = "Spell"
 )
 
+// PowerHeader is the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
+type PowerHeader struct {
+	PowerIDName `yaml:",inline"`
+	PowerType            PowerType `json:"power_type" yaml:"power_type"`
+}
+
 // AttackingPower is a power designed to deal damage.
 type AttackingPower struct {
-	Name                 string    `json:"name" yaml:"name"`
-	ID                   string    `json:"id" yaml:"id"`
-	PowerType            PowerType `json:"power_type" yaml:"power_type"`
+	PowerHeader          `yaml:",inline"`
 	ToHitBonus           int       `json:"to_hit_bonus" yaml:"to_hit_bonus"`
 	DamageBonus          int       `json:"damage_bonus" yaml:"damage_bonus"`
 	ExtraBarrierDamage   int       `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
@@ -31,9 +42,13 @@ type AttackingPower struct {
 // NewAttackingPower generates a AttackingPower with default values.
 func NewAttackingPower(name string) AttackingPower {
 	newAttackingPower := AttackingPower{
-		Name:                 name,
-		ID:                   StringWithCharset(8, "abcdefgh0123456789"),
-		PowerType:            PowerTypePhysical,
+		PowerHeader: PowerHeader{
+			PowerIDName: PowerIDName{
+				Name: name,
+				ID:   StringWithCharset(8, "abcdefgh0123456789"),
+			},
+			PowerType:            PowerTypePhysical,
+		},
 		ToHitBonus:           0,
 		DamageBonus:          0,
 		ExtraBarrierDamage:   0,
@@ -72,7 +87,7 @@ func NewAttackingPowerFromYAML(data []byte) (newAttackingPower AttackingPower, e
 func checkAttackingPowerForErrors(newAttackingPower AttackingPower) (newError error) {
 	if newAttackingPower.PowerType != PowerTypePhysical &&
 		newAttackingPower.PowerType != PowerTypeSpell {
-		return fmt.Errorf("Power '%s' has unknown power_type: '%s'", newAttackingPower.Name, newAttackingPower.PowerType)
+		return fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newAttackingPower.Name, newAttackingPower.PowerType)
 	}
 
 	return nil
@@ -120,7 +135,7 @@ func (power *AttackingPower) GetHowTargetDistributesCriticalDamage(attacker *Squ
 func (power *AttackingPower) calculateHowTargetTakesDamage(attacker *Squaddie, target *Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	remainingBarrier := target.CurrentBarrier
 
-	var barrierFullyAbsorbsDamage bool = (target.CurrentBarrier > damageToAbsorb)
+	var barrierFullyAbsorbsDamage bool = target.CurrentBarrier > damageToAbsorb
 	if barrierFullyAbsorbsDamage {
 		barrierDamage = damageToAbsorb
 		remainingBarrier = remainingBarrier - barrierDamage
@@ -132,7 +147,7 @@ func (power *AttackingPower) calculateHowTargetTakesDamage(attacker *Squaddie, t
 	}
 
 	if power.ExtraBarrierDamage > 0 {
-		var barrierFullyAbsorbsExtraBarrierDamage bool = (remainingBarrier > power.ExtraBarrierDamage)
+		var barrierFullyAbsorbsExtraBarrierDamage bool = remainingBarrier > power.ExtraBarrierDamage
 		if barrierFullyAbsorbsExtraBarrierDamage {
 			extraBarrierDamage = power.ExtraBarrierDamage
 			remainingBarrier = remainingBarrier - power.ExtraBarrierDamage
@@ -142,10 +157,10 @@ func (power *AttackingPower) calculateHowTargetTakesDamage(attacker *Squaddie, t
 		}
 	}
 
-	var armorCanAbsorbDamage bool = (power.PowerType == PowerTypePhysical)
+	var armorCanAbsorbDamage bool = power.PowerType == PowerTypePhysical
 	if armorCanAbsorbDamage {
 
-		var armorFullyAbsorbsDamage bool = (target.Armor > damageToAbsorb)
+		var armorFullyAbsorbsDamage bool = target.Armor > damageToAbsorb
 		if armorFullyAbsorbsDamage {
 			healthDamage = 0
 		} else {
@@ -252,11 +267,4 @@ func GetChanceToCritBasedOnThreshold(critThreshold int) (chanceOutOf36 int) {
 	}
 
 	return critChanceReference[critThreshold]
-}
-
-// AttackingPowerIDName is a pair of ID and Name items used to quickly identify
-//   a Power.
-type AttackingPowerIDName struct {
-	Name string `json:"name" yaml:"name"`
-	ID   string `json:"id" yaml:"id"`
 }

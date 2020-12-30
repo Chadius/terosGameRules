@@ -97,7 +97,7 @@ func (squaddie *Squaddie) MarshalJSON() ([]byte, error) {
 
 	return json.Marshal(&struct {
 		*Alias
-		AttackingPowerIDNames []*AttackingPowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
+		AttackingPowerIDNames []*PowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
 	}{
 		Alias:                 (*Alias)(squaddie),
 		AttackingPowerIDNames: squaddie.GetInnatePowerIDNames(),
@@ -108,7 +108,7 @@ func (squaddie *Squaddie) MarshalJSON() ([]byte, error) {
 func (squaddie *Squaddie) UnmarshalJSON(byteStream []byte) error {
 	type Alias Squaddie
 	aux := &struct {
-		AttackingPowerIDNames []*AttackingPowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
+		AttackingPowerIDNames []*PowerIDName `json:"attacking_powers" yaml:"attacking_powers"`
 		*Alias
 	}{
 		Alias: (*Alias)(squaddie),
@@ -181,10 +181,10 @@ func (squaddie *Squaddie) GainInnatePower(newPower *AttackingPower) {
 }
 
 // GetInnatePowerIDNames returns a list of all the powers the squaddie has access to.
-func (squaddie *Squaddie) GetInnatePowerIDNames() []*AttackingPowerIDName {
-	powerIDNames := []*AttackingPowerIDName{}
+func (squaddie *Squaddie) GetInnatePowerIDNames() []*PowerIDName {
+	powerIDNames := []*PowerIDName{}
 	for _, power := range squaddie.innatePowers {
-		powerIDNames = append(powerIDNames, &AttackingPowerIDName{Name: power.Name, ID: power.ID})
+		powerIDNames = append(powerIDNames, &PowerIDName{Name: power.Name, ID: power.ID})
 	}
 	return powerIDNames
 }
