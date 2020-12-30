@@ -100,7 +100,30 @@ var _ = Describe("Calculate Squaddie stats", func() {
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
 		})
 
-		It("Can Marshall a Squaddie", func() {
+		It("Can create a Squaddie with Powers using JSON", func() {
+			attackA := terosbattleserver.NewAttackingPower("Attack Formation A")
+
+			byteStream := []byte(`{
+			"name": "Teros",
+			"innate_powers": ["Attack Formation A"]
+		}`)
+			teros, err := terosbattleserver.NewSquaddieFromJSON(byteStream)
+			Expect(err).To(BeNil())
+			Expect(teros.Name).To(Equal("Teros"))
+
+			attackingPowerNames, err := terosbattleserver.GetAttackingPowerNamesFromJSON(byteStream)
+			Expect(err).To(BeNil())
+			Expect(len(attackingPowerNames)).To(Equal(1))
+			Expect(attackingPowerNames[0]).To(Equal("Attack Formation A"))
+
+			teros.GetInnatePowersFromRepository(attackingPowerNames, []*terosbattleserver.AttackingPower{&attackA})
+			attackIDNamePairs := teros.GetInnatePowerIDNames()
+			Expect(len(attackIDNamePairs)).To(Equal(1))
+			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
+			Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
+		})
+
+		It("Can Marshall a Squaddie into JSON", func() {
 			teros := terosbattleserver.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
@@ -111,7 +134,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"attacking_powers":[]}`)))
 		})
 
-		It("Can Marshall a Squaddie with powers", func() {
+		It("Can Marshall a Squaddie with powers into JSON", func() {
 			teros := terosbattleserver.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
