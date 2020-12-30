@@ -122,18 +122,27 @@ func (squaddie *Squaddie) UnmarshalJSON(byteStream []byte) error {
 	return nil
 }
 
-// GetAttackingPowerNamesFromJSON is an intermediary step used while getting powers.
+// GetAttackingPowerNamesFromJSON gets the names of the powers from the JSON bytestream.
 func GetAttackingPowerNamesFromJSON(byteStream []byte) ([]string, error) {
-	// Get the attack names here
-	type Alias Squaddie
+	return getAttackingPowerNamesFromByteStream(byteStream, json.Unmarshal)
+}
+
+// GetAttackingPowerNamesFromYAML gets the names of the powers from the YAML bytestream.
+func GetAttackingPowerNamesFromYAML(byteStream []byte) ([]string, error) {
+	return getAttackingPowerNamesFromByteStream(byteStream, yaml.Unmarshal)
+}
+
+type unmarshalFunc func([]byte, interface{}) error
+
+func getAttackingPowerNamesFromByteStream(byteStream []byte, unmarshal unmarshalFunc) ([]string, error) {
 	aux := &struct {
-		AttackingPowerIDNames []string `json:"innate_powers" yaml:"innate_powers"`
+		AttackingPowerNames []string `json:"innate_powers" yaml:"innate_powers"`
 	}{}
-	err := json.Unmarshal(byteStream, &aux)
+	err := unmarshal(byteStream, &aux)
 	if err != nil {
 		return []string{}, err
 	}
-	return aux.AttackingPowerIDNames, nil
+	return aux.AttackingPowerNames, nil
 }
 
 // SetHPToMax restores the Squaddie's HitPoints.

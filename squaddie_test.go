@@ -78,7 +78,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		})
 	})
 
-	FContext("Marshalling Squaddies from byte streams", func() {
+	Context("Marshalling Squaddies from byte streams", func() {
 		It("Can create a Squaddie using JSON", func() {
 			byteStream := []byte(`{
 			"name": "Teros",
@@ -171,6 +171,29 @@ affiliation: Unknown Affiliation
 			_, err := terosbattleserver.NewSquaddieFromYAML(byteStream)
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
+		})
+
+		It("Can create a Squaddie with Powers using YAML", func() {
+			attackA := terosbattleserver.NewAttackingPower("Attack Formation A")
+
+			byteStream := []byte(`
+name: Teros
+innate_powers: ["Attack Formation A"]
+`)
+			teros, err := terosbattleserver.NewSquaddieFromYAML(byteStream)
+			Expect(err).To(BeNil())
+			Expect(teros.Name).To(Equal("Teros"))
+
+			attackingPowerNames, err := terosbattleserver.GetAttackingPowerNamesFromYAML(byteStream)
+			Expect(err).To(BeNil())
+			Expect(len(attackingPowerNames)).To(Equal(1))
+			Expect(attackingPowerNames[0]).To(Equal("Attack Formation A"))
+
+			teros.GetInnatePowersFromRepository(attackingPowerNames, []*terosbattleserver.AttackingPower{&attackA})
+			attackIDNamePairs := teros.GetInnatePowerIDNames()
+			Expect(len(attackIDNamePairs)).To(Equal(1))
+			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
+			Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
 		})
 	})
 
