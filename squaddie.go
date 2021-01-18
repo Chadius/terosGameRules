@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Squaddie comment
 type Squaddie struct {
 	Name             string `json:"name" yaml:"name"`
 	Affiliation      string `json:"affiliation" yaml:"affiliation"`
