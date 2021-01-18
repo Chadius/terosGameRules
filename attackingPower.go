@@ -90,6 +90,11 @@ func NewAttackingPowerFromYAML(data []byte) (newPower Power, err error) {
 	return newAttackingPower, err
 }
 
+// CheckPowerForErrors verifies the Power's fields and raises an error if it's invalid.
+func CheckPowerForErrors(newPower *Power) (newError error) {
+	return checkAttackingEffectForErrors(newPower)
+}
+
 func checkAttackingEffectForErrors(newAttackingPower *Power) (newError error) {
 	if newAttackingPower.PowerType != PowerTypePhysical &&
 		newAttackingPower.PowerType != PowerTypeSpell {
