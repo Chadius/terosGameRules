@@ -2,7 +2,7 @@ package utility
 
 import "math/rand"
 
-// StringWithCharset generates a psuedo random string using the characters in charset of the desired length.
+// StringWithCharset generates a pseudo random string using the characters in charset of the desired length.
 func StringWithCharset(length int, charset string) string {
 	b := make([]byte, length)
 	for i := range b {

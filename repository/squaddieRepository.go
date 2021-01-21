@@ -70,7 +70,15 @@ func (repository *SquaddieRepository) GetByName(squaddieName string) *entity.Squ
 
 // MarshalSquaddieIntoJSON converts the given Squaddie into JSON.
 func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *entity.Squaddie) ([]byte, error) {
-	return json.Marshal(squaddie)
+	type Alias entity.Squaddie
+
+	return json.Marshal(&struct {
+		*Alias
+		PowerIDNames []*entity.PowerIDName `json:"powers" yaml:"powers"`
+	}{
+		Alias:        (*Alias)(squaddie),
+		PowerIDNames: squaddie.GetInnatePowerIDNames(),
+	})
 }
 
 // AddInnatePowersToSquaddie will find the Squaddie's powers from the PowerRepository and give them to it.
