@@ -1,20 +1,21 @@
-package terosbattleserver
+package repository
 
 import (
 	"encoding/json"
 
+	"github.com/cserrant/terosBattleServer/entity"
 	"gopkg.in/yaml.v2"
 )
 
 // PowerRepository will interact with external devices to manage Powers.
 type PowerRepository struct {
-	powersByName map[string]Power
+	powersByName map[string]entity.Power
 }
 
 // NewPowerRepository generates a pointer to a new PowerRepository.
 func NewPowerRepository() *PowerRepository {
 	repository := PowerRepository{
-		map[string]Power{},
+		map[string]entity.Power{},
 	}
 	return &repository
 }
@@ -32,7 +33,7 @@ func (repository *PowerRepository) AddYAMLSource(data []byte) (bool, error) {
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
 func (repository *PowerRepository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
 	var unmarshalError error
-	var listOfPowers []Power
+	var listOfPowers []entity.Power
 
 	unmarshalError = unmarshal(data, &listOfPowers)
 
@@ -40,7 +41,7 @@ func (repository *PowerRepository) addSource(data []byte, unmarshal unmarshalFun
 		return false, unmarshalError
 	}
 	for _, PowerToAdd := range listOfPowers {
-		PowerErr := CheckPowerForErrors(&PowerToAdd)
+		PowerErr := entity.CheckPowerForErrors(&PowerToAdd)
 		if PowerErr != nil {
 			return false, PowerErr
 		}
@@ -55,23 +56,10 @@ func (repository *PowerRepository) GetNumberOfPowers() int {
 }
 
 // GetByName retrieves a Power by name
-func (repository *PowerRepository) GetByName(PowerName string) *Power {
+func (repository *PowerRepository) GetByName(PowerName string) *entity.Power {
 	Power, PowerExists := repository.powersByName[PowerName]
 	if !PowerExists {
 		return nil
 	}
 	return &Power
 }
-
-// MarshallPowerIntoJSON converts the given Power into JSON.
-// func (repository *PowerRepository) MarshallPowerIntoJSON(Power *Power) ([]byte, error) {
-// 	type Alias Power
-
-// 	return json.Marshal(&struct {
-// 		*Alias
-// 		PowerIDNames []*PowerIDName `json:"powers" yaml:"powers"`
-// 	}{
-// 		Alias:        (*Alias)(Power),
-// 		PowerIDNames: Power.GetInnatePowerIDNames(),
-// 	})
-// }

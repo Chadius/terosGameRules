@@ -1,21 +1,22 @@
-package terosbattleserver
+package repository
 
 import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/cserrant/terosBattleServer/entity"
 	"gopkg.in/yaml.v2"
 )
 
 // SquaddieRepository will interact with external devices to manage Squaddies.
 type SquaddieRepository struct {
-	squaddiesByName map[string]Squaddie
+	squaddiesByName map[string]entity.Squaddie
 }
 
 // NewSquaddieRepository generates a pointer to a new Squaddie.
 func NewSquaddieRepository() *SquaddieRepository {
 	repository := SquaddieRepository{
-		map[string]Squaddie{},
+		map[string]entity.Squaddie{},
 	}
 	return &repository
 }
@@ -35,14 +36,14 @@ func (repository *SquaddieRepository) AddYAMLSource(data []byte) (bool, error) {
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
 func (repository *SquaddieRepository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
 	var unmarshalError error
-	var listOfSquaddies []Squaddie
+	var listOfSquaddies []entity.Squaddie
 	unmarshalError = unmarshal(data, &listOfSquaddies)
 
 	if unmarshalError != nil {
 		return false, unmarshalError
 	}
 	for _, squaddieToAdd := range listOfSquaddies {
-		squaddieErr := CheckSquaddieForErrors(&squaddieToAdd)
+		squaddieErr := entity.CheckSquaddieForErrors(&squaddieToAdd)
 		if squaddieErr != nil {
 			return false, squaddieErr
 		}
@@ -59,7 +60,7 @@ func (repository *SquaddieRepository) GetNumberOfSquaddies() int {
 }
 
 // GetByName retrieves a Squaddie by name
-func (repository *SquaddieRepository) GetByName(squaddieName string) *Squaddie {
+func (repository *SquaddieRepository) GetByName(squaddieName string) *entity.Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByName[squaddieName]
 	if !squaddieExists {
 		return nil
@@ -68,14 +69,14 @@ func (repository *SquaddieRepository) GetByName(squaddieName string) *Squaddie {
 }
 
 // MarshalSquaddieIntoJSON converts the given Squaddie into JSON.
-func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byte, error) {
+func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *entity.Squaddie) ([]byte, error) {
 	return json.Marshal(squaddie)
 }
 
 // AddInnatePowersToSquaddie will find the Squaddie's powers from the PowerRepository and give them to it.
 //   Returns the number of powers added.
 //   Throws an error if it can't find a power.
-func (repository *SquaddieRepository) AddInnatePowersToSquaddie(squaddie *Squaddie, powerRepo *PowerRepository) (int, error) {
+func (repository *SquaddieRepository) AddInnatePowersToSquaddie(squaddie *entity.Squaddie, powerRepo *PowerRepository) (int, error) {
 	numberOfPowersAdded := 0
 
 	for _, powerIDName := range squaddie.PowerIDNames {

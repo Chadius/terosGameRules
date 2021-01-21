@@ -1,9 +1,10 @@
-package terosbattleserver
+package entity
 
 import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/cserrant/terosBattleServer/utility"
 	"gopkg.in/yaml.v2"
 )
 
@@ -44,7 +45,7 @@ func NewAttackingPower(name string) Power {
 	newAttackingPower := Power{
 		PowerIDName: PowerIDName{
 			Name: name,
-			ID:   StringWithCharset(8, "abcdefgh0123456789"),
+			ID:   utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
 		PowerType: PowerTypePhysical,
 		AttackingEffect: &AttackingEffect{

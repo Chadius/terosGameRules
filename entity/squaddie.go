@@ -1,10 +1,7 @@
-package terosbattleserver
+package entity
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"gopkg.in/yaml.v2"
 )
 
 // Squaddie is the base unit you can deploy and control on a field.
@@ -63,40 +60,6 @@ func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
 	}
 
 	return nil
-}
-
-// MarshalJSON from json package is overridden.
-func (squaddie *Squaddie) MarshalJSON() ([]byte, error) {
-	type Alias Squaddie
-
-	return json.Marshal(&struct {
-		*Alias
-		PowerIDNames []*PowerIDName `json:"powers" yaml:"powers"`
-	}{
-		Alias:        (*Alias)(squaddie),
-		PowerIDNames: squaddie.GetInnatePowerIDNames(),
-	})
-}
-
-// GetInnatePowerNamesFromJSON gets the names of the powers from the JSON bytestream.
-func GetInnatePowerNamesFromJSON(byteStream []byte) ([]string, error) {
-	return getInnatePowerNamesFromByteStream(byteStream, json.Unmarshal)
-}
-
-// GetInnatePowerNamesFromYAML gets the names of the powers from the YAML bytestream.
-func GetInnatePowerNamesFromYAML(byteStream []byte) ([]string, error) {
-	return getInnatePowerNamesFromByteStream(byteStream, yaml.Unmarshal)
-}
-
-func getInnatePowerNamesFromByteStream(byteStream []byte, unmarshal unmarshalFunc) ([]string, error) {
-	aux := &struct {
-		AttackingPowerNames []string `json:"innate_powers" yaml:"innate_powers"`
-	}{}
-	err := unmarshal(byteStream, &aux)
-	if err != nil {
-		return []string{}, err
-	}
-	return aux.AttackingPowerNames, nil
 }
 
 // SetHPToMax restores the Squaddie's HitPoints.

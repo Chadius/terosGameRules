@@ -1,4 +1,4 @@
-package terosbattleserver
+package utility
 
 import "math/rand"
 

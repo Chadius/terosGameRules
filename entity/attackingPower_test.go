@@ -1,31 +1,31 @@
-package terosbattleserver_test
+package entity_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	terosbattleserver "github.com/cserrant/terosBattleServer"
+	"github.com/cserrant/terosBattleServer/entity"
 )
 
 var _ = Describe("Calculate combination of Attacking Power and Squaddie", func() {
 	var (
-		teros *terosbattleserver.Squaddie
-		spear *terosbattleserver.Power
-		blot  *terosbattleserver.Power
+		teros *entity.Squaddie
+		spear *entity.Power
+		blot  *entity.Power
 	)
 
 	BeforeEach(func() {
-		tempSquaddie := terosbattleserver.NewSquaddie("Teros")
+		tempSquaddie := entity.NewSquaddie("Teros")
 		teros = &tempSquaddie
 		teros.Name = "Teros"
 
-		tempPower := terosbattleserver.NewAttackingPower("Spear")
+		tempPower := entity.NewAttackingPower("Spear")
 		spear = &tempPower
-		spear.PowerType = terosbattleserver.PowerTypePhysical
+		spear.PowerType = entity.PowerTypePhysical
 
-		tempPower2 := terosbattleserver.NewAttackingPower("Blot")
+		tempPower2 := entity.NewAttackingPower("Blot")
 		blot = &tempPower2
-		blot.PowerType = terosbattleserver.PowerTypeSpell
+		blot.PowerType = entity.PowerTypeSpell
 	})
 
 	It("Calculates the To Hit Bonus", func() {
@@ -37,26 +37,26 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 	})
 
 	It("Calculates the crit chance based on To Hit Bonus", func() {
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(9001)).To(Equal(36))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(5)).To(Equal(36))
+		Expect(entity.GetChanceToHitBasedOnHitRate(9001)).To(Equal(36))
+		Expect(entity.GetChanceToHitBasedOnHitRate(5)).To(Equal(36))
 
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-6)).To(Equal(0))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-9001)).To(Equal(0))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-6)).To(Equal(0))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-9001)).To(Equal(0))
 
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(4)).To(Equal(35))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(3)).To(Equal(33))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(2)).To(Equal(30))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(1)).To(Equal(26))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(0)).To(Equal(21))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-1)).To(Equal(15))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-2)).To(Equal(10))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-3)).To(Equal(6))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-4)).To(Equal(3))
-		Expect(terosbattleserver.GetChanceToHitBasedOnHitRate(-5)).To(Equal(1))
+		Expect(entity.GetChanceToHitBasedOnHitRate(4)).To(Equal(35))
+		Expect(entity.GetChanceToHitBasedOnHitRate(3)).To(Equal(33))
+		Expect(entity.GetChanceToHitBasedOnHitRate(2)).To(Equal(30))
+		Expect(entity.GetChanceToHitBasedOnHitRate(1)).To(Equal(26))
+		Expect(entity.GetChanceToHitBasedOnHitRate(0)).To(Equal(21))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-1)).To(Equal(15))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-2)).To(Equal(10))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-3)).To(Equal(6))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-4)).To(Equal(3))
+		Expect(entity.GetChanceToHitBasedOnHitRate(-5)).To(Equal(1))
 	})
 
 	It("Will get a random ID if none is given", func() {
-		powerWithoutID := terosbattleserver.NewAttackingPower("New Attack")
+		powerWithoutID := entity.NewAttackingPower("New Attack")
 		Expect(powerWithoutID.ID).NotTo(BeNil())
 		Expect(powerWithoutID.ID).NotTo(Equal(""))
 	})
@@ -66,10 +66,10 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			teros.Strength = 2
 			teros.Mind = 3
 
-			spear.PowerType = terosbattleserver.PowerTypePhysical
+			spear.PowerType = entity.PowerTypePhysical
 			spear.AttackingEffect.DamageBonus = 2
 
-			blot.PowerType = terosbattleserver.PowerTypeSpell
+			blot.PowerType = entity.PowerTypeSpell
 			blot.AttackingEffect.DamageBonus = 6
 		})
 
@@ -94,9 +94,9 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 			teros.Dodge = 2
 			teros.Deflect = 9001
 
-			spear.PowerType = terosbattleserver.PowerTypePhysical
+			spear.PowerType = entity.PowerTypePhysical
 
-			blot.PowerType = terosbattleserver.PowerTypeSpell
+			blot.PowerType = entity.PowerTypeSpell
 		})
 
 		It("Calculates the to hit reduction against physical attacks", func() {
@@ -112,11 +112,11 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 
 	Context("Calculate damage if the attacker hits the target with the power", func() {
 		var (
-			bandit *terosbattleserver.Squaddie
+			bandit *entity.Squaddie
 		)
 
 		BeforeEach(func() {
-			tempSquaddie := terosbattleserver.NewSquaddie("Bandit")
+			tempSquaddie := entity.NewSquaddie("Bandit")
 			bandit = &tempSquaddie
 			bandit.Name = "Bandit"
 
@@ -161,11 +161,11 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 
 	Context("Calculate damage if the attacker hits the target with the power", func() {
 		var (
-			bandit *terosbattleserver.Squaddie
+			bandit *entity.Squaddie
 		)
 
 		BeforeEach(func() {
-			tempSquaddie := terosbattleserver.NewSquaddie("Bandit")
+			tempSquaddie := entity.NewSquaddie("Bandit")
 			bandit = &tempSquaddie
 			bandit.Name = "Bandit"
 
@@ -225,11 +225,11 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 
 	Context("Calculate expected damage", func() {
 		var (
-			bandit *terosbattleserver.Squaddie
+			bandit *entity.Squaddie
 		)
 
 		BeforeEach(func() {
-			tempSquaddie := terosbattleserver.NewSquaddie("Bandit")
+			tempSquaddie := entity.NewSquaddie("Bandit")
 			bandit = &tempSquaddie
 			bandit.Name = "Bandit"
 		})
@@ -275,11 +275,11 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 
 	Context("Critical Hits", func() {
 		var (
-			bandit *terosbattleserver.Squaddie
+			bandit *entity.Squaddie
 		)
 
 		BeforeEach(func() {
-			tempSquaddie := terosbattleserver.NewSquaddie("Bandit")
+			tempSquaddie := entity.NewSquaddie("Bandit")
 			bandit = &tempSquaddie
 			bandit.Name = "Bandit"
 
@@ -288,23 +288,23 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 		})
 
 		It("Can look up the chance of a critical hit", func() {
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(9001)).To(Equal(36))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(12)).To(Equal(36))
+			Expect(entity.GetChanceToCritBasedOnThreshold(9001)).To(Equal(36))
+			Expect(entity.GetChanceToCritBasedOnThreshold(12)).To(Equal(36))
 
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(-6)).To(Equal(0))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(0)).To(Equal(0))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(1)).To(Equal(0))
+			Expect(entity.GetChanceToCritBasedOnThreshold(-6)).To(Equal(0))
+			Expect(entity.GetChanceToCritBasedOnThreshold(0)).To(Equal(0))
+			Expect(entity.GetChanceToCritBasedOnThreshold(1)).To(Equal(0))
 
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(2)).To(Equal(1))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(3)).To(Equal(3))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(4)).To(Equal(6))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(5)).To(Equal(10))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(6)).To(Equal(15))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(7)).To(Equal(21))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(8)).To(Equal(26))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(9)).To(Equal(30))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(10)).To(Equal(33))
-			Expect(terosbattleserver.GetChanceToCritBasedOnThreshold(11)).To(Equal(35))
+			Expect(entity.GetChanceToCritBasedOnThreshold(2)).To(Equal(1))
+			Expect(entity.GetChanceToCritBasedOnThreshold(3)).To(Equal(3))
+			Expect(entity.GetChanceToCritBasedOnThreshold(4)).To(Equal(6))
+			Expect(entity.GetChanceToCritBasedOnThreshold(5)).To(Equal(10))
+			Expect(entity.GetChanceToCritBasedOnThreshold(6)).To(Equal(15))
+			Expect(entity.GetChanceToCritBasedOnThreshold(7)).To(Equal(21))
+			Expect(entity.GetChanceToCritBasedOnThreshold(8)).To(Equal(26))
+			Expect(entity.GetChanceToCritBasedOnThreshold(9)).To(Equal(30))
+			Expect(entity.GetChanceToCritBasedOnThreshold(10)).To(Equal(33))
+			Expect(entity.GetChanceToCritBasedOnThreshold(11)).To(Equal(35))
 		})
 
 		It("Adds the chance to crit to the attack summary", func() {

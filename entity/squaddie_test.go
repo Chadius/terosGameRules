@@ -1,27 +1,27 @@
-package terosbattleserver_test
+package entity_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	terosbattleserver "github.com/cserrant/terosBattleServer"
+	"github.com/cserrant/terosBattleServer/entity"
 )
 
 var _ = Describe("Calculate Squaddie stats", func() {
 	It("Sets the Squaddie name.", func() {
-		teros := terosbattleserver.NewSquaddie("T'eros")
+		teros := entity.NewSquaddie("T'eros")
 		Expect(teros.Name).To(Equal("T'eros"))
 	})
 
 	It("Sets current HP to max.", func() {
-		teros := terosbattleserver.NewSquaddie("T'eros")
+		teros := entity.NewSquaddie("T'eros")
 		Expect(teros.MaxHitPoints).To(Equal(5))
 		teros.SetHPToMax()
 		Expect(teros.CurrentHitPoints).To(Equal(5))
 	})
 
 	It("Can set Barrier to Max Barrier", func() {
-		teros := terosbattleserver.NewSquaddie("T'eros")
+		teros := entity.NewSquaddie("T'eros")
 		teros.MaxBarrier = 2
 		teros.SetBarrierToMax()
 		Expect(teros.CurrentBarrier).To(Equal(2))
@@ -29,9 +29,9 @@ var _ = Describe("Calculate Squaddie stats", func() {
 
 	Context("Check Squaddies for valid data", func() {
 		It("Throws an error if Squaddie is created with wrong affiliation", func() {
-			newSquaddie := terosbattleserver.NewSquaddie("T'eros")
+			newSquaddie := entity.NewSquaddie("T'eros")
 			newSquaddie.Affiliation = "Unknown Affiliation"
-			err := terosbattleserver.CheckSquaddieForErrors(&newSquaddie)
+			err := entity.CheckSquaddieForErrors(&newSquaddie)
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
 		})
@@ -39,7 +39,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 
 	Context("Can calculate net offense and defense", func() {
 		It("Can calculate defenses against physical attacks", func() {
-			teros := terosbattleserver.NewSquaddie("T'eros")
+			teros := entity.NewSquaddie("T'eros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
@@ -52,7 +52,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		})
 
 		It("Can calculate defenses against spell attacks", func() {
-			teros := terosbattleserver.NewSquaddie("T'eros")
+			teros := entity.NewSquaddie("T'eros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
@@ -65,7 +65,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		})
 
 		It("Can calculate offense with physical attacks", func() {
-			teros := terosbattleserver.NewSquaddie("T'eros")
+			teros := entity.NewSquaddie("T'eros")
 			teros.Aim = 2
 			teros.Strength = 3
 			teros.Mind = 4
@@ -75,7 +75,7 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		})
 
 		It("Can calculate offense with spell attacks", func() {
-			teros := terosbattleserver.NewSquaddie("T'eros")
+			teros := entity.NewSquaddie("T'eros")
 			teros.Aim = 2
 			teros.Strength = 3
 			teros.Mind = 4
@@ -86,11 +86,11 @@ var _ = Describe("Calculate Squaddie stats", func() {
 	})
 
 	It("Squaddie can match Power names to load them from a repository", func() {
-		attackA := terosbattleserver.NewAttackingPower("Attack Formation A")
-		teros := terosbattleserver.NewSquaddie("Teros")
+		attackA := entity.NewAttackingPower("Attack Formation A")
+		teros := entity.NewSquaddie("Teros")
 		powerNames := []string{"Attack Formation A"}
 
-		teros.GetInnatePowersFromRepository(powerNames, []*terosbattleserver.Power{&attackA})
+		teros.GetInnatePowersFromRepository(powerNames, []*entity.Power{&attackA})
 		attackIDNamePairs := teros.GetInnatePowerIDNames()
 		Expect(len(attackIDNamePairs)).To(Equal(1))
 		Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
@@ -98,10 +98,10 @@ var _ = Describe("Calculate Squaddie stats", func() {
 	})
 
 	It("Can gain access to powers and report them", func() {
-		teros := terosbattleserver.NewSquaddie("Teros")
+		teros := entity.NewSquaddie("Teros")
 		Expect(teros.Name).To(Equal("Teros"))
 
-		attackA := terosbattleserver.NewAttackingPower("Attack Formation A")
+		attackA := entity.NewAttackingPower("Attack Formation A")
 		teros.GainInnatePower(&attackA)
 
 		attackIDNamePairs := teros.GetInnatePowerIDNames()

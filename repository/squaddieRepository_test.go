@@ -1,4 +1,4 @@
-package terosbattleserver_test
+package repository_test
 
 import (
 	"fmt"
@@ -6,15 +6,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	terosbattleserver "github.com/cserrant/terosBattleServer"
+	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/repository"
 )
 
 var _ = Describe("CRUD Squaddies", func() {
 	var (
-		repo *terosbattleserver.SquaddieRepository
+		repo *repository.SquaddieRepository
 	)
 	BeforeEach(func() {
-		repo = terosbattleserver.NewSquaddieRepository()
+		repo = repository.NewSquaddieRepository()
 	})
 	Context("Load Squaddie using JSON sources", func() {
 		It("Can add a JSON source", func() {
@@ -59,7 +60,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
 		})
 		It("Can give Squaddie innate Powers with a repository", func() {
-			powerRepo := terosbattleserver.NewPowerRepository()
+			powerRepo := repository.NewPowerRepository()
 			powerByteStream := []byte(`[{
 				"name": "Scimitar",
 				"id": "deadbeef",
@@ -90,7 +91,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(attackIDNamePairs[0].ID).To(Equal(scimitar.ID))
 		})
 		It("Stop adding Powers to Squaddie if it doesn't exist", func() {
-			powerRepo := terosbattleserver.NewPowerRepository()
+			powerRepo := repository.NewPowerRepository()
 
 			squaddieByteStream := []byte(`[{
 				"name": "Teros",
@@ -113,7 +114,7 @@ var _ = Describe("CRUD Squaddies", func() {
 	})
 	Context("Save Squaddie as JSON", func() {
 		It("Can Marshall a Squaddie into JSON", func() {
-			teros := terosbattleserver.NewSquaddie("Teros")
+			teros := entity.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
@@ -123,13 +124,13 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"powers":[]}`)))
 		})
 		It("Can Marshall a Squaddie with powers into JSON", func() {
-			teros := terosbattleserver.NewSquaddie("Teros")
+			teros := entity.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
 			teros.MaxBarrier = 1
 
-			attackA := terosbattleserver.NewAttackingPower("Attack Formation A")
+			attackA := entity.NewAttackingPower("Attack Formation A")
 			teros.GainInnatePower(&attackA)
 			byteStream, err := repo.MarshalSquaddieIntoJSON(&teros)
 			Expect(err).To(BeNil())

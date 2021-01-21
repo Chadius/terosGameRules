@@ -1,18 +1,18 @@
-package terosbattleserver_test
+package repository_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	terosbattleserver "github.com/cserrant/terosBattleServer"
+	"github.com/cserrant/terosBattleServer/repository"
 )
 
 var _ = Describe("CRUD Powers", func() {
 	var (
-		repo *terosbattleserver.PowerRepository
+		repo *repository.PowerRepository
 	)
 	BeforeEach(func() {
-		repo = terosbattleserver.NewPowerRepository()
+		repo = repository.NewPowerRepository()
 	})
 	Context("Load Power using JSON sources", func() {
 		It("Can create powers from JSON", func() {
