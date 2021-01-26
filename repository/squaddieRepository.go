@@ -2,8 +2,6 @@ package repository
 
 import (
 	"encoding/json"
-	"fmt"
-
 	"github.com/cserrant/terosBattleServer/entity"
 	"gopkg.in/yaml.v2"
 )
@@ -74,27 +72,9 @@ func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *entity.S
 
 	return json.Marshal(&struct {
 		*Alias
-		PowerIDNames []*entity.PowerIDName `json:"powers" yaml:"powers"`
+		PowerIDNames []*entity.PowerReference `json:"powers" yaml:"powers"`
 	}{
 		Alias:        (*Alias)(squaddie),
 		PowerIDNames: squaddie.GetInnatePowerIDNames(),
 	})
-}
-
-// AddInnatePowersToSquaddie will find the Squaddie's powers from the PowerRepository and give them to it.
-//   Returns the number of powers added.
-//   Throws an error if it can't find a power.
-func (repository *SquaddieRepository) AddInnatePowersToSquaddie(squaddie *entity.Squaddie, powerRepo *PowerRepository) (int, error) {
-	numberOfPowersAdded := 0
-
-	for _, powerIDName := range squaddie.PowerIDNames {
-		powerToAdd := powerRepo.GetByName(powerIDName.Name)
-		if powerToAdd == nil {
-			return numberOfPowersAdded, fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name, powerIDName.Name)
-		}
-		squaddie.GainInnatePower(powerToAdd)
-		numberOfPowersAdded = numberOfPowersAdded + 1
-	}
-
-	return numberOfPowersAdded, nil
 }

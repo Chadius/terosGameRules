@@ -1,7 +1,9 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/repository"
 )
 
 // GetPowerToHitBonusWhenUsedBySquaddie calculates the total to hit bonus for the attacking squaddie and attacking power
@@ -141,4 +143,27 @@ func GetPowerToHitPenaltyAgainstSquaddie(power *entity.Power, target *entity.Squ
 		return target.Dodge
 	}
 	return target.Deflect
+}
+
+// LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
+//  Raises an error if the PowerRepository does not have one of the squaddie's powers.
+func LoadAllOfSquaddieInnatePowers(squaddie *entity.Squaddie, powerReferencesToLoad []*entity.PowerReference, repo *repository.PowerRepository) (int, error) {
+	numberOfPowersAdded := 0
+
+	squaddie.ClearInnatePowers()
+	squaddie.ClearTemporaryPowerReferences()
+
+	for _, powerIDName := range powerReferencesToLoad {
+		powerToAdd := repo.GetPowerByID(powerIDName.ID)
+		if powerToAdd == nil {
+			return numberOfPowersAdded, fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name, powerIDName.Name)
+		}
+
+		err := squaddie.AddInnatePower(powerToAdd)
+		if err == nil {
+			numberOfPowersAdded = numberOfPowersAdded + 1
+		}
+	}
+
+	return numberOfPowersAdded, nil
 }

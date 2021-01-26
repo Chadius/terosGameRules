@@ -6,9 +6,8 @@ import (
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
-// PowerIDName is a pair of ID and Name items used to quickly identify
-//   a PowerHeader.
-type PowerIDName struct {
+// PowerReference is used to identify a power and is used to quickly identify a power.
+type PowerReference struct {
 	Name string `json:"name" yaml:"name"`
 	ID   string `json:"id" yaml:"id"`
 }
@@ -25,8 +24,8 @@ const (
 
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
-	PowerIDName `yaml:",inline"`
-	PowerType   PowerType `json:"power_type" yaml:"power_type"`
+	PowerReference `yaml:",inline"`
+	PowerType      PowerType `json:"power_type" yaml:"power_type"`
 	*AttackingEffect
 }
 
@@ -39,9 +38,9 @@ type AttackingEffect struct {
 }
 
 // NewAttackingPower generates a Power with default values.
-func NewAttackingPower(name string) Power {
+func NewAttackingPower(name string) *Power {
 	newAttackingPower := Power{
-		PowerIDName: PowerIDName{
+		PowerReference: PowerReference{
 			Name: name,
 			ID:   utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
@@ -53,7 +52,7 @@ func NewAttackingPower(name string) Power {
 			CriticalHitThreshold: 0,
 		},
 	}
-	return newAttackingPower
+	return &newAttackingPower
 }
 
 // CheckPowerForErrors verifies the Power's fields and raises an error if it's invalid.
