@@ -28,7 +28,7 @@ var _ = Describe("Calculate combination of Attacking Power and Squaddie", func()
 	})
 
 	It("Will get a random ID if none is given", func() {
-		powerWithoutID := entity.NewAttackingPower("New Attack")
+		powerWithoutID := entity.NewPower("New Attack")
 		Expect(powerWithoutID.ID).NotTo(BeNil())
 		Expect(powerWithoutID.ID).NotTo(Equal(""))
 	})

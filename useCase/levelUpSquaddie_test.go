@@ -86,6 +86,52 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			err = usecase.LevelUpSquaddie(&statBooster, teros, nil)
 			Expect(err.Error()).To(Equal(`Teros already consumed LevelUpBenefit - class:"Mage" id:"deadbeef"`))
 		})
+		Context("can increase and change movement after using a level up benefit", func() {
+			var (
+				improveAllMovement *entity.LevelUpBenefit
+				upgradeToLightMovement *entity.LevelUpBenefit
+			)
+			BeforeEach(func() {
+				improveAllMovement = &entity.LevelUpBenefit{
+					ID: "aaaaaaa0",
+					ClassName: "Mage",
+					Movement: &entity.SquaddieMovement{
+						Distance: 1,
+						Type: "fly",
+						HitAndRun: true,
+					},
+				}
+
+				upgradeToLightMovement = &entity.LevelUpBenefit{
+					ID: "aaaaaaa1",
+					ClassName: "Mage",
+					Movement: &entity.SquaddieMovement{
+						Type: "light",
+					},
+				}
+			})
+			It("can increase and change movement from one level up benefit", func() {
+				startingMovement := teros.GetMovementDistancePerRound()
+
+				err := usecase.LevelUpSquaddie(improveAllMovement, teros, nil)
+				Expect(err).To(BeNil())
+
+				Expect(teros.GetMovementDistancePerRound()).To(Equal(startingMovement + 1))
+				Expect(teros.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFly)))
+				Expect(teros.CanHitAndRun()).To(BeTrue())
+			})
+			It("will not downgrade movement type", func() {
+				startingMovement := teros.GetMovementDistancePerRound()
+				usecase.LevelUpSquaddie(improveAllMovement, teros, nil)
+
+				err := usecase.LevelUpSquaddie(upgradeToLightMovement, teros, nil)
+				Expect(err).To(BeNil())
+
+				Expect(teros.GetMovementDistancePerRound()).To(Equal(startingMovement + 1))
+				Expect(teros.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFly)))
+				Expect(teros.CanHitAndRun()).To(BeTrue())
+			})
+		})
 	})
 	Context("Squaddie changes powers with level up benefits", func() {
 		var (
@@ -112,13 +158,13 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 
 			powerRepo = repository.NewPowerRepository()
 
-			spear = entity.NewAttackingPower("Spear")
+			spear = entity.NewPower("Spear")
 			spear.PowerType = entity.PowerTypePhysical
 			spear.ToHitBonus = 1
 			spear.ID = "spearlvl1"
 			teros.TemporaryPowerReferences = []*entity.PowerReference{{Name: "Spear", ID: "spearlvl1"}}
 
-			spearLevel2 = entity.NewAttackingPower("Spear")
+			spearLevel2 = entity.NewPower("Spear")
 			spearLevel2.PowerType = entity.PowerTypePhysical
 			spearLevel2.ToHitBonus = 1
 			spearLevel2.ID = "spearlvl2"

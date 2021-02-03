@@ -17,7 +17,7 @@ var _ = Describe("CRUD Powers", func() {
 	})
 	It("Can add powers directly", func() {
 		Expect(repo.GetNumberOfPowers()).To(Equal(0))
-		spear := entity.NewAttackingPower("Spear")
+		spear := entity.NewPower("Spear")
 		spear.PowerType = entity.PowerTypePhysical
 		newPowers := []*entity.Power{spear}
 		success, _ := repo.AddSlicePowerSource(newPowers)
@@ -32,12 +32,12 @@ var _ = Describe("CRUD Powers", func() {
 		)
 
 		BeforeEach(func() {
-			spear = entity.NewAttackingPower("Spear")
+			spear = entity.NewPower("Spear")
 			spear.PowerType = entity.PowerTypePhysical
 			spear.ID = "spearLevel1"
 			spear.ToHitBonus = 1
 
-			spear2 = entity.NewAttackingPower("Spear")
+			spear2 = entity.NewPower("Spear")
 			spear2.PowerType = entity.PowerTypePhysical
 			spear2.ID = "spearLevel2"
 			spear2.ToHitBonus = 2

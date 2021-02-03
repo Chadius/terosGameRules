@@ -37,8 +37,8 @@ type AttackingEffect struct {
 	CriticalHitThreshold int `json:"critical_hit_threshold" yaml:"critical_hit_threshold"`
 }
 
-// NewAttackingPower generates a Power with default values.
-func NewAttackingPower(name string) *Power {
+// NewPower generates a Power with default values.
+func NewPower(name string) *Power {
 	newAttackingPower := Power{
 		PowerReference: PowerReference{
 			Name: name,

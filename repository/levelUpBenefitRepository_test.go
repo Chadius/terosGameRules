@@ -39,7 +39,12 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
                 "name": "Scimitar",
                 "id": "deadbeef"
               }
-            ]
+            ],
+            "movement": {
+              "distance": 1,
+              "type": "teleport",
+              "hit_and_run": true
+            }
           }
         ]
       }
@@ -65,6 +70,10 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
       powers:
       - name: Scimitar
         id: deadbeef
+      movement:
+        distance: 1,
+        type: teleport
+        hit_and_run": true
 `)
 	})
 	Context("Create LevelUpBenefit objects from different sources", func() {

@@ -22,10 +22,10 @@ var _ = Describe("Power uses with other Entities", func() {
 			teros = entity.NewSquaddie("Teros")
 			teros.Name = "Teros"
 
-			spear = entity.NewAttackingPower("Spear")
+			spear = entity.NewPower("Spear")
 			spear.PowerType = entity.PowerTypePhysical
 
-			blot = entity.NewAttackingPower("Blot")
+			blot = entity.NewPower("Blot")
 			blot.PowerType = entity.PowerTypeSpell
 		})
 
@@ -297,7 +297,7 @@ var _ = Describe("Power uses with other Entities", func() {
 		BeforeEach(func() {
 			powerRepository = repository.NewPowerRepository()
 
-			spear = entity.NewAttackingPower("Spear")
+			spear = entity.NewPower("Spear")
 			spear.PowerType = entity.PowerTypePhysical
 			spear.ID = "deadbeef"
 			newPowers := []*entity.Power{spear}
@@ -318,7 +318,7 @@ var _ = Describe("Power uses with other Entities", func() {
 			Expect(attackIDNamePairs[0].ID).To(Equal(spear.ID))
 		})
 		It("Stop adding Powers to Squaddie if it doesn't exist", func() {
-			scimitar := entity.NewAttackingPower("Scimitar")
+			scimitar := entity.NewPower("Scimitar")
 			scimitar.PowerType = entity.PowerTypePhysical
 
 			temporaryPowerReferences := []*entity.PowerReference{{Name: "Scimitar", ID: scimitar.ID}}

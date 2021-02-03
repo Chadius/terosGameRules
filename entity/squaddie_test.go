@@ -8,7 +8,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity"
 )
 
-var _ = Describe("Calculate Squaddie stats", func() {
+var _ = Describe("Manage Squaddie stats and Powers", func() {
 	It("Sets the Squaddie name.", func() {
 		teros := entity.NewSquaddie("Teros")
 		Expect(teros.Name).To(Equal("Teros"))
@@ -26,6 +26,21 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		teros.MaxBarrier = 2
 		teros.SetBarrierToMax()
 		Expect(teros.CurrentBarrier).To(Equal(2))
+	})
+
+	Context("Default Settings", func() {
+		var teros *entity.Squaddie
+		BeforeEach(func() {
+			teros = entity.NewSquaddie("Teros")
+		})
+		It("Max Hit Points is set to 5", func() {
+			Expect(teros.MaxHitPoints).To(Equal(5))
+			Expect(teros.CurrentHitPoints).To(Equal(5))
+		})
+		It("Default movement is 3 on foot", func() {
+			Expect(teros.GetMovementDistancePerRound()).To(Equal(3))
+			Expect(teros.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFoot)))
+		})
 	})
 
 	Context("Check Squaddies for valid data", func() {
@@ -86,67 +101,69 @@ var _ = Describe("Calculate Squaddie stats", func() {
 		})
 	})
 
-	It("Can gain access to powers and report them", func() {
-		teros := entity.NewSquaddie("Teros")
-		Expect(teros.Name).To(Equal("Teros"))
+	Context("Manage powers", func() {
+		It("Can gain access to powers and report them", func() {
+			teros := entity.NewSquaddie("Teros")
+			Expect(teros.Name).To(Equal("Teros"))
 
-		attackA := entity.NewAttackingPower("Attack Formation A")
-		teros.AddInnatePower(attackA)
+			attackA := entity.NewPower("Attack Formation A")
+			teros.AddInnatePower(attackA)
 
-		attackIDNamePairs := teros.GetInnatePowerIDNames()
-		Expect(len(attackIDNamePairs)).To(Equal(1))
-		Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
-		Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
-	})
+			attackIDNamePairs := teros.GetInnatePowerIDNames()
+			Expect(len(attackIDNamePairs)).To(Equal(1))
+			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
+			Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
+		})
 
-	It("Clears squaddie known powers", func() {
-		teros := entity.NewSquaddie("Teros")
-		Expect(teros.Name).To(Equal("Teros"))
+		It("Clears squaddie known powers", func() {
+			teros := entity.NewSquaddie("Teros")
+			Expect(teros.Name).To(Equal("Teros"))
 
-		attackA := entity.NewAttackingPower("Attack Formation A")
-		teros.AddInnatePower(attackA)
-		teros.ClearInnatePowers()
+			attackA := entity.NewPower("Attack Formation A")
+			teros.AddInnatePower(attackA)
+			teros.ClearInnatePowers()
 
-		attackIDNamePairs := teros.GetInnatePowerIDNames()
-		Expect(attackIDNamePairs).To(BeEmpty())
-	})
+			attackIDNamePairs := teros.GetInnatePowerIDNames()
+			Expect(attackIDNamePairs).To(BeEmpty())
+		})
 
-	It("Clears squaddie temporary power references", func() {
-		teros := entity.NewSquaddie("Teros")
-		teros.TemporaryPowerReferences = []*entity.PowerReference{{Name: "Pow pow", ID: "Power Wheels"}}
+		It("Clears squaddie temporary power references", func() {
+			teros := entity.NewSquaddie("Teros")
+			teros.TemporaryPowerReferences = []*entity.PowerReference{{Name: "Pow pow", ID: "Power Wheels"}}
 
-		teros.ClearTemporaryPowerReferences()
+			teros.ClearTemporaryPowerReferences()
 
-		Expect(teros.TemporaryPowerReferences).To(BeEmpty())
-	})
+			Expect(teros.TemporaryPowerReferences).To(BeEmpty())
+		})
 
-	It("Can remove squaddie powers", func() {
-		teros := entity.NewSquaddie("Teros")
-		Expect(teros.Name).To(Equal("Teros"))
+		It("Can remove squaddie powers", func() {
+			teros := entity.NewSquaddie("Teros")
+			Expect(teros.Name).To(Equal("Teros"))
 
-		attackA := entity.NewAttackingPower("Attack Formation A")
-		teros.AddInnatePower(attackA)
-		teros.RemovePowerByID(attackA.ID)
+			attackA := entity.NewPower("Attack Formation A")
+			teros.AddInnatePower(attackA)
+			teros.RemovePowerByID(attackA.ID)
 
-		attackIDNamePairs := teros.GetInnatePowerIDNames()
-		Expect(attackIDNamePairs).To(BeEmpty())
-	})
+			attackIDNamePairs := teros.GetInnatePowerIDNames()
+			Expect(attackIDNamePairs).To(BeEmpty())
+		})
 
-	It("Raises an error if you try to gain the same innate power", func() {
-		teros := entity.NewSquaddie("Teros")
-		Expect(teros.Name).To(Equal("Teros"))
+		It("Raises an error if you try to gain the same innate power", func() {
+			teros := entity.NewSquaddie("Teros")
+			Expect(teros.Name).To(Equal("Teros"))
 
-		attackA := entity.NewAttackingPower("Attack Formation A")
-		err := teros.AddInnatePower(attackA)
-		Expect(err).To(BeNil())
-		err = teros.AddInnatePower(attackA)
-		expectedErrorMessage := fmt.Sprintf(`squaddie "Teros" already has innate power with ID "%s"`, attackA.ID)
-		Expect(err.Error()).To(Equal(expectedErrorMessage))
+			attackA := entity.NewPower("Attack Formation A")
+			err := teros.AddInnatePower(attackA)
+			Expect(err).To(BeNil())
+			err = teros.AddInnatePower(attackA)
+			expectedErrorMessage := fmt.Sprintf(`squaddie "Teros" already has innate power with ID "%s"`, attackA.ID)
+			Expect(err.Error()).To(Equal(expectedErrorMessage))
 
-		attackIDNamePairs := teros.GetInnatePowerIDNames()
-		Expect(len(attackIDNamePairs)).To(Equal(1))
-		Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
-		Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
+			attackIDNamePairs := teros.GetInnatePowerIDNames()
+			Expect(len(attackIDNamePairs)).To(Equal(1))
+			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
+			Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
+		})
 	})
 
 	Context("Class levels", func() {

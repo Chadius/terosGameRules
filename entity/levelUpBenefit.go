@@ -30,6 +30,7 @@ type LevelUpBenefit struct {
 	Armor             int               `json:"armor" yaml:"armor"`
 	PowerIDGained     []*PowerReference `json:"powers" yaml:"powers"`
 	PowerIDLost       []*PowerReference `json:"powers_lost" yaml:"powers_lost"`
+	Movement          *SquaddieMovement `json:"Movement" yaml:"Movement"`
 }
 
 // CheckForErrors ensures the LevelUpBenefit has valid fields

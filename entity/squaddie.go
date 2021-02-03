@@ -20,6 +20,7 @@ type Squaddie struct {
 	CurrentBarrier           int               `json:"current_barrier" yaml:"current_barrier"`
 	MaxBarrier               int               `json:"max_barrier" yaml:"max_barrier"`
 	Armor                    int               `json:"armor" yaml:"armor"`
+	Movement                 SquaddieMovement  `json:"movement" yaml:"movement"`
 	TemporaryPowerReferences []*PowerReference `json:"powers" yaml:"powers"`
 	innatePowers             []*Power
 }
@@ -40,6 +41,11 @@ func NewSquaddie(name string) *Squaddie {
 		MaxBarrier:          0,
 		Armor:               0,
 		ClassLevels: map[string][]string{},
+		Movement: SquaddieMovement{
+			Distance:  3,
+			Type:      SquaddieMovementTypeFoot,
+			HitAndRun: false,
+		},
 	}
 	newSquaddie.SetHPToMax()
 	return &newSquaddie
@@ -184,4 +190,19 @@ func (squaddie *Squaddie) RemovePowerByID(powerToRemoveID string) {
 // ClearTemporaryPowerReferences empties the temporary references to powers.
 func (squaddie *Squaddie) ClearTemporaryPowerReferences() {
 	squaddie.TemporaryPowerReferences = []*PowerReference{}
+}
+
+// GetMovementDistancePerRound Returns the distance the Squaddie can travel.
+func (squaddie *Squaddie) GetMovementDistancePerRound() int {
+	return squaddie.Movement.Distance
+}
+
+// GetMovementType returns the Squaddie's movement type
+func (squaddie *Squaddie) GetMovementType() SquaddieMovementType {
+	return squaddie.Movement.Type
+}
+
+// CanHitAndRun indicates if the Squaddie can move after attacking.
+func (squaddie *Squaddie) CanHitAndRun() bool {
+	return squaddie.Movement.HitAndRun
 }

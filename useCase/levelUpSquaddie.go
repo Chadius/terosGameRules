@@ -35,6 +35,8 @@ func LevelUpSquaddie(benefit *entity.LevelUpBenefit, squaddie *entity.Squaddie, 
 		return err
 	}
 
+	improveSquaddieMovement(benefit, squaddie)
+
 	squaddie.MarkLevelUpBenefitAsConsumed(benefit.ClassName, benefit.ID)
 	return nil
 }
@@ -62,4 +64,20 @@ func refreshSquaddiePowers(benefit *entity.LevelUpBenefit, squaddie *entity.Squa
 
 	_, err := LoadAllOfSquaddieInnatePowers(squaddie, powerReferencesToLoad, powerRepo)
 	return err
+}
+
+func improveSquaddieMovement(benefit *entity.LevelUpBenefit, squaddie *entity.Squaddie) {
+	if benefit.Movement == nil {
+		return
+	}
+
+	squaddie.Movement.Distance = squaddie.Movement.Distance + benefit.Movement.Distance
+
+	if entity.MovementValueByType[squaddie.Movement.Type] < entity.MovementValueByType[benefit.Movement.Type] {
+		squaddie.Movement.Type = benefit.Movement.Type
+	}
+
+	if benefit.Movement.HitAndRun {
+		squaddie.Movement.HitAndRun = benefit.Movement.HitAndRun
+	}
 }
