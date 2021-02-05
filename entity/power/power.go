@@ -6,26 +6,26 @@ import (
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
-// PowerReference is used to identify a power and is used to quickly identify a power.
-type PowerReference struct {
+// Reference is used to identify a power and is used to quickly identify a power.
+type Reference struct {
 	Name string `json:"name" yaml:"name"`
 	ID   string `json:"id" yaml:"id"`
 }
 
-// PowerType defines the expected sources the power could be conjured from.
-type PowerType string
+// Type defines the expected sources the power could be conjured from.
+type Type string
 
 const (
-	// PowerTypePhysical powers use martial training and cunning. Examples: Swords, Bows, Pushing
-	PowerTypePhysical = "Physical"
-	// PowerTypeSpell powers are magical in nature and conjured without tools. Examples: Fireball, Mindread
-	PowerTypeSpell = "Spell"
+	// Physical powers use martial training and cunning. Examples: Swords, Bows, Pushing
+	Physical = "Physical"
+	// Spell powers are magical in nature and conjured without tools. Examples: Fireball, Mindread
+	Spell = "Spell"
 )
 
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
-	PowerReference `yaml:",inline"`
-	PowerType      PowerType `json:"power_type" yaml:"power_type"`
+	Reference `yaml:",inline"`
+	PowerType Type `json:"power_type" yaml:"power_type"`
 	*AttackingEffect
 }
 
@@ -40,11 +40,11 @@ type AttackingEffect struct {
 // NewPower generates a Power with default values.
 func NewPower(name string) *Power {
 	newAttackingPower := Power{
-		PowerReference: PowerReference{
+		Reference: Reference{
 			Name: name,
 			ID:   utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
-		PowerType: PowerTypePhysical,
+		PowerType: Physical,
 		AttackingEffect: &AttackingEffect{
 			ToHitBonus:           0,
 			DamageBonus:          0,
@@ -61,8 +61,8 @@ func CheckPowerForErrors(newPower *Power) (newError error) {
 }
 
 func checkAttackingEffectForErrors(newAttackingPower *Power) (newError error) {
-	if newAttackingPower.PowerType != PowerTypePhysical &&
-		newAttackingPower.PowerType != PowerTypeSpell {
+	if newAttackingPower.PowerType != Physical &&
+		newAttackingPower.PowerType != Spell {
 		return fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newAttackingPower.Name, newAttackingPower.PowerType)
 	}
 
@@ -96,16 +96,16 @@ func GetChanceToHitBasedOnHitRate(toHitBonus int) (chanceOutOf36 int) {
 }
 
 // GetChanceToCriticalBasedOnThreshold is a smarter look up table.
-func GetChanceToCriticalBasedOnThreshold(critThreshold int) (chanceOutOf36 int) {
-	if critThreshold > 11 {
+func GetChanceToCriticalBasedOnThreshold(criticalThreshold int) (chanceOutOf36 int) {
+	if criticalThreshold > 11 {
 		return 36
 	}
 
-	if critThreshold < 2 {
+	if criticalThreshold < 2 {
 		return 0
 	}
 
-	critChanceReference := map[int]int{
+	criticalChanceByCriticalThreshold := map[int]int{
 		11: 35,
 		10: 33,
 		9:  30,
@@ -118,5 +118,5 @@ func GetChanceToCriticalBasedOnThreshold(critThreshold int) (chanceOutOf36 int) 
 		2:  1,
 	}
 
-	return critChanceReference[critThreshold]
+	return criticalChanceByCriticalThreshold[criticalThreshold]
 }

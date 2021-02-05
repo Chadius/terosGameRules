@@ -8,7 +8,7 @@ import (
 
 var _ = Describe("CRUD LevelUpBenefits", func() {
 	var (
-		repo *levelUpBenefit.LevelUpBenefitRepository
+		repo *levelUpBenefit.Repository
 		jsonByteStream []byte
 		yamlByteStream []byte
 	)
@@ -98,7 +98,7 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
 			Expect(len(benefits)).To(Equal(1))
 
 			firstBenefit := benefits[0]
-			Expect(firstBenefit.LevelUpBenefitType).To(Equal(levelUpBenefit.LevelUpBenefitTypeSmall))
+			Expect(firstBenefit.LevelUpBenefitType).To(Equal(levelUpBenefit.Small))
 			Expect(firstBenefit.SquaddieName).To(Equal("Teros"))
 			Expect(firstBenefit.ClassName).To(Equal("Mage"))
 			Expect(firstBenefit.MaxHitPoints).To(Equal(1))

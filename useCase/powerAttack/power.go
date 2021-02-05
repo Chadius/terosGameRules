@@ -13,7 +13,7 @@ func GetPowerToHitBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *s
 
 // GetPowerDamageBonusWhenUsedBySquaddie calculates the total Damage bonus for the attacking squaddie and attacking power
 func GetPowerDamageBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
-	if power.PowerType == powerPackage.PowerTypePhysical {
+	if power.PowerType == powerPackage.Physical {
 		return power.AttackingEffect.DamageBonus + squaddie.Strength
 	}
 	return power.AttackingEffect.DamageBonus + squaddie.Mind
@@ -50,7 +50,7 @@ func calculateHowTargetTakesDamage(power *powerPackage.Power, target *squaddie.S
 }
 
 func calculateDamageAfterArmorAbsorption(power *powerPackage.Power, target *squaddie.Squaddie, damageToAbsorb int, healthDamage int) int {
-	var armorCanAbsorbDamage bool = power.PowerType == powerPackage.PowerTypePhysical
+	var armorCanAbsorbDamage bool = power.PowerType == powerPackage.Physical
 	if armorCanAbsorbDamage {
 
 		var armorFullyAbsorbsDamage bool = target.Armor > damageToAbsorb
@@ -139,7 +139,7 @@ func GetExpectedDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, t
 
 // GetPowerToHitPenaltyAgainstSquaddie calculates how much the target can reduce the chance of getting hit by the attacking power.
 func GetPowerToHitPenaltyAgainstSquaddie(power *powerPackage.Power, target *squaddie.Squaddie) (toHitPenalty int) {
-	if power.PowerType == powerPackage.PowerTypePhysical {
+	if power.PowerType == powerPackage.Physical {
 		return target.Dodge
 	}
 	return target.Deflect
@@ -147,7 +147,7 @@ func GetPowerToHitPenaltyAgainstSquaddie(power *powerPackage.Power, target *squa
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*powerPackage.PowerReference, repo *powerPackage.PowerRepository) (int, error) {
+func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*powerPackage.Reference, repo *powerPackage.Repository) (int, error) {
 	numberOfPowersAdded := 0
 
 	squaddie.ClearInnatePowers()

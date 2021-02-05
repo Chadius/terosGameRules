@@ -96,7 +96,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 				improveAllMovement = &levelUpBenefit.LevelUpBenefit{
 					ID: "aaaaaaa0",
 					ClassName: "Mage",
-					Movement: &squaddie.SquaddieMovement{
+					Movement: &squaddie.Movement{
 						Distance: 1,
 						Type: "fly",
 						HitAndRun: true,
@@ -106,7 +106,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 				upgradeToLightMovement = &levelUpBenefit.LevelUpBenefit{
 					ID: "aaaaaaa1",
 					ClassName: "Mage",
-					Movement: &squaddie.SquaddieMovement{
+					Movement: &squaddie.Movement{
 						Type: "light",
 					},
 				}
@@ -118,7 +118,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 				Expect(err).To(BeNil())
 
 				Expect(teros.GetMovementDistancePerRound()).To(Equal(startingMovement + 1))
-				Expect(teros.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFly)))
+				Expect(teros.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 				Expect(teros.CanHitAndRun()).To(BeTrue())
 			})
 			It("will not downgrade movement type", func() {
@@ -129,7 +129,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 				Expect(err).To(BeNil())
 
 				Expect(teros.GetMovementDistancePerRound()).To(Equal(startingMovement + 1))
-				Expect(teros.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFly)))
+				Expect(teros.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 				Expect(teros.CanHitAndRun()).To(BeTrue())
 			})
 		})
@@ -137,7 +137,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 	Context("Squaddie changes powers with level up benefits", func() {
 		var (
 			teros        *squaddie.Squaddie
-			powerRepo    *power.PowerRepository
+			powerRepo    *power.Repository
 			gainPower    levelUpBenefit.LevelUpBenefit
 			upgradePower levelUpBenefit.LevelUpBenefit
 			spear        *power.Power
@@ -160,13 +160,13 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			powerRepo = power.NewPowerRepository()
 
 			spear = power.NewPower("Spear")
-			spear.PowerType = power.PowerTypePhysical
+			spear.PowerType = power.Physical
 			spear.ToHitBonus = 1
 			spear.ID = "spearlvl1"
-			teros.TemporaryPowerReferences = []*power.PowerReference{{Name: "Spear", ID: "spearlvl1"}}
+			teros.TemporaryPowerReferences = []*power.Reference{{Name: "Spear", ID: "spearlvl1"}}
 
 			spearLevel2 = power.NewPower("Spear")
-			spearLevel2.PowerType = power.PowerTypePhysical
+			spearLevel2.PowerType = power.Physical
 			spearLevel2.ToHitBonus = 1
 			spearLevel2.ID = "spearlvl2"
 			newPowers := []*power.Power{spear, spearLevel2}
@@ -174,17 +174,17 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 
 			gainPower = levelUpBenefit.LevelUpBenefit{
 				ID:                 "aaab1234",
-				LevelUpBenefitType: levelUpBenefit.LevelUpBenefitTypeBig,
+				LevelUpBenefitType: levelUpBenefit.Big,
 				ClassName:          "Mage",
-				PowerIDGained:      []*power.PowerReference{{Name: "Spear", ID: spear.ID}},
+				PowerIDGained:      []*power.Reference{{Name: "Spear", ID: spear.ID}},
 			}
 
 			upgradePower = levelUpBenefit.LevelUpBenefit{
 				ID:                 "aaaa1235",
-				LevelUpBenefitType: levelUpBenefit.LevelUpBenefitTypeBig,
+				LevelUpBenefitType: levelUpBenefit.Big,
 				ClassName:          "Mage",
-				PowerIDLost:        []*power.PowerReference{{Name: "Spear", ID: spear.ID}},
-				PowerIDGained:      []*power.PowerReference{{Name: "Spear", ID: spearLevel2.ID}},
+				PowerIDLost:        []*power.Reference{{Name: "Spear", ID: spear.ID}},
+				PowerIDGained:      []*power.Reference{{Name: "Spear", ID: spearLevel2.ID}},
 			}
 		})
 

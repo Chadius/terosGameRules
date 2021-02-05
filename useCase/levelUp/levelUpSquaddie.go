@@ -23,7 +23,7 @@ func improveSquaddieStats(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squa
 // LevelUpSquaddie uses the LevelUpBenefit to improve the squaddie.
 //   Raises an error if the Squaddie does not have that class.
 //   Raises an error if the Squaddie marked the LevelUpBenefit as consumed.
-func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.PowerRepository) error {
+func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.Repository) error {
 	if squaddie.HasAddedClass(benefit.ClassName) == false {
 		return fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddie.Name, benefit.ClassName)
 	}
@@ -43,13 +43,13 @@ func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2
 	return nil
 }
 
-func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.PowerRepository) error {
+func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.Repository) error {
 	initialSquaddiePowerReferences := squaddie.TemporaryPowerReferences
 	if initialSquaddiePowerReferences == nil || len(initialSquaddiePowerReferences) == 0 {
 		initialSquaddiePowerReferences = squaddie.GetInnatePowerIDNames()
 	}
 
-	powerReferencesToKeep := []*power.PowerReference{}
+	powerReferencesToKeep := []*power.Reference{}
 	for _, existingPower := range initialSquaddiePowerReferences {
 		powerFound := false
 		for _, powerToRemove := range benefit.PowerIDLost {

@@ -8,7 +8,7 @@ import (
 
 var _ = Describe("CRUD Powers", func() {
 	var (
-		repo *power.PowerRepository
+		repo *power.Repository
 	)
 	BeforeEach(func() {
 		repo = power.NewPowerRepository()
@@ -16,7 +16,7 @@ var _ = Describe("CRUD Powers", func() {
 	It("Can add powers directly", func() {
 		Expect(repo.GetNumberOfPowers()).To(Equal(0))
 		spear := power.NewPower("Spear")
-		spear.PowerType = power.PowerTypePhysical
+		spear.PowerType = power.Physical
 		newPowers := []*power.Power{spear}
 		success, _ := repo.AddSlicePowerSource(newPowers)
 		Expect(success).To(BeTrue())
@@ -26,17 +26,17 @@ var _ = Describe("CRUD Powers", func() {
 		var (
 			spear *power.Power
 			spear2 *power.Power
-			repo *power.PowerRepository
+			repo *power.Repository
 		)
 
 		BeforeEach(func() {
 			spear = power.NewPower("Spear")
-			spear.PowerType = power.PowerTypePhysical
+			spear.PowerType = power.Physical
 			spear.ID = "spearLevel1"
 			spear.ToHitBonus = 1
 
 			spear2 = power.NewPower("Spear")
-			spear2.PowerType = power.PowerTypePhysical
+			spear2.PowerType = power.Physical
 			spear2.ID = "spearLevel2"
 			spear2.ToHitBonus = 2
 

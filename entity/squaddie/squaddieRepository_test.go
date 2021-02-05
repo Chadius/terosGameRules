@@ -10,7 +10,7 @@ import (
 
 var _ = Describe("CRUD Squaddies", func() {
 	var (
-		repo *squaddie.SquaddieRepository
+		repo *squaddie.Repository
 	)
 	BeforeEach(func() {
 		repo = squaddie.NewSquaddieRepository()
@@ -101,25 +101,25 @@ var _ = Describe("CRUD Squaddies", func() {
 			soldier := repo.GetByName("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
-			Expect(soldier.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFoot)))
+			Expect(soldier.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
 			scout := repo.GetByName("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
-			Expect(scout.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeLight)))
+			Expect(scout.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Light)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
 			bird := repo.GetByName("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
-			Expect(bird.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFly)))
+			Expect(bird.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
 			teleporter := repo.GetByName("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
-			Expect(teleporter.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeTeleport)))
+			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))
 			Expect(teleporter.CanHitAndRun()).To(BeFalse())
 		})
 	})
@@ -138,7 +138,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"movement":{"distance":3,"type":"foot","hit_and_run":false},"powers":[]}`)))
 		})
 		It("Can Marshall a Squaddie with extraordinary movement into JSON", func() {
-			teros.Movement.Type = squaddie.SquaddieMovementTypeTeleport
+			teros.Movement.Type = squaddie.Teleport
 			teros.Movement.Distance = 8
 			teros.Movement.HitAndRun = true
 
@@ -233,25 +233,25 @@ var _ = Describe("CRUD Squaddies", func() {
 			soldier := repo.GetByName("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
-			Expect(soldier.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFoot)))
+			Expect(soldier.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
 			scout := repo.GetByName("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
-			Expect(scout.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeLight)))
+			Expect(scout.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Light)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
 			bird := repo.GetByName("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
-			Expect(bird.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFly)))
+			Expect(bird.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
 			teleporter := repo.GetByName("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
-			Expect(teleporter.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeTeleport)))
+			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))
 			Expect(teleporter.CanHitAndRun()).To(BeFalse())
 		})
 	})

@@ -12,17 +12,17 @@ type Squaddie struct {
 	CurrentClass        string               `json:"current_class" yaml:"current_class"`
 	ClassLevels         map[string][]string  `json:"class_levels" yaml:"class_levels"`
 	CurrentHitPoints         int                            `json:"current_hit_points" yaml:"current_hit_points"`
-	MaxHitPoints             int                            `json:"max_hit_points" yaml:"max_hit_points"`
-	Aim                      int                            `json:"aim" yaml:"aim"`
-	Strength                 int                            `json:"strength" yaml:"strength"`
-	Mind                     int                            `json:"mind" yaml:"mind"`
-	Dodge                    int                            `json:"dodge" yaml:"dodge"`
-	Deflect                  int                            `json:"deflect" yaml:"deflect"`
-	CurrentBarrier           int                            `json:"current_barrier" yaml:"current_barrier"`
-	MaxBarrier               int                            `json:"max_barrier" yaml:"max_barrier"`
-	Armor                    int                            `json:"armor" yaml:"armor"`
-	Movement                 SquaddieMovement               `json:"movement" yaml:"movement"`
-	TemporaryPowerReferences []*powerPackage.PowerReference `json:"powers" yaml:"powers"`
+	MaxHitPoints             int                       `json:"max_hit_points" yaml:"max_hit_points"`
+	Aim                      int                       `json:"aim" yaml:"aim"`
+	Strength                 int                       `json:"strength" yaml:"strength"`
+	Mind                     int                       `json:"mind" yaml:"mind"`
+	Dodge                    int                       `json:"dodge" yaml:"dodge"`
+	Deflect                  int                       `json:"deflect" yaml:"deflect"`
+	CurrentBarrier           int                       `json:"current_barrier" yaml:"current_barrier"`
+	MaxBarrier               int                       `json:"max_barrier" yaml:"max_barrier"`
+	Armor                    int                       `json:"armor" yaml:"armor"`
+	Movement                 Movement                  `json:"movement" yaml:"movement"`
+	TemporaryPowerReferences []*powerPackage.Reference `json:"powers" yaml:"powers"`
 	innatePowers             []*powerPackage.Power
 }
 
@@ -42,9 +42,9 @@ func NewSquaddie(name string) *Squaddie {
 		MaxBarrier:          0,
 		Armor:               0,
 		ClassLevels: map[string][]string{},
-		Movement: SquaddieMovement{
+		Movement: Movement{
 			Distance:  3,
-			Type:      SquaddieMovementTypeFoot,
+			Type:      Foot,
 			HitAndRun: false,
 		},
 	}
@@ -105,10 +105,10 @@ func (squaddie *Squaddie) AddInnatePower(newPower *powerPackage.Power) error {
 }
 
 // GetInnatePowerIDNames returns a list of all the powers the squaddie has access to.
-func (squaddie *Squaddie) GetInnatePowerIDNames() []*powerPackage.PowerReference {
-	powerIDNames := []*powerPackage.PowerReference{}
+func (squaddie *Squaddie) GetInnatePowerIDNames() []*powerPackage.Reference {
+	powerIDNames := []*powerPackage.Reference{}
 	for _, power := range squaddie.innatePowers {
-		powerIDNames = append(powerIDNames, &powerPackage.PowerReference{Name: power.Name, ID: power.ID})
+		powerIDNames = append(powerIDNames, &powerPackage.Reference{Name: power.Name, ID: power.ID})
 	}
 	return powerIDNames
 }
@@ -119,7 +119,7 @@ func (squaddie *Squaddie) AddClass(className string) {
 }
 
 // GetLevelCountsByClass returns a mapping of class names to levels gained.
-func (squaddie *Squaddie) GetLevelCountsByClass() (map[string]int) {
+func (squaddie *Squaddie) GetLevelCountsByClass() map[string]int {
 	count := map[string]int{}
 	for className, benefitIDs := range squaddie.ClassLevels {
 		count[className] = len(benefitIDs)
@@ -190,7 +190,7 @@ func (squaddie *Squaddie) RemovePowerByID(powerToRemoveID string) {
 
 // ClearTemporaryPowerReferences empties the temporary references to powers.
 func (squaddie *Squaddie) ClearTemporaryPowerReferences() {
-	squaddie.TemporaryPowerReferences = []*powerPackage.PowerReference{}
+	squaddie.TemporaryPowerReferences = []*powerPackage.Reference{}
 }
 
 // GetMovementDistancePerRound Returns the distance the Squaddie can travel.
@@ -199,7 +199,7 @@ func (squaddie *Squaddie) GetMovementDistancePerRound() int {
 }
 
 // GetMovementType returns the Squaddie's movement type
-func (squaddie *Squaddie) GetMovementType() SquaddieMovementType {
+func (squaddie *Squaddie) GetMovementType() MovementType {
 	return squaddie.Movement.Type
 }
 

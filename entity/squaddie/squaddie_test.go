@@ -39,7 +39,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 		It("Default movement is 3 on foot", func() {
 			Expect(teros.GetMovementDistancePerRound()).To(Equal(3))
-			Expect(teros.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFoot)))
+			Expect(teros.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 		})
 	})
 
@@ -129,7 +129,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 
 		It("Clears squaddie temporary power references", func() {
 			teros := squaddie.NewSquaddie("Teros")
-			teros.TemporaryPowerReferences = []*power.PowerReference{{Name: "Pow pow", ID: "Power Wheels"}}
+			teros.TemporaryPowerReferences = []*power.Reference{{Name: "Pow pow", ID: "Power Wheels"}}
 
 			teros.ClearTemporaryPowerReferences()
 

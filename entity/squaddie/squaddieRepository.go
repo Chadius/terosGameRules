@@ -6,14 +6,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// SquaddieRepository will interact with external devices to manage Squaddies.
-type SquaddieRepository struct {
+// Repository will interact with external devices to manage Squaddies.
+type Repository struct {
 	squaddiesByName map[string]Squaddie
 }
 
 // NewSquaddieRepository generates a pointer to a new Squaddie.
-func NewSquaddieRepository() *SquaddieRepository {
-	repository := SquaddieRepository{
+func NewSquaddieRepository() *Repository {
+	repository := Repository{
 		map[string]Squaddie{},
 	}
 	return &repository
@@ -22,17 +22,17 @@ func NewSquaddieRepository() *SquaddieRepository {
 type unmarshalFunc func([]byte, interface{}) error
 
 // AddJSONSource consumes a given bytestream and tries to analyze it.
-func (repository *SquaddieRepository) AddJSONSource(data []byte) (bool, error) {
+func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
 	return repository.addSource(data, json.Unmarshal)
 }
 
 // AddYAMLSource consumes a given bytestream and tries to analyze it.
-func (repository *SquaddieRepository) AddYAMLSource(data []byte) (bool, error) {
+func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
 	return repository.addSource(data, yaml.Unmarshal)
 }
 
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *SquaddieRepository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
+func (repository *Repository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
 	var unmarshalError error
 	var listOfSquaddies []Squaddie
 	unmarshalError = unmarshal(data, &listOfSquaddies)
@@ -53,12 +53,12 @@ func (repository *SquaddieRepository) addSource(data []byte, unmarshal unmarshal
 }
 
 // GetNumberOfSquaddies returns the number of Squaddies ready to retrieve.
-func (repository *SquaddieRepository) GetNumberOfSquaddies() int {
+func (repository *Repository) GetNumberOfSquaddies() int {
 	return len(repository.squaddiesByName)
 }
 
 // GetByName retrieves a Squaddie by name
-func (repository *SquaddieRepository) GetByName(squaddieName string) *Squaddie {
+func (repository *Repository) GetByName(squaddieName string) *Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByName[squaddieName]
 	if !squaddieExists {
 		return nil
@@ -67,12 +67,12 @@ func (repository *SquaddieRepository) GetByName(squaddieName string) *Squaddie {
 }
 
 // MarshalSquaddieIntoJSON converts the given Squaddie into JSON.
-func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byte, error) {
+func (repository *Repository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byte, error) {
 	type Alias Squaddie
 
 	return json.Marshal(&struct {
 		*Alias
-		PowerIDNames []*power.PowerReference `json:"powers" yaml:"powers"`
+		PowerIDNames []*power.Reference `json:"powers" yaml:"powers"`
 	}{
 		Alias:        (*Alias)(squaddie),
 		PowerIDNames: squaddie.GetInnatePowerIDNames(),

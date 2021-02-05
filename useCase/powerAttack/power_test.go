@@ -22,10 +22,10 @@ var _ = Describe("Power uses with other Entities", func() {
 			teros.Name = "Teros"
 
 			spear = power.NewPower("Spear")
-			spear.PowerType = power.PowerTypePhysical
+			spear.PowerType = power.Physical
 
 			blot = power.NewPower("Blot")
-			blot.PowerType = power.PowerTypeSpell
+			blot.PowerType = power.Spell
 		})
 
 		It("Calculates the To Hit Bonus", func() {
@@ -41,10 +41,10 @@ var _ = Describe("Power uses with other Entities", func() {
 				teros.Strength = 2
 				teros.Mind = 3
 
-				spear.PowerType = power.PowerTypePhysical
+				spear.PowerType = power.Physical
 				spear.AttackingEffect.DamageBonus = 2
 
-				blot.PowerType = power.PowerTypeSpell
+				blot.PowerType = power.Spell
 				blot.AttackingEffect.DamageBonus = 6
 			})
 
@@ -69,9 +69,9 @@ var _ = Describe("Power uses with other Entities", func() {
 				teros.Dodge = 2
 				teros.Deflect = 9001
 
-				spear.PowerType = power.PowerTypePhysical
+				spear.PowerType = power.Physical
 
-				blot.PowerType = power.PowerTypeSpell
+				blot.PowerType = power.Spell
 			})
 
 			It("Calculates the to hit reduction against physical attacks", func() {
@@ -290,14 +290,14 @@ var _ = Describe("Power uses with other Entities", func() {
 	Context("Give squaddie powers", func() {
 		var (
 			teros *squaddie.Squaddie
-			powerRepository *power.PowerRepository
+			powerRepository *power.Repository
 			spear *power.Power
 		)
 		BeforeEach(func() {
 			powerRepository = power.NewPowerRepository()
 
 			spear = power.NewPower("Spear")
-			spear.PowerType = power.PowerTypePhysical
+			spear.PowerType = power.Physical
 			spear.ID = "deadbeef"
 			newPowers := []*power.Power{spear}
 			powerRepository.AddSlicePowerSource(newPowers)
@@ -306,7 +306,7 @@ var _ = Describe("Power uses with other Entities", func() {
 			teros.Name = "Teros"
 		})
 		It("Can give Squaddie innate Powers with a repository", func() {
-			temporaryPowerReferences := []*power.PowerReference{{Name: "Spear", ID: spear.ID}}
+			temporaryPowerReferences := []*power.Reference{{Name: "Spear", ID: spear.ID}}
 			numberOfPowersAdded, err := powerAttack.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
 			Expect(numberOfPowersAdded).To(Equal(1))
 			Expect(err).To(BeNil())
@@ -318,9 +318,9 @@ var _ = Describe("Power uses with other Entities", func() {
 		})
 		It("Stop adding Powers to Squaddie if it doesn't exist", func() {
 			scimitar := power.NewPower("Scimitar")
-			scimitar.PowerType = power.PowerTypePhysical
+			scimitar.PowerType = power.Physical
 
-			temporaryPowerReferences := []*power.PowerReference{{Name: "Scimitar", ID: scimitar.ID}}
+			temporaryPowerReferences := []*power.Reference{{Name: "Scimitar", ID: scimitar.ID}}
 			numberOfPowersAdded, err := powerAttack.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
 			Expect(numberOfPowersAdded).To(Equal(0))
 			Expect(err.Error()).To(Equal("squaddie 'Teros' tried to add Power 'Scimitar' but it does not exist"))
