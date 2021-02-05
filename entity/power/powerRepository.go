@@ -1,22 +1,22 @@
-package repository
+package power
 
 import (
 	"encoding/json"
-	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/utility"
 	"gopkg.in/yaml.v2"
 )
 
 // PowerRepository will interact with external devices to manage Powers.
 type PowerRepository struct {
-	powersByName map[string]entity.Power
-	powersByID map[string]*entity.Power
+	powersByName map[string]Power
+	powersByID map[string]*Power
 }
 
 // NewPowerRepository generates a pointer to a new PowerRepository.
 func NewPowerRepository() *PowerRepository {
 	repository := PowerRepository{
-		map[string]entity.Power{},
-		map[string]*entity.Power{},
+		map[string]Power{},
+		map[string]*Power{},
 	}
 	return &repository
 }
@@ -32,9 +32,9 @@ func (repository *PowerRepository) AddYAMLSource(data []byte) (bool, error) {
 }
 
 // AddSlicePowerSource tries to add the slice of powers to the repo.
-func (repository *PowerRepository) AddSlicePowerSource(powersToAdd []*entity.Power) (bool, error) {
+func (repository *PowerRepository) AddSlicePowerSource(powersToAdd []*Power) (bool, error) {
 	for _, PowerToAdd := range powersToAdd {
-		PowerErr := entity.CheckPowerForErrors(PowerToAdd)
+		PowerErr := CheckPowerForErrors(PowerToAdd)
 		if PowerErr != nil {
 			return false, PowerErr
 		}
@@ -45,9 +45,9 @@ func (repository *PowerRepository) AddSlicePowerSource(powersToAdd []*entity.Pow
 }
 
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *PowerRepository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
+func (repository *PowerRepository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
-	var listOfPowers []entity.Power
+	var listOfPowers []Power
 
 	unmarshalError = unmarshal(data, &listOfPowers)
 
@@ -55,7 +55,7 @@ func (repository *PowerRepository) addSource(data []byte, unmarshal unmarshalFun
 		return false, unmarshalError
 	}
 	for _, PowerToAdd := range listOfPowers {
-		PowerErr := entity.CheckPowerForErrors(&PowerToAdd)
+		PowerErr := CheckPowerForErrors(&PowerToAdd)
 		if PowerErr != nil {
 			return false, PowerErr
 		}
@@ -71,13 +71,13 @@ func (repository *PowerRepository) GetNumberOfPowers() int {
 }
 
 // GetPowerByID returns the Power stored by ID.
-func (repository *PowerRepository) GetPowerByID(powerID string) *entity.Power {
+func (repository *PowerRepository) GetPowerByID(powerID string) *Power {
 	return repository.powersByID[powerID]
 }
 
 // GetAllPowersByName returns a slice of powers based on a given name
-func (repository *PowerRepository) GetAllPowersByName(powerNameToFind string) []*entity.Power {
-	powersFound := []*entity.Power{}
+func (repository *PowerRepository) GetAllPowersByName(powerNameToFind string) []*Power {
+	powersFound := []*Power{}
 
 	for _, power := range repository.powersByID {
 		if power.Name == powerNameToFind {

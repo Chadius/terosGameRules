@@ -1,43 +1,43 @@
-package usecase
+package powerAttack
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity"
-	"github.com/cserrant/terosBattleServer/repository"
+	powerPackage "github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/entity/squaddie"
 )
 
 // GetPowerToHitBonusWhenUsedBySquaddie calculates the total to hit bonus for the attacking squaddie and attacking power
-func GetPowerToHitBonusWhenUsedBySquaddie(power *entity.Power, squaddie *entity.Squaddie) (toHit int) {
+func GetPowerToHitBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (toHit int) {
 	return power.AttackingEffect.ToHitBonus + squaddie.Aim
 }
 
 // GetPowerDamageBonusWhenUsedBySquaddie calculates the total Damage bonus for the attacking squaddie and attacking power
-func GetPowerDamageBonusWhenUsedBySquaddie(power *entity.Power, squaddie *entity.Squaddie) (damageBonus int) {
-	if power.PowerType == entity.PowerTypePhysical {
+func GetPowerDamageBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
+	if power.PowerType == powerPackage.PowerTypePhysical {
 		return power.AttackingEffect.DamageBonus + squaddie.Strength
 	}
 	return power.AttackingEffect.DamageBonus + squaddie.Mind
 }
 
 // GetPowerCriticalDamageBonusWhenUsedBySquaddie calculates the total Critical Hit Damage bonus for the attacking squaddie and attacking power
-func GetPowerCriticalDamageBonusWhenUsedBySquaddie(power *entity.Power, squaddie *entity.Squaddie) (damageBonus int) {
+func GetPowerCriticalDamageBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
 	return 2 * GetPowerDamageBonusWhenUsedBySquaddie(power, squaddie)
 }
 
 // GetHowTargetDistributesDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func GetHowTargetDistributesDamage(power *entity.Power, attacker *entity.Squaddie, target *entity.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func GetHowTargetDistributesDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	damageToAbsorb := GetPowerDamageBonusWhenUsedBySquaddie(power, attacker)
 	return calculateHowTargetTakesDamage(power, target, damageToAbsorb)
 }
 
 // GetHowTargetDistributesCriticalDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func GetHowTargetDistributesCriticalDamage(power *entity.Power, attacker *entity.Squaddie, target *entity.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func GetHowTargetDistributesCriticalDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	damageToAbsorb := GetPowerCriticalDamageBonusWhenUsedBySquaddie(power, attacker)
 	return calculateHowTargetTakesDamage(power, target, damageToAbsorb)
 }
 
 // calculateHowTargetTakesDamage factors the target's damage reduction to figure out how the damage is split between barrier, armor and health.
-func calculateHowTargetTakesDamage(power *entity.Power, target *entity.Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func calculateHowTargetTakesDamage(power *powerPackage.Power, target *squaddie.Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	remainingBarrier := target.CurrentBarrier
 
 	damageToAbsorb, barrierDamage, remainingBarrier = calculateDamageAfterInitialBarrierAbsorption(target, damageToAbsorb, barrierDamage, remainingBarrier)
@@ -49,8 +49,8 @@ func calculateHowTargetTakesDamage(power *entity.Power, target *entity.Squaddie,
 	return healthDamage, barrierDamage, extraBarrierDamage
 }
 
-func calculateDamageAfterArmorAbsorption(power *entity.Power, target *entity.Squaddie, damageToAbsorb int, healthDamage int) int {
-	var armorCanAbsorbDamage bool = power.PowerType == entity.PowerTypePhysical
+func calculateDamageAfterArmorAbsorption(power *powerPackage.Power, target *squaddie.Squaddie, damageToAbsorb int, healthDamage int) int {
+	var armorCanAbsorbDamage bool = power.PowerType == powerPackage.PowerTypePhysical
 	if armorCanAbsorbDamage {
 
 		var armorFullyAbsorbsDamage bool = target.Armor > damageToAbsorb
@@ -65,7 +65,7 @@ func calculateDamageAfterArmorAbsorption(power *entity.Power, target *entity.Squ
 	return healthDamage
 }
 
-func calculateDamageAfterExtraBarrierDamage(power *entity.Power, remainingBarrier int, extraBarrierDamage int) int {
+func calculateDamageAfterExtraBarrierDamage(power *powerPackage.Power, remainingBarrier int, extraBarrierDamage int) int {
 	if power.ExtraBarrierDamage > 0 {
 		var barrierFullyAbsorbsExtraBarrierDamage bool = remainingBarrier > power.ExtraBarrierDamage
 		if barrierFullyAbsorbsExtraBarrierDamage {
@@ -79,7 +79,7 @@ func calculateDamageAfterExtraBarrierDamage(power *entity.Power, remainingBarrie
 	return extraBarrierDamage
 }
 
-func calculateDamageAfterInitialBarrierAbsorption(target *entity.Squaddie, damageToAbsorb int, barrierDamage int, remainingBarrier int) (int, int, int) {
+func calculateDamageAfterInitialBarrierAbsorption(target *squaddie.Squaddie, damageToAbsorb int, barrierDamage int, remainingBarrier int) (int, int, int) {
 	var barrierFullyAbsorbsDamage bool = target.CurrentBarrier > damageToAbsorb
 	if barrierFullyAbsorbsDamage {
 		barrierDamage = damageToAbsorb
@@ -108,14 +108,14 @@ type AttackingPowerSummary struct {
 }
 
 // GetExpectedDamage provides a quick summary of an attack as well as the multiplied estimate
-func GetExpectedDamage(power *entity.Power, attacker *entity.Squaddie, target *entity.Squaddie) (battleSummary *AttackingPowerSummary) {
+func GetExpectedDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (battleSummary *AttackingPowerSummary) {
 	toHitBonus := GetPowerToHitBonusWhenUsedBySquaddie(power, attacker)
 	toHitPenalty := GetPowerToHitPenaltyAgainstSquaddie(power, target)
-	totalChanceToHit := entity.GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
+	totalChanceToHit := powerPackage.GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
 
 	healthDamage, barrierDamage, extraBarrierDamage := GetHowTargetDistributesDamage(power, attacker, target)
 
-	chanceToCritical := entity.GetChanceToCriticalBasedOnThreshold(power.CriticalHitThreshold)
+	chanceToCritical := powerPackage.GetChanceToCriticalBasedOnThreshold(power.CriticalHitThreshold)
 	var criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage int
 	if chanceToCritical > 0 {
 		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = GetHowTargetDistributesCriticalDamage(power, attacker, target)
@@ -138,8 +138,8 @@ func GetExpectedDamage(power *entity.Power, attacker *entity.Squaddie, target *e
 }
 
 // GetPowerToHitPenaltyAgainstSquaddie calculates how much the target can reduce the chance of getting hit by the attacking power.
-func GetPowerToHitPenaltyAgainstSquaddie(power *entity.Power, target *entity.Squaddie) (toHitPenalty int) {
-	if power.PowerType == entity.PowerTypePhysical {
+func GetPowerToHitPenaltyAgainstSquaddie(power *powerPackage.Power, target *squaddie.Squaddie) (toHitPenalty int) {
+	if power.PowerType == powerPackage.PowerTypePhysical {
 		return target.Dodge
 	}
 	return target.Deflect
@@ -147,7 +147,7 @@ func GetPowerToHitPenaltyAgainstSquaddie(power *entity.Power, target *entity.Squ
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func LoadAllOfSquaddieInnatePowers(squaddie *entity.Squaddie, powerReferencesToLoad []*entity.PowerReference, repo *repository.PowerRepository) (int, error) {
+func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*powerPackage.PowerReference, repo *powerPackage.PowerRepository) (int, error) {
 	numberOfPowersAdded := 0
 
 	squaddie.ClearInnatePowers()

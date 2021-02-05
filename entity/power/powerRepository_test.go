@@ -1,50 +1,48 @@
-package repository_test
+package power_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/entity/power"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/cserrant/terosBattleServer/repository"
 )
 
 var _ = Describe("CRUD Powers", func() {
 	var (
-		repo *repository.PowerRepository
+		repo *power.PowerRepository
 	)
 	BeforeEach(func() {
-		repo = repository.NewPowerRepository()
+		repo = power.NewPowerRepository()
 	})
 	It("Can add powers directly", func() {
 		Expect(repo.GetNumberOfPowers()).To(Equal(0))
-		spear := entity.NewPower("Spear")
-		spear.PowerType = entity.PowerTypePhysical
-		newPowers := []*entity.Power{spear}
+		spear := power.NewPower("Spear")
+		spear.PowerType = power.PowerTypePhysical
+		newPowers := []*power.Power{spear}
 		success, _ := repo.AddSlicePowerSource(newPowers)
 		Expect(success).To(BeTrue())
 		Expect(repo.GetNumberOfPowers()).To(Equal(1))
 	})
 	Context("Getting Powers from repo", func() {
 		var (
-			spear *entity.Power
-			spear2 *entity.Power
-			repo *repository.PowerRepository
+			spear *power.Power
+			spear2 *power.Power
+			repo *power.PowerRepository
 		)
 
 		BeforeEach(func() {
-			spear = entity.NewPower("Spear")
-			spear.PowerType = entity.PowerTypePhysical
+			spear = power.NewPower("Spear")
+			spear.PowerType = power.PowerTypePhysical
 			spear.ID = "spearLevel1"
 			spear.ToHitBonus = 1
 
-			spear2 = entity.NewPower("Spear")
-			spear2.PowerType = entity.PowerTypePhysical
+			spear2 = power.NewPower("Spear")
+			spear2.PowerType = power.PowerTypePhysical
 			spear2.ID = "spearLevel2"
 			spear2.ToHitBonus = 2
 
-			newPowers := []*entity.Power{spear, spear2}
+			newPowers := []*power.Power{spear, spear2}
 
-			repo = repository.NewPowerRepository()
+			repo = power.NewPowerRepository()
 			repo.AddSlicePowerSource(newPowers)
 		})
 		It("Tracks powers by ID even if they have same name", func() {
@@ -68,7 +66,7 @@ var _ = Describe("CRUD Powers", func() {
 		It("Get all of the powers in repo by name", func() {
 			allSpearPowers := repo.GetAllPowersByName("Spear")
 			Expect(len(allSpearPowers)).To(Equal(2))
-			Expect(allSpearPowers).To(ContainElements([]*entity.Power{spear, spear2}))
+			Expect(allSpearPowers).To(ContainElements([]*power.Power{spear, spear2}))
 		})
 	})
 	Context("Load Power using JSON sources", func() {

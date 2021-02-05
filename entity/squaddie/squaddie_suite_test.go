@@ -1,4 +1,4 @@
-package entity_test
+package squaddie_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestEntity(t *testing.T) {
+func TestSquaddie(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Entity Suite")
+	RunSpecs(t, "Squaddie Suite")
 }

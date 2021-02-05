@@ -1,7 +1,8 @@
-package entity
+package squaddie
 
 import (
 	"fmt"
+	powerPackage "github.com/cserrant/terosBattleServer/entity/power"
 )
 
 // Squaddie is the base unit you can deploy and control on a field.
@@ -10,19 +11,19 @@ type Squaddie struct {
 	Affiliation         string               `json:"affiliation" yaml:"affiliation"`
 	CurrentClass        string               `json:"current_class" yaml:"current_class"`
 	ClassLevels         map[string][]string  `json:"class_levels" yaml:"class_levels"`
-	CurrentHitPoints         int               `json:"current_hit_points" yaml:"current_hit_points"`
-	MaxHitPoints             int               `json:"max_hit_points" yaml:"max_hit_points"`
-	Aim                      int               `json:"aim" yaml:"aim"`
-	Strength                 int               `json:"strength" yaml:"strength"`
-	Mind                     int               `json:"mind" yaml:"mind"`
-	Dodge                    int               `json:"dodge" yaml:"dodge"`
-	Deflect                  int               `json:"deflect" yaml:"deflect"`
-	CurrentBarrier           int               `json:"current_barrier" yaml:"current_barrier"`
-	MaxBarrier               int               `json:"max_barrier" yaml:"max_barrier"`
-	Armor                    int               `json:"armor" yaml:"armor"`
-	Movement                 SquaddieMovement  `json:"movement" yaml:"movement"`
-	TemporaryPowerReferences []*PowerReference `json:"powers" yaml:"powers"`
-	innatePowers             []*Power
+	CurrentHitPoints         int                            `json:"current_hit_points" yaml:"current_hit_points"`
+	MaxHitPoints             int                            `json:"max_hit_points" yaml:"max_hit_points"`
+	Aim                      int                            `json:"aim" yaml:"aim"`
+	Strength                 int                            `json:"strength" yaml:"strength"`
+	Mind                     int                            `json:"mind" yaml:"mind"`
+	Dodge                    int                            `json:"dodge" yaml:"dodge"`
+	Deflect                  int                            `json:"deflect" yaml:"deflect"`
+	CurrentBarrier           int                            `json:"current_barrier" yaml:"current_barrier"`
+	MaxBarrier               int                            `json:"max_barrier" yaml:"max_barrier"`
+	Armor                    int                            `json:"armor" yaml:"armor"`
+	Movement                 SquaddieMovement               `json:"movement" yaml:"movement"`
+	TemporaryPowerReferences []*powerPackage.PowerReference `json:"powers" yaml:"powers"`
+	innatePowers             []*powerPackage.Power
 }
 
 // NewSquaddie generates a squaddie with maxed out health.
@@ -92,7 +93,7 @@ func (squaddie *Squaddie) GetOffensiveStatsWithSpell() (toHitBonus, damageBonus 
 
 // AddInnatePower gives the Squaddie access to the power.
 //  Raises an error if the squaddie already has the power.
-func (squaddie *Squaddie) AddInnatePower(newPower *Power) error {
+func (squaddie *Squaddie) AddInnatePower(newPower *powerPackage.Power) error {
 	for _, innatePower := range squaddie.innatePowers {
 		if newPower.ID == innatePower.ID {
 			return fmt.Errorf(`squaddie "%s" already has innate power with ID "%s"`, squaddie.Name, innatePower.ID)
@@ -104,10 +105,10 @@ func (squaddie *Squaddie) AddInnatePower(newPower *Power) error {
 }
 
 // GetInnatePowerIDNames returns a list of all the powers the squaddie has access to.
-func (squaddie *Squaddie) GetInnatePowerIDNames() []*PowerReference {
-	powerIDNames := []*PowerReference{}
+func (squaddie *Squaddie) GetInnatePowerIDNames() []*powerPackage.PowerReference {
+	powerIDNames := []*powerPackage.PowerReference{}
 	for _, power := range squaddie.innatePowers {
-		powerIDNames = append(powerIDNames, &PowerReference{Name: power.Name, ID: power.ID})
+		powerIDNames = append(powerIDNames, &powerPackage.PowerReference{Name: power.Name, ID: power.ID})
 	}
 	return powerIDNames
 }
@@ -167,10 +168,10 @@ func (squaddie *Squaddie) HasAddedClass(classNameToFind string) bool {
 
 // ClearInnatePowers removes all of the squaddie's powers.
 func (squaddie *Squaddie) ClearInnatePowers() {
-	squaddie.innatePowers = []*Power{}
+	squaddie.innatePowers = []*powerPackage.Power{}
 }
 
-// RemovePowerByID removes the power with the given ID from the squaddie's
+// RemovePowerByID removes the powerPackage with the given ID from the squaddie's
 func (squaddie *Squaddie) RemovePowerByID(powerToRemoveID string) {
 	powerFound := false
 	powerIndexToDelete := 0
@@ -189,7 +190,7 @@ func (squaddie *Squaddie) RemovePowerByID(powerToRemoveID string) {
 
 // ClearTemporaryPowerReferences empties the temporary references to powers.
 func (squaddie *Squaddie) ClearTemporaryPowerReferences() {
-	squaddie.TemporaryPowerReferences = []*PowerReference{}
+	squaddie.TemporaryPowerReferences = []*powerPackage.PowerReference{}
 }
 
 // GetMovementDistancePerRound Returns the distance the Squaddie can travel.

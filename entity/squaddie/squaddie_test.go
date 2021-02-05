@@ -1,37 +1,37 @@
-package entity_test
+package squaddie_test
 
 import (
 	"fmt"
+	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/cserrant/terosBattleServer/entity"
 )
 
 var _ = Describe("Manage Squaddie stats and Powers", func() {
 	It("Sets the Squaddie name.", func() {
-		teros := entity.NewSquaddie("Teros")
+		teros := squaddie.NewSquaddie("Teros")
 		Expect(teros.Name).To(Equal("Teros"))
 	})
 
 	It("Sets current HP to max.", func() {
-		teros := entity.NewSquaddie("Teros")
+		teros := squaddie.NewSquaddie("Teros")
 		Expect(teros.MaxHitPoints).To(Equal(5))
 		teros.SetHPToMax()
 		Expect(teros.CurrentHitPoints).To(Equal(5))
 	})
 
 	It("Can set Barrier to Max Barrier", func() {
-		teros := entity.NewSquaddie("Teros")
+		teros := squaddie.NewSquaddie("Teros")
 		teros.MaxBarrier = 2
 		teros.SetBarrierToMax()
 		Expect(teros.CurrentBarrier).To(Equal(2))
 	})
 
 	Context("Default Settings", func() {
-		var teros *entity.Squaddie
+		var teros *squaddie.Squaddie
 		BeforeEach(func() {
-			teros = entity.NewSquaddie("Teros")
+			teros = squaddie.NewSquaddie("Teros")
 		})
 		It("Max Hit Points is set to 5", func() {
 			Expect(teros.MaxHitPoints).To(Equal(5))
@@ -39,15 +39,15 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 		It("Default movement is 3 on foot", func() {
 			Expect(teros.GetMovementDistancePerRound()).To(Equal(3))
-			Expect(teros.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFoot)))
+			Expect(teros.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFoot)))
 		})
 	})
 
 	Context("Check Squaddies for valid data", func() {
 		It("Throws an error if Squaddie is created with wrong affiliation", func() {
-			newSquaddie := entity.NewSquaddie("Teros")
+			newSquaddie := squaddie.NewSquaddie("Teros")
 			newSquaddie.Affiliation = "Unknown Affiliation"
-			err := entity.CheckSquaddieForErrors(newSquaddie)
+			err := squaddie.CheckSquaddieForErrors(newSquaddie)
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
 		})
@@ -55,7 +55,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 
 	Context("Can calculate net offense and defense", func() {
 		It("Can calculate defenses against physical attacks", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
@@ -68,7 +68,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Can calculate defenses against spell attacks", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
@@ -81,7 +81,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Can calculate offense with physical attacks", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.Aim = 2
 			teros.Strength = 3
 			teros.Mind = 4
@@ -91,7 +91,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Can calculate offense with spell attacks", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.Aim = 2
 			teros.Strength = 3
 			teros.Mind = 4
@@ -103,10 +103,10 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 
 	Context("Manage powers", func() {
 		It("Can gain access to powers and report them", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.Name).To(Equal("Teros"))
 
-			attackA := entity.NewPower("Attack Formation A")
+			attackA := power.NewPower("Attack Formation A")
 			teros.AddInnatePower(attackA)
 
 			attackIDNamePairs := teros.GetInnatePowerIDNames()
@@ -116,10 +116,10 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Clears squaddie known powers", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.Name).To(Equal("Teros"))
 
-			attackA := entity.NewPower("Attack Formation A")
+			attackA := power.NewPower("Attack Formation A")
 			teros.AddInnatePower(attackA)
 			teros.ClearInnatePowers()
 
@@ -128,8 +128,8 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Clears squaddie temporary power references", func() {
-			teros := entity.NewSquaddie("Teros")
-			teros.TemporaryPowerReferences = []*entity.PowerReference{{Name: "Pow pow", ID: "Power Wheels"}}
+			teros := squaddie.NewSquaddie("Teros")
+			teros.TemporaryPowerReferences = []*power.PowerReference{{Name: "Pow pow", ID: "Power Wheels"}}
 
 			teros.ClearTemporaryPowerReferences()
 
@@ -137,10 +137,10 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Can remove squaddie powers", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.Name).To(Equal("Teros"))
 
-			attackA := entity.NewPower("Attack Formation A")
+			attackA := power.NewPower("Attack Formation A")
 			teros.AddInnatePower(attackA)
 			teros.RemovePowerByID(attackA.ID)
 
@@ -149,10 +149,10 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Raises an error if you try to gain the same innate power", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.Name).To(Equal("Teros"))
 
-			attackA := entity.NewPower("Attack Formation A")
+			attackA := power.NewPower("Attack Formation A")
 			err := teros.AddInnatePower(attackA)
 			Expect(err).To(BeNil())
 			err = teros.AddInnatePower(attackA)
@@ -168,27 +168,27 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 
 	Context("Class levels", func() {
 		It("Has no class and level upon creation", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.CurrentClass).To(Equal(""))
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{}))
 		})
 
 		It("Can add a class", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.GetLevelCountsByClass()).To(BeEmpty())
 			teros.AddClass("Mage")
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"Mage": 0}))
 		})
 
 		It("Can tell if a class was already added", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.AddClass("Mage")
 			Expect(teros.HasAddedClass("Mage")).To(BeTrue())
 			Expect(teros.HasAddedClass("Mushroom")).To(BeFalse())
 		})
 
 		It("Can set the current class", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.AddClass("Mage")
 			Expect(teros.CurrentClass).To(Equal(""))
 			err := teros.SetClass("Mage")
@@ -197,7 +197,7 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		})
 
 		It("Raise an error if you set to a class that does not exist", func() {
-			teros := entity.NewSquaddie("Teros")
+			teros := squaddie.NewSquaddie("Teros")
 			teros.AddClass("Mage")
 			Expect(teros.CurrentClass).To(Equal(""))
 			err := teros.SetClass("Mushroom")

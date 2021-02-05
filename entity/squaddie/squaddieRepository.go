@@ -1,20 +1,20 @@
-package repository
+package squaddie
 
 import (
 	"encoding/json"
-	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/entity/power"
 	"gopkg.in/yaml.v2"
 )
 
 // SquaddieRepository will interact with external devices to manage Squaddies.
 type SquaddieRepository struct {
-	squaddiesByName map[string]entity.Squaddie
+	squaddiesByName map[string]Squaddie
 }
 
 // NewSquaddieRepository generates a pointer to a new Squaddie.
 func NewSquaddieRepository() *SquaddieRepository {
 	repository := SquaddieRepository{
-		map[string]entity.Squaddie{},
+		map[string]Squaddie{},
 	}
 	return &repository
 }
@@ -34,14 +34,14 @@ func (repository *SquaddieRepository) AddYAMLSource(data []byte) (bool, error) {
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
 func (repository *SquaddieRepository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
 	var unmarshalError error
-	var listOfSquaddies []entity.Squaddie
+	var listOfSquaddies []Squaddie
 	unmarshalError = unmarshal(data, &listOfSquaddies)
 
 	if unmarshalError != nil {
 		return false, unmarshalError
 	}
 	for _, squaddieToAdd := range listOfSquaddies {
-		squaddieErr := entity.CheckSquaddieForErrors(&squaddieToAdd)
+		squaddieErr := CheckSquaddieForErrors(&squaddieToAdd)
 		if squaddieErr != nil {
 			return false, squaddieErr
 		}
@@ -58,7 +58,7 @@ func (repository *SquaddieRepository) GetNumberOfSquaddies() int {
 }
 
 // GetByName retrieves a Squaddie by name
-func (repository *SquaddieRepository) GetByName(squaddieName string) *entity.Squaddie {
+func (repository *SquaddieRepository) GetByName(squaddieName string) *Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByName[squaddieName]
 	if !squaddieExists {
 		return nil
@@ -67,12 +67,12 @@ func (repository *SquaddieRepository) GetByName(squaddieName string) *entity.Squ
 }
 
 // MarshalSquaddieIntoJSON converts the given Squaddie into JSON.
-func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *entity.Squaddie) ([]byte, error) {
-	type Alias entity.Squaddie
+func (repository *SquaddieRepository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byte, error) {
+	type Alias Squaddie
 
 	return json.Marshal(&struct {
 		*Alias
-		PowerIDNames []*entity.PowerReference `json:"powers" yaml:"powers"`
+		PowerIDNames []*power.PowerReference `json:"powers" yaml:"powers"`
 	}{
 		Alias:        (*Alias)(squaddie),
 		PowerIDNames: squaddie.GetInnatePowerIDNames(),

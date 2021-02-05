@@ -1,29 +1,29 @@
-package repository
+package levelUpBenefit
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/utility"
 	"gopkg.in/yaml.v2"
 )
 
 // BenefitsByNameAndClass is the heading that explains all of the ways a Squaddie with the given SquaddieName
 //   can advance.
 type BenefitsByNameAndClass struct {
-	SquaddieName string                         `json:"squaddie_name" yaml:"squaddie_name"`
-	LevelUpsByClass []*BenefitsByClass 			`json:"level_ups_by_class" yaml:"level_ups_by_class"`
+	SquaddieName string                `json:"squaddie_name" yaml:"squaddie_name"`
+	LevelUpsByClass []*BenefitsByClass `json:"level_ups_by_class" yaml:"level_ups_by_class"`
 }
 
 // BenefitsByClass describes each class and its potential level ups.
 type BenefitsByClass struct {
-	ClassName        string                      `json:"class_name" yaml:"class_name"`
-	LevelUpBenefits  []*entity.LevelUpBenefit    `json:"level_up_benefits" yaml:"level_up_benefits"`
+	ClassName        string            `json:"class_name" yaml:"class_name"`
+	LevelUpBenefits  []*LevelUpBenefit `json:"level_up_benefits" yaml:"level_up_benefits"`
 }
 
 // LevelUpBenefitRepository is used to load and retrieve LevelUpBenefit objects for
 //   squaddies, classes and levels.
 type LevelUpBenefitRepository struct {
-	levelUpBenefitsByNameAndClass map[string]map[string][]*entity.LevelUpBenefit
+	levelUpBenefitsByNameAndClass map[string]map[string][]*LevelUpBenefit
 }
 
 // GetNumberOfLevelUpBenefits returns a total count of all of the LevelUpBenefit objects stored.
@@ -48,7 +48,7 @@ func (repository *LevelUpBenefitRepository) AddYAMLSource(data []byte) (bool, er
 }
 
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *LevelUpBenefitRepository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
+func (repository *LevelUpBenefitRepository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
 
 	var allBenefits []BenefitsByNameAndClass
@@ -70,10 +70,10 @@ func (repository *LevelUpBenefitRepository) addSource(data []byte, unmarshal unm
 				}
 
 				if repository.levelUpBenefitsByNameAndClass[squaddieName] == nil {
-					repository.levelUpBenefitsByNameAndClass[squaddieName] = map[string][]*entity.LevelUpBenefit{}
+					repository.levelUpBenefitsByNameAndClass[squaddieName] = map[string][]*LevelUpBenefit{}
 				}
 				if repository.levelUpBenefitsByNameAndClass[squaddieName][className] == nil {
-					repository.levelUpBenefitsByNameAndClass[squaddieName][className] = []*entity.LevelUpBenefit{}
+					repository.levelUpBenefitsByNameAndClass[squaddieName][className] = []*LevelUpBenefit{}
 				}
 
 				levelUpBenefit.SquaddieName = squaddieName
@@ -88,7 +88,7 @@ func (repository *LevelUpBenefitRepository) addSource(data []byte, unmarshal unm
 }
 
 // GetLevelUpBenefitsByNameAndClass uses the squaddieName and className to return a list of Level Up Benefits.
-func (repository *LevelUpBenefitRepository) GetLevelUpBenefitsByNameAndClass(squaddieName string, className string) ([]*entity.LevelUpBenefit, error) {
+func (repository *LevelUpBenefitRepository) GetLevelUpBenefitsByNameAndClass(squaddieName string, className string) ([]*LevelUpBenefit, error) {
 	_, squaddieExists := repository.levelUpBenefitsByNameAndClass[squaddieName]
 	if !squaddieExists {
 		return nil, fmt.Errorf(`no LevelUpBenefits for this squaddie: "%s"`, squaddieName)
@@ -105,7 +105,7 @@ func (repository *LevelUpBenefitRepository) GetLevelUpBenefitsByNameAndClass(squ
 // NewLevelUpBenefitRepository generates a pointer to a new LevelUpBenefitRepository.
 func NewLevelUpBenefitRepository() *LevelUpBenefitRepository {
 	repository := LevelUpBenefitRepository{
-		map[string]map[string][]*entity.LevelUpBenefit{},
+		map[string]map[string][]*LevelUpBenefit{},
 	}
 	return &repository
 }

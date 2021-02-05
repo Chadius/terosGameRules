@@ -1,4 +1,4 @@
-package entity
+package power
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type PowerType string
 
 const (
 	// PowerTypePhysical powers use martial training and cunning. Examples: Swords, Bows, Pushing
-	PowerTypePhysical PowerType = "Physical"
+	PowerTypePhysical = "Physical"
 	// PowerTypeSpell powers are magical in nature and conjured without tools. Examples: Fireball, Mindread
 	PowerTypeSpell = "Spell"
 )

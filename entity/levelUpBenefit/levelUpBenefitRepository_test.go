@@ -1,21 +1,19 @@
-package repository_test
+package levelUpBenefit_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity"
+	"github.com/cserrant/terosBattleServer/entity/levelUpBenefit"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/cserrant/terosBattleServer/repository"
 )
 
 var _ = Describe("CRUD LevelUpBenefits", func() {
 	var (
-		repo *repository.LevelUpBenefitRepository
+		repo *levelUpBenefit.LevelUpBenefitRepository
 		jsonByteStream []byte
 		yamlByteStream []byte
 	)
 	BeforeEach(func() {
-		repo = repository.NewLevelUpBenefitRepository()
+		repo = levelUpBenefit.NewLevelUpBenefitRepository()
 		jsonByteStream = []byte(`[
   {
     "squaddie_name": "Teros",
@@ -100,7 +98,7 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
 			Expect(len(benefits)).To(Equal(1))
 
 			firstBenefit := benefits[0]
-			Expect(firstBenefit.LevelUpBenefitType).To(Equal(entity.LevelUpBenefitTypeSmall))
+			Expect(firstBenefit.LevelUpBenefitType).To(Equal(levelUpBenefit.LevelUpBenefitTypeSmall))
 			Expect(firstBenefit.SquaddieName).To(Equal("Teros"))
 			Expect(firstBenefit.ClassName).To(Equal("Mage"))
 			Expect(firstBenefit.MaxHitPoints).To(Equal(1))

@@ -1,4 +1,4 @@
-package entity
+package squaddie
 
 // SquaddieMovement contains all of the information needed to describe a Squaddie's movement.
 type SquaddieMovement struct {
@@ -24,8 +24,8 @@ const (
 )
 
 var MovementValueByType = map[SquaddieMovementType]int{
-	SquaddieMovementTypeFoot: 0,
-	SquaddieMovementTypeLight: 1,
-	SquaddieMovementTypeFly: 2,
+	SquaddieMovementTypeFoot:     0,
+	SquaddieMovementTypeLight:    1,
+	SquaddieMovementTypeFly:      2,
 	SquaddieMovementTypeTeleport: 3,
 }

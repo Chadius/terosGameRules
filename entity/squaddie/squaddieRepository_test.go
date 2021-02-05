@@ -1,21 +1,19 @@
-package repository_test
+package squaddie_test
 
 import (
 	"fmt"
-
+	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/cserrant/terosBattleServer/entity"
-	"github.com/cserrant/terosBattleServer/repository"
 )
 
 var _ = Describe("CRUD Squaddies", func() {
 	var (
-		repo *repository.SquaddieRepository
+		repo *squaddie.SquaddieRepository
 	)
 	BeforeEach(func() {
-		repo = repository.NewSquaddieRepository()
+		repo = squaddie.NewSquaddieRepository()
 	})
 	Context("Load Squaddie using JSON sources", func() {
 		It("Can add a JSON source", func() {
@@ -103,32 +101,32 @@ var _ = Describe("CRUD Squaddies", func() {
 			soldier := repo.GetByName("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
-			Expect(soldier.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFoot)))
+			Expect(soldier.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFoot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
 			scout := repo.GetByName("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
-			Expect(scout.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeLight)))
+			Expect(scout.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeLight)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
 			bird := repo.GetByName("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
-			Expect(bird.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFly)))
+			Expect(bird.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
 			teleporter := repo.GetByName("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
-			Expect(teleporter.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeTeleport)))
+			Expect(teleporter.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeTeleport)))
 			Expect(teleporter.CanHitAndRun()).To(BeFalse())
 		})
 	})
 	Context("Save Squaddie as JSON", func() {
-		var teros *entity.Squaddie
+		var teros *squaddie.Squaddie
 		BeforeEach(func() {
-			teros = entity.NewSquaddie("Teros")
+			teros = squaddie.NewSquaddie("Teros")
 			teros.Armor = 2
 			teros.Dodge = 3
 			teros.Deflect = 4
@@ -140,7 +138,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"movement":{"distance":3,"type":"foot","hit_and_run":false},"powers":[]}`)))
 		})
 		It("Can Marshall a Squaddie with extraordinary movement into JSON", func() {
-			teros.Movement.Type = entity.SquaddieMovementTypeTeleport
+			teros.Movement.Type = squaddie.SquaddieMovementTypeTeleport
 			teros.Movement.Distance = 8
 			teros.Movement.HitAndRun = true
 
@@ -150,7 +148,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(byteStream).To(Equal([]byte(fmt.Sprintf(`{"name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,%s,"powers":[]}`, movementJSON))))
 		})
 		It("Can Marshall a Squaddie with powers into JSON", func() {
-			attackA := entity.NewPower("Attack Formation A")
+			attackA := power.NewPower("Attack Formation A")
 			teros.AddInnatePower(attackA)
 			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
@@ -235,25 +233,25 @@ var _ = Describe("CRUD Squaddies", func() {
 			soldier := repo.GetByName("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
-			Expect(soldier.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFoot)))
+			Expect(soldier.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFoot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
 			scout := repo.GetByName("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
-			Expect(scout.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeLight)))
+			Expect(scout.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeLight)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
 			bird := repo.GetByName("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
-			Expect(bird.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeFly)))
+			Expect(bird.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeFly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
 			teleporter := repo.GetByName("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
-			Expect(teleporter.GetMovementType()).To(Equal(entity.SquaddieMovementType(entity.SquaddieMovementTypeTeleport)))
+			Expect(teleporter.GetMovementType()).To(Equal(squaddie.SquaddieMovementType(squaddie.SquaddieMovementTypeTeleport)))
 			Expect(teleporter.CanHitAndRun()).To(BeFalse())
 		})
 	})

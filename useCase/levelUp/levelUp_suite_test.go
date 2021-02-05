@@ -1,4 +1,4 @@
-package usecase_test
+package levelUp_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestUseCase(t *testing.T) {
+func TestLevelUp(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "UseCase Suite")
+	RunSpecs(t, "LevelUp Suite")
 }
