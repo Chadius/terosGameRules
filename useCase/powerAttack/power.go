@@ -2,55 +2,55 @@ package powerAttack
 
 import (
 	"fmt"
-	powerPackage "github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 )
 
 // GetPowerToHitBonusWhenUsedBySquaddie calculates the total to hit bonus for the attacking squaddie and attacking power
-func GetPowerToHitBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (toHit int) {
-	return power.AttackingEffect.ToHitBonus + squaddie.Aim
+func GetPowerToHitBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie) (toHit int) {
+	return attackingPower.AttackingEffect.ToHitBonus + squaddie.Aim
 }
 
 // GetPowerDamageBonusWhenUsedBySquaddie calculates the total Damage bonus for the attacking squaddie and attacking power
-func GetPowerDamageBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
-	if power.PowerType == powerPackage.Physical {
-		return power.AttackingEffect.DamageBonus + squaddie.Strength
+func GetPowerDamageBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
+	if attackingPower.PowerType == power.Physical {
+		return attackingPower.AttackingEffect.DamageBonus + squaddie.Strength
 	}
-	return power.AttackingEffect.DamageBonus + squaddie.Mind
+	return attackingPower.AttackingEffect.DamageBonus + squaddie.Mind
 }
 
 // GetPowerCriticalDamageBonusWhenUsedBySquaddie calculates the total Critical Hit Damage bonus for the attacking squaddie and attacking power
-func GetPowerCriticalDamageBonusWhenUsedBySquaddie(power *powerPackage.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
-	return 2 * GetPowerDamageBonusWhenUsedBySquaddie(power, squaddie)
+func GetPowerCriticalDamageBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
+	return 2 * GetPowerDamageBonusWhenUsedBySquaddie(attackingPower, squaddie)
 }
 
 // GetHowTargetDistributesDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func GetHowTargetDistributesDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
-	damageToAbsorb := GetPowerDamageBonusWhenUsedBySquaddie(power, attacker)
-	return calculateHowTargetTakesDamage(power, target, damageToAbsorb)
+func GetHowTargetDistributesDamage(attackingPower *power.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
+	damageToAbsorb := GetPowerDamageBonusWhenUsedBySquaddie(attackingPower, attacker)
+	return calculateHowTargetTakesDamage(attackingPower, target, damageToAbsorb)
 }
 
 // GetHowTargetDistributesCriticalDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
-func GetHowTargetDistributesCriticalDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
-	damageToAbsorb := GetPowerCriticalDamageBonusWhenUsedBySquaddie(power, attacker)
-	return calculateHowTargetTakesDamage(power, target, damageToAbsorb)
+func GetHowTargetDistributesCriticalDamage(attackingPower *power.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
+	damageToAbsorb := GetPowerCriticalDamageBonusWhenUsedBySquaddie(attackingPower, attacker)
+	return calculateHowTargetTakesDamage(attackingPower, target, damageToAbsorb)
 }
 
 // calculateHowTargetTakesDamage factors the target's damage reduction to figure out how the damage is split between barrier, armor and health.
-func calculateHowTargetTakesDamage(power *powerPackage.Power, target *squaddie.Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
+func calculateHowTargetTakesDamage(attackingPower *power.Power, target *squaddie.Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	remainingBarrier := target.CurrentBarrier
 
 	damageToAbsorb, barrierDamage, remainingBarrier = calculateDamageAfterInitialBarrierAbsorption(target, damageToAbsorb, barrierDamage, remainingBarrier)
 
-	extraBarrierDamage = calculateDamageAfterExtraBarrierDamage(power, remainingBarrier, extraBarrierDamage)
+	extraBarrierDamage = calculateDamageAfterExtraBarrierDamage(attackingPower, remainingBarrier, extraBarrierDamage)
 
-	healthDamage = calculateDamageAfterArmorAbsorption(power, target, damageToAbsorb, healthDamage)
+	healthDamage = calculateDamageAfterArmorAbsorption(attackingPower, target, damageToAbsorb, healthDamage)
 
 	return healthDamage, barrierDamage, extraBarrierDamage
 }
 
-func calculateDamageAfterArmorAbsorption(power *powerPackage.Power, target *squaddie.Squaddie, damageToAbsorb int, healthDamage int) int {
-	var armorCanAbsorbDamage bool = power.PowerType == powerPackage.Physical
+func calculateDamageAfterArmorAbsorption(attackingPower *power.Power, target *squaddie.Squaddie, damageToAbsorb int, healthDamage int) int {
+	var armorCanAbsorbDamage bool = attackingPower.PowerType == power.Physical
 	if armorCanAbsorbDamage {
 
 		var armorFullyAbsorbsDamage bool = target.Armor > damageToAbsorb
@@ -65,12 +65,12 @@ func calculateDamageAfterArmorAbsorption(power *powerPackage.Power, target *squa
 	return healthDamage
 }
 
-func calculateDamageAfterExtraBarrierDamage(power *powerPackage.Power, remainingBarrier int, extraBarrierDamage int) int {
-	if power.ExtraBarrierDamage > 0 {
-		var barrierFullyAbsorbsExtraBarrierDamage bool = remainingBarrier > power.ExtraBarrierDamage
+func calculateDamageAfterExtraBarrierDamage(attackingPower *power.Power, remainingBarrier int, extraBarrierDamage int) int {
+	if attackingPower.ExtraBarrierDamage > 0 {
+		var barrierFullyAbsorbsExtraBarrierDamage bool = remainingBarrier > attackingPower.ExtraBarrierDamage
 		if barrierFullyAbsorbsExtraBarrierDamage {
-			extraBarrierDamage = power.ExtraBarrierDamage
-			remainingBarrier = remainingBarrier - power.ExtraBarrierDamage
+			extraBarrierDamage = attackingPower.ExtraBarrierDamage
+			remainingBarrier = remainingBarrier - attackingPower.ExtraBarrierDamage
 		} else {
 			extraBarrierDamage = remainingBarrier
 			remainingBarrier = 0
@@ -108,17 +108,17 @@ type AttackingPowerSummary struct {
 }
 
 // GetExpectedDamage provides a quick summary of an attack as well as the multiplied estimate
-func GetExpectedDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (battleSummary *AttackingPowerSummary) {
-	toHitBonus := GetPowerToHitBonusWhenUsedBySquaddie(power, attacker)
-	toHitPenalty := GetPowerToHitPenaltyAgainstSquaddie(power, target)
-	totalChanceToHit := powerPackage.GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
+func GetExpectedDamage(attackingPower *power.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (battleSummary *AttackingPowerSummary) {
+	toHitBonus := GetPowerToHitBonusWhenUsedBySquaddie(attackingPower, attacker)
+	toHitPenalty := GetPowerToHitPenaltyAgainstSquaddie(attackingPower, target)
+	totalChanceToHit := power.GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
 
-	healthDamage, barrierDamage, extraBarrierDamage := GetHowTargetDistributesDamage(power, attacker, target)
+	healthDamage, barrierDamage, extraBarrierDamage := GetHowTargetDistributesDamage(attackingPower, attacker, target)
 
-	chanceToCritical := powerPackage.GetChanceToCriticalBasedOnThreshold(power.CriticalHitThreshold)
+	chanceToCritical := power.GetChanceToCriticalBasedOnThreshold(attackingPower.CriticalHitThreshold)
 	var criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage int
 	if chanceToCritical > 0 {
-		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = GetHowTargetDistributesCriticalDamage(power, attacker, target)
+		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = GetHowTargetDistributesCriticalDamage(attackingPower, attacker, target)
 	} else {
 		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = 0, 0, 0
 	}
@@ -138,8 +138,8 @@ func GetExpectedDamage(power *powerPackage.Power, attacker *squaddie.Squaddie, t
 }
 
 // GetPowerToHitPenaltyAgainstSquaddie calculates how much the target can reduce the chance of getting hit by the attacking power.
-func GetPowerToHitPenaltyAgainstSquaddie(power *powerPackage.Power, target *squaddie.Squaddie) (toHitPenalty int) {
-	if power.PowerType == powerPackage.Physical {
+func GetPowerToHitPenaltyAgainstSquaddie(attackingPower *power.Power, target *squaddie.Squaddie) (toHitPenalty int) {
+	if attackingPower.PowerType == power.Physical {
 		return target.Dodge
 	}
 	return target.Deflect
@@ -147,7 +147,7 @@ func GetPowerToHitPenaltyAgainstSquaddie(power *powerPackage.Power, target *squa
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*powerPackage.Reference, repo *powerPackage.Repository) (int, error) {
+func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repo *power.Repository) (int, error) {
 	numberOfPowersAdded := 0
 
 	squaddie.ClearInnatePowers()
