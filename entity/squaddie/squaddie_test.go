@@ -14,6 +14,12 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		Expect(teros.Name).To(Equal("Teros"))
 	})
 
+	It("Will get a random ID if none is given", func() {
+		teros := squaddie.NewSquaddie("Teros")
+		Expect(teros.ID).NotTo(BeNil())
+		Expect(teros.ID).NotTo(Equal(""))
+	})
+
 	It("Sets current HP to max.", func() {
 		teros := squaddie.NewSquaddie("Teros")
 		Expect(teros.MaxHitPoints).To(Equal(5))

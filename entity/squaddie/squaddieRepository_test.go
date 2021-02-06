@@ -1,6 +1,7 @@
 package squaddie_test
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
@@ -135,17 +136,19 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("Can Marshall a Squaddie into JSON", func() {
 			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
-			Expect(byteStream).To(Equal([]byte(`{"name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"movement":{"distance":3,"type":"foot","hit_and_run":false},"powers":[]}`)))
+			expectedJSON := fmt.Sprintf(`{"id":"%s","name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"movement":{"distance":3,"type":"foot","hit_and_run":false},"powers":[]}`, teros.ID)
+			Expect(byteStream).To(Equal([]byte(expectedJSON)))
 		})
 		It("Can Marshall a Squaddie with extraordinary movement into JSON", func() {
 			teros.Movement.Type = squaddie.Teleport
 			teros.Movement.Distance = 8
 			teros.Movement.HitAndRun = true
 
-			movementJSON := `"movement":{"distance":8,"type":"teleport","hit_and_run":true}`
 			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
-			Expect(byteStream).To(Equal([]byte(fmt.Sprintf(`{"name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,%s,"powers":[]}`, movementJSON))))
+			movementJSON := `"movement":{"distance":8,"type":"teleport","hit_and_run":true}`
+			containsPowersJson := bytes.Contains(byteStream, []byte(movementJSON))
+			Expect(containsPowersJson).To(BeTrue())
 		})
 		It("Can Marshall a Squaddie with powers into JSON", func() {
 			attackA := power.NewPower("Attack Formation A")
@@ -154,7 +157,8 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(err).To(BeNil())
 
 			powersJSON := fmt.Sprintf(`"powers":[{"name":"Attack Formation A","id":"%s"}]`, attackA.ID)
-			Expect(byteStream).To(Equal([]byte(fmt.Sprintf(`{"name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"movement":{"distance":3,"type":"foot","hit_and_run":false},%s}`, powersJSON))))
+			containsPowersJson := bytes.Contains(byteStream, []byte(powersJSON))
+			Expect(containsPowersJson).To(BeTrue())
 		})
 	})
 	Context("Load Squaddie using YAML sources", func() {

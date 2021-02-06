@@ -3,10 +3,12 @@ package squaddie
 import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/utility"
 )
 
 // Squaddie is the base unit you can deploy and control on a field.
 type Squaddie struct {
+	ID                  string               `json:"id" yaml:"id"`
 	Name                string               `json:"name" yaml:"name"`
 	Affiliation         string               `json:"affiliation" yaml:"affiliation"`
 	CurrentClass        string               `json:"current_class" yaml:"current_class"`
@@ -28,8 +30,9 @@ type Squaddie struct {
 // NewSquaddie generates a squaddie with maxed out health.
 func NewSquaddie(name string) *Squaddie {
 	newSquaddie := Squaddie{
-		Name:             name,
-		Affiliation:      "Player",
+		ID:                  utility.StringWithCharset(8, "abcdefgh0123456789"),
+		Name:                name,
+		Affiliation:         "Player",
 		CurrentHitPoints:    0,
 		MaxHitPoints:        5,
 		Aim:                 0,
@@ -40,11 +43,11 @@ func NewSquaddie(name string) *Squaddie {
 		CurrentBarrier:      0,
 		MaxBarrier:          0,
 		Armor:               0,
-		ClassLevels: map[string][]string{},
-		Movement: Movement{
-			Distance:  3,
-			Type:      Foot,
-			HitAndRun: false,
+		ClassLevels:         map[string][]string{},
+		Movement:            Movement{
+			Distance:        3,
+			Type:            Foot,
+			HitAndRun:       false,
 		},
 	}
 	newSquaddie.SetHPToMax()
