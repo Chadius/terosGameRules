@@ -4,49 +4,49 @@ import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/levelUpBenefit"
 	"github.com/cserrant/terosBattleServer/entity/power"
-	squaddie2 "github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerAttack"
 )
 
 // improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.
-func improveSquaddieStats(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie) {
-	squaddie.MaxHitPoints = squaddie.MaxHitPoints + benefit.MaxHitPoints
-	squaddie.Aim = squaddie.Aim + benefit.Aim
-	squaddie.Strength = squaddie.Strength + benefit.Strength
-	squaddie.Mind = squaddie.Mind + benefit.Mind
-	squaddie.Dodge = squaddie.Dodge + benefit.Dodge
-	squaddie.Deflect = squaddie.Deflect + benefit.Deflect
-	squaddie.MaxBarrier = squaddie.MaxBarrier + benefit.MaxBarrier
-	squaddie.Armor = squaddie.Armor + benefit.Armor
+func improveSquaddieStats(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
+	squaddieToImprove.MaxHitPoints = squaddieToImprove.MaxHitPoints + benefit.MaxHitPoints
+	squaddieToImprove.Aim = squaddieToImprove.Aim + benefit.Aim
+	squaddieToImprove.Strength = squaddieToImprove.Strength + benefit.Strength
+	squaddieToImprove.Mind = squaddieToImprove.Mind + benefit.Mind
+	squaddieToImprove.Dodge = squaddieToImprove.Dodge + benefit.Dodge
+	squaddieToImprove.Deflect = squaddieToImprove.Deflect + benefit.Deflect
+	squaddieToImprove.MaxBarrier = squaddieToImprove.MaxBarrier + benefit.MaxBarrier
+	squaddieToImprove.Armor = squaddieToImprove.Armor + benefit.Armor
 }
 
 // LevelUpSquaddie uses the LevelUpBenefit to improve the squaddie.
 //   Raises an error if the Squaddie does not have that class.
 //   Raises an error if the Squaddie marked the LevelUpBenefit as consumed.
-func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.Repository) error {
-	if squaddie.HasAddedClass(benefit.ClassName) == false {
-		return fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddie.Name, benefit.ClassName)
+func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, powerRepo *power.Repository) error {
+	if squaddieToImprove.HasAddedClass(benefit.ClassName) == false {
+		return fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Name, benefit.ClassName)
 	}
-	if squaddie.IsClassLevelAlreadyUsed(benefit.ID) {
-		return fmt.Errorf(`%s already consumed LevelUpBenefit - class:"%s" id:"%s"`, squaddie.Name, benefit.ClassName, benefit.ID)
+	if squaddieToImprove.IsClassLevelAlreadyUsed(benefit.ID) {
+		return fmt.Errorf(`%s already consumed LevelUpBenefit - class:"%s" id:"%s"`, squaddieToImprove.Name, benefit.ClassName, benefit.ID)
 	}
 
-	improveSquaddieStats(benefit, squaddie)
-	err := refreshSquaddiePowers(benefit, squaddie, powerRepo)
+	improveSquaddieStats(benefit, squaddieToImprove)
+	err := refreshSquaddiePowers(benefit, squaddieToImprove, powerRepo)
 	if err != nil {
 		return err
 	}
 
-	improveSquaddieMovement(benefit, squaddie)
+	improveSquaddieMovement(benefit, squaddieToImprove)
 
-	squaddie.MarkLevelUpBenefitAsConsumed(benefit.ClassName, benefit.ID)
+	squaddieToImprove.MarkLevelUpBenefitAsConsumed(benefit.ClassName, benefit.ID)
 	return nil
 }
 
-func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.Repository) error {
-	initialSquaddiePowerReferences := squaddie.PowerReferences
+func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, powerRepo *power.Repository) error {
+	initialSquaddiePowerReferences := squaddieToImprove.PowerReferences
 	if initialSquaddiePowerReferences == nil || len(initialSquaddiePowerReferences) == 0 {
-		initialSquaddiePowerReferences = squaddie.GetInnatePowerIDNames()
+		initialSquaddiePowerReferences = squaddieToImprove.GetInnatePowerIDNames()
 	}
 
 	powerReferencesToKeep := []*power.Reference{}
@@ -64,22 +64,22 @@ func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squ
 
 	powerReferencesToLoad := append(powerReferencesToKeep, benefit.PowerIDGained...)
 
-	_, err := powerAttack.LoadAllOfSquaddieInnatePowers(squaddie, powerReferencesToLoad, powerRepo)
+	_, err := powerAttack.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, powerRepo)
 	return err
 }
 
-func improveSquaddieMovement(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie) {
+func improveSquaddieMovement(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	if benefit.Movement == nil {
 		return
 	}
 
-	squaddie.Movement.Distance = squaddie.Movement.Distance + benefit.Movement.Distance
+	squaddieToImprove.Movement.Distance = squaddieToImprove.Movement.Distance + benefit.Movement.Distance
 
-	if squaddie2.MovementValueByType[squaddie.Movement.Type] < squaddie2.MovementValueByType[benefit.Movement.Type] {
-		squaddie.Movement.Type = benefit.Movement.Type
+	if squaddie.MovementValueByType[squaddieToImprove.Movement.Type] < squaddie.MovementValueByType[benefit.Movement.Type] {
+		squaddieToImprove.Movement.Type = benefit.Movement.Type
 	}
 
 	if benefit.Movement.HitAndRun {
-		squaddie.Movement.HitAndRun = benefit.Movement.HitAndRun
+		squaddieToImprove.Movement.HitAndRun = benefit.Movement.HitAndRun
 	}
 }
