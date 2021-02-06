@@ -44,7 +44,7 @@ func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2
 }
 
 func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddie *squaddie2.Squaddie, powerRepo *power.Repository) error {
-	initialSquaddiePowerReferences := squaddie.TemporaryPowerReferences
+	initialSquaddiePowerReferences := squaddie.PowerReferences
 	if initialSquaddiePowerReferences == nil || len(initialSquaddiePowerReferences) == 0 {
 		initialSquaddiePowerReferences = squaddie.GetInnatePowerIDNames()
 	}

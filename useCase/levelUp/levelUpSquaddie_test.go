@@ -163,7 +163,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			spear.PowerType = power.Physical
 			spear.ToHitBonus = 1
 			spear.ID = "spearlvl1"
-			teros.TemporaryPowerReferences = []*power.Reference{{Name: "Spear", ID: "spearlvl1"}}
+			teros.PowerReferences = []*power.Reference{{Name: "Spear", ID: "spearlvl1"}}
 
 			spearLevel2 = power.NewPower("Spear")
 			spearLevel2.PowerType = power.Physical
@@ -196,8 +196,6 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			Expect(len(attackIDNamePairs)).To(Equal(1))
 			Expect(attackIDNamePairs[0].Name).To(Equal("Spear"))
 			Expect(attackIDNamePairs[0].ID).To(Equal(spear.ID))
-
-			Expect(teros.TemporaryPowerReferences).To(BeEmpty())
 		})
 
 		It("Squaddie can lose powers due to LevelUpBenefits", func() {

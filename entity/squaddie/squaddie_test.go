@@ -129,11 +129,11 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 
 		It("Clears squaddie temporary power references", func() {
 			teros := squaddie.NewSquaddie("Teros")
-			teros.TemporaryPowerReferences = []*power.Reference{{Name: "Pow pow", ID: "Power Wheels"}}
+			teros.PowerReferences = []*power.Reference{{Name: "Pow pow", ID: "Power Wheels"}}
 
 			teros.ClearTemporaryPowerReferences()
 
-			Expect(teros.TemporaryPowerReferences).To(BeEmpty())
+			Expect(teros.PowerReferences).To(BeEmpty())
 		})
 
 		It("Can remove squaddie powers", func() {
