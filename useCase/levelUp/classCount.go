@@ -14,14 +14,11 @@ func GetSquaddieClassLevels(squaddieToInspect *squaddie.Squaddie, levelRepo *lev
 	for classID, progress := range squaddieToInspect.ClassLevelsConsumed {
 		levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
 
-		smallLevelCount := 0
-		for _, levelID := range progress.LevelsConsumed {
-			for _, levelFromRepo := range levelsInClass {
-				if levelFromRepo.ID == levelID && levelFromRepo.LevelUpBenefitType == levelUpBenefit.Small {
-					smallLevelCount = smallLevelCount + 1
-				}
-			}
-		}
+		smallLevelCount := progress.AccumulateLevelsConsumed(func(consumedLevelID string) int {
+			return levelUpBenefit.CountLevelUpBenefits(levelsInClass, func(benefit *levelUpBenefit.LevelUpBenefit) bool {
+				return benefit.ID == consumedLevelID && benefit.LevelUpBenefitType == levelUpBenefit.Small
+			})
+		})
 		levels[classID] = smallLevelCount
 	}
 	return levels

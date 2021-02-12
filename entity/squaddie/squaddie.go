@@ -98,10 +98,8 @@ func (squaddie *Squaddie) GetOffensiveStatsWithSpell() (toHitBonus, damageBonus 
 // AddInnatePower gives the Squaddie access to the power.
 //  Raises an error if the squaddie already has the power.
 func (squaddie *Squaddie) AddInnatePower(newPower *power.Power) error {
-	for _, innatePower := range squaddie.PowerReferences {
-		if newPower.ID == innatePower.ID {
-			return fmt.Errorf(`squaddie "%s" already has innate power with ID "%s"`, squaddie.Name, innatePower.ID)
-		}
+	if ContainsPowerID(squaddie.PowerReferences, newPower.ID) {
+		return fmt.Errorf(`squaddie "%s" already has innate power with ID "%s"`, squaddie.Name, newPower.ID)
 	}
 
 	squaddie.PowerReferences = append(squaddie.PowerReferences, &power.Reference{Name: newPower.Name, ID: newPower.ID})
@@ -170,18 +168,22 @@ func (squaddie *Squaddie) SetBaseClassIfNoBaseClass(classID string) {
 
 // IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given ID has already been used.
 func (squaddie *Squaddie) IsClassLevelAlreadyUsed(benefitID string) bool {
-	for _, classProgress := range squaddie.ClassLevelsConsumed {
-		if classProgress.IsLevelAlreadyConsumed(benefitID) {
-			return true
-		}
-	}
-	return false
+	return squaddie.anyClassLevelsConsumed(func(classID string, progress *ClassProgress) bool {
+		return progress.IsLevelAlreadyConsumed(benefitID)
+	})
 }
 
 // HasAddedClass returns true if the Squaddie has already added a class with the name classIDToFind
 func (squaddie *Squaddie) HasAddedClass(classIDToFind string) bool {
-	for classID, _ := range squaddie.ClassLevelsConsumed {
-		if classID == classIDToFind {
+	return squaddie.anyClassLevelsConsumed(func(classID string, progress *ClassProgress) bool {
+		return classID == classIDToFind
+	})
+}
+
+// anyClassLevelsConsumed returns true if any of the squaddie's class levels consumed satisfies a given condition.
+func (squaddie *Squaddie) anyClassLevelsConsumed(condition func(classID string, progress *ClassProgress) bool) bool {
+	for classID, progress := range squaddie.ClassLevelsConsumed {
+		if condition(classID, progress) {
 			return true
 		}
 	}
@@ -195,18 +197,10 @@ func (squaddie *Squaddie) ClearInnatePowers() {
 
 // RemovePowerByID removes the power with the given ID from the squaddie's
 func (squaddie *Squaddie) RemovePowerByID(powerToRemoveID string) {
-	powerFound := false
-	powerIndexToDelete := 0
-	for index, power := range squaddie.PowerReferences {
-		if power.ID == powerToRemoveID {
-			powerIndexToDelete = index
-			powerFound = true
-		}
-	}
-	if powerFound == false {
+	if ContainsPowerID(squaddie.PowerReferences, powerToRemoveID) == false {
 		return
 	}
-
+	powerIndexToDelete := IndexOfPowerID(squaddie.PowerReferences, powerToRemoveID)
 	squaddie.PowerReferences = append(squaddie.PowerReferences[:powerIndexToDelete], squaddie.PowerReferences[powerIndexToDelete+1:]...)
 }
 
@@ -228,4 +222,46 @@ func (squaddie *Squaddie) GetMovementType() MovementType {
 // CanHitAndRun indicates if the Squaddie can move after attacking.
 func (squaddie *Squaddie) CanHitAndRun() bool {
 	return squaddie.Movement.HitAndRun
+}
+
+// IndexOfPowerID returns the index of the reference to a power with the given ID.
+//   returns -1 if it cannot be found.
+func IndexOfPowerID(references []*power.Reference, powerID string) int {
+	for index, reference := range references {
+		if reference.ID == powerID {
+			return index
+		}
+	}
+	return -1
+}
+
+// ContainsPowerID returns true if the squaddie has a reference to a power with the given ID.
+func ContainsPowerID(references []*power.Reference, powerID string) bool {
+	for _, reference := range references {
+		if reference.ID == powerID {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterPowerID returns a list of power references that satisfy the condition.
+func FilterPowerID(references []*power.Reference, condition func(*power.Reference) bool) []*power.Reference {
+	selectedReferences := []*power.Reference{}
+	for _, reference := range references {
+		if condition(reference) == true {
+			selectedReferences = append(selectedReferences, reference)
+		}
+	}
+	return selectedReferences
+}
+
+// AnyPowerID returns true if one Power Reference satisfies the condition.
+func AnyPowerID(references []*power.Reference, condition func(*power.Reference) bool) bool {
+	for _, reference := range references {
+		if condition(reference) == true {
+			return true
+		}
+	}
+	return false
 }

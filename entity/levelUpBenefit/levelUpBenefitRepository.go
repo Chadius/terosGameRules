@@ -35,17 +35,10 @@ func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
 // AddLevels adds a list of LevelUpBenefits to the repository.
 func (repository *Repository) AddLevels(allBenefits []*LevelUpBenefit) (bool, error) {
 	for _, levelUpBenefit := range allBenefits {
-		err := levelUpBenefit.CheckForErrors()
-		if err != nil {
+		success, err := repository.tryToAddLevelUpBenefitToSource(levelUpBenefit)
+		if success == false {
 			return false, err
 		}
-		classID := levelUpBenefit.ClassID
-		if repository.levelUpBenefitsByClassID[classID] == nil {
-			repository.levelUpBenefitsByClassID[classID] = []*LevelUpBenefit{}
-		}
-
-		repository.levelUpBenefitsByClassID[classID] =
-			append(repository.levelUpBenefitsByClassID[classID], levelUpBenefit)
 	}
 	return true, nil
 }
@@ -63,21 +56,29 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	}
 
 	for _, levelUpBenefit := range allBenefits {
-		err := levelUpBenefit.CheckForErrors()
-		if err != nil {
+		success, err := repository.tryToAddLevelUpBenefitToSource(&levelUpBenefit)
+		if success == false {
 			return false, err
 		}
-
-		classID := levelUpBenefit.ClassID
-
-		if repository.levelUpBenefitsByClassID[classID] == nil {
-			repository.levelUpBenefitsByClassID[classID] = []*LevelUpBenefit{}
-		}
-
-		repository.levelUpBenefitsByClassID[classID] =
-			append(repository.levelUpBenefitsByClassID[classID], &levelUpBenefit)
 	}
 
+	return true, nil
+}
+
+func (repository *Repository)tryToAddLevelUpBenefitToSource(levelUpBenefit *LevelUpBenefit) (bool, error){
+	err := levelUpBenefit.CheckForErrors()
+	if err != nil {
+		return false, err
+	}
+
+	classID := levelUpBenefit.ClassID
+
+	if repository.levelUpBenefitsByClassID[classID] == nil {
+		repository.levelUpBenefitsByClassID[classID] = []*LevelUpBenefit{}
+	}
+
+	repository.levelUpBenefitsByClassID[classID] =
+		append(repository.levelUpBenefitsByClassID[classID], levelUpBenefit)
 	return true, nil
 }
 
@@ -99,7 +100,6 @@ func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (
 	if err != nil {
 		return levelsInClassByType, err
 	}
-
 	for _, level := range levelsInClass {
 		levelsInClassByType[level.LevelUpBenefitType] = append(levelsInClassByType[level.LevelUpBenefitType], level)
 	}

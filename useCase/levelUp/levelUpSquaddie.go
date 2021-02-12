@@ -50,19 +50,9 @@ func refreshSquaddiePowers(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImp
 		initialSquaddiePowerReferences = squaddieToImprove.GetInnatePowerIDNames()
 	}
 
-	powerReferencesToKeep := []*power.Reference{}
-	for _, existingPower := range initialSquaddiePowerReferences {
-		powerFound := false
-		for _, powerToRemove := range benefit.PowerIDLost {
-			if existingPower.ID == powerToRemove.ID {
-				powerFound = true
-			}
-		}
-		if powerFound == false {
-			powerReferencesToKeep = append(powerReferencesToKeep, existingPower)
-		}
-	}
-
+	powerReferencesToKeep := squaddie.FilterPowerID(initialSquaddiePowerReferences, func(existingPower *power.Reference) bool {
+		return squaddie.ContainsPowerID(benefit.PowerIDLost, existingPower.ID) == false
+	})
 	powerReferencesToLoad := append(powerReferencesToKeep, benefit.PowerIDGained...)
 
 	_, err := powerAttack.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, powerRepo)

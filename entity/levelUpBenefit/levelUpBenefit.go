@@ -57,3 +57,24 @@ func FilterLevelUpBenefits(sliceToFilter []*LevelUpBenefit, condition func(benef
 	}
 	return keptLevelUpBenefits
 }
+
+// AnyLevelUpBenefits returns true if at least LevelUpBenefit in the sliceToAnalyze satisfies the condition.
+func AnyLevelUpBenefits(sliceToAnalyze []*LevelUpBenefit, condition func(benefit *LevelUpBenefit) bool) bool {
+	for _, benefitToTest := range sliceToAnalyze {
+		if condition(benefitToTest) {
+			return true
+		}
+	}
+	return false
+}
+
+// CountLevelUpBenefits returns the number of LevelUpBenefit that satisfy the given condition.
+func CountLevelUpBenefits(sliceToAnalyze []*LevelUpBenefit, condition func(benefit *LevelUpBenefit) bool) int {
+	count := 0
+	for _, benefitToTest := range sliceToAnalyze {
+		if condition(benefitToTest) {
+			count = count + 1
+		}
+	}
+	return count
+}

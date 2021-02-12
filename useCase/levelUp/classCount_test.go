@@ -159,22 +159,18 @@ var _ = Describe("Squaddie choosing and gaining levels", func() {
 				Expect(classLevels[mageClass.ID]).To(Equal(1))
 				Expect(teros.ClassLevelsConsumed[mageClass.ID].LevelsConsumed).To(HaveLen(2))
 
-				hasSmallLevel := false
-				hasBigLevel := false
-				for _, consumedLevelID := range teros.ClassLevelsConsumed[mageClass.ID].LevelsConsumed {
-					for _, level := range lotsOfSmallLevels {
-						if level.ID == consumedLevelID {
-							hasSmallLevel = true
-						}
-					}
-					for _, level := range lotsOfBigLevels {
-						if level.ID == consumedLevelID {
-							hasBigLevel = true
-						}
-					}
-				}
-
+				hasSmallLevel := teros.ClassLevelsConsumed[mageClass.ID].AnyLevelsConsumed(func(consumedLevelID string) bool {
+					return levelUpBenefit.AnyLevelUpBenefits(lotsOfSmallLevels, func(level *levelUpBenefit.LevelUpBenefit) bool {
+						return level.ID == consumedLevelID
+					})
+				})
 				Expect(hasSmallLevel).To(BeTrue())
+
+				hasBigLevel := teros.ClassLevelsConsumed[mageClass.ID].AnyLevelsConsumed(func(consumedLevelID string) bool {
+					return levelUpBenefit.AnyLevelUpBenefits(lotsOfBigLevels, func(level *levelUpBenefit.LevelUpBenefit) bool {
+						return level.ID == consumedLevelID
+					})
+				})
 				Expect(hasBigLevel).To(BeTrue())
 			})
 			It("raises an error if the class cannot be found", func() {
