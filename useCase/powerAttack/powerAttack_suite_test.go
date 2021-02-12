@@ -1,4 +1,4 @@
-package powerAttack_test
+package powerattack_test
 
 import (
 	"testing"

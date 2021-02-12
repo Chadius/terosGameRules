@@ -1,4 +1,4 @@
-package levelUpBenefit
+package levelupbenefit
 
 import (
 	"errors"

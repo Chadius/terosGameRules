@@ -3,7 +3,7 @@ package squaddie
 import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
@@ -116,7 +116,7 @@ func (squaddie *Squaddie) GetInnatePowerIDNames() []*power.Reference {
 }
 
 // AddClass gives the Squaddie a new class it can gain levels in.
-func (squaddie *Squaddie) AddClass(class *squaddieClass.Class) {
+func (squaddie *Squaddie) AddClass(class *squaddieclass.Class) {
 	squaddie.ClassLevelsConsumed[class.ID] = &ClassProgress{
 		ClassID:        class.ID,
 		ClassName:      class.Name,
@@ -139,6 +139,7 @@ func (squaddie *Squaddie) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID
 	squaddie.ClassLevelsConsumed[benefitClassID].LevelsConsumed = append(squaddie.ClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
 }
 
+// GainLevelInClass is an alias for MarkLevelUpBenefitAsConsumed
 func (squaddie *Squaddie) GainLevelInClass(classID, levelID string)  {
 	squaddie.MarkLevelUpBenefitAsConsumed(classID, levelID)
 }

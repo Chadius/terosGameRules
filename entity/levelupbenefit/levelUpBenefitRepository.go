@@ -1,4 +1,4 @@
-package levelUpBenefit
+package levelupbenefit
 
 import (
 	"encoding/json"
@@ -93,6 +93,7 @@ func (repository *Repository) GetLevelUpBenefitsByClassID(classID string) ([]*Le
 	return classBenefits, nil
 }
 
+// GetLevelUpBenefitsForClassByType returns the levels of a class by type (Small or Big).
 func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (map[Type][]*LevelUpBenefit, error) {
 	levelsInClassByType := map[Type][]*LevelUpBenefit{Small:[]*LevelUpBenefit{}, Big: []*LevelUpBenefit{}}
 	levelsInClass, err := repository.GetLevelUpBenefitsByClassID(classID)

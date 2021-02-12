@@ -1,18 +1,18 @@
-package squaddieClass_test
+package squaddieclass_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Managing Class objects", func() {
 	var (
-		repo *squaddieClass.Repository
+		repo *squaddieclass.Repository
 		jsonByteStream []byte
 	)
 	BeforeEach(func() {
-		repo = squaddieClass.NewRepository()
+		repo = squaddieclass.NewRepository()
 		jsonByteStream = []byte(`[{
 			"ID": "aaaaaaaa",
 			"name": "Mage"
@@ -26,7 +26,7 @@ var _ = Describe("Managing Class objects", func() {
 			Expect(repo.GetNumberOfClasses()).To(Equal(1))
 		})
 		It("Can add classes directly", func() {
-			listOfClasses := []*squaddieClass.Class{
+			listOfClasses := []*squaddieclass.Class{
 				{
 					ID:                "class1",
 					Name:              "Mage",
@@ -46,21 +46,21 @@ var _ = Describe("Managing Class objects", func() {
 	})
 	Context("Can retrieve classes by ID", func() {
 		var (
-			mageClass *squaddieClass.Class
-			dimensionWalkerClass *squaddieClass.Class
+			mageClass *squaddieclass.Class
+			dimensionWalkerClass *squaddieclass.Class
 		)
 		BeforeEach(func() {
-			mageClass = &squaddieClass.Class{
+			mageClass = &squaddieclass.Class{
 				ID:                "class0",
 				Name:              "Mage",
 				BaseClassRequired: false,
 			}
-			dimensionWalkerClass = &squaddieClass.Class{
+			dimensionWalkerClass = &squaddieclass.Class{
 				ID:                "class1",
 				Name:              "Dimension Walker",
 				BaseClassRequired: true,
 			}
-			repo.AddListOfClasses([]*squaddieClass.Class{mageClass, dimensionWalkerClass})
+			repo.AddListOfClasses([]*squaddieclass.Class{mageClass, dimensionWalkerClass})
 		})
 		It("Can retrieve classes by ID", func() {
 			foundClass, err := repo.GetClassByID(mageClass.ID)

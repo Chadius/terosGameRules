@@ -1,20 +1,20 @@
-package levelUpBenefit_test
+package levelupbenefit_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelUpBenefit"
-	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
+	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("CRUD LevelUpBenefits", func() {
 	var (
-		repo *levelUpBenefit.Repository
+		repo *levelupbenefit.Repository
 		jsonByteStream []byte
 		yamlByteStream []byte
 	)
 	BeforeEach(func() {
-		repo = levelUpBenefit.NewLevelUpBenefitRepository()
+		repo = levelupbenefit.NewLevelUpBenefitRepository()
 		jsonByteStream = []byte(`[
           {
             "id":"abcdefg0",
@@ -78,16 +78,16 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
 		})
 		It("Can add LevelUpBenefits directly", func() {
 			Expect(repo.GetNumberOfLevelUpBenefits()).To(Equal(0))
-			success, _ := repo.AddLevels([]*levelUpBenefit.LevelUpBenefit{
+			success, _ := repo.AddLevels([]*levelupbenefit.LevelUpBenefit{
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
-					ClassID: "class0",
-					ID: "level0",
+					LevelUpBenefitType: levelupbenefit.Small,
+					ClassID:            "class0",
+					ID:                 "level0",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
-					ClassID: "class0",
-					ID: "level1",
+					LevelUpBenefitType: levelupbenefit.Small,
+					ClassID:            "class0",
+					ID:                 "level1",
 				},
 			})
 			Expect(success).To(BeTrue())
@@ -96,100 +96,100 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
 	})
 	Context("Can search and retrieve LevelUpBenefit objects using descriptors", func() {
 		var (
-			mageClass *squaddieClass.Class
-			lotsOfSmallLevels []*levelUpBenefit.LevelUpBenefit
-			lotsOfBigLevels []*levelUpBenefit.LevelUpBenefit
-			levelRepo *levelUpBenefit.Repository
+			mageClass *squaddieclass.Class
+			lotsOfSmallLevels []*levelupbenefit.LevelUpBenefit
+			lotsOfBigLevels []*levelupbenefit.LevelUpBenefit
+			levelRepo *levelupbenefit.Repository
 		)
 		BeforeEach(func() {
-			mageClass = &squaddieClass.Class{
+			mageClass = &squaddieclass.Class{
 				ID:                "class1",
 				Name:              "Mage",
 				BaseClassRequired: false,
 			}
 
-			lotsOfSmallLevels = []*levelUpBenefit.LevelUpBenefit{
+			lotsOfSmallLevels = []*levelupbenefit.LevelUpBenefit{
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall0",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall1",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall2",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall3",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall4",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall5",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall6",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall7",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall8",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall9",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Small,
+					LevelUpBenefitType: levelupbenefit.Small,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsSmall10",
 				},
 			}
 
-			lotsOfBigLevels = []*levelUpBenefit.LevelUpBenefit{
+			lotsOfBigLevels = []*levelupbenefit.LevelUpBenefit{
 				{
-					LevelUpBenefitType: levelUpBenefit.Big,
+					LevelUpBenefitType: levelupbenefit.Big,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsBig0",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Big,
+					LevelUpBenefitType: levelupbenefit.Big,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsBig1",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Big,
+					LevelUpBenefitType: levelupbenefit.Big,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsBig2",
 				},
 				{
-					LevelUpBenefitType: levelUpBenefit.Big,
+					LevelUpBenefitType: levelupbenefit.Big,
 					ClassID:            mageClass.ID,
 					ID:                 "lotsLevelsBig3",
 				},
 			}
 
-			levelRepo = levelUpBenefit.NewLevelUpBenefitRepository()
+			levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
 			levelRepo.AddLevels(lotsOfSmallLevels)
 			levelRepo.AddLevels(lotsOfBigLevels)
 		})
@@ -202,7 +202,7 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
 			Expect(len(benefits)).To(Equal(1))
 
 			firstBenefit := benefits[0]
-			Expect(firstBenefit.LevelUpBenefitType).To(Equal(levelUpBenefit.Small))
+			Expect(firstBenefit.LevelUpBenefitType).To(Equal(levelupbenefit.Small))
 			Expect(firstBenefit.ClassID).To(Equal("class0"))
 			Expect(firstBenefit.MaxHitPoints).To(Equal(1))
 			Expect(firstBenefit.Aim).To(Equal(0))
@@ -227,14 +227,14 @@ var _ = Describe("CRUD LevelUpBenefits", func() {
 		It("can give you big and small levels for a given class", func() {
 			levelsByBenefitType, err := levelRepo.GetLevelUpBenefitsForClassByType(mageClass.ID)
 			Expect(err).To(BeNil())
-			Expect(levelsByBenefitType[levelUpBenefit.Small]).To(HaveLen(11))
-			Expect(levelsByBenefitType[levelUpBenefit.Big]).To(HaveLen(4))
+			Expect(levelsByBenefitType[levelupbenefit.Small]).To(HaveLen(11))
+			Expect(levelsByBenefitType[levelupbenefit.Big]).To(HaveLen(4))
 		})
 		It("raises an error if the class does not exist", func() {
 			levelsByBenefitType, err := levelRepo.GetLevelUpBenefitsForClassByType("bad ID")
 			Expect(err.Error()).To(Equal(`no LevelUpBenefits for this class ID: "bad ID"`))
-			Expect(levelsByBenefitType[levelUpBenefit.Small]).To(HaveLen(0))
-			Expect(levelsByBenefitType[levelUpBenefit.Big]).To(HaveLen(0))
+			Expect(levelsByBenefitType[levelupbenefit.Small]).To(HaveLen(0))
+			Expect(levelsByBenefitType[levelupbenefit.Big]).To(HaveLen(0))
 		})
 	})
 	It("Stops loading LevelUpBenefits upon validating the first invalid LevelUpBenefit", func() {

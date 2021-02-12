@@ -1,4 +1,4 @@
-package levelUpBenefit_test
+package levelupbenefit_test
 
 import (
 	"testing"

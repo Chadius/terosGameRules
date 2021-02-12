@@ -23,6 +23,7 @@ const (
 	Teleport = "teleport"
 )
 
+// MovementValueByType orders movement types by priority (highest number is most desired)
 var MovementValueByType = map[MovementType]int{
 	Foot:     0,
 	Light:    1,

@@ -1,4 +1,4 @@
-package squaddieClass
+package squaddieclass
 
 import (
 	"encoding/json"

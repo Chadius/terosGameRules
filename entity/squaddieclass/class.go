@@ -1,4 +1,4 @@
-package squaddieClass
+package squaddieclass
 
 // Class contains information about a group of LevelUpBenefits.
 type Class struct {

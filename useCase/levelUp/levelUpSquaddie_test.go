@@ -1,20 +1,20 @@
-package levelUp_test
+package levelup_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelUpBenefit"
+	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
-	"github.com/cserrant/terosBattleServer/usecase/levelUp"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosBattleServer/usecase/levelup"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Squaddie uses LevelUpBenefits", func() {
-	var mageClass *squaddieClass.Class
+	var mageClass *squaddieclass.Class
 
 	BeforeEach(func() {
-		mageClass = &squaddieClass.Class{
+		mageClass = &squaddieclass.Class{
 			ID:   "ffffffff",
 			Name: "Mage",
 		}
@@ -22,7 +22,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 
 	Context("Squaddie uses level up benefit", func() {
 		var teros *squaddie.Squaddie
-		var statBooster levelUpBenefit.LevelUpBenefit
+		var statBooster levelupbenefit.LevelUpBenefit
 
 		BeforeEach(func() {
 			teros = squaddie.NewSquaddie("Teros")
@@ -38,7 +38,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			teros.SetHPToMax()
 			teros.SetBarrierToMax()
 
-			statBooster = levelUpBenefit.LevelUpBenefit{
+			statBooster = levelupbenefit.LevelUpBenefit{
 				ID:           "deadbeef",
 				ClassID:      mageClass.ID,
 				MaxHitPoints: 0,
@@ -52,7 +52,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			}
 		})
 		It("uses a LevelUpBenefit to increase Squaddie stats", func() {
-			err := levelUp.LevelUpSquaddie(&statBooster, teros, nil)
+			err := levelup.ImproveSquaddie(&statBooster, teros, nil)
 			Expect(err).To(BeNil())
 			Expect(teros.MaxHitPoints).To(Equal(5))
 
@@ -67,13 +67,13 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 		})
 		It("tells the Squaddie which levels were used", func() {
 			Expect(teros.IsClassLevelAlreadyUsed(statBooster.ID)).To(BeFalse())
-			err := levelUp.LevelUpSquaddie(&statBooster, teros, nil)
+			err := levelup.ImproveSquaddie(&statBooster, teros, nil)
 			Expect(err).To(BeNil())
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{mageClass.ID: 1}))
 			Expect(teros.IsClassLevelAlreadyUsed(statBooster.ID)).To(BeTrue())
 		})
 		It("Raise an error if you add a level to a class that does not exist", func() {
-			mushroomClassLevel := levelUpBenefit.LevelUpBenefit{
+			mushroomClassLevel := levelupbenefit.LevelUpBenefit{
 				ID:           "deedbeeg",
 				ClassID:      "bad ID",
 				MaxHitPoints: 0,
@@ -85,30 +85,30 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 				MaxBarrier :  2,
 				Armor :       1,
 			}
-			err := levelUp.LevelUpSquaddie(&mushroomClassLevel, teros, nil)
+			err := levelup.ImproveSquaddie(&mushroomClassLevel, teros, nil)
 			Expect(err.Error()).To(Equal(`squaddie "Teros" cannot add levels to unknown class "bad ID"`))
 		})
 		It("raises an error if you add a level that was already used", func() {
-			err := levelUp.LevelUpSquaddie(&statBooster, teros, nil)
+			err := levelup.ImproveSquaddie(&statBooster, teros, nil)
 			Expect(err).To(BeNil())
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"ffffffff": 1}))
 			Expect(teros.IsClassLevelAlreadyUsed(statBooster.ID)).To(BeTrue())
 
-			err = levelUp.LevelUpSquaddie(&statBooster, teros, nil)
+			err = levelup.ImproveSquaddie(&statBooster, teros, nil)
 			Expect(err.Error()).To(Equal(`Teros already consumed LevelUpBenefit - class:"ffffffff" id:"deadbeef"`))
 		})
 		It("sets the squaddie's base class if it isn't already set", func() {
 			Expect(teros.BaseClassID).To(Equal(""))
-			levelUp.LevelUpSquaddie(&statBooster, teros, nil)
+			levelup.ImproveSquaddie(&statBooster, teros, nil)
 			Expect(teros.BaseClassID).To(Equal(mageClass.ID))
 		})
 		Context("can increase and change movement after using a level up benefit", func() {
 			var (
-				improveAllMovement *levelUpBenefit.LevelUpBenefit
-				upgradeToLightMovement *levelUpBenefit.LevelUpBenefit
+				improveAllMovement *levelupbenefit.LevelUpBenefit
+				upgradeToLightMovement *levelupbenefit.LevelUpBenefit
 			)
 			BeforeEach(func() {
-				improveAllMovement = &levelUpBenefit.LevelUpBenefit{
+				improveAllMovement = &levelupbenefit.LevelUpBenefit{
 					ID:      "aaaaaaa0",
 					ClassID: mageClass.ID,
 					Movement: &squaddie.Movement{
@@ -118,7 +118,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 					},
 				}
 
-				upgradeToLightMovement = &levelUpBenefit.LevelUpBenefit{
+				upgradeToLightMovement = &levelupbenefit.LevelUpBenefit{
 					ID:      "aaaaaaa1",
 					ClassID: mageClass.ID,
 					Movement: &squaddie.Movement{
@@ -129,7 +129,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			It("can increase and change movement from one level up benefit", func() {
 				startingMovement := teros.GetMovementDistancePerRound()
 
-				err := levelUp.LevelUpSquaddie(improveAllMovement, teros, nil)
+				err := levelup.ImproveSquaddie(improveAllMovement, teros, nil)
 				Expect(err).To(BeNil())
 
 				Expect(teros.GetMovementDistancePerRound()).To(Equal(startingMovement + 1))
@@ -138,9 +138,9 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			})
 			It("will not downgrade movement type", func() {
 				startingMovement := teros.GetMovementDistancePerRound()
-				levelUp.LevelUpSquaddie(improveAllMovement, teros, nil)
+				levelup.ImproveSquaddie(improveAllMovement, teros, nil)
 
-				err := levelUp.LevelUpSquaddie(upgradeToLightMovement, teros, nil)
+				err := levelup.ImproveSquaddie(upgradeToLightMovement, teros, nil)
 				Expect(err).To(BeNil())
 
 				Expect(teros.GetMovementDistancePerRound()).To(Equal(startingMovement + 1))
@@ -153,8 +153,8 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 		var (
 			teros        *squaddie.Squaddie
 			powerRepo    *power.Repository
-			gainPower    levelUpBenefit.LevelUpBenefit
-			upgradePower levelUpBenefit.LevelUpBenefit
+			gainPower    levelupbenefit.LevelUpBenefit
+			upgradePower levelupbenefit.LevelUpBenefit
 			spear        *power.Power
 			spearLevel2  *power.Power
 		)
@@ -168,7 +168,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			teros.Deflect = 4
 			teros.MaxBarrier = 6
 			teros.Armor = 7
-			teros.AddClass(&squaddieClass.Class{
+			teros.AddClass(&squaddieclass.Class{
 				ID:   mageClass.ID,
 				Name: "Mage",
 			})
@@ -190,16 +190,16 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			newPowers := []*power.Power{spear, spearLevel2}
 			powerRepo.AddSlicePowerSource(newPowers)
 
-			gainPower = levelUpBenefit.LevelUpBenefit{
+			gainPower = levelupbenefit.LevelUpBenefit{
 				ID:                 "aaab1234",
-				LevelUpBenefitType: levelUpBenefit.Big,
+				LevelUpBenefitType: levelupbenefit.Big,
 				ClassID:            mageClass.ID,
 				PowerIDGained:      []*power.Reference{{Name: "Spear", ID: spear.ID}},
 			}
 
-			upgradePower = levelUpBenefit.LevelUpBenefit{
+			upgradePower = levelupbenefit.LevelUpBenefit{
 				ID:                 "aaaa1235",
-				LevelUpBenefitType: levelUpBenefit.Big,
+				LevelUpBenefitType: levelupbenefit.Big,
 				ClassID:            mageClass.ID,
 				PowerIDLost:        []*power.Reference{{Name: "Spear", ID: spear.ID}},
 				PowerIDGained:      []*power.Reference{{Name: "Spear", ID: spearLevel2.ID}},
@@ -207,7 +207,7 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 		})
 
 		It("Squaddie can gain more powers based on level", func() {
-			err := levelUp.LevelUpSquaddie(&gainPower, teros, powerRepo)
+			err := levelup.ImproveSquaddie(&gainPower, teros, powerRepo)
 			Expect(err).To(BeNil())
 
 			attackIDNamePairs := teros.GetInnatePowerIDNames()
@@ -217,10 +217,10 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 		})
 
 		It("Squaddie can lose powers due to LevelUpBenefits", func() {
-			levelUp.LevelUpSquaddie(&gainPower, teros, powerRepo)
+			levelup.ImproveSquaddie(&gainPower, teros, powerRepo)
 			teros.GetInnatePowerIDNames()
 
-			err := levelUp.LevelUpSquaddie(&upgradePower, teros, powerRepo)
+			err := levelup.ImproveSquaddie(&upgradePower, teros, powerRepo)
 			Expect(err).To(BeNil())
 
 			attackIDNamePairs := teros.GetInnatePowerIDNames()

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -176,14 +176,14 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 	Context("Class levels", func() {
 		var (
 			teros *squaddie.Squaddie
-			mageClass *squaddieClass.Class
-			mushroomClass *squaddieClass.Class
+			mageClass *squaddieclass.Class
+			mushroomClass *squaddieclass.Class
 		)
 
 		BeforeEach(func() {
 			teros = squaddie.NewSquaddie("Teros")
-			mageClass = &squaddieClass.Class{ID: "1", Name: "Mage"}
-			mushroomClass = &squaddieClass.Class{ID: "2", Name: "Mushroom"}
+			mageClass = &squaddieclass.Class{ID: "1", Name: "Mage"}
+			mushroomClass = &squaddieclass.Class{ID: "2", Name: "Mushroom"}
 		})
 
 		It("Has no class and level upon creation", func() {

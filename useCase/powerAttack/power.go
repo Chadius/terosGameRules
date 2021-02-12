@@ -1,4 +1,4 @@
-package powerAttack
+package powerattack
 
 import (
 	"fmt"

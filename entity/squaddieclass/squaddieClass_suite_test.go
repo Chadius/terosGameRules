@@ -1,4 +1,4 @@
-package squaddieClass_test
+package squaddieclass_test
 
 import (
 	"testing"

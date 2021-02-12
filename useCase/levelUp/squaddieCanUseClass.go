@@ -1,13 +1,13 @@
-package levelUp
+package levelup
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelUpBenefit"
+	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 )
 
 // SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given ID.
-func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, classRepo *squaddieClass.Repository, levelRepo *levelUpBenefit.Repository) bool {
+func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, classRepo *squaddieclass.Repository, levelRepo *levelupbenefit.Repository) bool {
 	classToTest, _ := classRepo.GetClassByID(testingClassID)
 
 	if squaddieToTest.BaseClassID == "" && classToTest.BaseClassRequired != true {
@@ -32,13 +32,13 @@ func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID 
 	return true
 }
 
-func squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest *squaddie.Squaddie, classID string, levelRepo *levelUpBenefit.Repository) bool {
+func squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest *squaddie.Squaddie, classID string, levelRepo *levelupbenefit.Repository) bool {
 	levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
 	levelsSquaddieConsumedInThisClass := countLevelsInClassTaken(squaddieToTest, classID)
 	return levelsSquaddieConsumedInThisClass >= 10 || levelsSquaddieConsumedInThisClass >= len(levelsInClass)
 }
 
-func areAllLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string, levelRepo *levelUpBenefit.Repository) bool {
+func areAllLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string, levelRepo *levelupbenefit.Repository) bool {
 	levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
 	levelsSquaddieConsumedInThisClass := countLevelsInClassTaken(squaddieToTest, classID)
 	return levelsSquaddieConsumedInThisClass >= len(levelsInClass)

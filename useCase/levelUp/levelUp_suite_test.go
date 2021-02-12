@@ -1,4 +1,4 @@
-package levelUp_test
+package levelup_test
 
 import (
 	"testing"
