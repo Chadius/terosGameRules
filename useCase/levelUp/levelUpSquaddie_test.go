@@ -4,12 +4,22 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/levelUpBenefit"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
 	"github.com/cserrant/terosBattleServer/usecase/levelUp"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Squaddie uses LevelUpBenefits", func() {
+	var mageClass *squaddieClass.Class
+
+	BeforeEach(func() {
+		mageClass = &squaddieClass.Class{
+			ID:   "ffffffff",
+			Name: "Mage",
+		}
+	})
+
 	Context("Squaddie uses level up benefit", func() {
 		var teros *squaddie.Squaddie
 		var statBooster levelUpBenefit.LevelUpBenefit
@@ -24,21 +34,21 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			teros.Deflect = 4
 			teros.MaxBarrier = 6
 			teros.Armor = 7
-			teros.AddClass("Mage")
+			teros.AddClass(mageClass)
 			teros.SetHPToMax()
 			teros.SetBarrierToMax()
 
 			statBooster = levelUpBenefit.LevelUpBenefit{
-				ID: "deadbeef",
-				ClassName: "Mage",
+				ID:           "deadbeef",
+				ClassID:      mageClass.ID,
 				MaxHitPoints: 0,
-				Aim : 7,
-				Strength : 6,
-				Mind : 5,
-				Dodge : 4,
-				Deflect : 3,
-				MaxBarrier : 2,
-				Armor : 1,
+				Aim :         7,
+				Strength :    6,
+				Mind :        5,
+				Dodge :       4,
+				Deflect :     3,
+				MaxBarrier :  2,
+				Armor :       1,
 			}
 		})
 		It("uses a LevelUpBenefit to increase Squaddie stats", func() {
@@ -59,33 +69,38 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			Expect(teros.IsClassLevelAlreadyUsed(statBooster.ID)).To(BeFalse())
 			err := levelUp.LevelUpSquaddie(&statBooster, teros, nil)
 			Expect(err).To(BeNil())
-			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"Mage": 1}))
+			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{mageClass.ID: 1}))
 			Expect(teros.IsClassLevelAlreadyUsed(statBooster.ID)).To(BeTrue())
 		})
 		It("Raise an error if you add a level to a class that does not exist", func() {
 			mushroomClassLevel := levelUpBenefit.LevelUpBenefit{
-				ID: "deedbeeg",
-				ClassName: "Mushroom",
+				ID:           "deedbeeg",
+				ClassID:      "bad ID",
 				MaxHitPoints: 0,
-				Aim : 7,
-				Strength : 6,
-				Mind : 5,
-				Dodge : 4,
-				Deflect : 3,
-				MaxBarrier : 2,
-				Armor : 1,
+				Aim :         7,
+				Strength :    6,
+				Mind :        5,
+				Dodge :       4,
+				Deflect :     3,
+				MaxBarrier :  2,
+				Armor :       1,
 			}
 			err := levelUp.LevelUpSquaddie(&mushroomClassLevel, teros, nil)
-			Expect(err.Error()).To(Equal(`squaddie "Teros" cannot add levels to unknown class "Mushroom"`))
+			Expect(err.Error()).To(Equal(`squaddie "Teros" cannot add levels to unknown class "bad ID"`))
 		})
 		It("raises an error if you add a level that was already used", func() {
 			err := levelUp.LevelUpSquaddie(&statBooster, teros, nil)
 			Expect(err).To(BeNil())
-			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"Mage": 1}))
+			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"ffffffff": 1}))
 			Expect(teros.IsClassLevelAlreadyUsed(statBooster.ID)).To(BeTrue())
 
 			err = levelUp.LevelUpSquaddie(&statBooster, teros, nil)
-			Expect(err.Error()).To(Equal(`Teros already consumed LevelUpBenefit - class:"Mage" id:"deadbeef"`))
+			Expect(err.Error()).To(Equal(`Teros already consumed LevelUpBenefit - class:"ffffffff" id:"deadbeef"`))
+		})
+		It("sets the squaddie's base class if it isn't already set", func() {
+			Expect(teros.BaseClassID).To(Equal(""))
+			levelUp.LevelUpSquaddie(&statBooster, teros, nil)
+			Expect(teros.BaseClassID).To(Equal(mageClass.ID))
 		})
 		Context("can increase and change movement after using a level up benefit", func() {
 			var (
@@ -94,8 +109,8 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			)
 			BeforeEach(func() {
 				improveAllMovement = &levelUpBenefit.LevelUpBenefit{
-					ID: "aaaaaaa0",
-					ClassName: "Mage",
+					ID:      "aaaaaaa0",
+					ClassID: mageClass.ID,
 					Movement: &squaddie.Movement{
 						Distance: 1,
 						Type: "fly",
@@ -104,8 +119,8 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 				}
 
 				upgradeToLightMovement = &levelUpBenefit.LevelUpBenefit{
-					ID: "aaaaaaa1",
-					ClassName: "Mage",
+					ID:      "aaaaaaa1",
+					ClassID: mageClass.ID,
 					Movement: &squaddie.Movement{
 						Type: "light",
 					},
@@ -153,7 +168,10 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			teros.Deflect = 4
 			teros.MaxBarrier = 6
 			teros.Armor = 7
-			teros.AddClass("Mage")
+			teros.AddClass(&squaddieClass.Class{
+				ID:   mageClass.ID,
+				Name: "Mage",
+			})
 			teros.SetHPToMax()
 			teros.SetBarrierToMax()
 
@@ -175,14 +193,14 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 			gainPower = levelUpBenefit.LevelUpBenefit{
 				ID:                 "aaab1234",
 				LevelUpBenefitType: levelUpBenefit.Big,
-				ClassName:          "Mage",
+				ClassID:            mageClass.ID,
 				PowerIDGained:      []*power.Reference{{Name: "Spear", ID: spear.ID}},
 			}
 
 			upgradePower = levelUpBenefit.LevelUpBenefit{
 				ID:                 "aaaa1235",
 				LevelUpBenefitType: levelUpBenefit.Big,
-				ClassName:          "Mage",
+				ClassID:            mageClass.ID,
 				PowerIDLost:        []*power.Reference{{Name: "Spear", ID: spear.ID}},
 				PowerIDGained:      []*power.Reference{{Name: "Spear", ID: spearLevel2.ID}},
 			}

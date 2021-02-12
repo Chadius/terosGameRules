@@ -3,6 +3,7 @@ package squaddie
 import (
 	"encoding/json"
 	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/utility"
 	"gopkg.in/yaml.v2"
 )
 
@@ -11,15 +12,13 @@ type Repository struct {
 	squaddiesByName map[string]Squaddie
 }
 
-// NewSquaddieRepository generates a pointer to a new Squaddie.
+// NewSquaddieRepository generates a pointer to a new Repository.
 func NewSquaddieRepository() *Repository {
 	repository := Repository{
 		map[string]Squaddie{},
 	}
 	return &repository
 }
-
-type unmarshalFunc func([]byte, interface{}) error
 
 // AddJSONSource consumes a given bytestream and tries to analyze it.
 func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
@@ -32,7 +31,7 @@ func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
 }
 
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *Repository) addSource(data []byte, unmarshal unmarshalFunc) (bool, error) {
+func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
 	var listOfSquaddies []Squaddie
 	unmarshalError = unmarshal(data, &listOfSquaddies)

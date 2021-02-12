@@ -3,28 +3,30 @@ package squaddie
 import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
 // Squaddie is the base unit you can deploy and control on a field.
 type Squaddie struct {
-	ID                  string               `json:"id" yaml:"id"`
-	Name                string               `json:"name" yaml:"name"`
-	Affiliation         string               `json:"affiliation" yaml:"affiliation"`
-	CurrentClass        string               `json:"current_class" yaml:"current_class"`
-	ClassLevels         map[string][]string  `json:"class_levels" yaml:"class_levels"`
-	CurrentHitPoints    int                  `json:"current_hit_points" yaml:"current_hit_points"`
-	MaxHitPoints        int                  `json:"max_hit_points" yaml:"max_hit_points"`
-	Aim                 int                  `json:"aim" yaml:"aim"`
-	Strength            int                  `json:"strength" yaml:"strength"`
-	Mind                int                  `json:"mind" yaml:"mind"`
-	Dodge               int                  `json:"dodge" yaml:"dodge"`
-	Deflect             int                  `json:"deflect" yaml:"deflect"`
-	CurrentBarrier      int                  `json:"current_barrier" yaml:"current_barrier"`
-	MaxBarrier          int                  `json:"max_barrier" yaml:"max_barrier"`
-	Armor               int                  `json:"armor" yaml:"armor"`
-	Movement            Movement             `json:"movement" yaml:"movement"`
-	PowerReferences     []*power.Reference   `json:"powers" yaml:"powers"`
+	ID                  string                    `json:"id" yaml:"id"`
+	Name                string                    `json:"name" yaml:"name"`
+	Affiliation         string                    `json:"affiliation" yaml:"affiliation"`
+	BaseClassID         string                    `json:"base_class" yaml:"base_class"`
+	CurrentClass        string                    `json:"current_class" yaml:"current_class"`
+	ClassLevelsConsumed map[string]*ClassProgress `json:"class_levels" yaml:"class_levels"`
+	CurrentHitPoints    int                       `json:"current_hit_points" yaml:"current_hit_points"`
+	MaxHitPoints        int                       `json:"max_hit_points" yaml:"max_hit_points"`
+	Aim                 int                       `json:"aim" yaml:"aim"`
+	Strength            int                       `json:"strength" yaml:"strength"`
+	Mind                int                       `json:"mind" yaml:"mind"`
+	Dodge               int                       `json:"dodge" yaml:"dodge"`
+	Deflect             int                       `json:"deflect" yaml:"deflect"`
+	CurrentBarrier      int                       `json:"current_barrier" yaml:"current_barrier"`
+	MaxBarrier          int                       `json:"max_barrier" yaml:"max_barrier"`
+	Armor               int                       `json:"armor" yaml:"armor"`
+	Movement            Movement                  `json:"movement" yaml:"movement"`
+	PowerReferences     []*power.Reference        `json:"powers" yaml:"powers"`
 }
 
 // NewSquaddie generates a squaddie with maxed out health.
@@ -43,7 +45,7 @@ func NewSquaddie(name string) *Squaddie {
 		CurrentBarrier:      0,
 		MaxBarrier:          0,
 		Armor:               0,
-		ClassLevels:         map[string][]string{},
+		ClassLevelsConsumed: map[string]*ClassProgress{},
 		Movement:            Movement{
 			Distance:        3,
 			Type:            Foot,
@@ -116,52 +118,70 @@ func (squaddie *Squaddie) GetInnatePowerIDNames() []*power.Reference {
 }
 
 // AddClass gives the Squaddie a new class it can gain levels in.
-func (squaddie *Squaddie) AddClass(className string) {
-	squaddie.ClassLevels[className] = []string{}
+func (squaddie *Squaddie) AddClass(class *squaddieClass.Class) {
+	squaddie.ClassLevelsConsumed[class.ID] = &ClassProgress{
+		ClassID:        class.ID,
+		ClassName:      class.Name,
+		LevelsConsumed: []string{},
+	}
 }
 
 // GetLevelCountsByClass returns a mapping of class names to levels gained.
 func (squaddie *Squaddie) GetLevelCountsByClass() map[string]int {
 	count := map[string]int{}
-	for className, benefitIDs := range squaddie.ClassLevels {
-		count[className] = len(benefitIDs)
+	for classID, progress := range squaddie.ClassLevelsConsumed {
+		count[classID] = len(progress.LevelsConsumed)
 	}
 
 	return count
 }
 
 // MarkLevelUpBenefitAsConsumed makes the Squaddie remember it used this benefit to level up already.
-func (squaddie *Squaddie) MarkLevelUpBenefitAsConsumed(benefitClassName, benefitID string)  {
-	squaddie.ClassLevels[benefitClassName] = append(squaddie.ClassLevels[benefitClassName], benefitID)
+func (squaddie *Squaddie) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string)  {
+	squaddie.ClassLevelsConsumed[benefitClassID].LevelsConsumed = append(squaddie.ClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
 }
 
-// SetClass changes the Squaddie's CurrentClass to the given className.
-//   Raises an error if className has not been added to the squaddie yet.
-func (squaddie *Squaddie) SetClass(className string) error {
-	if _, exists := squaddie.ClassLevels[className]; !exists {
-		return fmt.Errorf(`cannot switch "%s" to unknown class "%s"`, squaddie.Name, className)
+func (squaddie *Squaddie) GainLevelInClass(classID, levelID string)  {
+	squaddie.MarkLevelUpBenefitAsConsumed(classID, levelID)
+}
+
+// SetClass changes the Squaddie's CurrentClass to the given classID.
+//   It also sets the BaseClass if it hasn't been already.
+//   Raises an error if classID has not been added to the squaddie yet.
+func (squaddie *Squaddie) SetClass(classID string) error {
+	if _, exists := squaddie.ClassLevelsConsumed[classID]; !exists {
+		return fmt.Errorf(`cannot switch "%s" to unknown class "%s"`, squaddie.Name, classID)
 	}
 
-	squaddie.CurrentClass = className
+	if squaddie.BaseClassID == "" {
+		squaddie.BaseClassID = classID
+	}
+
+	squaddie.CurrentClass = classID
 	return nil
+}
+
+// SetBaseClassIfNoBaseClass sets the BaseClass if it hasn't been already.
+func (squaddie *Squaddie) SetBaseClassIfNoBaseClass(classID string) {
+	if squaddie.BaseClassID == "" {
+		squaddie.BaseClassID = classID
+	}
 }
 
 // IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given ID has already been used.
 func (squaddie *Squaddie) IsClassLevelAlreadyUsed(benefitID string) bool {
-	for _, levels := range squaddie.ClassLevels {
-		for _, levelID := range levels {
-			if levelID == benefitID {
-				return true
-			}
+	for _, classProgress := range squaddie.ClassLevelsConsumed {
+		if classProgress.IsLevelAlreadyConsumed(benefitID) {
+			return true
 		}
 	}
 	return false
 }
 
-// HasAddedClass returns true if the Squaddie has already added a class with the name classNameToFind
-func (squaddie *Squaddie) HasAddedClass(classNameToFind string) bool {
-	for className, _ := range squaddie.ClassLevels {
-		if className == classNameToFind {
+// HasAddedClass returns true if the Squaddie has already added a class with the name classIDToFind
+func (squaddie *Squaddie) HasAddedClass(classIDToFind string) bool {
+	for classID, _ := range squaddie.ClassLevelsConsumed {
+		if classID == classIDToFind {
 			return true
 		}
 	}

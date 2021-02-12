@@ -24,11 +24,11 @@ func improveSquaddieStats(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImpr
 //   Raises an error if the Squaddie does not have that class.
 //   Raises an error if the Squaddie marked the LevelUpBenefit as consumed.
 func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, powerRepo *power.Repository) error {
-	if squaddieToImprove.HasAddedClass(benefit.ClassName) == false {
-		return fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Name, benefit.ClassName)
+	if squaddieToImprove.HasAddedClass(benefit.ClassID) == false {
+		return fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Name, benefit.ClassID)
 	}
 	if squaddieToImprove.IsClassLevelAlreadyUsed(benefit.ID) {
-		return fmt.Errorf(`%s already consumed LevelUpBenefit - class:"%s" id:"%s"`, squaddieToImprove.Name, benefit.ClassName, benefit.ID)
+		return fmt.Errorf(`%s already consumed LevelUpBenefit - class:"%s" id:"%s"`, squaddieToImprove.Name, benefit.ClassID, benefit.ID)
 	}
 
 	improveSquaddieStats(benefit, squaddieToImprove)
@@ -39,7 +39,8 @@ func LevelUpSquaddie(benefit *levelUpBenefit.LevelUpBenefit, squaddieToImprove *
 
 	improveSquaddieMovement(benefit, squaddieToImprove)
 
-	squaddieToImprove.MarkLevelUpBenefitAsConsumed(benefit.ClassName, benefit.ID)
+	squaddieToImprove.SetBaseClassIfNoBaseClass(benefit.ClassID)
+	squaddieToImprove.MarkLevelUpBenefitAsConsumed(benefit.ClassID, benefit.ID)
 	return nil
 }
 

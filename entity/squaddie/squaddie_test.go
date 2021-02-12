@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/entity/squaddieClass"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -173,41 +174,55 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 	})
 
 	Context("Class levels", func() {
+		var (
+			teros *squaddie.Squaddie
+			mageClass *squaddieClass.Class
+			mushroomClass *squaddieClass.Class
+		)
+
+		BeforeEach(func() {
+			teros = squaddie.NewSquaddie("Teros")
+			mageClass = &squaddieClass.Class{ID: "1", Name: "Mage"}
+			mushroomClass = &squaddieClass.Class{ID: "2", Name: "Mushroom"}
+		})
+
 		It("Has no class and level upon creation", func() {
-			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.CurrentClass).To(Equal(""))
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{}))
 		})
 
 		It("Can add a class", func() {
-			teros := squaddie.NewSquaddie("Teros")
 			Expect(teros.GetLevelCountsByClass()).To(BeEmpty())
-			teros.AddClass("Mage")
-			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"Mage": 0}))
+			teros.AddClass(mageClass)
+			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{mageClass.ID: 0}))
 		})
 
 		It("Can tell if a class was already added", func() {
-			teros := squaddie.NewSquaddie("Teros")
-			teros.AddClass("Mage")
-			Expect(teros.HasAddedClass("Mage")).To(BeTrue())
-			Expect(teros.HasAddedClass("Mushroom")).To(BeFalse())
+			teros.AddClass(mageClass)
+			Expect(teros.HasAddedClass(mageClass.ID)).To(BeTrue())
+			Expect(teros.HasAddedClass(mushroomClass.ID)).To(BeFalse())
 		})
 
 		It("Can set the current class", func() {
-			teros := squaddie.NewSquaddie("Teros")
-			teros.AddClass("Mage")
+			teros.AddClass(mageClass)
 			Expect(teros.CurrentClass).To(Equal(""))
-			err := teros.SetClass("Mage")
+			err := teros.SetClass(mageClass.ID)
 			Expect(err).To(BeNil())
-			Expect(teros.CurrentClass).To(Equal("Mage"))
+			Expect(teros.CurrentClass).To(Equal(mageClass.ID))
+		})
+
+		It("Sets the base class", func() {
+			teros.AddClass(mageClass)
+			Expect(teros.BaseClassID).To(Equal(""))
+			teros.SetBaseClassIfNoBaseClass(mageClass.ID)
+			Expect(teros.BaseClassID).To(Equal(mageClass.ID))
 		})
 
 		It("Raise an error if you set to a class that does not exist", func() {
-			teros := squaddie.NewSquaddie("Teros")
-			teros.AddClass("Mage")
+			teros.AddClass(mageClass)
 			Expect(teros.CurrentClass).To(Equal(""))
-			err := teros.SetClass("Mushroom")
-			Expect(err.Error()).To(Equal(`cannot switch "Teros" to unknown class "Mushroom"`))
+			err := teros.SetClass(mushroomClass.ID)
+			Expect(err.Error()).To(Equal(`cannot switch "Teros" to unknown class "2"`))
 		})
 	})
 })

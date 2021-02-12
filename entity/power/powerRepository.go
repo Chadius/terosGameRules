@@ -12,7 +12,7 @@ type Repository struct {
 	powersByID map[string]*Power
 }
 
-// NewPowerRepository generates a pointer to a new PowerRepository.
+// NewPowerRepository generates a pointer to a new Repository.
 func NewPowerRepository() *Repository {
 	repository := Repository{
 		map[string]Power{},

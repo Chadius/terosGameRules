@@ -1,6 +1,7 @@
 package levelUpBenefit
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
@@ -18,9 +19,8 @@ const (
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
 type LevelUpBenefit struct {
-	LevelUpBenefitType Type `json:"level_up_benefit_type" yaml:"level_up_benefit_type"`
-	SquaddieName       string
-	ClassName          string
+	LevelUpBenefitType Type               `json:"level_up_benefit_type" yaml:"level_up_benefit_type"`
+	ClassID            string             `json:"class_id" yaml:"class_id"`
 	ID                 string             `json:"id" yaml:"id"`
 	MaxHitPoints       int                `json:"max_hit_points" yaml:"max_hit_points"`
 	Aim                int                `json:"aim" yaml:"aim"`
@@ -40,6 +40,20 @@ func (benefit *LevelUpBenefit) CheckForErrors() error {
 	if benefit.LevelUpBenefitType != Small && benefit.LevelUpBenefitType != Big {
 		return fmt.Errorf(`unknown level up benefit type: "%s"`, benefit.LevelUpBenefitType)
 	}
+
+	if benefit.ClassID == "" {
+		return errors.New(`no classID found for LevelUpBenefit`)
+	}
 	return nil
 }
 
+// FilterLevelUpBenefits filters a slice of LevelUpBenefits.
+func FilterLevelUpBenefits(sliceToFilter []*LevelUpBenefit, condition func(benefit *LevelUpBenefit) bool) []*LevelUpBenefit {
+	keptLevelUpBenefits := []*LevelUpBenefit{}
+	for _, benefitToTest := range sliceToFilter {
+		if condition(benefitToTest) {
+			keptLevelUpBenefits = append(keptLevelUpBenefits, benefitToTest)
+		}
+	}
+	return keptLevelUpBenefits
+}

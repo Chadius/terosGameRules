@@ -50,13 +50,23 @@ var _ = Describe("CRUD Squaddies", func() {
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player",
-				"class_levels": {"Mage":["123"],"Dimension Walker":[]}
+				"class_levels": {
+                  "1": {
+                    "id": "1",
+                    "name": "Mage",
+                    "levels_gained": ["123"]
+                  },
+                  "2": {
+                    "id": "2",
+                    "name": "Dimension Walker"
+                  }
+               }
 			}]`)
 			success, _ := repo.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
 			teros := repo.GetByName("Teros")
-			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"Mage": 1, "Dimension Walker": 0}))
+			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"1": 1, "2": 0}))
 		})
 		It("Stops loading Squaddies upon validating the first invalid Squaddie", func() {
 			jsonByteStream := []byte(`[{
@@ -136,8 +146,27 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("Can Marshall a Squaddie into JSON", func() {
 			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
-			expectedJSON := fmt.Sprintf(`{"id":"%s","name":"Teros","affiliation":"Player","current_class":"","class_levels":{},"current_hit_points":5,"max_hit_points":5,"aim":0,"strength":0,"mind":0,"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2,"movement":{"distance":3,"type":"foot","hit_and_run":false},"powers":[]}`, teros.ID)
-			Expect(byteStream).To(Equal([]byte(expectedJSON)))
+
+			hasIDNameAffiliationInJSON := bytes.Contains(byteStream, []byte(fmt.Sprintf(`"id":"%s","name":"Teros","affiliation":"Player"`, teros.ID)))
+			Expect(hasIDNameAffiliationInJSON).To(BeTrue())
+
+			hasDefaultHitPointsInJSON := bytes.Contains(byteStream, []byte(`"current_hit_points":5,"max_hit_points":5`))
+			Expect(hasDefaultHitPointsInJSON).To(BeTrue())
+
+			hasOffensiveStatsInJSON := bytes.Contains(byteStream, []byte(`"aim":0,"strength":0,"mind":0`))
+			Expect(hasOffensiveStatsInJSON).To(BeTrue())
+
+			hasDefensiveStatsInJSON := bytes.Contains(byteStream, []byte(`"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2`))
+			Expect(hasDefensiveStatsInJSON).To(BeTrue())
+
+			hasDefaultMovementInJSON := bytes.Contains(byteStream, []byte(`"movement":{"distance":3,"type":"foot","hit_and_run":false}`))
+			Expect(hasDefaultMovementInJSON).To(BeTrue())
+
+			hasNoPowersInJSON := bytes.Contains(byteStream, []byte(`"powers":[]`))
+			Expect(hasNoPowersInJSON).To(BeTrue())
+
+			hasNoClassesInJSON := bytes.Contains(byteStream, []byte(`"base_class":"","current_class":"","class_levels":{}`))
+			Expect(hasNoClassesInJSON).To(BeTrue())
 		})
 		It("Can Marshall a Squaddie with extraordinary movement into JSON", func() {
 			teros.Movement.Type = squaddie.Teleport
@@ -180,14 +209,20 @@ var _ = Describe("CRUD Squaddies", func() {
   max_barrier: 3
   affiliation: Player
   class_levels:
-    Mage: ["hi"]
-    Dimension Walker: []
+    '1':
+      id: '1'
+      name: Mage
+      levels_gained:
+      - '123'
+    '2':
+      id: '2'
+      name: Dimension Walker
 `)
 			success, _ := repo.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeTrue())
 
 			teros := repo.GetByName("Teros")
-			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"Mage": 1, "Dimension Walker": 0}))
+			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"1": 1, "2": 0}))
 		})
 		It("Stops loading Squaddies upon validating the first invalid Squaddie", func() {
 			yamlByteStream := []byte(`-
