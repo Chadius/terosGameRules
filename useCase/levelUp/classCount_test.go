@@ -5,6 +5,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	"github.com/cserrant/terosBattleServer/usecase/levelup"
+	"github.com/cserrant/terosBattleServer/utility/testutility"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -36,102 +37,35 @@ var _ = Describe("Squaddie choosing and gaining levels", func() {
 			classRepo = squaddieclass.NewRepository()
 			classRepo.AddListOfClasses([]*squaddieclass.Class{mageClass, onlySmallLevelsClass})
 
-			lotsOfSmallLevels = []*levelupbenefit.LevelUpBenefit{
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall0",
+			lotsOfSmallLevels = (&testutility.LevelGenerator{
+				Instructions: &testutility.LevelGeneratorInstruction{
+					NumberOfLevels: 10,
+					ClassID:        mageClass.ID,
+					PrefixLevelID:  "lotsLevelsSmall",
+					Type:           levelupbenefit.Small,
 				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall1",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall2",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall3",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall4",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall5",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall6",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall7",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall8",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall9",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsSmall10",
-				},
-			}
+			}).Build()
 
-			lotsOfBigLevels = []*levelupbenefit.LevelUpBenefit{
-				{
-					LevelUpBenefitType: levelupbenefit.Big,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsBig0",
+			lotsOfBigLevels = (&testutility.LevelGenerator{
+				Instructions: &testutility.LevelGeneratorInstruction{
+					NumberOfLevels: 4,
+					ClassID:        mageClass.ID,
+					PrefixLevelID:  "lotsLevelsBig",
+					Type:           levelupbenefit.Big,
 				},
-				{
-					LevelUpBenefitType: levelupbenefit.Big,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsBig1",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Big,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsBig2",
-				},
-				{
-					LevelUpBenefitType: levelupbenefit.Big,
-					ClassID:            mageClass.ID,
-					ID:                 "lotsLevelsBig3",
-				},
-			}
+			}).Build()
 
 			levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
 			levelRepo.AddLevels(lotsOfSmallLevels)
 			levelRepo.AddLevels(lotsOfBigLevels)
-			levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            onlySmallLevelsClass.ID,
-					ID:                 "smallLevel0",
+			levelRepo.AddLevels((&testutility.LevelGenerator{
+				Instructions: &testutility.LevelGeneratorInstruction{
+					NumberOfLevels: 2,
+					ClassID:        onlySmallLevelsClass.ID,
+					PrefixLevelID:  "smallLevel",
+					Type:           levelupbenefit.Small,
 				},
-				{
-					LevelUpBenefitType: levelupbenefit.Small,
-					ClassID:            onlySmallLevelsClass.ID,
-					ID:                 "smallLevel1",
-				},
-			})
+			}).Build())
 
 			teros = squaddie.NewSquaddie("Teros")
 			teros.AddClass(mageClass)

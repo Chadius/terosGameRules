@@ -5,6 +5,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	"github.com/cserrant/terosBattleServer/usecase/levelup"
+	"github.com/cserrant/terosBattleServer/utility/testutility"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -133,83 +134,25 @@ var _ = Describe("Logic for Squaddies and Classes", func() {
 			mageLevel0, mageLevel1, dimensionWalkerLevel0, dimensionWalkerLevel1, ancientTomeClassLevel0,
 		})
 
-		lotsOfLevels = []*levelupbenefit.LevelUpBenefit{
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall0",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall1",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall2",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall3",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall4",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall5",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall6",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall7",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall8",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall9",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsSmall10",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsBig0",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsBig1",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsBig2",
-			},
-			{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            atLeastTenLevelsBaseClass.ID,
-				ID:                 "lotsLevelsBig3",
-			},
-		}
+		lotsOfLevels = append(
+			(&testutility.LevelGenerator{
+				Instructions: &testutility.LevelGeneratorInstruction{
+					NumberOfLevels: 11,
+					ClassID:        atLeastTenLevelsBaseClass.ID,
+					PrefixLevelID:  "lotsLevelsSmall",
+					Type:           levelupbenefit.Small,
+				},
+			}).Build(),
+			(&testutility.LevelGenerator{
+				Instructions: &testutility.LevelGeneratorInstruction{
+					NumberOfLevels: 11,
+					ClassID:        atLeastTenLevelsBaseClass.ID,
+					PrefixLevelID:  "lotsLevelsBig",
+					Type:           levelupbenefit.Big,
+				},
+			}).Build()...
+		)
+
 		levelRepo.AddLevels(lotsOfLevels)
 
 		teros = squaddie.NewSquaddie("Teros")
