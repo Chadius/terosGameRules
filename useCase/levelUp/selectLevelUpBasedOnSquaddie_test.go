@@ -16,6 +16,7 @@ var _ = Describe("Squaddie choosing and gaining levels", func() {
 			teros *squaddie.Squaddie
 			mageClass *squaddieclass.Class
 			onlySmallLevelsClass *squaddieclass.Class
+			classWithInitialLevel *squaddieclass.Class
 			lotsOfSmallLevels []*levelupbenefit.LevelUpBenefit
 			lotsOfBigLevels []*levelupbenefit.LevelUpBenefit
 			classRepo *squaddieclass.Repository
@@ -34,8 +35,15 @@ var _ = Describe("Squaddie choosing and gaining levels", func() {
 				BaseClassRequired: false,
 			}
 
+			classWithInitialLevel = &squaddieclass.Class{
+				ID:                "classWithInitialLevel",
+				Name:              "Class wants big level first",
+				BaseClassRequired: false,
+				InitialBigLevelID: "classWithInitialLevelThisIsTakenFirst",
+			}
+
 			classRepo = squaddieclass.NewRepository()
-			classRepo.AddListOfClasses([]*squaddieclass.Class{mageClass, onlySmallLevelsClass})
+			classRepo.AddListOfClasses([]*squaddieclass.Class{mageClass, onlySmallLevelsClass, classWithInitialLevel})
 
 			lotsOfSmallLevels = (&testutility.LevelGenerator{
 				Instructions: &testutility.LevelGeneratorInstruction{
@@ -66,6 +74,34 @@ var _ = Describe("Squaddie choosing and gaining levels", func() {
 					Type:           levelupbenefit.Small,
 				},
 			}).Build())
+
+			levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{
+				{
+					LevelUpBenefitType: levelupbenefit.Small,
+					ClassID:            classWithInitialLevel.ID,
+					ID:                 "classWithInitialLevel0",
+				},
+				{
+					LevelUpBenefitType: levelupbenefit.Small,
+					ClassID:            classWithInitialLevel.ID,
+					ID:                 "classWithInitialLevel1",
+				},
+				{
+					LevelUpBenefitType: levelupbenefit.Small,
+					ClassID:            classWithInitialLevel.ID,
+					ID:                 "classWithInitialLevel2",
+				},
+				{
+					LevelUpBenefitType: levelupbenefit.Big,
+					ClassID:            classWithInitialLevel.ID,
+					ID:                 "classWithInitialLevelThisIsTakenFirst",
+				},
+				{
+					LevelUpBenefitType: levelupbenefit.Big,
+					ClassID:            classWithInitialLevel.ID,
+					ID:                 "classWithInitialLevelThisShouldNotBeTakenFirst",
+				},
+			})
 
 			teros = squaddie.NewSquaddie("Teros")
 			teros.AddClass(mageClass)
@@ -143,6 +179,25 @@ var _ = Describe("Squaddie choosing and gaining levels", func() {
 				classLevels := levelup.GetSquaddieClassLevels(teros, levelRepo)
 				Expect(classLevels[onlySmallLevelsClass.ID]).To(Equal(2))
 				Expect(teros.ClassLevelsConsumed[onlySmallLevelsClass.ID].LevelsConsumed).To(HaveLen(2))
+			})
+			It("squaddie must choose initial level first if it exists", func() {
+				teros.AddClass(classWithInitialLevel)
+				teros.SetClass(classWithInitialLevel.ID)
+				err := levelup.ImproveSquaddieBasedOnLevel(teros, "classWithInitialLevelThisShouldNotBeTakenFirst", levelRepo, classRepo, nil)
+				Expect(err).To(BeNil())
+
+				classLevels := levelup.GetSquaddieClassLevels(teros, levelRepo)
+				Expect(classLevels[classWithInitialLevel.ID]).To(Equal(1))
+				Expect(teros.ClassLevelsConsumed[classWithInitialLevel.ID].LevelsConsumed).To(HaveLen(2))
+				Expect(teros.ClassLevelsConsumed[classWithInitialLevel.ID].IsLevelAlreadyConsumed("classWithInitialLevelThisIsTakenFirst")).To(BeTrue())
+				Expect(teros.ClassLevelsConsumed[classWithInitialLevel.ID].IsLevelAlreadyConsumed("classWithInitialLevelThisShouldNotBeTakenFirst")).To(BeFalse())
+
+				levelup.ImproveSquaddieBasedOnLevel(teros, "classWithInitialLevelThisShouldNotBeTakenFirst", levelRepo, classRepo, nil)
+				Expect(teros.ClassLevelsConsumed[classWithInitialLevel.ID].LevelsConsumed).To(HaveLen(3))
+
+				levelup.ImproveSquaddieBasedOnLevel(teros, "classWithInitialLevelThisShouldNotBeTakenFirst", levelRepo, classRepo, nil)
+				Expect(teros.ClassLevelsConsumed[classWithInitialLevel.ID].LevelsConsumed).To(HaveLen(5))
+				Expect(teros.ClassLevelsConsumed[classWithInitialLevel.ID].IsLevelAlreadyConsumed("classWithInitialLevelThisShouldNotBeTakenFirst")).To(BeTrue())
 			})
 		})
 	})
