@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -44,6 +45,19 @@ var _ = Describe("CRUD Squaddies", func() {
 
 			missingno := repo.GetByName("Does not exist")
 			Expect(missingno).To(BeNil())
+		})
+		It("gets a clone of the squaddie by name", func() {
+			jsonByteStream := []byte(`[{
+				"name": "Teros",
+				"aim": 5,
+				"affiliation": "Player"
+			}]`)
+			success, _ := repo.AddJSONSource(jsonByteStream)
+			Expect(success).To(BeTrue())
+
+			teros0 := repo.GetByName("Teros")
+			teros1 := repo.GetByName("Teros")
+			Expect(teros0).ToNot(BeIdenticalTo(teros1))
 		})
 		It("Can load class levels", func() {
 			jsonByteStream := []byte(`[{
@@ -292,6 +306,111 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
 			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))
 			Expect(teleporter.CanHitAndRun()).To(BeFalse())
+		})
+	})
+	It("Add Squaddie directly", func() {
+		success, err := repo.AddSquaddies([]*squaddie.Squaddie{squaddie.NewSquaddie("Generic")})
+		Expect(success).To(BeTrue())
+		Expect(err).To(BeNil())
+		Expect(repo.GetNumberOfSquaddies()).To(Equal(1))
+	})
+	Context("Cloning an existing squaddie", func() {
+		var base *squaddie.Squaddie
+
+		BeforeEach(func() {
+			base = squaddie.NewSquaddie("Base")
+			repo.AddSquaddies([]*squaddie.Squaddie{base})
+		})
+		It("copies name and affiliation but not ID", func() {
+			base.Affiliation = "Enemy"
+			clone, err := repo.CloneSquaddie(base, "")
+			Expect(err).To(BeNil())
+			Expect(clone.Name).To(Equal(base.Name))
+			Expect(clone.Affiliation).To(Equal(base.Affiliation))
+			Expect(clone.ID).ToNot(Equal(base.ID))
+		})
+		It("will set the clone ID to the given ID", func() {
+			clone, _ := repo.CloneSquaddie(base, "12345")
+			Expect(clone.ID).To(Equal("12345"))
+		})
+		It("will copy basic stats", func() {
+			base.CurrentHitPoints = 1
+			base.MaxHitPoints += 5
+			base.CurrentBarrier = 2
+			base.MaxBarrier += 5
+
+			base.Aim = 2
+			base.Strength = 3
+			base.Mind = 4
+			base.Dodge = 5
+			base.Deflect = 6
+			base.Armor = 7
+
+			clone, _ := repo.CloneSquaddie(base, "")
+			Expect(clone.CurrentHitPoints).To(Equal(base.CurrentHitPoints))
+			Expect(clone.MaxHitPoints).To(Equal(base.MaxHitPoints))
+			Expect(clone.Aim).To(Equal(base.Aim))
+			Expect(clone.Strength).To(Equal(base.Strength))
+			Expect(clone.Mind).To(Equal(base.Mind))
+			Expect(clone.Dodge).To(Equal(base.Dodge))
+			Expect(clone.Deflect).To(Equal(base.Deflect))
+			Expect(clone.CurrentBarrier).To(Equal(base.CurrentBarrier))
+			Expect(clone.MaxBarrier).To(Equal(base.MaxBarrier))
+			Expect(clone.Armor).To(Equal(base.Armor))
+		})
+		It("will copy Movement", func() {
+			base.Movement = squaddie.Movement{
+				Distance:  base.Movement.Distance + 2,
+				Type:      squaddie.Fly,
+				HitAndRun: true,
+			}
+
+			clone, _ := repo.CloneSquaddie(base, "")
+			Expect(clone.Movement.Distance).To(Equal(base.Movement.Distance))
+			Expect(clone.Movement.Type).To(Equal(base.Movement.Type))
+			Expect(clone.Movement.HitAndRun).To(Equal(base.Movement.HitAndRun))
+		})
+		It("will copy PowerReferences", func() {
+			attackA := power.NewPower("Attack Formation A")
+			base.AddInnatePower(attackA)
+			clone, _ := repo.CloneSquaddie(base, "")
+
+			attackIDNamePairs := clone.GetInnatePowerIDNames()
+			Expect(len(attackIDNamePairs)).To(Equal(1))
+			Expect(attackIDNamePairs[0].Name).To(Equal("Attack Formation A"))
+			Expect(attackIDNamePairs[0].ID).To(Equal(attackA.ID))
+		})
+		It("will copy class information", func() {
+			initialClass := &squaddieclass.Class{
+				ID: "initial",
+				Name: "Initial Class",
+				BaseClassRequired: false,
+				InitialBigLevelID: "",
+			}
+			advancedClass := &squaddieclass.Class{
+				ID: "advanced",
+				Name: "Advanced Class",
+				BaseClassRequired: true,
+				InitialBigLevelID: "advanceLevel0",
+			}
+
+			base.AddClass(initialClass)
+			base.AddClass(advancedClass)
+			base.SetBaseClassIfNoBaseClass(initialClass.ID)
+			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel0")
+			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel1")
+			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel2")
+
+			clone, _ := repo.CloneSquaddie(base, "")
+			Expect(clone.BaseClassID).To(Equal(base.BaseClassID))
+			Expect(clone.CurrentClass).To(Equal(base.CurrentClass))
+			for classID, levelsConsumed := range base.ClassLevelsConsumed {
+				Expect(clone.ClassLevelsConsumed).To(HaveKey(classID))
+
+				cloneLevelsConsumed := clone.ClassLevelsConsumed[classID]
+				Expect(cloneLevelsConsumed).NotTo(BeIdenticalTo(levelsConsumed))
+				Expect(cloneLevelsConsumed).To(Equal(levelsConsumed))
+			}
 		})
 	})
 })

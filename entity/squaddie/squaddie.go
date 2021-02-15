@@ -225,6 +225,11 @@ func (squaddie *Squaddie) CanHitAndRun() bool {
 	return squaddie.Movement.HitAndRun
 }
 
+// SetNewIDToRandom changes the ID to a random value.
+func (squaddie *Squaddie) SetNewIDToRandom() {
+	squaddie.ID = utility.StringWithCharset(8, "abcdefgh0123456789")
+}
+
 // IndexOfPowerID returns the index of the reference to a power with the given ID.
 //   returns -1 if it cannot be found.
 func IndexOfPowerID(references []*power.Reference, powerID string) int {

@@ -21,6 +21,13 @@ var _ = Describe("Manage Squaddie stats and Powers", func() {
 		Expect(teros.ID).NotTo(Equal(""))
 	})
 
+	It("can reset its ID upon command", func() {
+		teros := squaddie.NewSquaddie("Teros")
+		initialID := teros.ID
+		teros.SetNewIDToRandom()
+		Expect(teros.ID).NotTo(Equal(initialID))
+	})
+
 	It("Sets current HP to max.", func() {
 		teros := squaddie.NewSquaddie("Teros")
 		Expect(teros.MaxHitPoints).To(Equal(5))
