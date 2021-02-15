@@ -7,11 +7,21 @@ import (
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
+// Affiliation describes the Squaddie's allegiance
+type Affiliation string
+
+const (
+	// Player Squaddies are controlled by the player and try to succeed at missions.
+	Player = "Player"
+	// Enemy Squaddies oppose the player
+	Enemy = "Enemy"
+)
+
 // Squaddie is the base unit you can deploy and control on a field.
 type Squaddie struct {
 	ID                  string                    `json:"id" yaml:"id"`
 	Name                string                    `json:"name" yaml:"name"`
-	Affiliation         string                    `json:"affiliation" yaml:"affiliation"`
+	Affiliation         Affiliation               `json:"affiliation" yaml:"affiliation"`
 	BaseClassID         string                    `json:"base_class" yaml:"base_class"`
 	CurrentClass        string                    `json:"current_class" yaml:"current_class"`
 	ClassLevelsConsumed map[string]*ClassProgress `json:"class_levels" yaml:"class_levels"`
@@ -34,7 +44,7 @@ func NewSquaddie(name string) *Squaddie {
 	newSquaddie := Squaddie{
 		ID:                  utility.StringWithCharset(8, "abcdefgh0123456789"),
 		Name:                name,
-		Affiliation:         "Player",
+		Affiliation:         Player,
 		CurrentHitPoints:    0,
 		MaxHitPoints:        5,
 		Aim:                 0,
@@ -58,7 +68,8 @@ func NewSquaddie(name string) *Squaddie {
 
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
 func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
-	if newSquaddie.Affiliation != "Player" {
+	if newSquaddie.Affiliation != Player &&
+		newSquaddie.Affiliation != Enemy {
 		return fmt.Errorf("Squaddie has unknown affiliation: '%s'", newSquaddie.Affiliation)
 	}
 

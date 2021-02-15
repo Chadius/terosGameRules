@@ -322,7 +322,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			repo.AddSquaddies([]*squaddie.Squaddie{base})
 		})
 		It("copies name and affiliation but not ID", func() {
-			base.Affiliation = "Enemy"
+			base.Affiliation = squaddie.Enemy
 			clone, err := repo.CloneSquaddie(base, "")
 			Expect(err).To(BeNil())
 			Expect(clone.Name).To(Equal(base.Name))
