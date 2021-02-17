@@ -31,6 +31,7 @@ var _ = Describe("CRUD Squaddies", func() {
 		})
 		It("Can get a Squaddie by name", func() {
 			jsonByteStream := []byte(`[{
+				"id": "squaddieID",
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player"
@@ -38,16 +39,17 @@ var _ = Describe("CRUD Squaddies", func() {
 			success, _ := repo.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByName("Teros")
+			teros := repo.GetByID("squaddieID")
 			Expect(teros).NotTo(BeNil())
 			Expect(teros.Name).To(Equal("Teros"))
 			Expect(teros.Aim).To(Equal(5))
 
-			missingno := repo.GetByName("Does not exist")
+			missingno := repo.GetByID("Does not exist")
 			Expect(missingno).To(BeNil())
 		})
-		It("gets a clone of the squaddie by name", func() {
+		It("can get a Squaddie by ID", func() {
 			jsonByteStream := []byte(`[{
+				"ID": "12345",
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player"
@@ -55,12 +57,31 @@ var _ = Describe("CRUD Squaddies", func() {
 			success, _ := repo.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros0 := repo.GetByName("Teros")
-			teros1 := repo.GetByName("Teros")
+			teros := repo.GetByID("12345")
+			Expect(teros).NotTo(BeNil())
+			Expect(teros.Name).To(Equal("Teros"))
+			Expect(teros.Aim).To(Equal(5))
+
+			missingno := repo.GetByID("Does not exist")
+			Expect(missingno).To(BeNil())
+		})
+		It("gets a clone of the squaddie by name", func() {
+			jsonByteStream := []byte(`[{
+				"ID": "terosID",
+				"name": "Teros",
+				"aim": 5,
+				"affiliation": "Player"
+			}]`)
+			success, _ := repo.AddJSONSource(jsonByteStream)
+			Expect(success).To(BeTrue())
+
+			teros0 := repo.GetByID("terosID")
+			teros1 := repo.GetByID("terosID")
 			Expect(teros0).ToNot(BeIdenticalTo(teros1))
 		})
 		It("Can load class levels", func() {
 			jsonByteStream := []byte(`[{
+				"id": "terosSquaddieID",
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player",
@@ -79,7 +100,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			success, _ := repo.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByName("Teros")
+			teros := repo.GetByID("terosSquaddieID")
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"1": 1, "2": 0}))
 		})
 		It("Stops loading Squaddies upon validating the first invalid Squaddie", func() {
@@ -98,21 +119,25 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("Can create Squaddies with different movement", func() {
 			jsonByteStream := []byte(`[
 			{
+				"id": "Soldier",
 				"name": "Soldier",
 				"affiliation": "Player",
 				"movement": { "distance": 5, "type": "foot"}
 			},
 			{
+				"id": "Scout",
 				"name": "Scout",
 				"affiliation": "Player",
 				"movement": { "distance": 4, "type": "light"}
 			},
 			{
+				"id": "Bird",
 				"name": "Bird",
 				"affiliation": "Player",
 				"movement": { "distance": 3, "type": "fly", "hit_and_run": true}
 			},
 			{
+				"id": "Teleporter",
 				"name": "Teleporter",
 				"affiliation": "Player",
 				"movement": { "distance": 2, "type": "teleport"}
@@ -123,25 +148,25 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(success).To(BeTrue())
 			Expect(repo.GetNumberOfSquaddies()).To(Equal(4))
 
-			soldier := repo.GetByName("Soldier")
+			soldier := repo.GetByID("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
 			Expect(soldier.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
-			scout := repo.GetByName("Scout")
+			scout := repo.GetByID("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
 			Expect(scout.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Light)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
-			bird := repo.GetByName("Bird")
+			bird := repo.GetByID("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
 			Expect(bird.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
-			teleporter := repo.GetByName("Teleporter")
+			teleporter := repo.GetByID("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
 			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))
@@ -219,6 +244,7 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("Can load class levels", func() {
 			yamlByteStream := []byte(`-
   name: Teros
+  id: terosSquaddieID
   aim: 5
   max_barrier: 3
   affiliation: Player
@@ -235,7 +261,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			success, _ := repo.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByName("Teros")
+			teros := repo.GetByID("terosSquaddieID")
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"1": 1, "2": 0}))
 		})
 		It("Stops loading Squaddies upon validating the first invalid Squaddie", func() {
@@ -252,18 +278,21 @@ var _ = Describe("CRUD Squaddies", func() {
 		})
 		It("Can create Squaddies with different movement", func() {
 			yamlByteStream := []byte(`-
+  id: Soldier
   name: Soldier
   affiliation: Player
   movement:
     distance: 5
     type: foot
 -
+  id: Scout
   name: Scout
   affiliation: Player
   movement:
     distance: 4
     type: light
 -
+  id: Bird
   name: Bird
   affiliation: Player
   movement:
@@ -271,6 +300,7 @@ var _ = Describe("CRUD Squaddies", func() {
     type: fly
     hit_and_run: true
 -
+  id: Teleporter
   name: Teleporter
   affiliation: Player
   movement:
@@ -283,25 +313,25 @@ var _ = Describe("CRUD Squaddies", func() {
 			Expect(success).To(BeTrue())
 			Expect(repo.GetNumberOfSquaddies()).To(Equal(4))
 
-			soldier := repo.GetByName("Soldier")
+			soldier := repo.GetByID("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
 			Expect(soldier.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
-			scout := repo.GetByName("Scout")
+			scout := repo.GetByID("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
 			Expect(scout.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Light)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
-			bird := repo.GetByName("Bird")
+			bird := repo.GetByID("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
 			Expect(bird.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
-			teleporter := repo.GetByName("Teleporter")
+			teleporter := repo.GetByID("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
 			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))

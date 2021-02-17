@@ -10,7 +10,7 @@ import (
 
 // Repository will interact with external devices to manage Squaddies.
 type Repository struct {
-	squaddiesByName map[string]*Squaddie
+	squaddiesByID map[string]*Squaddie
 }
 
 // NewSquaddieRepository generates a pointer to a new Repository.
@@ -67,27 +67,17 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 		return false, squaddieErr
 	}
 	squaddieToAdd.SetHPToMax()
-	repository.squaddiesByName[squaddieToAdd.Name] = squaddieToAdd
+
+	if squaddieToAdd.ID == "" {
+		squaddieToAdd.SetNewIDToRandom()
+	}
+	repository.squaddiesByID[squaddieToAdd.ID] = squaddieToAdd
 	return true, nil
 }
 
 // GetNumberOfSquaddies returns the number of Squaddies ready to retrieve.
 func (repository *Repository) GetNumberOfSquaddies() int {
-	return len(repository.squaddiesByName)
-}
-
-// GetByName retrieves a Squaddie by name
-func (repository *Repository) GetByName(squaddieName string) *Squaddie {
-	squaddie, squaddieExists := repository.squaddiesByName[squaddieName]
-	if !squaddieExists {
-		return nil
-	}
-
-	clonedSquaddie, cloneErr := repository.CloneSquaddieWithNewID(squaddie, "")
-	if cloneErr != nil {
-		return nil
-	}
-	return clonedSquaddie
+	return len(repository.squaddiesByID)
 }
 
 // MarshalSquaddieIntoJSON converts the given Squaddie into JSON.
@@ -162,3 +152,18 @@ func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName str
 	clone.Name = newName
 	return clone, nil
 }
+
+// GetByID returns a Squaddie pointer by ID.
+func (repository *Repository) GetByID(squaddieID string) *Squaddie {
+	squaddie, squaddieExists := repository.squaddiesByID[squaddieID]
+	if !squaddieExists {
+		return nil
+	}
+
+	clonedSquaddie, cloneErr := repository.CloneSquaddieWithNewID(squaddie, "")
+	if cloneErr != nil {
+		return nil
+	}
+	return clonedSquaddie
+}
+
