@@ -323,15 +323,27 @@ var _ = Describe("CRUD Squaddies", func() {
 		})
 		It("copies name and affiliation but not ID", func() {
 			base.Affiliation = squaddie.Enemy
-			clone, err := repo.CloneSquaddie(base, "")
+			clone, err := repo.CloneSquaddieWithNewID(base, "")
 			Expect(err).To(BeNil())
 			Expect(clone.Name).To(Equal(base.Name))
 			Expect(clone.Affiliation).To(Equal(base.Affiliation))
 			Expect(clone.ID).ToNot(Equal(base.ID))
 		})
 		It("will set the clone ID to the given ID", func() {
-			clone, _ := repo.CloneSquaddie(base, "12345")
+			clone, _ := repo.CloneSquaddieWithNewID(base, "12345")
 			Expect(clone.ID).To(Equal("12345"))
+		})
+		It("can clone and rename the squaddie", func() {
+			clone, err := repo.CloneAndRenameSquaddie(base, "ClonedSquaddie", "12345")
+			Expect(err).To(BeNil())
+			Expect(base.Name).To(Equal("Base"))
+			Expect(clone.Name).To(Equal("ClonedSquaddie"))
+			Expect(clone.ID).ToNot(Equal(base.ID))
+		})
+		It("raises an error if you try to rename without a new name", func() {
+			clone, err := repo.CloneAndRenameSquaddie(base, "", "12345")
+			Expect(err.Error()).To(Equal(`cannot clone squaddie "Base" without a name`))
+			Expect(clone).To(BeNil())
 		})
 		It("will copy basic stats", func() {
 			base.CurrentHitPoints = 1
@@ -346,7 +358,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			base.Deflect = 6
 			base.Armor = 7
 
-			clone, _ := repo.CloneSquaddie(base, "")
+			clone, _ := repo.CloneSquaddieWithNewID(base, "")
 			Expect(clone.CurrentHitPoints).To(Equal(base.CurrentHitPoints))
 			Expect(clone.MaxHitPoints).To(Equal(base.MaxHitPoints))
 			Expect(clone.Aim).To(Equal(base.Aim))
@@ -365,7 +377,7 @@ var _ = Describe("CRUD Squaddies", func() {
 				HitAndRun: true,
 			}
 
-			clone, _ := repo.CloneSquaddie(base, "")
+			clone, _ := repo.CloneSquaddieWithNewID(base, "")
 			Expect(clone.Movement.Distance).To(Equal(base.Movement.Distance))
 			Expect(clone.Movement.Type).To(Equal(base.Movement.Type))
 			Expect(clone.Movement.HitAndRun).To(Equal(base.Movement.HitAndRun))
@@ -373,7 +385,7 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("will copy PowerReferences", func() {
 			attackA := power.NewPower("Attack Formation A")
 			base.AddInnatePower(attackA)
-			clone, _ := repo.CloneSquaddie(base, "")
+			clone, _ := repo.CloneSquaddieWithNewID(base, "")
 
 			attackIDNamePairs := clone.GetInnatePowerIDNames()
 			Expect(len(attackIDNamePairs)).To(Equal(1))
@@ -401,7 +413,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel1")
 			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel2")
 
-			clone, _ := repo.CloneSquaddie(base, "")
+			clone, _ := repo.CloneSquaddieWithNewID(base, "")
 			Expect(clone.BaseClassID).To(Equal(base.BaseClassID))
 			Expect(clone.CurrentClass).To(Equal(base.CurrentClass))
 			for classID, levelsConsumed := range base.ClassLevelsConsumed {

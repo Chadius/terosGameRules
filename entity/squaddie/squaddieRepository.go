@@ -2,6 +2,7 @@ package squaddie
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/utility"
 	"gopkg.in/yaml.v2"
@@ -82,7 +83,7 @@ func (repository *Repository) GetByName(squaddieName string) *Squaddie {
 		return nil
 	}
 
-	clonedSquaddie, cloneErr := repository.CloneSquaddie(squaddie, "")
+	clonedSquaddie, cloneErr := repository.CloneSquaddieWithNewID(squaddie, "")
 	if cloneErr != nil {
 		return nil
 	}
@@ -102,11 +103,11 @@ func (repository *Repository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byt
 	})
 }
 
-//CloneSquaddie uses the base Squaddie to create a new one.
+//CloneSquaddieWithNewID uses the base Squaddie to create a new one.
 //  All fields will be the same except the ID.
 //  If newID isn't empty, the clone ID is set to that.
 //  Otherwise it is randomly generated.
-func (repository *Repository) CloneSquaddie(base *Squaddie, newID string) (*Squaddie, error) {
+func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
 	clone := NewSquaddie(base.Name)
 	clone.Affiliation = base.Affiliation
 	if newID != "" {
@@ -142,5 +143,22 @@ func (repository *Repository) CloneSquaddie(base *Squaddie, newID string) (*Squa
 		clone.ClassLevelsConsumed[classID] = &newProgress
 	}
 
+	return clone, nil
+}
+
+// CloneAndRenameSquaddie clones the base squaddie and renames them
+//  newName must be non-empty or raise an error.
+//  See CloneSquaddieWithNewID to see how newID is used.
+func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName string, newID string) (*Squaddie, error) {
+	clone, err := repository.CloneSquaddieWithNewID(base, newID)
+	if err != nil {
+		return nil, err
+	}
+
+	if newName == "" {
+		return nil, fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Name)
+	}
+
+	clone.Name = newName
 	return clone, nil
 }
