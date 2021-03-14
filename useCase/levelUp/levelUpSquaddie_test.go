@@ -179,13 +179,13 @@ var _ = Describe("Squaddie uses LevelUpBenefits", func() {
 
 			spear = power.NewPower("Spear")
 			spear.PowerType = power.Physical
-			spear.ToHitBonus = 1
+			spear.AttackEffect.ToHitBonus = 1
 			spear.ID = "spearlvl1"
 			teros.PowerReferences = []*power.Reference{{Name: "Spear", ID: "spearlvl1"}}
 
 			spearLevel2 = power.NewPower("Spear")
 			spearLevel2.PowerType = power.Physical
-			spearLevel2.ToHitBonus = 1
+			spearLevel2.AttackEffect.ToHitBonus = 1
 			spearLevel2.ID = "spearlvl2"
 			newPowers := []*power.Power{spear, spearLevel2}
 			powerRepo.AddSlicePowerSource(newPowers)
