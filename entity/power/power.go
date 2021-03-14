@@ -26,7 +26,7 @@ const (
 type Power struct {
 	Reference `yaml:",inline"`
 	PowerType Type `json:"power_type" yaml:"power_type"`
-	*AttackingEffect
+	AttackEffect *AttackingEffect  `json:"attack_effect" yaml:"attack_effect"`
 }
 
 // AttackingEffect is a power designed to deal damage.
@@ -45,7 +45,7 @@ func NewPower(name string) *Power {
 			ID:   utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
 		PowerType: Physical,
-		AttackingEffect: &AttackingEffect{
+		AttackEffect: &AttackingEffect{
 			ToHitBonus:           0,
 			DamageBonus:          0,
 			ExtraBarrierDamage:   0,

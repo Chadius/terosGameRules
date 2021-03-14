@@ -1,0 +1,24 @@
+-
+  name: Teros
+  id: squaddieTeros
+  aim: 5
+  max_barrier: 3
+  strength: 1
+  armor: 2
+  dodge: 3
+  deflect: 4
+  affiliation: Player
+  powers:
+  -
+    name: Spear
+    id: powerSpear
+-
+  name: Bandit
+  id: squaddieBandit
+  aim: 0
+  max_barrier: 0
+  strength: 1
+  armor: 0
+  dodge: 0
+  deflect: 0
+  affiliation: Enemy

@@ -8,15 +8,15 @@ import (
 
 // GetPowerToHitBonusWhenUsedBySquaddie calculates the total to hit bonus for the attacking squaddie and attacking power
 func GetPowerToHitBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie) (toHit int) {
-	return attackingPower.AttackingEffect.ToHitBonus + squaddie.Aim
+	return attackingPower.AttackEffect.ToHitBonus + squaddie.Aim
 }
 
 // GetPowerDamageBonusWhenUsedBySquaddie calculates the total Damage bonus for the attacking squaddie and attacking power
 func GetPowerDamageBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
 	if attackingPower.PowerType == power.Physical {
-		return attackingPower.AttackingEffect.DamageBonus + squaddie.Strength
+		return attackingPower.AttackEffect.DamageBonus + squaddie.Strength
 	}
-	return attackingPower.AttackingEffect.DamageBonus + squaddie.Mind
+	return attackingPower.AttackEffect.DamageBonus + squaddie.Mind
 }
 
 // GetPowerCriticalDamageBonusWhenUsedBySquaddie calculates the total Critical Hit Damage bonus for the attacking squaddie and attacking power
@@ -66,11 +66,11 @@ func calculateDamageAfterArmorAbsorption(attackingPower *power.Power, target *sq
 }
 
 func calculateDamageAfterExtraBarrierDamage(attackingPower *power.Power, remainingBarrier int, extraBarrierDamage int) int {
-	if attackingPower.ExtraBarrierDamage > 0 {
-		var barrierFullyAbsorbsExtraBarrierDamage bool = remainingBarrier > attackingPower.ExtraBarrierDamage
+	if attackingPower.AttackEffect.ExtraBarrierDamage > 0 {
+		var barrierFullyAbsorbsExtraBarrierDamage bool = remainingBarrier > attackingPower.AttackEffect.ExtraBarrierDamage
 		if barrierFullyAbsorbsExtraBarrierDamage {
-			extraBarrierDamage = attackingPower.ExtraBarrierDamage
-			remainingBarrier = remainingBarrier - attackingPower.ExtraBarrierDamage
+			extraBarrierDamage = attackingPower.AttackEffect.ExtraBarrierDamage
+			remainingBarrier = remainingBarrier - attackingPower.AttackEffect.ExtraBarrierDamage
 		} else {
 			extraBarrierDamage = remainingBarrier
 			remainingBarrier = 0
@@ -115,7 +115,7 @@ func GetExpectedDamage(attackingPower *power.Power, attacker *squaddie.Squaddie,
 
 	healthDamage, barrierDamage, extraBarrierDamage := GetHowTargetDistributesDamage(attackingPower, attacker, target)
 
-	chanceToCritical := power.GetChanceToCriticalBasedOnThreshold(attackingPower.CriticalHitThreshold)
+	chanceToCritical := power.GetChanceToCriticalBasedOnThreshold(attackingPower.AttackEffect.CriticalHitThreshold)
 	var criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage int
 	if chanceToCritical > 0 {
 		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = GetHowTargetDistributesCriticalDamage(attackingPower, attacker, target)

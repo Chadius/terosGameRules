@@ -4,10 +4,16 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerattack"
+	"io/ioutil"
+	"log"
 )
 
 func main() {
-	attacker, target, power := loadActors()
+	attacker, target, power := loadActors(
+		"squaddieTeros",
+		"squaddieBandit",
+		"powerSpear",
+	)
 
 	attackingPowerSummary := powerattack.GetExpectedDamage(power, attacker, target)
 	println(attacker.Name, "will attack", target.Name, "with", power.Name)
@@ -19,37 +25,30 @@ func main() {
 	println("Expected barrier damage   ", attackingPowerSummary.ExpectedBarrierDamage)
 }
 
-func loadActors () (*squaddie.Squaddie, *squaddie.Squaddie, *power.Power) {
-	teros := squaddie.NewSquaddie("Teros")
-	teros.Strength = 1
-	teros.Armor = 2
-	teros.Dodge = 3
-	teros.Deflect = 4
-	teros.MaxBarrier = 1
-	teros.SetBarrierToMax()
+func loadActors (attackerID, targetID, powerID string) (*squaddie.Squaddie, *squaddie.Squaddie, *power.Power) {
+	squaddieYamlData, err := ioutil.ReadFile("data/squaddieDatabase.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	bandit := squaddie.NewSquaddie("Bandit")
-	bandit.Armor = 2
-	bandit.Dodge = 0
-	bandit.Deflect = 0
-	bandit.MaxBarrier = 0
-	bandit.SetBarrierToMax()
+	squaddieRepo := squaddie.NewSquaddieRepository()
+	squaddieRepo.AddYAMLSource(squaddieYamlData)
+	attacker := squaddieRepo.GetByID(attackerID)
+	attacker.SetBarrierToMax()
 
-	powerRepository := power.NewPowerRepository()
-	spear := power.NewPower("Spear")
-	spear.PowerType = power.Physical
-	spear.ID = "deadbeef"
-	spear.DamageBonus = 2
-	spear.ToHitBonus = 1
-	newPowers := []*power.Power{spear}
-	powerRepository.AddSlicePowerSource(newPowers)
+	target := squaddieRepo.GetByID(targetID)
+	target.SetBarrierToMax()
 
-	temporaryPowerReferences := []*power.Reference{{Name: "Spear", ID: spear.ID}}
-	powerattack.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
+	powerYamlData, err := ioutil.ReadFile("data/powerDatabase.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	powerRepo := power.NewPowerRepository()
+	powerRepo.AddYAMLSource(powerYamlData)
 
-	attacker := teros
-	power := spear
-	target := bandit
+	powerattack.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerReferences, powerRepo)
+
+	power := powerRepo.GetPowerByID(powerID)
 
 	return attacker, target, power
 }

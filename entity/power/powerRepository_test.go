@@ -33,12 +33,12 @@ var _ = Describe("CRUD Powers", func() {
 			spear = power.NewPower("Spear")
 			spear.PowerType = power.Physical
 			spear.ID = "spearLevel1"
-			spear.ToHitBonus = 1
+			spear.AttackEffect.ToHitBonus = 1
 
 			spear2 = power.NewPower("Spear")
 			spear2.PowerType = power.Physical
 			spear2.ID = "spearLevel2"
-			spear2.ToHitBonus = 2
+			spear2.AttackEffect.ToHitBonus = 2
 
 			newPowers := []*power.Power{spear, spear2}
 
@@ -52,12 +52,12 @@ var _ = Describe("CRUD Powers", func() {
 			spearLevel1FromRepo := repo.GetPowerByID(spear.ID)
 			Expect(spearLevel1FromRepo.Name).To(Equal("Spear"))
 			Expect(spearLevel1FromRepo.ID).To(Equal(spear.ID))
-			Expect(spearLevel1FromRepo.ToHitBonus).To(Equal(spear.ToHitBonus))
+			Expect(spearLevel1FromRepo.AttackEffect.ToHitBonus).To(Equal(spear.AttackEffect.ToHitBonus))
 
 			spearLevel2FromRepo := repo.GetPowerByID(spear2.ID)
 			Expect(spearLevel2FromRepo.Name).To(Equal("Spear"))
 			Expect(spearLevel2FromRepo.ID).To(Equal(spear2.ID))
-			Expect(spearLevel2FromRepo.ToHitBonus).To(Equal(spear2.ToHitBonus))
+			Expect(spearLevel2FromRepo.AttackEffect.ToHitBonus).To(Equal(spear2.AttackEffect.ToHitBonus))
 		})
 		It("Returns nil if power does not exist", func() {
 			nonExistentPower := repo.GetPowerByID("Nope")
@@ -86,8 +86,10 @@ var _ = Describe("CRUD Powers", func() {
 			jsonByteStream := []byte(`[{
 				"name": "Scimitar",
 				"id": "deadbeef",
-				"damage_bonus": 2,
-				"power_type": "Physical"
+				"power_type": "Physical",
+				"attack_effect": {
+					"damage_bonus": 2
+				}
 			}]`)
 			success, _ := repo.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
@@ -95,7 +97,7 @@ var _ = Describe("CRUD Powers", func() {
 			scimitar := repo.GetPowerByID("deadbeef")
 			Expect(scimitar.Name).To(Equal("Scimitar"))
 			Expect(scimitar.ID).To(Equal("deadbeef"))
-			Expect(scimitar.DamageBonus).To(Equal(2))
+			Expect(scimitar.AttackEffect.DamageBonus).To(Equal(2))
 
 			missingno := repo.GetPowerByID(("Does not exist"))
 			Expect(missingno).To(BeNil())
@@ -121,12 +123,19 @@ var _ = Describe("CRUD Powers", func() {
 			Expect(repo.GetNumberOfPowers()).To(Equal(0))
 			yamlByteStream := []byte(`-
   name: Scimitar
-  damage_bonus: 2,
+  id: deadbeef
   power_type: Physical
+  attack_effect:
+    damage_bonus: 2
 `)
 			success, _ := repo.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeTrue())
 			Expect(repo.GetNumberOfPowers()).To(Equal(1))
+
+			scimitar := repo.GetPowerByID("deadbeef")
+			Expect(scimitar.Name).To(Equal("Scimitar"))
+			Expect(scimitar.ID).To(Equal("deadbeef"))
+			Expect(scimitar.AttackEffect.DamageBonus).To(Equal(2))
 		})
 	})
 })

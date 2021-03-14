@@ -1,0 +1,6 @@
+-
+  name: Spear
+  id: powerSpear
+  power_type: Physical
+  attack_effect:
+    damage_bonus: 2
