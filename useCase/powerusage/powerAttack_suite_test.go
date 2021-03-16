@@ -1,4 +1,4 @@
-package powerattack_test
+package powerusage_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestPowerAttack(t *testing.T) {
+func TestPowerUsage(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "PowerAttack Suite")
+	RunSpecs(t, "PowerUsage Suite")
 }

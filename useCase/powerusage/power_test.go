@@ -1,9 +1,10 @@
-package powerattack_test
+package powerusage_test
 
 import (
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattack"
+	"github.com/cserrant/terosBattleServer/usecase/powerusage"
+	"github.com/cserrant/terosBattleServer/utility/testutility"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -32,7 +33,7 @@ var _ = Describe("Power uses with other Entities", func() {
 			teros.Aim = 2
 			blot.AttackEffect.ToHitBonus = 1
 
-			totalToHitBonus := powerattack.GetPowerToHitBonusWhenUsedBySquaddie(blot, teros)
+			totalToHitBonus := powerusage.GetPowerToHitBonusWhenUsedBySquaddie(blot, teros)
 			Expect(totalToHitBonus).To(Equal(3))
 		})
 
@@ -49,17 +50,17 @@ var _ = Describe("Power uses with other Entities", func() {
 			})
 
 			It("Calculates the Damage bonus of physical attacks", func() {
-				totalDamageBonus := powerattack.GetPowerDamageBonusWhenUsedBySquaddie(spear, teros)
+				totalDamageBonus := powerusage.GetPowerDamageBonusWhenUsedBySquaddie(spear, teros)
 				Expect(totalDamageBonus).To(Equal(4))
 			})
 
 			It("Calculates the Damage bonus of spell attacks", func() {
-				totalDamageBonus := powerattack.GetPowerDamageBonusWhenUsedBySquaddie(blot, teros)
+				totalDamageBonus := powerusage.GetPowerDamageBonusWhenUsedBySquaddie(blot, teros)
 				Expect(totalDamageBonus).To(Equal(9))
 			})
 
 			It("Calculates the Critical Damage bonus of physical attacks", func() {
-				totalDamageBonus := powerattack.GetPowerCriticalDamageBonusWhenUsedBySquaddie(spear, teros)
+				totalDamageBonus := powerusage.GetPowerCriticalDamageBonusWhenUsedBySquaddie(spear, teros)
 				Expect(totalDamageBonus).To(Equal(8))
 			})
 		})
@@ -75,12 +76,12 @@ var _ = Describe("Power uses with other Entities", func() {
 			})
 
 			It("Calculates the to hit reduction against physical attacks", func() {
-				toHitPenalty := powerattack.GetPowerToHitPenaltyAgainstSquaddie(spear, teros)
+				toHitPenalty := powerusage.GetPowerToHitPenaltyAgainstSquaddie(spear, teros)
 				Expect(toHitPenalty).To(Equal(2))
 			})
 
 			It("Calculates the to hit reduction against spell attacks", func() {
-				toHitPenalty := powerattack.GetPowerToHitPenaltyAgainstSquaddie(blot, teros)
+				toHitPenalty := powerusage.GetPowerToHitPenaltyAgainstSquaddie(blot, teros)
 				Expect(toHitPenalty).To(Equal(9001))
 			})
 		})
@@ -99,20 +100,20 @@ var _ = Describe("Power uses with other Entities", func() {
 			})
 
 			It("Does full damage against targets without armor or barrier", func() {
-				totalHealthDamage, _, _ := powerattack.GetHowTargetDistributesDamage(spear, teros, bandit)
+				totalHealthDamage, _, _ := powerusage.GetHowTargetDistributesDamage(spear, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(4))
 			})
 
 			It("Armor reduces damage against physical attacks", func() {
 				bandit.Armor = 3
-				totalHealthDamage, _, _ := powerattack.GetHowTargetDistributesDamage(spear, teros, bandit)
+				totalHealthDamage, _, _ := powerusage.GetHowTargetDistributesDamage(spear, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(1))
 			})
 
 			It("Barrier absorbs damage against physical attacks and is depleted first", func() {
 				bandit.MaxBarrier = 4
 				bandit.CurrentBarrier = 1
-				totalHealthDamage, initialBarrierDamage, _ := powerattack.GetHowTargetDistributesDamage(spear, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, _ := powerusage.GetHowTargetDistributesDamage(spear, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(3))
 				Expect(initialBarrierDamage).To(Equal(1))
 			})
@@ -120,14 +121,14 @@ var _ = Describe("Power uses with other Entities", func() {
 			It("Will deal no damage if barrier is strong enough", func() {
 				bandit.MaxBarrier = 4
 				bandit.CurrentBarrier = 4
-				totalHealthDamage, initialBarrierDamage, _ := powerattack.GetHowTargetDistributesDamage(spear, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, _ := powerusage.GetHowTargetDistributesDamage(spear, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(0))
 				Expect(initialBarrierDamage).To(Equal(4))
 			})
 
 			It("May deal no damage if armor is strong enough", func() {
 				bandit.Armor = 4
-				totalHealthDamage, initialBarrierDamage, _ := powerattack.GetHowTargetDistributesDamage(spear, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, _ := powerusage.GetHowTargetDistributesDamage(spear, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(0))
 				Expect(initialBarrierDamage).To(Equal(0))
 			})
@@ -147,20 +148,20 @@ var _ = Describe("Power uses with other Entities", func() {
 			})
 
 			It("Does full damage against targets without armor or barrier", func() {
-				totalHealthDamage, _, _ := powerattack.GetHowTargetDistributesDamage(blot, teros, bandit)
+				totalHealthDamage, _, _ := powerusage.GetHowTargetDistributesDamage(blot, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(6))
 			})
 
 			It("Ignores Armor when using spell attacks", func() {
 				bandit.Armor = 9001
-				totalHealthDamage, _, _ := powerattack.GetHowTargetDistributesDamage(blot, teros, bandit)
+				totalHealthDamage, _, _ := powerusage.GetHowTargetDistributesDamage(blot, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(6))
 			})
 
 			It("Barrier absorbs damage against spell attacks and is depleted first", func() {
 				bandit.MaxBarrier = 4
 				bandit.CurrentBarrier = 1
-				totalHealthDamage, initialBarrierDamage, _ := powerattack.GetHowTargetDistributesDamage(blot, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, _ := powerusage.GetHowTargetDistributesDamage(blot, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(5))
 				Expect(initialBarrierDamage).To(Equal(1))
 			})
@@ -168,7 +169,7 @@ var _ = Describe("Power uses with other Entities", func() {
 			It("Will deal no damage if barrier is strong enough", func() {
 				bandit.MaxBarrier = 9001
 				bandit.CurrentBarrier = 9001
-				totalHealthDamage, initialBarrierDamage, _ := powerattack.GetHowTargetDistributesDamage(blot, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, _ := powerusage.GetHowTargetDistributesDamage(blot, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(0))
 				Expect(initialBarrierDamage).To(Equal(6))
 			})
@@ -178,7 +179,7 @@ var _ = Describe("Power uses with other Entities", func() {
 				bandit.CurrentBarrier = 8
 				blot.AttackEffect.ExtraBarrierDamage = 2
 
-				totalHealthDamage, initialBarrierDamage, extraBarrierDamage := powerattack.GetHowTargetDistributesDamage(blot, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, extraBarrierDamage := powerusage.GetHowTargetDistributesDamage(blot, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(0))
 				Expect(initialBarrierDamage).To(Equal(6))
 				Expect(extraBarrierDamage).To(Equal(2))
@@ -189,7 +190,7 @@ var _ = Describe("Power uses with other Entities", func() {
 				bandit.CurrentBarrier = 7
 				blot.AttackEffect.ExtraBarrierDamage = 2
 
-				totalHealthDamage, initialBarrierDamage, extraBarrierDamage := powerattack.GetHowTargetDistributesDamage(blot, teros, bandit)
+				totalHealthDamage, initialBarrierDamage, extraBarrierDamage := powerusage.GetHowTargetDistributesDamage(blot, teros, bandit)
 				Expect(totalHealthDamage).To(Equal(0))
 				Expect(initialBarrierDamage).To(Equal(6))
 				Expect(extraBarrierDamage).To(Equal(1))
@@ -218,7 +219,7 @@ var _ = Describe("Power uses with other Entities", func() {
 				teros.Mind = 2
 				blot.AttackEffect.DamageBonus = 4
 
-				attackingPowerSummary := powerattack.GetExpectedDamage(spear, teros, bandit)
+				attackingPowerSummary := powerusage.GetExpectedDamage(spear, teros, bandit)
 				Expect(attackingPowerSummary.ChanceToHit).To(Equal(15))
 				Expect(attackingPowerSummary.DamageTaken).To(Equal(2))
 				Expect(attackingPowerSummary.ExpectedDamage).To(Equal(30))
@@ -236,7 +237,7 @@ var _ = Describe("Power uses with other Entities", func() {
 				teros.Mind = 2
 				blot.AttackEffect.DamageBonus = 4
 				blot.AttackEffect.ExtraBarrierDamage = 3
-				attackingPowerSummary := powerattack.GetExpectedDamage(blot, teros, bandit)
+				attackingPowerSummary := powerusage.GetExpectedDamage(blot, teros, bandit)
 				Expect(attackingPowerSummary.ChanceToHit).To(Equal(33))
 				Expect(attackingPowerSummary.DamageTaken).To(Equal(0))
 				Expect(attackingPowerSummary.ExpectedDamage).To(Equal(0))
@@ -260,8 +261,8 @@ var _ = Describe("Power uses with other Entities", func() {
 
 			It("Adds the chance to crit to the attack summary", func() {
 				spear.AttackEffect.CriticalHitThreshold = 4
-				attackingPowerSummary := powerattack.GetExpectedDamage(spear, teros, bandit)
-				Expect(attackingPowerSummary.ChanceToCrit).To(Equal(6))
+				attackingPowerSummary := powerusage.GetExpectedDamage(spear, teros, bandit)
+				Expect(attackingPowerSummary.ChanceToCritical).To(Equal(6))
 			})
 
 			It("Doubles the damage before applying armor and barrier to the attack summary", func() {
@@ -269,7 +270,7 @@ var _ = Describe("Power uses with other Entities", func() {
 				bandit.MaxBarrier = 4
 				bandit.CurrentBarrier = 4
 				spear.AttackEffect.CriticalHitThreshold = 4
-				attackingPowerSummary := powerattack.GetExpectedDamage(spear, teros, bandit)
+				attackingPowerSummary := powerusage.GetExpectedDamage(spear, teros, bandit)
 				Expect(attackingPowerSummary.CriticalDamageTaken).To(Equal(3))
 				Expect(attackingPowerSummary.CriticalBarrierDamageTaken).To(Equal(4))
 				Expect(attackingPowerSummary.CriticalExpectedDamage).To(Equal(3 * 21))
@@ -278,8 +279,8 @@ var _ = Describe("Power uses with other Entities", func() {
 
 			It("Does not factor critcal effects if the attack cannot crit", func() {
 				spear.AttackEffect.CriticalHitThreshold = 0
-				attackingPowerSummary := powerattack.GetExpectedDamage(spear, teros, bandit)
-				Expect(attackingPowerSummary.ChanceToCrit).To(Equal(0))
+				attackingPowerSummary := powerusage.GetExpectedDamage(spear, teros, bandit)
+				Expect(attackingPowerSummary.ChanceToCritical).To(Equal(0))
 				Expect(attackingPowerSummary.CriticalDamageTaken).To(Equal(0))
 				Expect(attackingPowerSummary.CriticalBarrierDamageTaken).To(Equal(0))
 				Expect(attackingPowerSummary.CriticalExpectedDamage).To(Equal(0))
@@ -307,7 +308,7 @@ var _ = Describe("Power uses with other Entities", func() {
 		})
 		It("Can give Squaddie innate Powers with a repository", func() {
 			temporaryPowerReferences := []*power.Reference{{Name: "Spear", ID: spear.ID}}
-			numberOfPowersAdded, err := powerattack.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
+			numberOfPowersAdded, err := powerusage.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
 			Expect(numberOfPowersAdded).To(Equal(1))
 			Expect(err).To(BeNil())
 
@@ -321,12 +322,117 @@ var _ = Describe("Power uses with other Entities", func() {
 			scimitar.PowerType = power.Physical
 
 			temporaryPowerReferences := []*power.Reference{{Name: "Scimitar", ID: scimitar.ID}}
-			numberOfPowersAdded, err := powerattack.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
+			numberOfPowersAdded, err := powerusage.LoadAllOfSquaddieInnatePowers(teros, temporaryPowerReferences, powerRepository)
 			Expect(numberOfPowersAdded).To(Equal(0))
 			Expect(err.Error()).To(Equal("squaddie 'Teros' tried to add Power 'Scimitar' but it does not exist"))
 
 			attackIDNamePairs := teros.GetInnatePowerIDNames()
 			Expect(len(attackIDNamePairs)).To(Equal(0))
+		})
+	})
+	Context("Create Power Reports when using Powers", func() {
+		var (
+			teros *squaddie.Squaddie
+			bandit *squaddie.Squaddie
+			bandit2 *squaddie.Squaddie
+			blot  *power.Power
+		)
+
+		BeforeEach(func() {
+			teros = squaddie.NewSquaddie("Teros")
+			teros.Name = "Teros"
+			teros.Mind = 1
+
+			bandit = squaddie.NewSquaddie("Bandit")
+			bandit.Name = "Bandit"
+
+			bandit2 = squaddie.NewSquaddie("Bandit")
+			bandit2.Name = "Bandit"
+
+			blot = power.NewPower("Blot")
+			blot.PowerType = power.Spell
+			blot.AttackEffect.DamageBonus = 1
+		})
+
+		It("Creates a Power Report saying it missed", func() {
+			dieRoller := &testutility.AlwaysMissDieRoller{}
+
+			powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				blot,
+				teros,
+				[]*squaddie.Squaddie{
+					bandit,
+				},
+				dieRoller,
+			)
+			Expect(powerResult.AttackerID).To(Equal(teros.ID))
+			Expect(powerResult.PowerID).To(Equal(blot.ID))
+
+			Expect(powerResult.AttackingPowerResults).To(HaveLen(1))
+			Expect(powerResult.AttackingPowerResults[0].WasAHit).To(BeFalse())
+		})
+
+		It("Creates a Power Report when it hits but does not crit", func() {
+			dieRoller := &testutility.AlwaysHitDieRoller{}
+
+			powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				blot,
+				teros,
+				[]*squaddie.Squaddie{
+					bandit,
+				},
+				dieRoller,
+			)
+			Expect(powerResult.AttackerID).To(Equal(teros.ID))
+			Expect(powerResult.PowerID).To(Equal(blot.ID))
+
+			Expect(powerResult.AttackingPowerResults).To(HaveLen(1))
+			Expect(powerResult.AttackingPowerResults[0].WasAHit).To(BeTrue())
+			Expect(powerResult.AttackingPowerResults[0].WasACriticalHit).To(BeFalse())
+			Expect(powerResult.AttackingPowerResults[0].DamageTaken).To(Equal(2))
+			Expect(powerResult.AttackingPowerResults[0].BarrierDamage).To(Equal(0))
+		})
+
+		It("Creates a Power Report when it hits and crits", func() {
+			dieRoller := &testutility.AlwaysHitDieRoller{}
+			blot.AttackEffect.CriticalHitThreshold = 900
+
+			powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				blot,
+				teros,
+				[]*squaddie.Squaddie{
+					bandit,
+				},
+				dieRoller,
+			)
+			Expect(powerResult.AttackerID).To(Equal(teros.ID))
+			Expect(powerResult.PowerID).To(Equal(blot.ID))
+
+			Expect(powerResult.AttackingPowerResults).To(HaveLen(1))
+			Expect(powerResult.AttackingPowerResults[0].WasAHit).To(BeTrue())
+			Expect(powerResult.AttackingPowerResults[0].WasACriticalHit).To(BeTrue())
+			Expect(powerResult.AttackingPowerResults[0].DamageTaken).To(Equal(4))
+			Expect(powerResult.AttackingPowerResults[0].BarrierDamage).To(Equal(0))
+		})
+
+		It("Creates a Power Report against multiple targets", func() {
+			dieRoller := &testutility.AlwaysMissDieRoller{}
+
+			powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				blot,
+				teros,
+				[]*squaddie.Squaddie{
+					bandit,
+					bandit2,
+				},
+				dieRoller,
+			)
+			Expect(powerResult.AttackerID).To(Equal(teros.ID))
+			Expect(powerResult.PowerID).To(Equal(blot.ID))
+
+			Expect(powerResult.AttackingPowerResults).To(HaveLen(2))
+			Expect(powerResult.AttackingPowerResults[0].TargetID).To(Equal(bandit.ID))
+			Expect(powerResult.AttackingPowerResults[1].TargetID).To(Equal(bandit2.ID))
 		})
 	})
 })

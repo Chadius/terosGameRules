@@ -5,7 +5,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattack"
+	"github.com/cserrant/terosBattleServer/usecase/powerusage"
 )
 
 // improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.
@@ -55,7 +55,7 @@ func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImp
 	})
 	powerReferencesToLoad := append(powerReferencesToKeep, benefit.PowerIDGained...)
 
-	_, err := powerattack.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, powerRepo)
+	_, err := powerusage.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, powerRepo)
 	return err
 }
 

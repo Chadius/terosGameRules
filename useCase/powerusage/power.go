@@ -1,4 +1,4 @@
-package powerattack
+package powerusage
 
 import (
 	"fmt"
@@ -93,21 +93,24 @@ func calculateDamageAfterInitialBarrierAbsorption(target *squaddie.Squaddie, dam
 	return damageToAbsorb, barrierDamage, remainingBarrier
 }
 
-// AttackingPowerSummary gives a summary of the chance to hit and damage dealt by attacks. Expected damage counts the number of 36ths so we can use ints for fractional math.
+// AttackingPowerSummary gives a summary of the chance to hit and damage dealt by attacks.
+//  Expected damage counts the number of 36ths so we can use integers for fractional math.
 type AttackingPowerSummary struct {
+	CriticalHitThreshold          int
 	ChanceToHit                   int
 	DamageTaken                   int
 	ExpectedDamage                int
+	HitRate                       int
 	BarrierDamageTaken            int
 	ExpectedBarrierDamage         int
-	ChanceToCrit                  int
+	ChanceToCritical              int
 	CriticalDamageTaken           int
 	CriticalBarrierDamageTaken    int
 	CriticalExpectedDamage        int
 	CriticalExpectedBarrierDamage int
 }
 
-// GetExpectedDamage provides a quick summary of an attack as well as the multiplied estimate
+// GetExpectedDamage provides a summary of what the attacker's attackingPower will do against the given target.
 func GetExpectedDamage(attackingPower *power.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (battleSummary *AttackingPowerSummary) {
 	toHitBonus := GetPowerToHitBonusWhenUsedBySquaddie(attackingPower, attacker)
 	toHitPenalty := GetPowerToHitPenaltyAgainstSquaddie(attackingPower, target)
@@ -124,12 +127,14 @@ func GetExpectedDamage(attackingPower *power.Power, attacker *squaddie.Squaddie,
 	}
 
 	return &AttackingPowerSummary{
+		CriticalHitThreshold:          attackingPower.AttackEffect.CriticalHitThreshold,
+		HitRate:                       toHitBonus - toHitPenalty,
 		ChanceToHit:                   totalChanceToHit,
 		DamageTaken:                   healthDamage,
 		ExpectedDamage:                totalChanceToHit * healthDamage,
 		BarrierDamageTaken:            barrierDamage + extraBarrierDamage,
 		ExpectedBarrierDamage:         totalChanceToHit * (barrierDamage + extraBarrierDamage),
-		ChanceToCrit:                  chanceToCritical,
+		ChanceToCritical:              chanceToCritical,
 		CriticalDamageTaken:           criticalHealthDamage,
 		CriticalBarrierDamageTaken:    criticalBarrierDamage + criticalExtraBarrierDamage,
 		CriticalExpectedDamage:        totalChanceToHit * criticalHealthDamage,
