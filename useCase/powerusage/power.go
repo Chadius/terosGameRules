@@ -96,18 +96,19 @@ func calculateDamageAfterInitialBarrierAbsorption(target *squaddie.Squaddie, dam
 // AttackingPowerSummary gives a summary of the chance to hit and damage dealt by attacks.
 //  Expected damage counts the number of 36ths so we can use integers for fractional math.
 type AttackingPowerSummary struct {
-	CriticalHitThreshold          int
-	ChanceToHit                   int
-	DamageTaken                   int
-	ExpectedDamage                int
-	HitRate                       int
-	BarrierDamageTaken            int
-	ExpectedBarrierDamage         int
-	ChanceToCritical              int
-	CriticalDamageTaken           int
-	CriticalBarrierDamageTaken    int
-	CriticalExpectedDamage        int
-	CriticalExpectedBarrierDamage int
+	TargetSquaddieID				string
+	CriticalHitThreshold          	int
+	ChanceToHit                   	int
+	DamageTaken                   	int
+	ExpectedDamage                	int
+	HitRate                       	int
+	BarrierDamageTaken            	int
+	ExpectedBarrierDamage         	int
+	ChanceToCritical              	int
+	CriticalDamageTaken           	int
+	CriticalBarrierDamageTaken    	int
+	CriticalExpectedDamage        	int
+	CriticalExpectedBarrierDamage 	int
 }
 
 // GetExpectedDamage provides a summary of what the attacker's attackingPower will do against the given target.
@@ -127,18 +128,19 @@ func GetExpectedDamage(attackingPower *power.Power, attacker *squaddie.Squaddie,
 	}
 
 	return &AttackingPowerSummary{
-		CriticalHitThreshold:          attackingPower.AttackEffect.CriticalHitThreshold,
-		HitRate:                       toHitBonus - toHitPenalty,
-		ChanceToHit:                   totalChanceToHit,
-		DamageTaken:                   healthDamage,
-		ExpectedDamage:                totalChanceToHit * healthDamage,
-		BarrierDamageTaken:            barrierDamage + extraBarrierDamage,
-		ExpectedBarrierDamage:         totalChanceToHit * (barrierDamage + extraBarrierDamage),
-		ChanceToCritical:              chanceToCritical,
-		CriticalDamageTaken:           criticalHealthDamage,
-		CriticalBarrierDamageTaken:    criticalBarrierDamage + criticalExtraBarrierDamage,
-		CriticalExpectedDamage:        totalChanceToHit * criticalHealthDamage,
-		CriticalExpectedBarrierDamage: totalChanceToHit * (criticalBarrierDamage + criticalExtraBarrierDamage),
+		TargetSquaddieID: 				target.ID,
+		CriticalHitThreshold:			attackingPower.AttackEffect.CriticalHitThreshold,
+		HitRate:						toHitBonus - toHitPenalty,
+		ChanceToHit:					totalChanceToHit,
+		DamageTaken:					healthDamage,
+		ExpectedDamage:					totalChanceToHit * healthDamage,
+		BarrierDamageTaken:				barrierDamage + extraBarrierDamage,
+		ExpectedBarrierDamage:			totalChanceToHit * (barrierDamage + extraBarrierDamage),
+		ChanceToCritical:				chanceToCritical,
+		CriticalDamageTaken:			criticalHealthDamage,
+		CriticalBarrierDamageTaken:		criticalBarrierDamage + criticalExtraBarrierDamage,
+		CriticalExpectedDamage:			totalChanceToHit * criticalHealthDamage,
+		CriticalExpectedBarrierDamage:	totalChanceToHit * (criticalBarrierDamage + criticalExtraBarrierDamage),
 	}
 }
 

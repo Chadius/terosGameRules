@@ -197,14 +197,18 @@ var _ = Describe("Power uses with other Entities", func() {
 			})
 		})
 
-		Context("Calculate expected damage", func() {
+		Context("Calculate expected damage summary", func() {
 			var (
 				bandit *squaddie.Squaddie
+				bandit2 *squaddie.Squaddie
 			)
 
 			BeforeEach(func() {
 				bandit = squaddie.NewSquaddie("Bandit")
 				bandit.Name = "Bandit"
+
+				bandit2 = squaddie.NewSquaddie("Bandit2")
+				bandit2.Name = "Bandit2"
 			})
 
 			It("Give summary of the physical attack", func() {
@@ -220,6 +224,7 @@ var _ = Describe("Power uses with other Entities", func() {
 				blot.AttackEffect.DamageBonus = 4
 
 				attackingPowerSummary := powerusage.GetExpectedDamage(spear, teros, bandit)
+				Expect(attackingPowerSummary.TargetSquaddieID).To(Equal(bandit.ID))
 				Expect(attackingPowerSummary.ChanceToHit).To(Equal(15))
 				Expect(attackingPowerSummary.DamageTaken).To(Equal(2))
 				Expect(attackingPowerSummary.ExpectedDamage).To(Equal(30))
@@ -243,6 +248,15 @@ var _ = Describe("Power uses with other Entities", func() {
 				Expect(attackingPowerSummary.ExpectedDamage).To(Equal(0))
 				Expect(attackingPowerSummary.BarrierDamageTaken).To(Equal(9))
 				Expect(attackingPowerSummary.ExpectedBarrierDamage).To(Equal(9 * 33))
+			})
+
+			It("Produces an attack summary for each target", func() {
+				powerSummary := powerusage.GetPowerSummary(spear, teros, []*squaddie.Squaddie{bandit, bandit2})
+				Expect(powerSummary.UserSquaddieID).To(Equal(teros.ID))
+				Expect(powerSummary.PowerID).To(Equal(spear.ID))
+				Expect(powerSummary.AttackEffectSummary).To(HaveLen(2))
+				Expect(powerSummary.AttackEffectSummary[0].TargetSquaddieID).To(Equal(bandit.ID))
+				Expect(powerSummary.AttackEffectSummary[1].TargetSquaddieID).To(Equal(bandit2.ID))
 			})
 		})
 

@@ -16,7 +16,8 @@ func main() {
 		"powerSpear",
 	)
 
-	attackingPowerSummary := powerusage.GetExpectedDamage(power, attacker, target)
+	powerSummary := powerusage.GetPowerSummary(power, attacker, []*squaddie.Squaddie{target})
+	attackingPowerSummary := powerSummary.AttackEffectSummary[0]
 	println(attacker.Name, "will attack", target.Name, "with", power.Name)
 	println("Chance to hit (out of 36) ", attackingPowerSummary.ChanceToHit)
 	println("Damage taken              ", attackingPowerSummary.DamageTaken)
