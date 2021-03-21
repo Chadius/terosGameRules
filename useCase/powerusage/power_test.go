@@ -449,4 +449,106 @@ var _ = Describe("Power uses with other Entities", func() {
 			Expect(powerResult.AttackingPowerResults[1].TargetID).To(Equal(bandit2.ID))
 		})
 	})
+	Context("Squaddie commits to using an attack power", func() {
+		var (
+			teros *squaddie.Squaddie
+			spear *power.Power
+			scimitar *power.Power
+			powerRepo *power.Repository
+			bandit *squaddie.Squaddie
+			blot *power.Power
+			squaddieRepo *squaddie.Repository
+		)
+		BeforeEach(func() {
+			teros = squaddie.NewSquaddie("Teros")
+			spear = power.NewPower("Spear")
+			spear.AttackEffect.CanBeEquipped = true
+
+			scimitar = power.NewPower("scimitar the second")
+			scimitar.AttackEffect.CanBeEquipped = true
+
+			powerRepo = power.NewPowerRepository()
+			powerRepo.AddSlicePowerSource([]*power.Power{
+				spear,
+				scimitar,
+			})
+
+			bandit = squaddie.NewSquaddie("Bandit")
+			bandit.Name = "Bandit"
+
+			blot = power.NewPower("Blot")
+			blot.PowerType = power.Spell
+
+			terosPowerReferences := []*power.Reference{
+				spear.GetReference(),
+				scimitar.GetReference(),
+				blot.GetReference(),
+			}
+			powerusage.LoadAllOfSquaddieInnatePowers(teros, terosPowerReferences, powerRepo)
+
+			squaddieRepo = squaddie.NewSquaddieRepository()
+			squaddieRepo.AddSquaddies([]*squaddie.Squaddie{
+				teros,
+				bandit,
+			})
+		})
+
+		It("Squaddies will equip a power when they Commit", func() {
+			dieRoller := &testutility.AlwaysMissDieRoller{}
+
+			powerReport := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				scimitar,
+				teros,
+				[]*squaddie.Squaddie{
+					bandit,
+				},
+				dieRoller,
+			)
+
+			powerusage.CommitPowerUse(powerReport, squaddieRepo, powerRepo)
+			Expect(powerusage.GetEquippedPower(teros, powerRepo).ID).To(Equal(scimitar.ID))
+		})
+		It("Squaddies will keep their previous equipped power if they cannot equip the power they Commit with", func() {
+			powerusage.SquaddieEquipPower(teros, scimitar.ID, powerRepo)
+
+			dieRoller := &testutility.AlwaysMissDieRoller{}
+
+			powerReport := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				blot,
+				teros,
+				[]*squaddie.Squaddie{
+					bandit,
+				},
+				dieRoller,
+			)
+
+			powerusage.CommitPowerUse(powerReport, squaddieRepo, powerRepo)
+			Expect(powerusage.GetEquippedPower(teros, powerRepo).ID).To(Equal(scimitar.ID))
+		})
+		It("Squaddies will not equip powers if none exist, even after Committing", func() {
+			mysticMage := squaddie.NewSquaddie("Mystic Mage")
+			mysticMagePowerReferences := []*power.Reference{
+				blot.GetReference(),
+			}
+			powerusage.LoadAllOfSquaddieInnatePowers(mysticMage, mysticMagePowerReferences, powerRepo)
+
+			squaddieRepo.AddSquaddies([]*squaddie.Squaddie{
+				mysticMage,
+			})
+
+			dieRoller := &testutility.AlwaysMissDieRoller{}
+
+			powerReport := powerusage.UsePowerAgainstSquaddiesAndGetResults(
+				blot,
+				mysticMage,
+				[]*squaddie.Squaddie{
+					bandit,
+				},
+				dieRoller,
+			)
+
+			powerusage.CommitPowerUse(powerReport, squaddieRepo, powerRepo)
+			Expect(powerusage.GetEquippedPower(mysticMage, powerRepo)).To(BeNil())
+		})
+	})
 })
