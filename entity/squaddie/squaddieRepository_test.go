@@ -12,39 +12,39 @@ import (
 
 var _ = Describe("CRUD Squaddies", func() {
 	var (
-		repo *squaddie.Repository
+		squaddieFactory *squaddie.Repository
 	)
 	BeforeEach(func() {
-		repo = squaddie.NewSquaddieRepository()
+		squaddieFactory = squaddie.NewSquaddieRepository()
 	})
 	Context("Load Squaddie using JSON sources", func() {
 		It("Can add a JSON source", func() {
-			Expect(repo.GetNumberOfSquaddies()).To(Equal(0))
+			Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(0))
 			jsonByteStream := []byte(`[{
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player"
 			}]`)
-			success, _ := repo.AddJSONSource(jsonByteStream)
+			success, _ := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
-			Expect(repo.GetNumberOfSquaddies()).To(Equal(1))
+			Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(1))
 		})
-		It("Can get a Squaddie by name", func() {
+		It("Can clone Squaddies by ID", func() {
 			jsonByteStream := []byte(`[{
 				"id": "squaddieID",
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player"
 			}]`)
-			success, _ := repo.AddJSONSource(jsonByteStream)
+			success, _ := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByID("squaddieID")
+			teros := squaddieFactory.CloneSquaddieBasedOnSquaddieID("squaddieID")
 			Expect(teros).NotTo(BeNil())
 			Expect(teros.Name).To(Equal("Teros"))
 			Expect(teros.Aim).To(Equal(5))
 
-			missingno := repo.GetByID("Does not exist")
+			missingno := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Does not exist")
 			Expect(missingno).To(BeNil())
 		})
 		It("can get a Squaddie by ID", func() {
@@ -54,29 +54,29 @@ var _ = Describe("CRUD Squaddies", func() {
 				"aim": 5,
 				"affiliation": "Player"
 			}]`)
-			success, _ := repo.AddJSONSource(jsonByteStream)
+			success, _ := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByID("12345")
+			teros := squaddieFactory.CloneSquaddieBasedOnSquaddieID("12345")
 			Expect(teros).NotTo(BeNil())
 			Expect(teros.Name).To(Equal("Teros"))
 			Expect(teros.Aim).To(Equal(5))
 
-			missingno := repo.GetByID("Does not exist")
+			missingno := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Does not exist")
 			Expect(missingno).To(BeNil())
 		})
-		It("gets a clone of the squaddie by name", func() {
+		It("When cloning squaddies, IDs are different", func() {
 			jsonByteStream := []byte(`[{
 				"ID": "terosID",
 				"name": "Teros",
 				"aim": 5,
 				"affiliation": "Player"
 			}]`)
-			success, _ := repo.AddJSONSource(jsonByteStream)
+			success, _ := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros0 := repo.GetByID("terosID")
-			teros1 := repo.GetByID("terosID")
+			teros0 := squaddieFactory.CloneSquaddieBasedOnSquaddieID("terosID")
+			teros1 := squaddieFactory.CloneSquaddieBasedOnSquaddieID("terosID")
 			Expect(teros0).ToNot(BeIdenticalTo(teros1))
 		})
 		It("Can load class levels", func() {
@@ -97,10 +97,10 @@ var _ = Describe("CRUD Squaddies", func() {
                   }
                }
 			}]`)
-			success, _ := repo.AddJSONSource(jsonByteStream)
+			success, _ := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByID("terosSquaddieID")
+			teros := squaddieFactory.CloneSquaddieBasedOnSquaddieID("terosSquaddieID")
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"1": 1, "2": 0}))
 		})
 		It("Stops loading Squaddies upon validating the first invalid Squaddie", func() {
@@ -111,7 +111,7 @@ var _ = Describe("CRUD Squaddies", func() {
 				"Name": "Teros2",
 				"Affiliation": "Unknown Affiliation"
 			}]`)
-			success, err := repo.AddJSONSource(jsonByteStream)
+			success, err := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeFalse())
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
@@ -144,33 +144,39 @@ var _ = Describe("CRUD Squaddies", func() {
 			}
 			]`)
 
-			success, _ := repo.AddJSONSource(jsonByteStream)
+			success, _ := squaddieFactory.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
-			Expect(repo.GetNumberOfSquaddies()).To(Equal(4))
+			Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(4))
 
-			soldier := repo.GetByID("Soldier")
+			soldier := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
 			Expect(soldier.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
-			scout := repo.GetByID("Scout")
+			scout := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
 			Expect(scout.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Light)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
-			bird := repo.GetByID("Bird")
+			bird := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
 			Expect(bird.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
-			teleporter := repo.GetByID("Teleporter")
+			teleporter := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
 			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))
 			Expect(teleporter.CanHitAndRun()).To(BeFalse())
+		})
+		It("Can get existing Squaddies by ID", func() {
+			originalSquaddie := squaddie.NewSquaddie("Original")
+			squaddieFactory.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
+			referencedSquaddie := squaddieFactory.GetOriginalSquaddieByID(originalSquaddie.ID)
+			Expect(referencedSquaddie).To(BeIdenticalTo(originalSquaddie))
 		})
 	})
 	Context("Save Squaddie as JSON", func() {
@@ -183,7 +189,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			teros.MaxBarrier = 1
 		})
 		It("Can Marshall a Squaddie into JSON", func() {
-			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
+			byteStream, err := squaddieFactory.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
 
 			hasIDNameAffiliationInJSON := bytes.Contains(byteStream, []byte(fmt.Sprintf(`"id":"%s","name":"Teros","affiliation":"Player"`, teros.ID)))
@@ -212,7 +218,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			teros.Movement.Distance = 8
 			teros.Movement.HitAndRun = true
 
-			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
+			byteStream, err := squaddieFactory.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
 			movementJSON := `"movement":{"distance":8,"type":"teleport","hit_and_run":true}`
 			containsPowersJson := bytes.Contains(byteStream, []byte(movementJSON))
@@ -221,7 +227,7 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("Can Marshall a Squaddie with powers into JSON", func() {
 			attackA := power.NewPower("Attack Formation A")
 			teros.AddInnatePower(attackA)
-			byteStream, err := repo.MarshalSquaddieIntoJSON(teros)
+			byteStream, err := squaddieFactory.MarshalSquaddieIntoJSON(teros)
 			Expect(err).To(BeNil())
 
 			powersJSON := fmt.Sprintf(`"powers":[{"name":"Attack Formation A","id":"%s"}]`, attackA.ID)
@@ -231,15 +237,15 @@ var _ = Describe("CRUD Squaddies", func() {
 	})
 	Context("Load Squaddie using YAML sources", func() {
 		It("Can add a YAML source", func() {
-			Expect(repo.GetNumberOfSquaddies()).To(Equal(0))
+			Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(0))
 			yamlByteStream := []byte(`-
   name: Teros
   aim: 5
   max_barrier: 3
   affiliation: Player
 `)
-			repo.AddYAMLSource(yamlByteStream)
-			Expect(repo.GetNumberOfSquaddies()).To(Equal(1))
+			squaddieFactory.AddYAMLSource(yamlByteStream)
+			Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(1))
 		})
 		It("Can load class levels", func() {
 			yamlByteStream := []byte(`-
@@ -258,10 +264,10 @@ var _ = Describe("CRUD Squaddies", func() {
       id: '2'
       name: Dimension Walker
 `)
-			success, _ := repo.AddYAMLSource(yamlByteStream)
+			success, _ := squaddieFactory.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeTrue())
 
-			teros := repo.GetByID("terosSquaddieID")
+			teros := squaddieFactory.CloneSquaddieBasedOnSquaddieID("terosSquaddieID")
 			Expect(teros.GetLevelCountsByClass()).To(Equal(map[string]int{"1": 1, "2": 0}))
 		})
 		It("Stops loading Squaddies upon validating the first invalid Squaddie", func() {
@@ -271,7 +277,7 @@ var _ = Describe("CRUD Squaddies", func() {
 -
   name: Teros2
   affiliation: Unknown Affiliation`)
-			success, err := repo.AddYAMLSource(yamlByteStream)
+			success, err := squaddieFactory.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeFalse())
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(Equal("Squaddie has unknown affiliation: 'Unknown Affiliation'"))
@@ -309,29 +315,29 @@ var _ = Describe("CRUD Squaddies", func() {
     hit_and_run: false
 `)
 
-			success, _ := repo.AddYAMLSource(yamlByteStream)
+			success, _ := squaddieFactory.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeTrue())
-			Expect(repo.GetNumberOfSquaddies()).To(Equal(4))
+			Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(4))
 
-			soldier := repo.GetByID("Soldier")
+			soldier := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Soldier")
 			Expect(soldier.Name).To(Equal("Soldier"))
 			Expect(soldier.GetMovementDistancePerRound()).To(Equal(5))
 			Expect(soldier.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Foot)))
 			Expect(soldier.CanHitAndRun()).To(BeFalse())
 
-			scout := repo.GetByID("Scout")
+			scout := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Scout")
 			Expect(scout.Name).To(Equal("Scout"))
 			Expect(scout.GetMovementDistancePerRound()).To(Equal(4))
 			Expect(scout.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Light)))
 			Expect(scout.CanHitAndRun()).To(BeFalse())
 
-			bird := repo.GetByID("Bird")
+			bird := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Bird")
 			Expect(bird.Name).To(Equal("Bird"))
 			Expect(bird.GetMovementDistancePerRound()).To(Equal(3))
 			Expect(bird.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Fly)))
 			Expect(bird.CanHitAndRun()).To(BeTrue())
 
-			teleporter := repo.GetByID("Teleporter")
+			teleporter := squaddieFactory.CloneSquaddieBasedOnSquaddieID("Teleporter")
 			Expect(teleporter.Name).To(Equal("Teleporter"))
 			Expect(teleporter.GetMovementDistancePerRound()).To(Equal(2))
 			Expect(teleporter.GetMovementType()).To(Equal(squaddie.MovementType(squaddie.Teleport)))
@@ -339,39 +345,39 @@ var _ = Describe("CRUD Squaddies", func() {
 		})
 	})
 	It("Add Squaddie directly", func() {
-		success, err := repo.AddSquaddies([]*squaddie.Squaddie{squaddie.NewSquaddie("Generic")})
+		success, err := squaddieFactory.AddSquaddies([]*squaddie.Squaddie{squaddie.NewSquaddie("Generic")})
 		Expect(success).To(BeTrue())
 		Expect(err).To(BeNil())
-		Expect(repo.GetNumberOfSquaddies()).To(Equal(1))
+		Expect(squaddieFactory.GetNumberOfSquaddies()).To(Equal(1))
 	})
 	Context("Cloning an existing squaddie", func() {
 		var base *squaddie.Squaddie
 
 		BeforeEach(func() {
 			base = squaddie.NewSquaddie("Base")
-			repo.AddSquaddies([]*squaddie.Squaddie{base})
+			squaddieFactory.AddSquaddies([]*squaddie.Squaddie{base})
 		})
 		It("copies name and affiliation but not ID", func() {
 			base.Affiliation = squaddie.Enemy
-			clone, err := repo.CloneSquaddieWithNewID(base, "")
+			clone, err := squaddieFactory.CloneSquaddieWithNewID(base, "")
 			Expect(err).To(BeNil())
 			Expect(clone.Name).To(Equal(base.Name))
 			Expect(clone.Affiliation).To(Equal(base.Affiliation))
 			Expect(clone.ID).ToNot(Equal(base.ID))
 		})
 		It("will set the clone ID to the given ID", func() {
-			clone, _ := repo.CloneSquaddieWithNewID(base, "12345")
+			clone, _ := squaddieFactory.CloneSquaddieWithNewID(base, "12345")
 			Expect(clone.ID).To(Equal("12345"))
 		})
 		It("can clone and rename the squaddie", func() {
-			clone, err := repo.CloneAndRenameSquaddie(base, "ClonedSquaddie", "12345")
+			clone, err := squaddieFactory.CloneAndRenameSquaddie(base, "ClonedSquaddie", "12345")
 			Expect(err).To(BeNil())
 			Expect(base.Name).To(Equal("Base"))
 			Expect(clone.Name).To(Equal("ClonedSquaddie"))
 			Expect(clone.ID).ToNot(Equal(base.ID))
 		})
 		It("raises an error if you try to rename without a new name", func() {
-			clone, err := repo.CloneAndRenameSquaddie(base, "", "12345")
+			clone, err := squaddieFactory.CloneAndRenameSquaddie(base, "", "12345")
 			Expect(err.Error()).To(Equal(`cannot clone squaddie "Base" without a name`))
 			Expect(clone).To(BeNil())
 		})
@@ -388,7 +394,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			base.Deflect = 6
 			base.Armor = 7
 
-			clone, _ := repo.CloneSquaddieWithNewID(base, "")
+			clone, _ := squaddieFactory.CloneSquaddieWithNewID(base, "")
 			Expect(clone.CurrentHitPoints).To(Equal(base.CurrentHitPoints))
 			Expect(clone.MaxHitPoints).To(Equal(base.MaxHitPoints))
 			Expect(clone.Aim).To(Equal(base.Aim))
@@ -407,7 +413,7 @@ var _ = Describe("CRUD Squaddies", func() {
 				HitAndRun: true,
 			}
 
-			clone, _ := repo.CloneSquaddieWithNewID(base, "")
+			clone, _ := squaddieFactory.CloneSquaddieWithNewID(base, "")
 			Expect(clone.Movement.Distance).To(Equal(base.Movement.Distance))
 			Expect(clone.Movement.Type).To(Equal(base.Movement.Type))
 			Expect(clone.Movement.HitAndRun).To(Equal(base.Movement.HitAndRun))
@@ -415,7 +421,7 @@ var _ = Describe("CRUD Squaddies", func() {
 		It("will copy PowerReferences", func() {
 			attackA := power.NewPower("Attack Formation A")
 			base.AddInnatePower(attackA)
-			clone, _ := repo.CloneSquaddieWithNewID(base, "")
+			clone, _ := squaddieFactory.CloneSquaddieWithNewID(base, "")
 
 			attackIDNamePairs := clone.GetInnatePowerIDNames()
 			Expect(len(attackIDNamePairs)).To(Equal(1))
@@ -443,7 +449,7 @@ var _ = Describe("CRUD Squaddies", func() {
 			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel1")
 			base.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel2")
 
-			clone, _ := repo.CloneSquaddieWithNewID(base, "")
+			clone, _ := squaddieFactory.CloneSquaddieWithNewID(base, "")
 			Expect(clone.BaseClassID).To(Equal(base.BaseClassID))
 			Expect(clone.CurrentClass).To(Equal(base.CurrentClass))
 			for classID, levelsConsumed := range base.ClassLevelsConsumed {

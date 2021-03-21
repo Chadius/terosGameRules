@@ -50,10 +50,10 @@ func loadActors (attackerID, targetID, powerID string) (*squaddie.Squaddie, *squ
 
 	squaddieRepo := squaddie.NewSquaddieRepository()
 	squaddieRepo.AddYAMLSource(squaddieYamlData)
-	attacker := squaddieRepo.GetByID(attackerID)
+	attacker := squaddieRepo.CloneSquaddieBasedOnSquaddieID(attackerID)
 	attacker.SetBarrierToMax()
 
-	target := squaddieRepo.GetByID(targetID)
+	target := squaddieRepo.CloneSquaddieBasedOnSquaddieID(targetID)
 	target.SetBarrierToMax()
 
 	powerYamlData, err := ioutil.ReadFile("data/powerDatabase.yml")

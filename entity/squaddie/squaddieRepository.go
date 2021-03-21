@@ -153,8 +153,8 @@ func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName str
 	return clone, nil
 }
 
-// GetByID returns a cloned Squaddie based on the one with the given ID.
-func (repository *Repository) GetByID(squaddieID string) *Squaddie {
+// CloneSquaddieBasedOnSquaddieID returns a cloned Squaddie based on the one with the given ID.
+func (repository *Repository) CloneSquaddieBasedOnSquaddieID(squaddieID string) *Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByID[squaddieID]
 	if !squaddieExists {
 		return nil
@@ -165,5 +165,11 @@ func (repository *Repository) GetByID(squaddieID string) *Squaddie {
 		return nil
 	}
 	return clonedSquaddie
+}
+
+// GetOriginalSquaddieByID returns the stored Squaddie based on the ID.
+func (repository *Repository) GetOriginalSquaddieByID(squaddieID string) *Squaddie {
+	squaddie, _ := repository.squaddiesByID[squaddieID]
+	return squaddie
 }
 
