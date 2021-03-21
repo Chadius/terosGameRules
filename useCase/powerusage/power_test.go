@@ -349,7 +349,7 @@ var _ = Describe("Power uses with other Entities", func() {
 			teros *squaddie.Squaddie
 			bandit *squaddie.Squaddie
 			bandit2 *squaddie.Squaddie
-			blot  *power.Power
+			blot *power.Power
 		)
 
 		BeforeEach(func() {

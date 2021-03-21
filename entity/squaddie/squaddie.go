@@ -19,24 +19,25 @@ const (
 
 // Squaddie is the base unit you can deploy and control on a field.
 type Squaddie struct {
-	ID                  string                    `json:"id" yaml:"id"`
-	Name                string                    `json:"name" yaml:"name"`
-	Affiliation         Affiliation               `json:"affiliation" yaml:"affiliation"`
-	BaseClassID         string                    `json:"base_class" yaml:"base_class"`
-	CurrentClass        string                    `json:"current_class" yaml:"current_class"`
-	ClassLevelsConsumed map[string]*ClassProgress `json:"class_levels" yaml:"class_levels"`
-	CurrentHitPoints    int                       `json:"current_hit_points" yaml:"current_hit_points"`
-	MaxHitPoints        int                       `json:"max_hit_points" yaml:"max_hit_points"`
-	Aim                 int                       `json:"aim" yaml:"aim"`
-	Strength            int                       `json:"strength" yaml:"strength"`
-	Mind                int                       `json:"mind" yaml:"mind"`
-	Dodge               int                       `json:"dodge" yaml:"dodge"`
-	Deflect             int                       `json:"deflect" yaml:"deflect"`
-	CurrentBarrier      int                       `json:"current_barrier" yaml:"current_barrier"`
-	MaxBarrier          int                       `json:"max_barrier" yaml:"max_barrier"`
-	Armor               int                       `json:"armor" yaml:"armor"`
-	Movement            Movement                  `json:"movement" yaml:"movement"`
-	PowerReferences     []*power.Reference        `json:"powers" yaml:"powers"`
+	ID                  		string						`json:"id" yaml:"id"`
+	Name                		string						`json:"name" yaml:"name"`
+	Affiliation         		Affiliation					`json:"affiliation" yaml:"affiliation"`
+	BaseClassID         		string						`json:"base_class" yaml:"base_class"`
+	CurrentClass        		string						`json:"current_class" yaml:"current_class"`
+	ClassLevelsConsumed 		map[string]*ClassProgress	`json:"class_levels" yaml:"class_levels"`
+	CurrentHitPoints    		int							`json:"current_hit_points" yaml:"current_hit_points"`
+	MaxHitPoints        		int							`json:"max_hit_points" yaml:"max_hit_points"`
+	Aim                 		int							`json:"aim" yaml:"aim"`
+	Strength            		int							`json:"strength" yaml:"strength"`
+	Mind                		int							`json:"mind" yaml:"mind"`
+	Dodge               		int							`json:"dodge" yaml:"dodge"`
+	Deflect             		int							`json:"deflect" yaml:"deflect"`
+	CurrentBarrier      		int							`json:"current_barrier" yaml:"current_barrier"`
+	MaxBarrier          		int							`json:"max_barrier" yaml:"max_barrier"`
+	Armor               		int							`json:"armor" yaml:"armor"`
+	Movement					Movement					`json:"movement" yaml:"movement"`
+	PowerReferences				[]*power.Reference			`json:"powers" yaml:"powers"`
+	CurrentlyEquippedPowerID	string						`json:"equipped_power_id" yaml:"equipped_power_id"`
 }
 
 // NewSquaddie generates a squaddie with maxed out health.
@@ -239,6 +240,17 @@ func (squaddie *Squaddie) CanHitAndRun() bool {
 // SetNewIDToRandom changes the ID to a random value.
 func (squaddie *Squaddie) SetNewIDToRandom() {
 	squaddie.ID = utility.StringWithCharset(8, "abcdefgh0123456789")
+}
+
+// HasPowerWithID returns a bool indicating if the squaddie has this power.
+func (squaddie *Squaddie) HasPowerWithID(powerID string) bool {
+	for _, powerReference := range squaddie.GetInnatePowerIDNames() {
+		if powerReference.ID == powerID {
+			return true
+		}
+	}
+
+	return false
 }
 
 // IndexOfPowerID returns the index of the reference to a power with the given ID.
