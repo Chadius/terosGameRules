@@ -76,7 +76,11 @@ var _ = Describe("CRUD Powers", func() {
 					"name": "Scimitar",
 					"id": "deadbeef",
 					"damage_bonus": 2,
-					"power_type": "Physical"
+					"power_type": "Physical",
+					"attack_effect": {
+						"can_counter_attack": true,
+						"counter_attack_penalty": -2
+					}
 				}]`)
 			success, _ := repo.AddJSONSource(jsonByteStream)
 			Expect(success).To(BeTrue())
@@ -127,6 +131,8 @@ var _ = Describe("CRUD Powers", func() {
   power_type: Physical
   attack_effect:
     damage_bonus: 2
+    can_counter_attack: true
+    counter_attack_penalty: -2
 `)
 			success, _ := repo.AddYAMLSource(yamlByteStream)
 			Expect(success).To(BeTrue())
@@ -136,6 +142,8 @@ var _ = Describe("CRUD Powers", func() {
 			Expect(scimitar.Name).To(Equal("Scimitar"))
 			Expect(scimitar.ID).To(Equal("deadbeef"))
 			Expect(scimitar.AttackEffect.DamageBonus).To(Equal(2))
+			Expect(scimitar.AttackEffect.CanCounterAttack).To(BeTrue())
+			Expect(scimitar.AttackEffect.CounterAttackToHitPenalty).To(Equal(-2))
 		})
 	})
 })
