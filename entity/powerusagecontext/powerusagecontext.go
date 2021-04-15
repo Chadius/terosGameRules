@@ -37,11 +37,11 @@ func (context *AttackContext) Clone() *AttackContext {
 	}
 }
 
-// PowerForecast showcases the expected results of using a given power.
+// PowerForecast shows a preview of using the power. The user has a chance to watch the preview and back out.
 type PowerForecast struct {
-	UserSquaddieID 		string
-	PowerID        		string
-	AttackEffectSummary []*AttackingPowerForecast
+	UserSquaddieID      string
+	PowerID             string
+	AttackPowerForecast []*AttackingPowerForecast
 }
 
 // AttackingPowerForecast gives a summary of the chance to hit and damage dealt by attacks.

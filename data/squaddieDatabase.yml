@@ -22,3 +22,6 @@
   dodge: 0
   deflect: 0
   affiliation: Enemy
+  powers:
+    - name: Spear
+      id: powerSpear

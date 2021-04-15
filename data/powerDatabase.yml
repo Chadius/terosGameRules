@@ -4,3 +4,6 @@
   power_type: Physical
   attack_effect:
     damage_bonus: 2
+    can_be_equipped: true
+    can_counter_attack: true
+    counter_attack_penalty: -2

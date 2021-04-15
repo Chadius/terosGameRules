@@ -6,61 +6,74 @@ import (
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
-// UsePowerAgainstSquaddiesAndGetResults will make the actingSquaddie use the powerUsed against all targetSquaddies.
+// UsePowerAgainstSquaddiesAndGetReport will make the actingSquaddie use the powerUsed against all targetSquaddies.
 //   Returns a report indicating what happened to each target.
-func UsePowerAgainstSquaddiesAndGetResults(context *powerusagecontext.PowerUsageContext, d6generator utility.SixSideGenerator) *report.PowerReport {
-	powerResults := &report.PowerReport{
+func UsePowerAgainstSquaddiesAndGetReport(context *powerusagecontext.PowerUsageContext, d6generator utility.SixSideGenerator) *report.PowerReport {
+	powerReport := &report.PowerReport{
 		AttackerID:            context.ActingSquaddieID,
 		PowerID:               context.PowerID,
-		AttackingPowerResults: []*report.AttackingPowerReport{},
+		AttackingPowerReports: []*report.AttackingPowerReport{},
 	}
 
 	for _, targetSquaddieID := range context.TargetSquaddieIDs {
-		attackingResult := GetAttackEffectResults(context, targetSquaddieID, d6generator)
-		powerResults.AttackingPowerResults = append(powerResults.AttackingPowerResults, attackingResult)
+		attackingReports := calculateAllAttackPowerReportsForThisAttack(context, targetSquaddieID, d6generator)
+		powerReport.AttackingPowerReports = append(powerReport.AttackingPowerReports, attackingReports...)
 	}
-	return powerResults
+	return powerReport
 }
 
-// GetAttackEffectResults looks at the actingSquaddie's powerUsed's AttackingEffect to figure out what happened to the targetSquaddie.
-func GetAttackEffectResults(context *powerusagecontext.PowerUsageContext, targetSquaddieID string, d6generator utility.SixSideGenerator) *report.AttackingPowerReport {
+// calculateAllAttackPowerReportsForThisAttack forecasts the attack from the context
+//	and figures out all secondary effects.
+func calculateAllAttackPowerReportsForThisAttack(context *powerusagecontext.PowerUsageContext, targetSquaddieID string, d6generator utility.SixSideGenerator) []*report.AttackingPowerReport {
 	attackForecast := GetExpectedDamage(
 		context,
 		&powerusagecontext.AttackContext{
-			PowerID:			context.PowerID,
-			AttackerID:			context.ActingSquaddieID,
-			TargetID:			targetSquaddieID,
-			IsCounterAttack: 	false,
+			PowerID:         context.PowerID,
+			AttackerID:      context.ActingSquaddieID,
+			TargetID:        targetSquaddieID,
+			IsCounterAttack: false,
 		},
 	)
 
+	reports := []*report.AttackingPowerReport{
+		calculateAttackPowerReportFromForecast(attackForecast, d6generator),
+	}
+
+	if attackForecast.CounterAttack != nil {
+		counterattackReport := calculateAttackPowerReportFromForecast(attackForecast.CounterAttack, d6generator)
+		reports = append(reports, counterattackReport)
+	}
+
+	return reports
+}
+
+func calculateAttackPowerReportFromForecast(attackForecast *powerusagecontext.AttackingPowerForecast, d6generator utility.SixSideGenerator) *report.AttackingPowerReport {
+	attackReport := &report.AttackingPowerReport{
+		AttackerID:			attackForecast.AttackingSquaddieID,
+		TargetID:			attackForecast.TargetSquaddieID,
+		PowerID:			attackForecast.PowerID,
+		DamageTaken:		0,
+		BarrierDamage:		0,
+		WasAHit:			false,
+		WasACriticalHit:	false,
+	}
+
 	if !DetermineIfItHit(attackForecast, d6generator) {
-		return &report.AttackingPowerReport{
-			TargetID:        targetSquaddieID,
-			DamageTaken:     0,
-			BarrierDamage:   0,
-			WasAHit:         false,
-			WasACriticalHit: false,
-		}
+		return attackReport
 	}
 
 	if !DetermineIfItWasACriticalHit(attackForecast, d6generator) {
-		return &report.AttackingPowerReport{
-			TargetID:        targetSquaddieID,
-			DamageTaken:     attackForecast.DamageTaken,
-			BarrierDamage:   attackForecast.BarrierDamageTaken,
-			WasAHit:         true,
-			WasACriticalHit: false,
-		}
+		attackReport.WasAHit = true
+		attackReport.DamageTaken = attackForecast.DamageTaken
+		attackReport.BarrierDamage = attackForecast.BarrierDamageTaken
+		return attackReport
 	}
 
-	return &report.AttackingPowerReport{
-		TargetID:        targetSquaddieID,
-		DamageTaken:     attackForecast.CriticalDamageTaken,
-		BarrierDamage:   attackForecast.CriticalBarrierDamageTaken,
-		WasAHit:         true,
-		WasACriticalHit: true,
-	}
+	attackReport.WasAHit = true
+	attackReport.WasACriticalHit = true
+	attackReport.DamageTaken = attackForecast.CriticalDamageTaken
+	attackReport.BarrierDamage = attackForecast.CriticalBarrierDamageTaken
+	return attackReport
 }
 
 // DetermineIfItHit rolls attacks and determines if the attack hit.
