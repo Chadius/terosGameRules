@@ -2,6 +2,7 @@ package powerusage_test
 
 import (
 	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosBattleServer/entity/powerusagecontext"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerusage"
 	"github.com/cserrant/terosBattleServer/utility/testutility"
@@ -12,11 +13,14 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type CalculateExpectedDamageFromAttackSuite struct {
-	teros *squaddie.Squaddie
-	bandit *squaddie.Squaddie
-	bandit2 *squaddie.Squaddie
-	spear *power.Power
-	blot  *power.Power
+	teros			*squaddie.Squaddie
+	bandit			*squaddie.Squaddie
+	bandit2			*squaddie.Squaddie
+	spear			*power.Power
+	blot			*power.Power
+
+	powerRepo 		*power.Repository
+	squaddieRepo 	*squaddie.Repository
 }
 
 var _ = Suite(&CalculateExpectedDamageFromAttackSuite{})
@@ -36,6 +40,12 @@ func (suite *CalculateExpectedDamageFromAttackSuite) SetUpTest(checker *C) {
 
 	suite.bandit2 = squaddie.NewSquaddie("bandit2")
 	suite.bandit2.Name = "bandit2"
+
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.bandit2})
+
+	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot})
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestCalculateAttackerHitBonus(checker *C) {
@@ -244,12 +254,21 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestPhysicalPowerSummary(ch
 	suite.teros.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
-	attackingPowerSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:           suite.spear,
-		Attacker:        suite.teros,
-		Target:          suite.bandit,
-		IsCounterAttack: false,
-	})
+	attackingPowerSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.spear.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:           suite.spear.ID,
+			AttackerID:        suite.teros.ID,
+			TargetID:          suite.bandit.ID,
+			IsCounterAttack: false,
+		},
+	)
 	checker.Assert(attackingPowerSummary.AttackingSquaddieID, Equals, suite.teros.ID)
 	checker.Assert(attackingPowerSummary.PowerID, Equals, suite.spear.ID)
 	checker.Assert(attackingPowerSummary.TargetSquaddieID, Equals, suite.bandit.ID)
@@ -271,12 +290,21 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryWithBarrierBurn(
 	suite.teros.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 	suite.blot.AttackEffect.ExtraBarrierDamage = 3
-	attackingPowerSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:           suite.blot,
-		Attacker:        suite.teros,
-		Target:          suite.bandit,
-		IsCounterAttack: false,
-	})
+	attackingPowerSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:           suite.blot.ID,
+			AttackerID:        suite.teros.ID,
+			TargetID:          suite.bandit.ID,
+			IsCounterAttack: false,
+		},
+	)
 	checker.Assert(attackingPowerSummary.ChanceToHit, Equals, 33)
 	checker.Assert(attackingPowerSummary.DamageTaken, Equals, 0)
 	checker.Assert(attackingPowerSummary.ExpectedDamage, Equals, 0)
@@ -285,7 +313,15 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryWithBarrierBurn(
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryPerTarget(checker *C) {
-	powerSummary := powerusage.GetPowerSummary(suite.spear, suite.teros, []*squaddie.Squaddie{suite.bandit, suite.bandit2})
+	powerSummary := powerusage.CalculatePowerForecast(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID, suite.bandit2.ID},
+			PowerID:           suite.spear.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+	)
 	checker.Assert(powerSummary.UserSquaddieID, Equals, suite.teros.ID)
 	checker.Assert(powerSummary.PowerID, Equals, suite.spear.ID)
 	checker.Assert(powerSummary.AttackEffectSummary, HasLen, 2)
@@ -298,12 +334,21 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestChanceToCriticalHitOnTh
 	suite.spear.AttackEffect.DamageBonus = 3
 
 	suite.spear.AttackEffect.CriticalHitThreshold = 4
-	attackingPowerSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:           suite.spear,
-		Attacker:        suite.teros,
-		Target:          suite.bandit,
-		IsCounterAttack: false,
-	})
+	attackingPowerSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.spear.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:           suite.spear.ID,
+			AttackerID:        suite.teros.ID,
+			TargetID:          suite.bandit.ID,
+			IsCounterAttack: false,
+		},
+	)
 	checker.Assert(attackingPowerSummary.ChanceToCritical, Equals, 6)
 }
 
@@ -315,12 +360,21 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestCriticalHitDoublesDamag
 	suite.bandit.MaxBarrier = 4
 	suite.bandit.CurrentBarrier = 4
 	suite.spear.AttackEffect.CriticalHitThreshold = 4
-	attackingPowerSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:           suite.spear,
-		Attacker:        suite.teros,
-		Target:          suite.bandit,
-		IsCounterAttack: false,
-	})
+	attackingPowerSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.spear.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:           suite.spear.ID,
+			AttackerID:        suite.teros.ID,
+			TargetID:          suite.bandit.ID,
+			IsCounterAttack: false,
+		},
+	)
 	checker.Assert(attackingPowerSummary.CriticalDamageTaken, Equals, 3)
 	checker.Assert(attackingPowerSummary.CriticalBarrierDamageTaken, Equals, 4)
 	checker.Assert(attackingPowerSummary.CriticalExpectedDamage, Equals, 3 * 21)
@@ -332,12 +386,21 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryIgnoresCriticalI
 	suite.spear.AttackEffect.DamageBonus = 3
 
 	suite.spear.AttackEffect.CriticalHitThreshold = 0
-	attackingPowerSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:           suite.spear,
-		Attacker:        suite.teros,
-		Target:          suite.bandit,
-		IsCounterAttack: false,
-	})
+	attackingPowerSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.spear.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:           suite.spear.ID,
+			AttackerID:        suite.teros.ID,
+			TargetID:          suite.bandit.ID,
+			IsCounterAttack: false,
+		},
+	)
 	checker.Assert(attackingPowerSummary.ChanceToCritical, Equals, 0)
 	checker.Assert(attackingPowerSummary.CriticalDamageTaken, Equals, 0)
 	checker.Assert(attackingPowerSummary.CriticalBarrierDamageTaken, Equals, 0)
@@ -392,10 +455,12 @@ func (suite *SquaddieGainsPowerSuite) TestStopAddingNonexistentPowers(checker *C
 }
 
 type CreatePowerReportSuite struct {
-	teros *squaddie.Squaddie
-	bandit *squaddie.Squaddie
-	bandit2 *squaddie.Squaddie
-	blot *power.Power
+	teros 			*squaddie.Squaddie
+	bandit 			*squaddie.Squaddie
+	bandit2 		*squaddie.Squaddie
+	blot 			*power.Power
+	powerRepo 		*power.Repository
+	squaddieRepo 	*squaddie.Repository
 }
 
 var _ = Suite(&CreatePowerReportSuite{})
@@ -414,16 +479,26 @@ func (suite *CreatePowerReportSuite) SetUpTest(checker *C) {
 	suite.blot = power.NewPower("suite.blot")
 	suite.blot.PowerType = power.Spell
 	suite.blot.AttackEffect.DamageBonus = 1
+
+	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo.AddSlicePowerSource([]*power.Power{
+		suite.blot,
+	})
+
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.bandit2})
 }
 
 func (suite *CreatePowerReportSuite) TestPowerReportWhenMissed(checker *C) {
 	dieRoller := &testutility.AlwaysMissDieRoller{}
 
 	powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.blot,
-		suite.teros,
-		[]*squaddie.Squaddie{
-			suite.bandit,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -438,10 +513,12 @@ func (suite *CreatePowerReportSuite) TestPowerReportWhenHitButNoCrit(checker *C)
 	dieRoller := &testutility.AlwaysHitDieRoller{}
 
 	powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.blot,
-		suite.teros,
-		[]*squaddie.Squaddie{
-			suite.bandit,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -460,10 +537,12 @@ func (suite *CreatePowerReportSuite) TestPowerReportWhenCrits(checker *C) {
 	suite.blot.AttackEffect.CriticalHitThreshold = 900
 
 	powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.blot,
-		suite.teros,
-		[]*squaddie.Squaddie{
-			suite.bandit,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -481,11 +560,12 @@ func (suite *CreatePowerReportSuite) TestReportPerTarget(checker *C) {
 	dieRoller := &testutility.AlwaysMissDieRoller{}
 
 	powerResult := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.blot,
-		suite.teros,
-		[]*squaddie.Squaddie{
-			suite.bandit,
-			suite.bandit2,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID, suite.bandit2.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -517,17 +597,18 @@ func (suite *SquaddieCommitToPowerUsageSuite) SetUpTest(checker *C) {
 	suite.scimitar = power.NewPower("scimitar the second")
 	suite.scimitar.AttackEffect.CanBeEquipped = true
 
+	suite.blot = power.NewPower("suite.blot")
+	suite.blot.PowerType = power.Spell
+
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		suite.spear,
 		suite.scimitar,
+		suite.blot,
 	})
 
 	suite.bandit = squaddie.NewSquaddie("suite.bandit")
 	suite.bandit.Name = "suite.bandit"
-
-	suite.blot = power.NewPower("suite.blot")
-	suite.blot.PowerType = power.Spell
 
 	terosPowerReferences := []*power.Reference{
 		suite.spear.GetReference(),
@@ -547,10 +628,12 @@ func (suite *SquaddieCommitToPowerUsageSuite) TestSquaddiesEquipPowerUponCommit(
 	dieRoller := &testutility.AlwaysMissDieRoller{}
 
 	powerReport := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.scimitar,
-		suite.teros,
-		[]*squaddie.Squaddie{
-			suite.bandit,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.scimitar.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -565,10 +648,12 @@ func (suite *SquaddieCommitToPowerUsageSuite) TestSquaddieWillKeepPreviousPowerI
 	dieRoller := &testutility.AlwaysMissDieRoller{}
 
 	powerReport := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.blot,
-		suite.teros,
-		[]*squaddie.Squaddie{
-			suite.bandit,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -591,10 +676,12 @@ func (suite *SquaddieCommitToPowerUsageSuite) TestSquaddieWillNotEquipPowerIfNon
 	dieRoller := &testutility.AlwaysMissDieRoller{}
 
 	powerReport := powerusage.UsePowerAgainstSquaddiesAndGetResults(
-		suite.blot,
-		mysticMage,
-		[]*squaddie.Squaddie{
-			suite.bandit,
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  mysticMage.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.blot.ID,
+			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
@@ -662,22 +749,38 @@ func (suite *TargetAttemptsCounterSuite) TestTargetWillCounterAttackWithEquipped
 	powerusage.SquaddieEquipPower(suite.teros, suite.spear.ID, suite.powerRepo)
 	powerusage.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
 
-	expectedTerosCounterAttackSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:				suite.spear,
-		Attacker:			suite.teros,
-		Target:				suite.bandit,
-		IsCounterAttack:	false,
-		PowerRepo:			suite.powerRepo,
-	})
+	expectedTerosCounterAttackSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.teros.ID,
+			TargetSquaddieIDs: []string{suite.bandit.ID},
+			PowerID:           suite.spear.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:			suite.spear.ID,
+			AttackerID:			suite.teros.ID,
+			TargetID:			suite.bandit.ID,
+			IsCounterAttack:	false,
+		},
+	)
 	terosHitRate := expectedTerosCounterAttackSummary.HitRate
 
-	banditAttackSummary := powerusage.GetExpectedDamage(&powerusage.AttackContext{
-		Power:				suite.axe,
-		Attacker:			suite.bandit,
-		Target:				suite.teros,
-		IsCounterAttack:	false,
-		PowerRepo:			suite.powerRepo,
-	})
+	banditAttackSummary := powerusage.GetExpectedDamage(
+		&powerusagecontext.PowerUsageContext{
+			SquaddieRepo:      suite.squaddieRepo,
+			ActingSquaddieID:  suite.bandit.ID,
+			TargetSquaddieIDs: []string{suite.teros.ID},
+			PowerID:           suite.axe.ID,
+			PowerRepo:         suite.powerRepo,
+		},
+		&powerusagecontext.AttackContext{
+			PowerID:			suite.axe.ID,
+			AttackerID:			suite.bandit.ID,
+			TargetID:			suite.teros.ID,
+			IsCounterAttack:	false,
+		},
+	)
 	checker.Assert(banditAttackSummary.CounterAttack, NotNil)
 	checker.Assert(banditAttackSummary.CounterAttack.IsACounterAttack, Equals, true)
 	checker.Assert(banditAttackSummary.CounterAttack.AttackingSquaddieID, Equals, suite.teros.ID)
