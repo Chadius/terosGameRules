@@ -5,7 +5,9 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/powerusagecontext"
 	"github.com/cserrant/terosBattleServer/entity/report"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerusage"
+	"github.com/cserrant/terosBattleServer/usecase/powercommit"
+	"github.com/cserrant/terosBattleServer/usecase/powerequip"
+	"github.com/cserrant/terosBattleServer/usecase/powerforecast"
 	"github.com/cserrant/terosBattleServer/utility"
 	"io/ioutil"
 	"log"
@@ -31,7 +33,7 @@ func main() {
 		PowerRepo:         powerRepo,
 	}
 
-	powerForecast := powerusage.CalculatePowerForecast(powerContext)
+	powerForecast := powerforecast.CalculatePowerForecast(powerContext)
 
 	for _, attackingPowerForecast := range powerForecast.AttackPowerForecast {
 		printAttackForecast(attackingPowerForecast, squaddieRepo, powerRepo)
@@ -39,7 +41,7 @@ func main() {
 
 	println("---")
 	dieRoller := &utility.RandomDieRoller{}
-	attackReports := powerusage.UsePowerAgainstSquaddiesAndGetReport(powerContext, dieRoller)
+	attackReports := powercommit.UsePowerAgainstSquaddiesAndGetReport(powerContext, dieRoller)
 	for _, attackReport := range attackReports.AttackingPowerReports {
 		printAttackReport(attackReport)
 	}
@@ -114,7 +116,7 @@ func loadActors (attackerID, targetID, powerID string, squaddieRepo *squaddie.Re
 	target := squaddieRepo.GetOriginalSquaddieByID(targetID)
 	target.SetBarrierToMax()
 
-	powerusage.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerReferences, powerRepo)
+	powerequip.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerReferences, powerRepo)
 
 	power := powerRepo.GetPowerByID(powerID)
 

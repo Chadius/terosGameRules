@@ -1,8 +1,12 @@
-package powerusage
+package powercommit
 
 import (
+	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/powerusagecontext"
 	"github.com/cserrant/terosBattleServer/entity/report"
+	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/usecase/powerequip"
+	"github.com/cserrant/terosBattleServer/usecase/powerforecast"
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
@@ -25,7 +29,7 @@ func UsePowerAgainstSquaddiesAndGetReport(context *powerusagecontext.PowerUsageC
 // calculateAllAttackPowerReportsForThisAttack forecasts the attack from the context
 //	and figures out all secondary effects.
 func calculateAllAttackPowerReportsForThisAttack(context *powerusagecontext.PowerUsageContext, targetSquaddieID string, d6generator utility.SixSideGenerator) []*report.AttackingPowerReport {
-	attackForecast := GetExpectedDamage(
+	attackForecast := powerforecast.GetExpectedDamage(
 		context,
 		&powerusagecontext.AttackContext{
 			PowerID:         context.PowerID,
@@ -88,4 +92,11 @@ func DetermineIfItWasACriticalHit(summary *powerusagecontext.AttackingPowerForec
 	criticalHitThreshold := summary.CriticalHitThreshold
 	roll1, roll2 := d6generator.RollTwoDice()
 	return roll1 + roll2 < criticalHitThreshold
+}
+
+// CommitPowerUse will apply the given PowerReport.
+//    Squaddies will move, Targets will take damage, etc.
+func CommitPowerUse(powerReport *report.PowerReport, squaddieRepo *squaddie.Repository, powerRepo *power.Repository) {
+	squaddieToEquip := squaddieRepo.GetOriginalSquaddieByID(powerReport.AttackerID)
+	powerequip.SquaddieEquipPower(squaddieToEquip, powerReport.PowerID, powerRepo)
 }

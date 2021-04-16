@@ -1,6 +1,7 @@
-package powerusage
+package powerequip
 
 import (
+	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 )
@@ -40,12 +41,25 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 	return true
 }
 
-// CanSquaddieCounterWithEquippedWeapon returns true if the squaddie can use the currently equipped
-//   weapon for counter attacks.
-func CanSquaddieCounterWithEquippedWeapon(squaddie *squaddie.Squaddie, repo *power.Repository) bool {
-	currentlyEquippedPower := GetEquippedPower(squaddie, repo)
-	if currentlyEquippedPower == nil {
-		return false
+// LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
+//  Raises an error if the PowerRepository does not have one of the squaddie's powers.
+func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repo *power.Repository) (int, error) {
+	numberOfPowersAdded := 0
+
+	squaddie.ClearInnatePowers()
+	squaddie.ClearTemporaryPowerReferences()
+
+	for _, powerIDName := range powerReferencesToLoad {
+		powerToAdd := repo.GetPowerByID(powerIDName.ID)
+		if powerToAdd == nil {
+			return numberOfPowersAdded, fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name, powerIDName.Name)
+		}
+
+		err := squaddie.AddInnatePower(powerToAdd)
+		if err == nil {
+			numberOfPowersAdded = numberOfPowersAdded + 1
+		}
 	}
-	return currentlyEquippedPower.AttackEffect.CanCounterAttack
+
+	return numberOfPowersAdded, nil
 }

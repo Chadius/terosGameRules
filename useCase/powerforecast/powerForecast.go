@@ -1,11 +1,86 @@
-package powerusage
+package powerforecast
 
 import (
-	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/powerusagecontext"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/usecase/powercounter"
+	"github.com/cserrant/terosBattleServer/usecase/powerequip"
 )
+
+// CalculatePowerForecast applies logic to the context and shows the expected forecast of its effect.
+func CalculatePowerForecast(context *powerusagecontext.PowerUsageContext) *powerusagecontext.PowerForecast {
+	summary := &powerusagecontext.PowerForecast{
+		UserSquaddieID:      context.ActingSquaddieID,
+		PowerID:             context.PowerID,
+		AttackPowerForecast: []*powerusagecontext.AttackingPowerForecast{},
+	}
+
+	for _, targetID := range context.TargetSquaddieIDs {
+		summary.AttackPowerForecast = append(summary.AttackPowerForecast, GetExpectedDamage(context, &powerusagecontext.AttackContext{
+			PowerID:         context.PowerID,
+			AttackerID:      context.ActingSquaddieID,
+			TargetID:        targetID,
+			IsCounterAttack: false,
+		}))
+	}
+	return summary
+}
+
+// GetExpectedDamage provides a forecast of what the attacker's attackingPower will do against the given target.
+func GetExpectedDamage(
+	context *powerusagecontext.PowerUsageContext,
+	attackContext *powerusagecontext.AttackContext) (battleSummary *powerusagecontext.AttackingPowerForecast) {
+
+	attackingPower := context.PowerRepo.GetPowerByID(attackContext.PowerID)
+	attacker := context.SquaddieRepo.GetOriginalSquaddieByID(attackContext.AttackerID)
+	target := context.SquaddieRepo.GetOriginalSquaddieByID(attackContext.TargetID)
+	isCounterAttack := attackContext.IsCounterAttack
+
+	toHitBonus := GetPowerToHitBonusWhenUsedBySquaddie(attackingPower, attacker, isCounterAttack)
+	toHitPenalty := GetPowerToHitPenaltyAgainstSquaddie(attackingPower, target)
+	totalChanceToHit := power.GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
+
+	healthDamage, barrierDamage, extraBarrierDamage := GetHowTargetDistributesDamage(attackingPower, attacker, target)
+
+	chanceToCritical := power.GetChanceToCriticalBasedOnThreshold(attackingPower.AttackEffect.CriticalHitThreshold)
+	var criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage int
+	if chanceToCritical > 0 {
+		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = GetHowTargetDistributesCriticalDamage(attackingPower, attacker, target)
+	} else {
+		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = 0, 0, 0
+	}
+
+	var counterAttackSummary *powerusagecontext.AttackingPowerForecast = nil
+	if isCounterAttack == false && powercounter.CanTargetSquaddieCounterAttack(context, attackContext) {
+		counterAttackContext := attackContext.Clone()
+		counterAttackContext.AttackerID = attackContext.TargetID
+		counterAttackContext.TargetID = attackContext.AttackerID
+		counterAttackContext.IsCounterAttack = true
+		counterAttackContext.PowerID = powerequip.GetEquippedPower(target, context.PowerRepo).ID
+		counterAttackSummary = GetExpectedDamage(context, counterAttackContext)
+	}
+
+	return &powerusagecontext.AttackingPowerForecast{
+		AttackingSquaddieID:			attacker.ID,
+		PowerID:						attackingPower.ID,
+		TargetSquaddieID: 				target.ID,
+		CriticalHitThreshold:			attackingPower.AttackEffect.CriticalHitThreshold,
+		HitRate:						toHitBonus - toHitPenalty,
+		ChanceToHit:					totalChanceToHit,
+		DamageTaken:					healthDamage,
+		ExpectedDamage:					totalChanceToHit * healthDamage,
+		BarrierDamageTaken:				barrierDamage + extraBarrierDamage,
+		ExpectedBarrierDamage:			totalChanceToHit * (barrierDamage + extraBarrierDamage),
+		ChanceToCritical:				chanceToCritical,
+		CriticalDamageTaken:			criticalHealthDamage,
+		CriticalBarrierDamageTaken:		criticalBarrierDamage + criticalExtraBarrierDamage,
+		CriticalExpectedDamage:			totalChanceToHit * criticalHealthDamage,
+		CriticalExpectedBarrierDamage:	totalChanceToHit * (criticalBarrierDamage + criticalExtraBarrierDamage),
+		CounterAttack:					counterAttackSummary,
+		IsACounterAttack:				isCounterAttack,
+	}
+}
 
 // GetPowerToHitBonusWhenUsedBySquaddie calculates the total to hit bonus for the attacking squaddie and attacking power
 func GetPowerToHitBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie, isCounterAttack bool) (toHit int) {
@@ -33,6 +108,14 @@ func GetPowerCriticalDamageBonusWhenUsedBySquaddie(attackingPower *power.Power, 
 func GetHowTargetDistributesDamage(attackingPower *power.Power, attacker *squaddie.Squaddie, target *squaddie.Squaddie) (healthDamage, barrierDamage, extraBarrierDamage int) {
 	damageToAbsorb := GetPowerDamageBonusWhenUsedBySquaddie(attackingPower, attacker)
 	return calculateHowTargetTakesDamage(attackingPower, target, damageToAbsorb)
+}
+
+// GetPowerToHitPenaltyAgainstSquaddie calculates how much the target can reduce the chance of getting hit by the attacking power.
+func GetPowerToHitPenaltyAgainstSquaddie(attackingPower *power.Power, target *squaddie.Squaddie) (toHitPenalty int) {
+	if attackingPower.PowerType == power.Physical {
+		return target.Dodge
+	}
+	return target.Deflect
 }
 
 // GetHowTargetDistributesCriticalDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
@@ -96,96 +179,4 @@ func calculateDamageAfterInitialBarrierAbsorption(target *squaddie.Squaddie, dam
 		damageToAbsorb = damageToAbsorb - target.CurrentBarrier
 	}
 	return damageToAbsorb, barrierDamage, remainingBarrier
-}
-
-// GetExpectedDamage provides a summary of what the attacker's attackingPower will do against the given target.
-func GetExpectedDamage(
-	context *powerusagecontext.PowerUsageContext,
-	attackContext *powerusagecontext.AttackContext) (battleSummary *powerusagecontext.AttackingPowerForecast) {
-
-	attackingPower := context.PowerRepo.GetPowerByID(attackContext.PowerID)
-	attacker := context.SquaddieRepo.GetOriginalSquaddieByID(attackContext.AttackerID)
-	target := context.SquaddieRepo.GetOriginalSquaddieByID(attackContext.TargetID)
-	isCounterAttack := attackContext.IsCounterAttack
-
-	toHitBonus := GetPowerToHitBonusWhenUsedBySquaddie(attackingPower, attacker, isCounterAttack)
-	toHitPenalty := GetPowerToHitPenaltyAgainstSquaddie(attackingPower, target)
-	totalChanceToHit := power.GetChanceToHitBasedOnHitRate(toHitBonus - toHitPenalty)
-
-	healthDamage, barrierDamage, extraBarrierDamage := GetHowTargetDistributesDamage(attackingPower, attacker, target)
-
-	chanceToCritical := power.GetChanceToCriticalBasedOnThreshold(attackingPower.AttackEffect.CriticalHitThreshold)
-	var criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage int
-	if chanceToCritical > 0 {
-		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = GetHowTargetDistributesCriticalDamage(attackingPower, attacker, target)
-	} else {
-		criticalHealthDamage, criticalBarrierDamage, criticalExtraBarrierDamage = 0, 0, 0
-	}
-
-	var counterAttackSummary *powerusagecontext.AttackingPowerForecast = nil
-	if isCounterAttack == false && CanTargetSquaddieCounterAttack(context, attackContext) {
-		counterAttackContext := attackContext.Clone()
-		counterAttackContext.AttackerID = attackContext.TargetID
-		counterAttackContext.TargetID = attackContext.AttackerID
-		counterAttackContext.IsCounterAttack = true
-		counterAttackContext.PowerID = GetEquippedPower(target, context.PowerRepo).ID
-		counterAttackSummary = GetExpectedDamage(context, counterAttackContext)
-	}
-
-	return &powerusagecontext.AttackingPowerForecast{
-		AttackingSquaddieID:			attacker.ID,
-		PowerID:						attackingPower.ID,
-		TargetSquaddieID: 				target.ID,
-		CriticalHitThreshold:			attackingPower.AttackEffect.CriticalHitThreshold,
-		HitRate:						toHitBonus - toHitPenalty,
-		ChanceToHit:					totalChanceToHit,
-		DamageTaken:					healthDamage,
-		ExpectedDamage:					totalChanceToHit * healthDamage,
-		BarrierDamageTaken:				barrierDamage + extraBarrierDamage,
-		ExpectedBarrierDamage:			totalChanceToHit * (barrierDamage + extraBarrierDamage),
-		ChanceToCritical:				chanceToCritical,
-		CriticalDamageTaken:			criticalHealthDamage,
-		CriticalBarrierDamageTaken:		criticalBarrierDamage + criticalExtraBarrierDamage,
-		CriticalExpectedDamage:			totalChanceToHit * criticalHealthDamage,
-		CriticalExpectedBarrierDamage:	totalChanceToHit * (criticalBarrierDamage + criticalExtraBarrierDamage),
-		CounterAttack:					counterAttackSummary,
-		IsACounterAttack:				isCounterAttack,
-	}
-}
-
-// CanTargetSquaddieCounterAttack returns true if the target can counterAttack the attacker.
-func CanTargetSquaddieCounterAttack(context *powerusagecontext.PowerUsageContext, attackContext *powerusagecontext.AttackContext) bool {
-	target := context.SquaddieRepo.GetOriginalSquaddieByID(attackContext.TargetID)
-	return CanSquaddieCounterWithEquippedWeapon(target, context.PowerRepo)
-}
-
-// GetPowerToHitPenaltyAgainstSquaddie calculates how much the target can reduce the chance of getting hit by the attacking power.
-func GetPowerToHitPenaltyAgainstSquaddie(attackingPower *power.Power, target *squaddie.Squaddie) (toHitPenalty int) {
-	if attackingPower.PowerType == power.Physical {
-		return target.Dodge
-	}
-	return target.Deflect
-}
-
-// LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
-//  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repo *power.Repository) (int, error) {
-	numberOfPowersAdded := 0
-
-	squaddie.ClearInnatePowers()
-	squaddie.ClearTemporaryPowerReferences()
-
-	for _, powerIDName := range powerReferencesToLoad {
-		powerToAdd := repo.GetPowerByID(powerIDName.ID)
-		if powerToAdd == nil {
-			return numberOfPowersAdded, fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name, powerIDName.Name)
-		}
-
-		err := squaddie.AddInnatePower(powerToAdd)
-		if err == nil {
-			numberOfPowersAdded = numberOfPowersAdded + 1
-		}
-	}
-
-	return numberOfPowersAdded, nil
 }
