@@ -62,9 +62,9 @@ func GetExpectedDamage(
 	}
 
 	return &powerusagecontext.AttackingPowerForecast{
-		AttackingSquaddieID:			attacker.ID,
+		AttackingSquaddieID:			attacker.Identification.ID,
 		PowerID:						attackingPower.ID,
-		TargetSquaddieID: 				target.ID,
+		TargetSquaddieID: 				target.Identification.ID,
 		CriticalHitThreshold:			attackingPower.AttackEffect.CriticalHitThreshold,
 		HitRate:						toHitBonus - toHitPenalty,
 		ChanceToHit:					totalChanceToHit,
@@ -88,15 +88,15 @@ func GetPowerToHitBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie 
 	if isCounterAttack {
 		counterAttackPenalty = attackingPower.AttackEffect.CounterAttackToHitPenalty
 	}
-	return attackingPower.AttackEffect.ToHitBonus + squaddie.Aim + counterAttackPenalty
+	return attackingPower.AttackEffect.ToHitBonus + squaddie.Offense.Aim + counterAttackPenalty
 }
 
 // GetPowerDamageBonusWhenUsedBySquaddie calculates the total Damage bonus for the attacking squaddie and attacking power
 func GetPowerDamageBonusWhenUsedBySquaddie(attackingPower *power.Power, squaddie *squaddie.Squaddie) (damageBonus int) {
 	if attackingPower.PowerType == power.Physical {
-		return attackingPower.AttackEffect.DamageBonus + squaddie.Strength
+		return attackingPower.AttackEffect.DamageBonus + squaddie.Offense.Strength
 	}
-	return attackingPower.AttackEffect.DamageBonus + squaddie.Mind
+	return attackingPower.AttackEffect.DamageBonus + squaddie.Offense.Mind
 }
 
 // GetPowerCriticalDamageBonusWhenUsedBySquaddie calculates the total Critical Hit Damage bonus for the attacking squaddie and attacking power
@@ -113,9 +113,9 @@ func GetHowTargetDistributesDamage(attackingPower *power.Power, attacker *squadd
 // GetPowerToHitPenaltyAgainstSquaddie calculates how much the target can reduce the chance of getting hit by the attacking power.
 func GetPowerToHitPenaltyAgainstSquaddie(attackingPower *power.Power, target *squaddie.Squaddie) (toHitPenalty int) {
 	if attackingPower.PowerType == power.Physical {
-		return target.Dodge
+		return target.Defense.Dodge
 	}
-	return target.Deflect
+	return target.Defense.Deflect
 }
 
 // GetHowTargetDistributesCriticalDamage factors the attacker's damage bonuses and target's damage reduction to figure out the base damage and barrier damage.
@@ -126,7 +126,7 @@ func GetHowTargetDistributesCriticalDamage(attackingPower *power.Power, attacker
 
 // calculateHowTargetTakesDamage factors the target's damage reduction to figure out how the damage is split between barrier, armor and health.
 func calculateHowTargetTakesDamage(attackingPower *power.Power, target *squaddie.Squaddie, damageToAbsorb int) (healthDamage, barrierDamage, extraBarrierDamage int) {
-	remainingBarrier := target.CurrentBarrier
+	remainingBarrier := target.Defense.CurrentBarrier
 
 	damageToAbsorb, barrierDamage, remainingBarrier = calculateDamageAfterInitialBarrierAbsorption(target, damageToAbsorb, barrierDamage, remainingBarrier)
 
@@ -141,11 +141,11 @@ func calculateDamageAfterArmorAbsorption(attackingPower *power.Power, target *sq
 	var armorCanAbsorbDamage bool = attackingPower.PowerType == power.Physical
 	if armorCanAbsorbDamage {
 
-		var armorFullyAbsorbsDamage bool = target.Armor > damageToAbsorb
+		var armorFullyAbsorbsDamage bool = target.Defense.Armor > damageToAbsorb
 		if armorFullyAbsorbsDamage {
 			healthDamage = 0
 		} else {
-			healthDamage = damageToAbsorb - target.Armor
+			healthDamage = damageToAbsorb - target.Defense.Armor
 		}
 	} else {
 		healthDamage = damageToAbsorb
@@ -168,15 +168,15 @@ func calculateDamageAfterExtraBarrierDamage(attackingPower *power.Power, remaini
 }
 
 func calculateDamageAfterInitialBarrierAbsorption(target *squaddie.Squaddie, damageToAbsorb int, barrierDamage int, remainingBarrier int) (int, int, int) {
-	var barrierFullyAbsorbsDamage bool = target.CurrentBarrier > damageToAbsorb
+	var barrierFullyAbsorbsDamage bool = target.Defense.CurrentBarrier > damageToAbsorb
 	if barrierFullyAbsorbsDamage {
 		barrierDamage = damageToAbsorb
 		remainingBarrier = remainingBarrier - barrierDamage
 		damageToAbsorb = 0
 	} else {
-		barrierDamage = target.CurrentBarrier
+		barrierDamage = target.Defense.CurrentBarrier
 		remainingBarrier = 0
-		damageToAbsorb = damageToAbsorb - target.CurrentBarrier
+		damageToAbsorb = damageToAbsorb - target.Defense.CurrentBarrier
 	}
 	return damageToAbsorb, barrierDamage, remainingBarrier
 }

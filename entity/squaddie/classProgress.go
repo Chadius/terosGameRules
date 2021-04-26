@@ -1,36 +1,84 @@
 package squaddie
 
-// ClassProgress tracks information about how a Squaddie uses a class as well
-//    as the progress made in a given class.
+import (
+	"fmt"
+	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+)
+
+// ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.
 type ClassProgress struct {
-	ClassID string `json:"id" yaml:"id"`
-	ClassName string `json:"name" yaml:"name"`
-	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
+	BaseClassID         		string                          `json:"base_class" yaml:"base_class"`
+	CurrentClass        		string                         `json:"current_class" yaml:"current_class"`
+	ClassLevelsConsumed 		map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
 }
 
-// IsLevelAlreadyConsumed returns true if the level ID has already been used.
-func (progress *ClassProgress) IsLevelAlreadyConsumed(levelUpBenefitLevelID string) bool {
-	return progress.AnyLevelsConsumed(func(consumedLevelID string) bool {
-		return consumedLevelID == levelUpBenefitLevelID
+// AddClass gives the ClassProgress a new class it can gain levels in.
+func (classProgress *ClassProgress) AddClass(class *squaddieclass.Class) {
+	classProgress.ClassLevelsConsumed[class.ID] = &ClassLevelsConsumed{
+		ClassID:        class.ID,
+		ClassName:      class.Name,
+		LevelsConsumed: []string{},
+	}
+}
+
+// GetLevelCountsByClass returns a mapping of class names to levels gained.
+func (classProgress *ClassProgress) GetLevelCountsByClass() map[string]int {
+	count := map[string]int{}
+	for classID, progress := range classProgress.ClassLevelsConsumed {
+		count[classID] = len(progress.LevelsConsumed)
+	}
+
+	return count
+}
+
+// MarkLevelUpBenefitAsConsumed makes the ClassProgress remember it used this benefit to level up already.
+func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string)  {
+	classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed = append(classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
+}
+
+// SetClass changes the ClassProgress's CurrentClass to the given classID.
+//   It also sets the BaseClass if it hasn't been already.
+//   Raises an error if classID has not been added to the squaddie yet.
+func (classProgress *ClassProgress) SetClass(classID string) error {
+	if _, exists := classProgress.ClassLevelsConsumed[classID]; !exists {
+		return fmt.Errorf(`cannot switch to unknown class "%s"`, classID)
+	}
+
+	if classProgress.BaseClassID == "" {
+		classProgress.BaseClassID = classID
+	}
+
+	classProgress.CurrentClass = classID
+	return nil
+}
+
+// SetBaseClassIfNoBaseClass sets the BaseClass if it hasn't been already.
+func (classProgress *ClassProgress) SetBaseClassIfNoBaseClass(classID string) {
+	if classProgress.BaseClassID == "" {
+		classProgress.BaseClassID = classID
+	}
+}
+
+// IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given ID has already been used.
+func (classProgress *ClassProgress) IsClassLevelAlreadyUsed(benefitID string) bool {
+	return classProgress.anyClassLevelsConsumed(func(classID string, progress *ClassLevelsConsumed) bool {
+		return progress.IsLevelAlreadyConsumed(benefitID)
 	})
 }
 
-// AnyLevelsConsumed returns true if at least 1 levelID satisfies the condition.
-func (progress *ClassProgress) AnyLevelsConsumed(condition func(consumedLevelID string) bool) bool {
-	for _, levelID := range progress.LevelsConsumed {
-		if condition(levelID) {
+// HasAddedClass returns true if the ClassProgress has already added a class with the name classIDToFind
+func (classProgress *ClassProgress) HasAddedClass(classIDToFind string) bool {
+	return classProgress.anyClassLevelsConsumed(func(classID string, progress *ClassLevelsConsumed) bool {
+		return classID == classIDToFind
+	})
+}
+
+// anyClassLevelsConsumed returns true if any of the squaddie's class levels consumed satisfies a given condition.
+func (classProgress *ClassProgress) anyClassLevelsConsumed(condition func(classID string, progress *ClassLevelsConsumed) bool) bool {
+	for classID, progress := range classProgress.ClassLevelsConsumed {
+		if condition(classID, progress) {
 			return true
 		}
 	}
 	return false
-}
-
-// AccumulateLevelsConsumed calls the calculate function on each Level consumed and adds it to a sum.
-//   The sum is returned after processing all of the levels.
-func (progress *ClassProgress) AccumulateLevelsConsumed(calculate func(consumedLevelID string) int) int {
-	count := 0
-	for _, levelID := range progress.LevelsConsumed {
-		count = count + calculate(levelID)
-	}
-	return count
 }

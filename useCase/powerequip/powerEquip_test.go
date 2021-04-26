@@ -27,7 +27,7 @@ func (suite *SquaddieEquipPowersFromRepo) SetUpTest(checker *C) {
 	suite.spear.AttackEffect.CanBeEquipped = true
 	suite.spear.AttackEffect.CanCounterAttack = true
 
-	suite.scimitar = power.NewPower("suite.scimitar the second")
+	suite.scimitar = power.NewPower("scimitar the second")
 	suite.scimitar.AttackEffect.CanBeEquipped = true
 
 	suite.blot = power.NewPower("Magic spell Blot")

@@ -46,7 +46,7 @@ func (suite *TargetAttemptsCounterSuite) SetUpTest(checker *C) {
 	suite.axe.AttackEffect.CanCounterAttack = true
 	suite.axe.AttackEffect.CounterAttackToHitPenalty = -2
 
-	suite.blot = power.NewPower("suite.blot")
+	suite.blot = power.NewPower("blot")
 	suite.blot.PowerType = power.Spell
 
 	suite.powerRepo = power.NewPowerRepository()
@@ -65,7 +65,7 @@ func (suite *TargetAttemptsCounterSuite) SetUpTest(checker *C) {
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.powerRepo)
 
 	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Name = "bandit"
+	suite.bandit.Identification.Name = "bandit"
 	banditPowerReferences := []*power.Reference{
 		suite.axe.GetReference(),
 	}
@@ -85,15 +85,15 @@ func (suite *TargetAttemptsCounterSuite) TestTargetWillCounterAttackWithEquipped
 	expectedTerosCounterAttackForecast := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.spear.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:			suite.spear.ID,
-			AttackerID:			suite.teros.ID,
-			TargetID:			suite.bandit.ID,
+			AttackerID:			suite.teros.Identification.ID,
+			TargetID:			suite.bandit.Identification.ID,
 			IsCounterAttack:	false,
 		},
 	)
@@ -102,23 +102,23 @@ func (suite *TargetAttemptsCounterSuite) TestTargetWillCounterAttackWithEquipped
 	banditAttackForecast := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.bandit.ID,
-			TargetSquaddieIDs: []string{suite.teros.ID},
+			ActingSquaddieID:  suite.bandit.Identification.ID,
+			TargetSquaddieIDs: []string{suite.teros.Identification.ID},
 			PowerID:           suite.axe.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:			suite.axe.ID,
-			AttackerID:			suite.bandit.ID,
-			TargetID:			suite.teros.ID,
+			AttackerID:			suite.bandit.Identification.ID,
+			TargetID:			suite.teros.Identification.ID,
 			IsCounterAttack:	false,
 		},
 	)
 	checker.Assert(banditAttackForecast.CounterAttack, NotNil)
 	checker.Assert(banditAttackForecast.CounterAttack.IsACounterAttack, Equals, true)
-	checker.Assert(banditAttackForecast.CounterAttack.AttackingSquaddieID, Equals, suite.teros.ID)
+	checker.Assert(banditAttackForecast.CounterAttack.AttackingSquaddieID, Equals, suite.teros.Identification.ID)
 	checker.Assert(banditAttackForecast.CounterAttack.PowerID, Equals, suite.spear.ID)
-	checker.Assert(banditAttackForecast.CounterAttack.TargetSquaddieID, Equals, suite.bandit.ID)
+	checker.Assert(banditAttackForecast.CounterAttack.TargetSquaddieID, Equals, suite.bandit.Identification.ID)
 	checker.Assert(banditAttackForecast.CounterAttack.HitRate, Equals, terosHitRate - 2)
 }
 
@@ -129,8 +129,8 @@ func (suite *TargetAttemptsCounterSuite) TestTargetWillCommitToCounterAttack(che
 	banditAttackTerosCounterattackReport := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.bandit.ID,
-			TargetSquaddieIDs: []string{suite.teros.ID},
+			ActingSquaddieID:  suite.bandit.Identification.ID,
+			TargetSquaddieIDs: []string{suite.teros.Identification.ID},
 			PowerID:           suite.axe.ID,
 			PowerRepo:         suite.powerRepo,
 		},
@@ -138,12 +138,12 @@ func (suite *TargetAttemptsCounterSuite) TestTargetWillCommitToCounterAttack(che
 	)
 
 	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports, HasLen, 2)
-	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].AttackerID, Equals, suite.bandit.ID)
-	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].TargetID, Equals, suite.teros.ID)
+	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].AttackerID, Equals, suite.bandit.Identification.ID)
+	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].TargetID, Equals, suite.teros.Identification.ID)
 	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].PowerID, Equals, suite.axe.ID)
 
-	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[1].AttackerID, Equals, suite.teros.ID)
-	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[1].TargetID, Equals, suite.bandit.ID)
+	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[1].AttackerID, Equals, suite.teros.Identification.ID)
+	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[1].TargetID, Equals, suite.bandit.Identification.ID)
 	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[1].PowerID, Equals, suite.spear.ID)
 }
 
@@ -154,8 +154,8 @@ func (suite *TargetAttemptsCounterSuite) TestTargetCannotCommitToCounterAttackIf
 	banditAttackTerosCounterattackReport := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.bandit.ID,
-			TargetSquaddieIDs: []string{suite.teros.ID},
+			ActingSquaddieID:  suite.bandit.Identification.ID,
+			TargetSquaddieIDs: []string{suite.teros.Identification.ID},
 			PowerID:           suite.axe.ID,
 			PowerRepo:         suite.powerRepo,
 		},
@@ -163,7 +163,7 @@ func (suite *TargetAttemptsCounterSuite) TestTargetCannotCommitToCounterAttackIf
 	)
 
 	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports, HasLen, 1)
-	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].AttackerID, Equals, suite.bandit.ID)
-	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].TargetID, Equals, suite.teros.ID)
+	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].AttackerID, Equals, suite.bandit.Identification.ID)
+	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].TargetID, Equals, suite.teros.Identification.ID)
 	checker.Assert(banditAttackTerosCounterattackReport.AttackingPowerReports[0].PowerID, Equals, suite.axe.ID)
 }

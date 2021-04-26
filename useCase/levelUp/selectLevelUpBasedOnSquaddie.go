@@ -14,7 +14,7 @@ func GetSquaddieClassLevels(
 	levelRepo *levelupbenefit.Repository,
 ) map[string]int {
 	levels := map[string]int{}
-	for classID, progress := range squaddieToInspect.ClassLevelsConsumed {
+	for classID, progress := range squaddieToInspect.ClassProgress.ClassLevelsConsumed {
 		levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
 
 		smallLevelCount := progress.AccumulateLevelsConsumed(func(consumedLevelID string) int {
@@ -36,7 +36,7 @@ func ImproveSquaddieBasedOnLevel(
 	classRepo *squaddieclass.Repository,
 	powerRepo *power.Repository,
 ) error {
-	classToUse, err := classRepo.GetClassByID(squaddieToLevelUp.CurrentClass)
+	classToUse, err := classRepo.GetClassByID(squaddieToLevelUp.ClassProgress.CurrentClass)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func selectBigLevelUpForSquaddie(
 
 	bigLevelIDToRetrieve := bigLevelSelectedID
 	if classToUse.InitialBigLevelID != "" &&
-		squaddieToLevelUp.ClassLevelsConsumed[classToUse.ID].IsLevelAlreadyConsumed(classToUse.InitialBigLevelID) == false {
+		squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[classToUse.ID].IsLevelAlreadyConsumed(classToUse.InitialBigLevelID) == false {
 		bigLevelIDToRetrieve = classToUse.InitialBigLevelID
 	}
 
@@ -105,7 +105,7 @@ func selectSmallLevelUpForSquaddie(
 ) *levelupbenefit.LevelUpBenefit {
 	smallLevelsToChooseFrom := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Small],
 		func(level *levelupbenefit.LevelUpBenefit) bool {
-			if squaddieToLevelUp.ClassLevelsConsumed[squaddieToLevelUp.CurrentClass].IsLevelAlreadyConsumed(level.ID) {
+			if squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[squaddieToLevelUp.ClassProgress.CurrentClass].IsLevelAlreadyConsumed(level.ID) {
 				return false
 			}
 			return true

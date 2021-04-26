@@ -9,11 +9,11 @@ import (
 // GetEquippedPower returns the power the squaddie has equipped.
 //   May return nil if the squaddie hasn't equipped anything.
 func GetEquippedPower (squaddie *squaddie.Squaddie, repo *power.Repository) *power.Power {
-	if squaddie.CurrentlyEquippedPowerID != "" {
-		return repo.GetPowerByID(squaddie.CurrentlyEquippedPowerID)
+	if squaddie.PowerCollection.CurrentlyEquippedPowerID != "" {
+		return repo.GetPowerByID(squaddie.PowerCollection.CurrentlyEquippedPowerID)
 	}
 
-	for _, powerReference := range squaddie.PowerReferences {
+	for _, powerReference := range squaddie.PowerCollection.PowerReferences {
 		powerToCheck := repo.GetPowerByID(powerReference.ID)
 		if powerToCheck.AttackEffect != nil && powerToCheck.AttackEffect.CanBeEquipped == true {
 			return powerToCheck
@@ -25,7 +25,7 @@ func GetEquippedPower (squaddie *squaddie.Squaddie, repo *power.Repository) *pow
 // SquaddieEquipPower will make the Squaddie equip a different power.
 //   If the power is invalid, will return nil
 func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo *power.Repository) bool {
-	if squaddie.HasPowerWithID(powerToEquipID) == false {
+	if squaddie.PowerCollection.HasPowerWithID(powerToEquipID) == false {
 		return false
 	}
 
@@ -37,7 +37,7 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 		return false
 	}
 
-	squaddie.CurrentlyEquippedPowerID = powerToEquipID
+	squaddie.PowerCollection.CurrentlyEquippedPowerID = powerToEquipID
 	return true
 }
 
@@ -46,16 +46,16 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repo *power.Repository) (int, error) {
 	numberOfPowersAdded := 0
 
-	squaddie.ClearInnatePowers()
-	squaddie.ClearTemporaryPowerReferences()
+	squaddie.PowerCollection.ClearInnatePowers()
+	squaddie.PowerCollection.ClearTemporaryPowerReferences()
 
 	for _, powerIDName := range powerReferencesToLoad {
 		powerToAdd := repo.GetPowerByID(powerIDName.ID)
 		if powerToAdd == nil {
-			return numberOfPowersAdded, fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name, powerIDName.Name)
+			return numberOfPowersAdded, fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Identification.Name, powerIDName.Name)
 		}
 
-		err := squaddie.AddInnatePower(powerToAdd)
+		err := squaddie.PowerCollection.AddInnatePower(powerToAdd)
 		if err == nil {
 			numberOfPowersAdded = numberOfPowersAdded + 1
 		}

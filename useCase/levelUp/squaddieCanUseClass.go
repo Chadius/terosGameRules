@@ -10,18 +10,18 @@ import (
 func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, classRepo *squaddieclass.Repository, levelRepo *levelupbenefit.Repository) bool {
 	classToTest, _ := classRepo.GetClassByID(testingClassID)
 
-	if squaddieToTest.BaseClassID == "" && classToTest.BaseClassRequired != true {
+	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired != true {
 		return true
 	}
-	if squaddieToTest.BaseClassID == "" && classToTest.BaseClassRequired == true {
+	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired == true {
 		return false
 	}
 
-	if squaddieToTest.CurrentClass == testingClassID {
+	if squaddieToTest.ClassProgress.CurrentClass == testingClassID {
 		return false
 	}
 
-	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.CurrentClass, levelRepo) == false {
+	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.ClassProgress.CurrentClass, levelRepo) == false {
 		return false
 	}
 
@@ -45,7 +45,7 @@ func areAllLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string,
 }
 
 func countLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string) int {
-	squaddieLevelsConsumedInClasses := squaddieToTest.GetLevelCountsByClass()
+	squaddieLevelsConsumedInClasses := squaddieToTest.ClassProgress.GetLevelCountsByClass()
 	levelsSquaddieConsumedInThisClass, squaddieConsumedAnyLevelsInClass := squaddieLevelsConsumedInClasses[classID]
 
 	if squaddieConsumedAnyLevelsInClass != true {

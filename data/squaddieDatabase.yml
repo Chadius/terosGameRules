@@ -1,27 +1,35 @@
 -
-  name: Teros
-  id: squaddieTeros
-  aim: 0
-  max_barrier: 3
-  strength: 1
-  armor: 2
-  dodge: 3
-  deflect: 4
-  affiliation: Player
+  identification:
+    name: Teros
+    id: squaddieTeros
+    affiliation: Player
+  offense:
+    aim: 0
+    strength: 1
+  defense:
+    max_barrier: 3
+    armor: 2
+    dodge: 3
+    deflect: 4
   powers:
-  -
-    name: Spear
-    id: powerSpear
--
-  name: Bandit
-  id: squaddieBandit
-  aim: 0
-  max_barrier: 0
-  strength: 1
-  armor: 0
-  dodge: 0
-  deflect: 0
-  affiliation: Enemy
-  powers:
-    - name: Spear
+    powers:
+    -
+      name: Spear
       id: powerSpear
+-
+  identification:
+    name: Bandit
+    id: squaddieBandit
+    affiliation: Enemy
+  offense:
+    aim: 0
+    strength: 1
+  defense:
+    max_barrier: 0
+    armor: 0
+    dodge: 0
+    deflect: 0
+  powers:
+    powers:
+      - name: Spear
+        id: powerSpear

@@ -27,8 +27,8 @@ func main() {
 
 	powerContext := &powerusagecontext.PowerUsageContext{
 		SquaddieRepo:      squaddieRepo,
-		ActingSquaddieID:  attacker.ID,
-		TargetSquaddieIDs: []string{target.ID},
+		ActingSquaddieID:  attacker.Identification.ID,
+		TargetSquaddieIDs: []string{target.Identification.ID},
 		PowerID:           power.ID,
 		PowerRepo:         powerRepo,
 	}
@@ -65,7 +65,7 @@ func printPartOfAttackForecast(forecast *powerusagecontext.AttackingPowerForecas
 	attacker := squaddieRepo.GetOriginalSquaddieByID(forecast.AttackingSquaddieID)
 	target := squaddieRepo.GetOriginalSquaddieByID(forecast.TargetSquaddieID)
 	power := powerRepo.GetPowerByID(forecast.PowerID)
-	println(attacker.Name, "will attack", target.Name, "with", power.Name)
+	println(attacker.Identification.Name, "will attack", target.Identification.Name, "with", power.Name)
 	println("Chance to hit (out of 36) ", forecast.ChanceToHit)
 	println("Damage taken              ", forecast.DamageTaken)
 	println("Barrier damage            ", forecast.BarrierDamageTaken)
@@ -111,12 +111,12 @@ func loadPowerRepo() (repo *power.Repository) {
 
 func loadActors (attackerID, targetID, powerID string, squaddieRepo *squaddie.Repository, powerRepo *power.Repository) (*squaddie.Squaddie, *squaddie.Squaddie, *power.Power) {
 	attacker := squaddieRepo.GetOriginalSquaddieByID(attackerID)
-	attacker.SetBarrierToMax()
+	attacker.Defense.SetBarrierToMax()
 
 	target := squaddieRepo.GetOriginalSquaddieByID(targetID)
-	target.SetBarrierToMax()
+	target.Defense.SetBarrierToMax()
 
-	powerequip.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerReferences, powerRepo)
+	powerequip.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerCollection.PowerReferences, powerRepo)
 
 	power := powerRepo.GetPowerByID(powerID)
 

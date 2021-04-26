@@ -26,14 +26,14 @@ type SquaddieCommitToPowerUsageSuite struct {
 var _ = Suite(&SquaddieCommitToPowerUsageSuite{})
 
 func (suite *SquaddieCommitToPowerUsageSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("suite.teros")
-	suite.spear = power.NewPower("suite.spear")
+	suite.teros = squaddie.NewSquaddie("teros")
+	suite.spear = power.NewPower("spear")
 	suite.spear.AttackEffect.CanBeEquipped = true
 
 	suite.scimitar = power.NewPower("scimitar the second")
 	suite.scimitar.AttackEffect.CanBeEquipped = true
 
-	suite.blot = power.NewPower("suite.blot")
+	suite.blot = power.NewPower("blot")
 	suite.blot.PowerType = power.Spell
 
 	suite.powerRepo = power.NewPowerRepository()
@@ -43,8 +43,8 @@ func (suite *SquaddieCommitToPowerUsageSuite) SetUpTest(checker *C) {
 		suite.blot,
 	})
 
-	suite.bandit = squaddie.NewSquaddie("suite.bandit")
-	suite.bandit.Name = "suite.bandit"
+	suite.bandit = squaddie.NewSquaddie("bandit")
+	suite.bandit.Identification.Name = "bandit"
 
 	terosPowerReferences := []*power.Reference{
 		suite.spear.GetReference(),
@@ -66,8 +66,8 @@ func (suite *SquaddieCommitToPowerUsageSuite) TestSquaddiesEquipPowerUponCommit(
 	powerReport := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.scimitar.ID,
 			PowerRepo:         suite.powerRepo,
 		},
@@ -86,8 +86,8 @@ func (suite *SquaddieCommitToPowerUsageSuite) TestSquaddieWillKeepPreviousPowerI
 	powerReport := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
@@ -114,8 +114,8 @@ func (suite *SquaddieCommitToPowerUsageSuite) TestSquaddieWillNotEquipPowerIfNon
 	powerReport := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  mysticMage.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  mysticMage.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
@@ -138,17 +138,17 @@ type CreatePowerReportSuite struct {
 var _ = Suite(&CreatePowerReportSuite{})
 
 func (suite *CreatePowerReportSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("suite.teros")
-	suite.teros.Name = "suite.teros"
-	suite.teros.Mind = 1
+	suite.teros = squaddie.NewSquaddie("teros")
+	suite.teros.Identification.Name = "teros"
+	suite.teros.Offense.Mind = 1
 
-	suite.bandit = squaddie.NewSquaddie("suite.bandit")
-	suite.bandit.Name = "suite.bandit"
+	suite.bandit = squaddie.NewSquaddie("bandit")
+	suite.bandit.Identification.Name = "bandit"
 
-	suite.bandit2 = squaddie.NewSquaddie("suite.bandit")
-	suite.bandit2.Name = "suite.bandit"
+	suite.bandit2 = squaddie.NewSquaddie("bandit")
+	suite.bandit2.Identification.Name = "bandit"
 
-	suite.blot = power.NewPower("suite.blot")
+	suite.blot = power.NewPower("blot")
 	suite.blot.PowerType = power.Spell
 	suite.blot.AttackEffect.DamageBonus = 1
 
@@ -167,14 +167,14 @@ func (suite *CreatePowerReportSuite) TestPowerReportWhenMissed(checker *C) {
 	powerCommit := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
-	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.ID)
+	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.Identification.ID)
 	checker.Assert(powerCommit.PowerID, Equals, suite.blot.ID)
 
 	checker.Assert(powerCommit.AttackingPowerReports, HasLen, 1)
@@ -187,19 +187,19 @@ func (suite *CreatePowerReportSuite) TestPowerReportWhenHitButNoCrit(checker *C)
 	powerCommit := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
-	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.ID)
+	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.Identification.ID)
 	checker.Assert(powerCommit.PowerID, Equals, suite.blot.ID)
 
 	checker.Assert(powerCommit.AttackingPowerReports, HasLen, 1)
-	checker.Assert(powerCommit.AttackingPowerReports[0].AttackerID, Equals, suite.teros.ID)
-	checker.Assert(powerCommit.AttackingPowerReports[0].TargetID, Equals, suite.bandit.ID)
+	checker.Assert(powerCommit.AttackingPowerReports[0].AttackerID, Equals, suite.teros.Identification.ID)
+	checker.Assert(powerCommit.AttackingPowerReports[0].TargetID, Equals, suite.bandit.Identification.ID)
 	checker.Assert(powerCommit.AttackingPowerReports[0].PowerID, Equals, suite.blot.ID)
 
 	checker.Assert(powerCommit.AttackingPowerReports[0].WasAHit, Equals, true)
@@ -215,14 +215,14 @@ func (suite *CreatePowerReportSuite) TestPowerReportWhenCrits(checker *C) {
 	powerCommit := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
-	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.ID)
+	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.Identification.ID)
 	checker.Assert(powerCommit.PowerID, Equals, suite.blot.ID)
 
 	checker.Assert(powerCommit.AttackingPowerReports, HasLen, 1)
@@ -238,17 +238,17 @@ func (suite *CreatePowerReportSuite) TestReportPerTarget(checker *C) {
 	powerCommit := powercommit.UsePowerAgainstSquaddiesAndGetReport(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID, suite.bandit2.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID, suite.bandit2.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		dieRoller,
 	)
-	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.ID)
+	checker.Assert(powerCommit.AttackerID, Equals, suite.teros.Identification.ID)
 	checker.Assert(powerCommit.PowerID, Equals, suite.blot.ID)
 
 	checker.Assert(powerCommit.AttackingPowerReports, HasLen, 2)
-	checker.Assert(powerCommit.AttackingPowerReports[0].TargetID, Equals, suite.bandit.ID)
-	checker.Assert(powerCommit.AttackingPowerReports[1].TargetID, Equals, suite.bandit2.ID)
+	checker.Assert(powerCommit.AttackingPowerReports[0].TargetID, Equals, suite.bandit.Identification.ID)
+	checker.Assert(powerCommit.AttackingPowerReports[1].TargetID, Equals, suite.bandit2.Identification.ID)
 }

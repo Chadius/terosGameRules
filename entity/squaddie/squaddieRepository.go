@@ -53,7 +53,8 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	}
 
 	for index := range listOfSquaddies {
-		success, err := repository.tryToAddSquaddie(&listOfSquaddies[index])
+		newSquaddie := listOfSquaddies[index]
+		success, err := repository.tryToAddSquaddie(&newSquaddie)
 		if success == false {
 			return false, err
 		}
@@ -66,12 +67,12 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 	if squaddieErr != nil {
 		return false, squaddieErr
 	}
-	squaddieToAdd.SetHPToMax()
+	squaddieToAdd.Defense.SetHPToMax()
 
-	if squaddieToAdd.ID == "" {
-		squaddieToAdd.SetNewIDToRandom()
+	if squaddieToAdd.Identification.ID == "" {
+		squaddieToAdd.Identification.SetNewIDToRandom()
 	}
-	repository.squaddiesByID[squaddieToAdd.ID] = squaddieToAdd
+	repository.squaddiesByID[squaddieToAdd.Identification.ID] = squaddieToAdd
 	return true, nil
 }
 
@@ -89,7 +90,7 @@ func (repository *Repository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byt
 		PowerIDNames []*power.Reference `json:"powers" yaml:"powers"`
 	}{
 		Alias:        (*Alias)(squaddie),
-		PowerIDNames: squaddie.GetInnatePowerIDNames(),
+		PowerIDNames: squaddie.PowerCollection.GetInnatePowerIDNames(),
 	})
 }
 
@@ -98,41 +99,41 @@ func (repository *Repository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byt
 //  If newID isn't empty, the clone ID is set to that.
 //  Otherwise it is randomly generated.
 func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
-	clone := NewSquaddie(base.Name)
-	clone.Affiliation = base.Affiliation
+	clone := NewSquaddie(base.Identification.Name)
+	clone.Identification.Affiliation = base.Identification.Affiliation
 	if newID != "" {
-		clone.ID = newID
+		clone.Identification.ID = newID
 	}
 
-	clone.CurrentHitPoints = base.CurrentHitPoints
-	clone.MaxHitPoints = base.MaxHitPoints
-	clone.Aim = base.Aim
-	clone.Strength = base.Strength
-	clone.Mind = base.Mind
-	clone.Dodge = base.Dodge
-	clone.Deflect = base.Deflect
-	clone.CurrentBarrier = base.CurrentBarrier
-	clone.MaxBarrier = base.MaxBarrier
-	clone.Armor = base.Armor
+	clone.Defense.CurrentHitPoints = base.Defense.CurrentHitPoints
+	clone.Defense.MaxHitPoints = base.Defense.MaxHitPoints
+	clone.Offense.Aim = base.Offense.Aim
+	clone.Offense.Strength = base.Offense.Strength
+	clone.Offense.Mind = base.Offense.Mind
+	clone.Defense.Dodge = base.Defense.Dodge
+	clone.Defense.Deflect = base.Defense.Deflect
+	clone.Defense.CurrentBarrier = base.Defense.CurrentBarrier
+	clone.Defense.MaxBarrier = base.Defense.MaxBarrier
+	clone.Defense.Armor = base.Defense.Armor
 
 	clone.Movement.Distance = base.Movement.Distance
 	clone.Movement.Type = base.Movement.Type
 	clone.Movement.HitAndRun = base.Movement.HitAndRun
 
-	clone.PowerReferences = append([]*power.Reference{}, base.PowerReferences...)
+	clone.PowerCollection.PowerReferences = append([]*power.Reference{}, base.PowerCollection.PowerReferences...)
 
-	clone.BaseClassID = base.BaseClassID
-	clone.CurrentClass = base.CurrentClass
-	for classID, progress := range base.ClassLevelsConsumed {
-		newProgress := ClassProgress{
+	clone.ClassProgress.BaseClassID = base.ClassProgress.BaseClassID
+	clone.ClassProgress.CurrentClass = base.ClassProgress.CurrentClass
+
+	for classID, progress := range base.ClassProgress.ClassLevelsConsumed {
+		newProgress := ClassLevelsConsumed{
 			ClassID:        classID,
 			ClassName:      progress.ClassName,
 			LevelsConsumed: append([]string{}, progress.LevelsConsumed...),
 		}
 
-		clone.ClassLevelsConsumed[classID] = &newProgress
+		clone.ClassProgress.ClassLevelsConsumed[classID] = &newProgress
 	}
-
 	return clone, nil
 }
 
@@ -146,10 +147,10 @@ func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName str
 	}
 
 	if newName == "" {
-		return nil, fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Name)
+		return nil, fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Identification.Name)
 	}
 
-	clone.Name = newName
+	clone.Identification.Name = newName
 	return clone, nil
 }
 

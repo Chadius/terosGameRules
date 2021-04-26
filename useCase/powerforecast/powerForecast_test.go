@@ -26,20 +26,20 @@ type CalculateExpectedDamageFromAttackSuite struct {
 var _ = Suite(&CalculateExpectedDamageFromAttackSuite{})
 
 func (suite *CalculateExpectedDamageFromAttackSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("suite.teros")
-	suite.teros.Name = "suite.teros"
+	suite.teros = squaddie.NewSquaddie("teros")
+	suite.teros.Identification.Name = "teros"
 
-	suite.spear = power.NewPower("suite.spear")
+	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
 
-	suite.blot = power.NewPower("suite.blot")
+	suite.blot = power.NewPower("blot")
 	suite.blot.PowerType = power.Spell
 
 	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Name = "bandit"
+	suite.bandit.Identification.Name = "bandit"
 
 	suite.bandit2 = squaddie.NewSquaddie("bandit2")
-	suite.bandit2.Name = "bandit2"
+	suite.bandit2.Identification.Name = "bandit2"
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.bandit2})
@@ -49,7 +49,7 @@ func (suite *CalculateExpectedDamageFromAttackSuite) SetUpTest(checker *C) {
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestCalculateAttackerHitBonus(checker *C) {
-	suite.teros.Aim = 2
+	suite.teros.Offense.Aim = 2
 	suite.blot.AttackEffect.ToHitBonus = 1
 
 	totalToHitBonus := powerforecast.GetPowerToHitBonusWhenUsedBySquaddie(suite.blot, suite.teros, false)
@@ -57,7 +57,7 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestCalculateAttackerHitBon
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestCalculateAttackerHitBonusWhenCounterAttacking(checker *C) {
-	suite.teros.Aim = 2
+	suite.teros.Offense.Aim = 2
 	suite.blot.AttackEffect.ToHitBonus = 1
 	suite.blot.AttackEffect.CounterAttackToHitPenalty = -2
 
@@ -66,8 +66,8 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestCalculateAttackerHitBon
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestPhysicalDamage(checker *C) {
-	suite.teros.Strength = 2
-	suite.teros.Mind = 3
+	suite.teros.Offense.Strength = 2
+	suite.teros.Offense.Mind = 3
 
 	suite.spear.PowerType = power.Physical
 	suite.spear.AttackEffect.DamageBonus = 2
@@ -80,8 +80,8 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestPhysicalDamage(checker 
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSpellDamage(checker *C) {
-	suite.teros.Strength = 2
-	suite.teros.Mind = 3
+	suite.teros.Offense.Strength = 2
+	suite.teros.Offense.Mind = 3
 
 	suite.spear.PowerType = power.Physical
 	suite.spear.AttackEffect.DamageBonus = 2
@@ -94,8 +94,8 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestSpellDamage(checker *C)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestCriticalPhysicalDamage(checker *C) {
-	suite.teros.Strength = 2
-	suite.teros.Mind = 3
+	suite.teros.Offense.Strength = 2
+	suite.teros.Offense.Mind = 3
 
 	suite.spear.PowerType = power.Physical
 	suite.spear.AttackEffect.DamageBonus = 2
@@ -108,8 +108,8 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestCriticalPhysicalDamage(
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestToHitReductionAgainstPhysical(checker *C) {
-	suite.teros.Dodge = 2
-	suite.teros.Deflect = 9001
+	suite.teros.Defense.Dodge = 2
+	suite.teros.Defense.Deflect = 9001
 
 	suite.spear.PowerType = power.Physical
 
@@ -120,8 +120,8 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestToHitReductionAgainstPh
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestToHitReductionAgainstSpell(checker *C) {
-	suite.teros.Dodge = 2
-	suite.teros.Deflect = 9001
+	suite.teros.Defense.Dodge = 2
+	suite.teros.Defense.Deflect = 9001
 
 	suite.spear.PowerType = power.Physical
 
@@ -132,51 +132,51 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestToHitReductionAgainstSp
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestFullPhysicalDamageAgainstUnarmored(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
 	totalHealthDamage, _, _ := powerforecast.GetHowTargetDistributesDamage(suite.spear, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 4)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSomePhysicalDamageAgainstSomeArmor(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
-	suite.bandit.Armor = 3
+	suite.bandit.Defense.Armor = 3
 	totalHealthDamage, _, _ := powerforecast.GetHowTargetDistributesDamage(suite.spear, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 1)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSomePhysicalDamageAgainstSomeBarrier(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
-	suite.bandit.MaxBarrier = 4
-	suite.bandit.CurrentBarrier = 1
+	suite.bandit.Defense.MaxBarrier = 4
+	suite.bandit.Defense.CurrentBarrier = 1
 	totalHealthDamage, initialBarrierDamage, _ := powerforecast.GetHowTargetDistributesDamage(suite.spear, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 3)
 	checker.Assert(initialBarrierDamage, Equals, 1)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestNoPhysicalDamageAgainstStrongBarrier(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
-	suite.bandit.MaxBarrier = 4
-	suite.bandit.CurrentBarrier = 4
+	suite.bandit.Defense.MaxBarrier = 4
+	suite.bandit.Defense.CurrentBarrier = 4
 	totalHealthDamage, initialBarrierDamage, _ := powerforecast.GetHowTargetDistributesDamage(suite.spear, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 0)
 	checker.Assert(initialBarrierDamage, Equals, 4)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestNoPhysicalDamageAgainstStrongArmor(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
-	suite.bandit.Armor = 4
+	suite.bandit.Defense.Armor = 4
 	totalHealthDamage, initialBarrierDamage, _ := powerforecast.GetHowTargetDistributesDamage(suite.spear, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 0)
 	checker.Assert(initialBarrierDamage, Equals, 0)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestFullSpellDamageAgainstUnarmored(checker *C) {
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
 	totalHealthDamage, _, _ := powerforecast.GetHowTargetDistributesDamage(suite.blot, suite.teros, suite.bandit)
@@ -184,42 +184,42 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestFullSpellDamageAgainstU
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestFullSpellDamageAgainstNoBarrier(checker *C) {
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
-	suite.bandit.Armor = 9001
+	suite.bandit.Defense.Armor = 9001
 	totalHealthDamage, _, _ := powerforecast.GetHowTargetDistributesDamage(suite.blot, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 6)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestBarrierAbsorbsDamageBeforeHealth(checker *C) {
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
-	suite.bandit.MaxBarrier = 4
-	suite.bandit.CurrentBarrier = 1
+	suite.bandit.Defense.MaxBarrier = 4
+	suite.bandit.Defense.CurrentBarrier = 1
 	totalHealthDamage, initialBarrierDamage, _ := powerforecast.GetHowTargetDistributesDamage(suite.blot, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 5)
 	checker.Assert(initialBarrierDamage, Equals, 1)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestNoSpellDamageAgainstStrongBarrier(checker *C) {
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
-	suite.bandit.MaxBarrier = 9001
-	suite.bandit.CurrentBarrier = 9001
+	suite.bandit.Defense.MaxBarrier = 9001
+	suite.bandit.Defense.CurrentBarrier = 9001
 	totalHealthDamage, initialBarrierDamage, _ := powerforecast.GetHowTargetDistributesDamage(suite.blot, suite.teros, suite.bandit)
 	checker.Assert(totalHealthDamage, Equals, 0)
 	checker.Assert(initialBarrierDamage, Equals, 6)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestPowerDealsExtraBarrierDamage(checker *C) {
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
-	suite.bandit.MaxBarrier = 8
-	suite.bandit.CurrentBarrier = 8
+	suite.bandit.Defense.MaxBarrier = 8
+	suite.bandit.Defense.CurrentBarrier = 8
 	suite.blot.AttackEffect.ExtraBarrierDamage = 2
 
 	totalHealthDamage, initialBarrierDamage, extraBarrierDamage := powerforecast.GetHowTargetDistributesDamage(suite.blot, suite.teros, suite.bandit)
@@ -229,11 +229,11 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestPowerDealsExtraBarrierD
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryKnowsExtraBarrierDamageIsCappedIfBarrierIsDestroyed(checker *C) {
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
-	suite.bandit.MaxBarrier = 8
-	suite.bandit.CurrentBarrier = 7
+	suite.bandit.Defense.MaxBarrier = 8
+	suite.bandit.Defense.CurrentBarrier = 7
 	suite.blot.AttackEffect.ExtraBarrierDamage = 2
 
 	totalHealthDamage, initialBarrierDamage, extraBarrierDamage := powerforecast.GetHowTargetDistributesDamage(suite.blot, suite.teros, suite.bandit)
@@ -243,35 +243,35 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryKnowsExtraBarrie
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestPhysicalPowerSummary(checker *C) {
-	suite.bandit.Armor = 1
-	suite.bandit.Dodge = 1
-	suite.bandit.MaxBarrier = 4
-	suite.bandit.CurrentBarrier = 1
+	suite.bandit.Defense.Armor = 1
+	suite.bandit.Defense.Dodge = 1
+	suite.bandit.Defense.MaxBarrier = 4
+	suite.bandit.Defense.CurrentBarrier = 1
 
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
 
-	suite.teros.Mind = 2
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 
 	attackingPowerSummary := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.spear.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:           suite.spear.ID,
-			AttackerID:        suite.teros.ID,
-			TargetID:          suite.bandit.ID,
+			AttackerID:        suite.teros.Identification.ID,
+			TargetID:          suite.bandit.Identification.ID,
 			IsCounterAttack: false,
 		},
 	)
-	checker.Assert(attackingPowerSummary.AttackingSquaddieID, Equals, suite.teros.ID)
+	checker.Assert(attackingPowerSummary.AttackingSquaddieID, Equals, suite.teros.Identification.ID)
 	checker.Assert(attackingPowerSummary.PowerID, Equals, suite.spear.ID)
-	checker.Assert(attackingPowerSummary.TargetSquaddieID, Equals, suite.bandit.ID)
+	checker.Assert(attackingPowerSummary.TargetSquaddieID, Equals, suite.bandit.Identification.ID)
 	checker.Assert(attackingPowerSummary.IsACounterAttack, Equals, false)
 	checker.Assert(attackingPowerSummary.ChanceToHit, Equals, 15)
 	checker.Assert(attackingPowerSummary.DamageTaken, Equals, 2)
@@ -281,27 +281,27 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestPhysicalPowerSummary(ch
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryWithBarrierBurn(checker *C) {
-	suite.bandit.Armor = 1
-	suite.bandit.Dodge = 1
-	suite.bandit.MaxBarrier = 10
-	suite.bandit.CurrentBarrier = 10
+	suite.bandit.Defense.Armor = 1
+	suite.bandit.Defense.Dodge = 1
+	suite.bandit.Defense.MaxBarrier = 10
+	suite.bandit.Defense.CurrentBarrier = 10
 
-	suite.teros.Aim = 3
-	suite.teros.Mind = 2
+	suite.teros.Offense.Aim = 3
+	suite.teros.Offense.Mind = 2
 	suite.blot.AttackEffect.DamageBonus = 4
 	suite.blot.AttackEffect.ExtraBarrierDamage = 3
 	attackingPowerSummary := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.blot.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:           suite.blot.ID,
-			AttackerID:        suite.teros.ID,
-			TargetID:          suite.bandit.ID,
+			AttackerID:        suite.teros.Identification.ID,
+			TargetID:          suite.bandit.Identification.ID,
 			IsCounterAttack: false,
 		},
 	)
@@ -316,36 +316,36 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryPerTarget(checke
 	powerSummary := powerforecast.CalculatePowerForecast(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID, suite.bandit2.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID, suite.bandit2.Identification.ID},
 			PowerID:           suite.spear.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 	)
-	checker.Assert(powerSummary.UserSquaddieID, Equals, suite.teros.ID)
+	checker.Assert(powerSummary.UserSquaddieID, Equals, suite.teros.Identification.ID)
 	checker.Assert(powerSummary.PowerID, Equals, suite.spear.ID)
 	checker.Assert(powerSummary.AttackPowerForecast, HasLen, 2)
-	checker.Assert(powerSummary.AttackPowerForecast[0].TargetSquaddieID, Equals, suite.bandit.ID)
-	checker.Assert(powerSummary.AttackPowerForecast[1].TargetSquaddieID, Equals, suite.bandit2.ID)
+	checker.Assert(powerSummary.AttackPowerForecast[0].TargetSquaddieID, Equals, suite.bandit.Identification.ID)
+	checker.Assert(powerSummary.AttackPowerForecast[1].TargetSquaddieID, Equals, suite.bandit2.Identification.ID)
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestChanceToCriticalHitOnTheSummary(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
 
 	suite.spear.AttackEffect.CriticalHitThreshold = 4
 	attackingPowerSummary := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.spear.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:           suite.spear.ID,
-			AttackerID:        suite.teros.ID,
-			TargetID:          suite.bandit.ID,
+			AttackerID:        suite.teros.Identification.ID,
+			TargetID:          suite.bandit.Identification.ID,
 			IsCounterAttack: false,
 		},
 	)
@@ -353,25 +353,25 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestChanceToCriticalHitOnTh
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestCriticalHitDoublesDamageBeforeArmorAndBarrier(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
 
-	suite.bandit.Armor = 1
-	suite.bandit.MaxBarrier = 4
-	suite.bandit.CurrentBarrier = 4
+	suite.bandit.Defense.Armor = 1
+	suite.bandit.Defense.MaxBarrier = 4
+	suite.bandit.Defense.CurrentBarrier = 4
 	suite.spear.AttackEffect.CriticalHitThreshold = 4
 	attackingPowerSummary := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.spear.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:           suite.spear.ID,
-			AttackerID:        suite.teros.ID,
-			TargetID:          suite.bandit.ID,
+			AttackerID:        suite.teros.Identification.ID,
+			TargetID:          suite.bandit.Identification.ID,
 			IsCounterAttack: false,
 		},
 	)
@@ -382,22 +382,22 @@ func (suite *CalculateExpectedDamageFromAttackSuite) TestCriticalHitDoublesDamag
 }
 
 func (suite *CalculateExpectedDamageFromAttackSuite) TestSummaryIgnoresCriticalIfAttackCannotCritical(checker *C) {
-	suite.teros.Strength = 1
+	suite.teros.Offense.Strength = 1
 	suite.spear.AttackEffect.DamageBonus = 3
 
 	suite.spear.AttackEffect.CriticalHitThreshold = 0
 	attackingPowerSummary := powerforecast.GetExpectedDamage(
 		&powerusagecontext.PowerUsageContext{
 			SquaddieRepo:      suite.squaddieRepo,
-			ActingSquaddieID:  suite.teros.ID,
-			TargetSquaddieIDs: []string{suite.bandit.ID},
+			ActingSquaddieID:  suite.teros.Identification.ID,
+			TargetSquaddieIDs: []string{suite.bandit.Identification.ID},
 			PowerID:           suite.spear.ID,
 			PowerRepo:         suite.powerRepo,
 		},
 		&powerusagecontext.AttackContext{
 			PowerID:           suite.spear.ID,
-			AttackerID:        suite.teros.ID,
-			TargetID:          suite.bandit.ID,
+			AttackerID:        suite.teros.Identification.ID,
+			TargetID:          suite.bandit.Identification.ID,
 			IsCounterAttack: false,
 		},
 	)
@@ -426,16 +426,16 @@ func (suite *SquaddieGainsPowerSuite) SetUpTest(checker *C) {
 	suite.powerRepository.AddSlicePowerSource(newPowers)
 
 	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Name = "teros"
+	suite.teros.Identification.Name = "teros"
 }
 
 func (suite *SquaddieGainsPowerSuite) TestGiveSquaddieInnatePowersWithRepository(checker *C) {
-	temporaryPowerReferences := []*power.Reference{{Name: "suite.spear", ID: suite.spear.ID}}
+	temporaryPowerReferences := []*power.Reference{{Name: "spear", ID: suite.spear.ID}}
 	numberOfPowersAdded, err := powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, temporaryPowerReferences, suite.powerRepository)
 	checker.Assert(numberOfPowersAdded, Equals, 1)
 	checker.Assert(err, IsNil)
 
-	attackIDNamePairs := suite.teros.GetInnatePowerIDNames()
+	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
 	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.spear.ID)
@@ -450,6 +450,6 @@ func (suite *SquaddieGainsPowerSuite) TestStopAddingNonexistentPowers(checker *C
 	checker.Assert(numberOfPowersAdded, Equals, 0)
 	checker.Assert(err.Error(), Equals, "squaddie 'teros' tried to add Power 'Scimitar' but it does not exist")
 
-	attackIDNamePairs := suite.teros.GetInnatePowerIDNames()
+	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(len(attackIDNamePairs), Equals, 0)
 }
