@@ -13,17 +13,24 @@ func GetEquippedPower (squaddie *squaddie.Squaddie, repo *power.Repository) *pow
 		return repo.GetPowerByID(squaddie.PowerCollection.CurrentlyEquippedPowerID)
 	}
 
-	for _, powerReference := range squaddie.PowerCollection.PowerReferences {
-		powerToCheck := repo.GetPowerByID(powerReference.ID)
-		if powerToCheck.AttackEffect != nil && powerToCheck.AttackEffect.CanBeEquipped == true {
-			return powerToCheck
-		}
-	}
 	return nil
 }
 
+// EquipDefaultPower will automatically equip the first power the squaddie has.
+//  Returns the power and a boolean.
+func EquipDefaultPower(squaddie *squaddie.Squaddie, repo *power.Repository) (*power.Power, bool) {
+	for _, powerReference := range squaddie.PowerCollection.PowerReferences {
+		powerToCheck := repo.GetPowerByID(powerReference.ID)
+		if powerToCheck.AttackEffect != nil && powerToCheck.AttackEffect.CanBeEquipped == true {
+			equippingPowerWasSuccessful := SquaddieEquipPower(squaddie, powerToCheck.ID, repo)
+			return powerToCheck, equippingPowerWasSuccessful
+		}
+	}
+	return nil, false
+}
+
 // SquaddieEquipPower will make the Squaddie equip a different power.
-//   If the power is invalid, will return nil
+//   returns true upon success
 func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo *power.Repository) bool {
 	if squaddie.PowerCollection.HasPowerWithID(powerToEquipID) == false {
 		return false
@@ -62,4 +69,14 @@ func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesT
 	}
 
 	return numberOfPowersAdded, nil
+}
+
+// CanSquaddieCounterWithEquippedWeapon returns true if the squaddie can use the currently equipped
+//   weapon for counter attacks.
+func CanSquaddieCounterWithEquippedWeapon(squaddie *squaddie.Squaddie, repo *power.Repository) bool {
+	currentlyEquippedPower := GetEquippedPower(squaddie, repo)
+	if currentlyEquippedPower == nil {
+		return false
+	}
+	return currentlyEquippedPower.AttackEffect.CanCounterAttack
 }
