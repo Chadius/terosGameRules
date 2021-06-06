@@ -50,3 +50,8 @@ func (defense *Defense) TakeDamageDistribution(distribution *damagedistribution.
 	defense.ReduceBarrier(distribution.DamageAbsorbedByBarrier)
 	defense.ReduceHitPoints(distribution.DamageDealt)
 }
+
+// IsDead returns true if the squaddie has died
+func (defense *Defense) IsDead() bool {
+	return defense.CurrentHitPoints <= 0
+}

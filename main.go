@@ -40,11 +40,11 @@ func main() {
 	}
 	powerForecast.CalculateForecast()
 
-	for _, forecast := range powerForecast.ForecastedResultPerTarget {
-		printAttackForecast(&forecast)
-	}
+	//for _, forecast := range powerForecast.ForecastedResultPerTarget {
+	//	printAttackForecast(&forecast)
+	//}
 
-	println("---")
+	//println("---")
 	powerResult := &powercommit.Result{
 		Forecast: powerForecast,
 		DieRoller: &utility.RandomDieRoller{},
@@ -53,6 +53,7 @@ func main() {
 
 	for _, attackReport := range powerResult.ResultPerTarget {
 		printAttackReport(attackReport, powerForecast.Repositories)
+		println()
 	}
 }
 
@@ -92,6 +93,8 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *poweru
 	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
 	attackingPower := powerRepo.GetPowerByID(result.PowerID)
 
+	println(attacker.Identification.Name, "attacks", target.Identification.Name, "with", attackingPower.Name)
+
 	println(attacker.Identification.Name, "attacks with a", result.AttackRoll)
 	println(target.Identification.Name, "defends with a", result.DefendRoll)
 	if !result.Attack.HitTarget {
@@ -104,11 +107,15 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *poweru
 	} else {
 		println("Hit")
 	}
-	println(attackingPower.Name, "deals")
-	println(result.Attack.Damage.DamageDealt, "damage taken")
-	println(result.Attack.Damage.TotalBarrierBurnt, "barrier damage")
+	//println(attackingPower.Name, "deals")
+	//println(result.Attack.Damage.DamageDealt, "damage taken")
+	//println(result.Attack.Damage.TotalBarrierBurnt, "barrier damage")
 
 	println(target.Identification.Name, "HP:", target.Defense.CurrentHitPoints,"/",target.Defense.MaxHitPoints,"Barrier",target.Defense.CurrentBarrier,"/",target.Defense.MaxBarrier)
+
+	if target.Defense.IsDead() {
+		println(target.Identification.Name, "falls!")
+	}
 }
 
 func loadSquaddieRepo() (repo *squaddie.Repository) {

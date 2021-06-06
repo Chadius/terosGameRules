@@ -68,3 +68,9 @@ func (suite *SquaddieDefenseSuite) TestDamageDistributionLowersBarrierAndHealth(
 	checker.Assert(suite.teros.Defense.CurrentBarrier, Equals, 0)
 	checker.Assert(suite.teros.Defense.CurrentHitPoints, Equals, suite.teros.Defense.MaxHitPoints - 1)
 }
+
+func (suite *SquaddieDefenseSuite) TestSquaddiesAreDeadWhenAtZeroHitPoints(checker *C) {
+	checker.Assert(suite.teros.Defense.IsDead(), Equals, false)
+	suite.teros.Defense.ReduceHitPoints(suite.teros.Defense.MaxHitPoints)
+	checker.Assert(suite.teros.Defense.IsDead(), Equals, true)
+}
