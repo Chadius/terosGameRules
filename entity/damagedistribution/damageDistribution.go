@@ -7,4 +7,5 @@ type DamageDistribution struct {
 	DamageDealt             int
 	ExtraBarrierBurnt       int
 	TotalBarrierBurnt       int
+	IsFatalToTarget         bool
 }

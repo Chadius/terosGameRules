@@ -5,8 +5,8 @@
     affiliation: Player
   offense:
     aim: 2
-    strength: 1
   defense:
+    max_hit_points: 5
     max_barrier: 3
     armor: 2
     dodge: 3

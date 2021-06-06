@@ -11,6 +11,7 @@ type DefenderContext struct {
 
 	TotalToHitPenalty int
 
+	HitPoints int
 	ArmorResistance int
 	BarrierResistance int
 }
@@ -23,6 +24,7 @@ func (context *DefenderContext) calculate(setup *powerusagescenario.Setup, repos
 	context.TotalToHitPenalty = context.calculateTotalToHitPenalty(setup, repositories)
 	context.ArmorResistance = context.calculateArmorResistance(setup, repositories)
 	context.BarrierResistance = context.calculateBarrierResistance(repositories)
+	context.HitPoints = context.calculateHitPoints(repositories)
 }
 
 func (context *DefenderContext) calculateTotalToHitPenalty(setup *powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) int {
@@ -52,4 +54,9 @@ func (context *DefenderContext) calculateArmorResistance(setup *powerusagescenar
 func (context *DefenderContext) calculateBarrierResistance(repositories *powerusagescenario.RepositoryCollection) int {
 	target := repositories.SquaddieRepo.GetOriginalSquaddieByID(context.TargetID)
 	return target.Defense.CurrentBarrier
+}
+
+func (context *DefenderContext) calculateHitPoints(repositories *powerusagescenario.RepositoryCollection) int {
+	target := repositories.SquaddieRepo.GetOriginalSquaddieByID(context.TargetID)
+	return target.Defense.CurrentHitPoints
 }

@@ -50,6 +50,7 @@ func (context *VersusContext) setDamageBreakdown(damageDealtToTarget int, attack
 	damageDealtToTarget -= distribution.DamageAbsorbedByArmor
 
 	distribution.DamageDealt = damageDealtToTarget
+	distribution.IsFatalToTarget = distribution.DamageDealt >= defenderContext.HitPoints
 
 	return distribution
 }

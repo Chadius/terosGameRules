@@ -182,7 +182,21 @@ func (suite *VersusContext) TestCriticalDamageDistributes(checker *C) {
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.TotalBarrierBurnt, Equals, 3)
 }
 
-func (suite *VersusContext) TestNoCriticalDamageDistributionIfCannotCrit(checker *C) {
+func (suite *VersusContext) TestNoCriticalDamageDistributionIfCannotCritical(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage, IsNil)
+}
+
+func (suite *VersusContext) TestKnowsIfAttackIsFatalToTarget(checker *C) {
+	suite.bandit.Defense.Armor = 0
+	suite.bandit.Defense.CurrentBarrier = 0
+
+	suite.teros.Offense.Mind = 0
+	suite.blot.AttackEffect.DamageBonus = 0
+	suite.forecastBlotOnBandit.CalculateForecast()
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, false)
+
+	suite.spear.AttackEffect.DamageBonus = suite.bandit.Defense.MaxHitPoints
+	suite.forecastSpearOnBandit.CalculateForecast()
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, true)
 }

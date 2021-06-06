@@ -40,11 +40,11 @@ func main() {
 	}
 	powerForecast.CalculateForecast()
 
-	//for _, forecast := range powerForecast.ForecastedResultPerTarget {
-	//	printAttackForecast(&forecast)
-	//}
+	for _, forecast := range powerForecast.ForecastedResultPerTarget {
+		printAttackForecast(&forecast)
+	}
 
-	//println("---")
+	println("---")
 	powerResult := &powercommit.Result{
 		Forecast: powerForecast,
 		DieRoller: &utility.RandomDieRoller{},
@@ -61,7 +61,7 @@ func printAttackForecast(forecast *powerattackforecast.Calculation) {
 	printPartOfAttackForecast(forecast.Attack, forecast.Setup, forecast.Repositories)
 	if forecast.CounterAttack != nil {
 		println("")
-		println("Counterattack:")
+		println("then Counterattack:")
 		printPartOfAttackForecast(forecast.CounterAttack, forecast.CounterAttackSetup, forecast.Repositories)
 	}
 }
@@ -74,15 +74,20 @@ func printPartOfAttackForecast(forecast *powerattackforecast.AttackForecast, set
 	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
 	attackingPower := powerRepo.GetPowerByID(setup.PowerID)
 
-	hitChance := power.GetChanceToHitBasedOnHitRate(forecast.VersusContext.ToHitBonus)
+	//hitChance := power.GetChanceToHitBasedOnHitRate(forecast.VersusContext.ToHitBonus)
 	println(attacker.Identification.Name, "will attack", target.Identification.Name, "with", attackingPower.Name)
 	println("Attacker ToHit bonus", forecast.VersusContext.ToHitBonus)
-	println("Chance to hit (out of 36) ", hitChance)
+
+	if forecast.VersusContext.NormalDamage.IsFatalToTarget {
+		println("will kill if it hits")
+	}
+
+	//println("Chance to hit (out of 36) ", hitChance)
 	println("Damage taken              ", forecast.VersusContext.NormalDamage.DamageDealt)
-	println("Barrier damage            ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt)
-	println("---")
-	println("Expected damage (36 = 1HP)", forecast.VersusContext.NormalDamage.DamageDealt * hitChance)
-	println("Expected barrier damage   ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt * hitChance)
+	//println("Barrier damage            ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt)
+	//println("---")
+	//println("Expected damage (36 = 1HP)", forecast.VersusContext.NormalDamage.DamageDealt * hitChance)
+	//println("Expected barrier damage   ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt * hitChance)
 }
 
 func printAttackReport(result *powercommit.ResultPerTarget, repositories *powerusagescenario.RepositoryCollection) {
