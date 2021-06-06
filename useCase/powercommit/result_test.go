@@ -325,6 +325,34 @@ func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[3].TargetID, Equals, suite.mysticMage.Identification.ID)
 }
 
+
+func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
+	suite.resultSpearOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
+
+	suite.teros.Offense.Strength = suite.bandit.Defense.MaxHitPoints
+	suite.teros.Defense.Armor = 0
+	suite.teros.Defense.CurrentBarrier = 0
+
+	suite.spear.AttackEffect.DamageBonus = 3
+
+	suite.axe.AttackEffect.CanCounterAttack = true
+	suite.axe.AttackEffect.DamageBonus = 3
+	suite.bandit.Offense.Strength = 0
+	suite.bandit.Defense.Armor = 0
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
+
+	suite.forecastSpearOnBandit.CalculateForecast()
+	suite.resultSpearOnBandit.Commit()
+
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.ID)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].UserID, Equals, suite.teros.Identification.ID)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].TargetID, Equals, suite.bandit.Identification.ID)
+
+	checker.Assert(suite.bandit.Defense.IsDead(), Equals, true)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget, HasLen, 1)
+}
+
+
 type EquipPowerWhenCommitting struct {
 	teros			*squaddie.Squaddie
 	bandit			*squaddie.Squaddie

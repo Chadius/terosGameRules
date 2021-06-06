@@ -39,11 +39,24 @@ func (result *Result) Commit() {
 		result.ResultPerTarget = append(result.ResultPerTarget, resultForTarget)
 	}
 	for _, calculation := range result.Forecast.ForecastedResultPerTarget {
-		if calculation.CounterAttack != nil {
+		if result.isCounterAttackPossible(calculation) {
 			counterAttackResultForTarget := result.calculateResultForThisTarget(calculation.CounterAttackSetup, calculation.CounterAttack, result.Forecast.Repositories)
 			result.ResultPerTarget = append(result.ResultPerTarget, counterAttackResultForTarget)
 		}
 	}
+}
+
+func (result *Result) isCounterAttackPossible(calculation powerattackforecast.Calculation) bool {
+	if calculation.CounterAttack == nil {
+		return false
+	}
+
+	counterattacker := calculation.Repositories.SquaddieRepo.GetOriginalSquaddieByID(calculation.CounterAttackSetup.UserID)
+	if counterattacker.Defense.IsDead() {
+		return false
+	}
+
+	return true
 }
 
 func (result *Result) calculateResultForThisTarget(setup *powerusagescenario.Setup, attack *powerattackforecast.AttackForecast, repositories *powerusagescenario.RepositoryCollection) *ResultPerTarget {
