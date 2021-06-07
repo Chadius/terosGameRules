@@ -7,7 +7,7 @@ import (
 
 // VersusContext compares an AttackerContext and DefenderContext to determine the possible results.
 type VersusContext struct {
-	ToHitBonus int
+	ToHit *damagedistribution.ToHitComparison
 
 	NormalDamage *damagedistribution.DamageDistribution
 	CriticalHitDamage *damagedistribution.DamageDistribution
@@ -17,15 +17,18 @@ type VersusContext struct {
 }
 
 func (context *VersusContext) calculate(attackerContext AttackerContext, defenderContext DefenderContext) {
-	context.ToHitBonus = context.calculateToHitBonus(attackerContext, defenderContext)
+	context.calculateToHitBonus(attackerContext, defenderContext)
 	context.setNormalDamageBreakdown(attackerContext, defenderContext)
 
 	context.setCriticalHitChance(attackerContext)
 	context.setCriticalDamageBreakdown(attackerContext, defenderContext)
 }
 
-func (context *VersusContext) calculateToHitBonus(attackerContext AttackerContext, defenderContext DefenderContext) int {
-	return attackerContext.TotalToHitBonus - defenderContext.TotalToHitPenalty
+func (context *VersusContext) calculateToHitBonus(attackerContext AttackerContext, defenderContext DefenderContext) {
+	context.ToHit = &damagedistribution.ToHitComparison{}
+	context.ToHit.AttackerToHitBonus = attackerContext.TotalToHitBonus
+	context.ToHit.DefenderToHitPenalty = defenderContext.TotalToHitPenalty
+	context.ToHit.ToHitBonus = context.ToHit.AttackerToHitBonus - context.ToHit.DefenderToHitPenalty
 }
 
 func (context *VersusContext) setNormalDamageBreakdown(attackerContext AttackerContext, defenderContext DefenderContext) {

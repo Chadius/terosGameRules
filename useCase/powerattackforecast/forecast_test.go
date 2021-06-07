@@ -124,5 +124,5 @@ func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker 
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].CounterAttack.VersusContext.ToHitBonus, Equals, -1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].CounterAttack.VersusContext.ToHit.ToHitBonus, Equals, -1)
 }

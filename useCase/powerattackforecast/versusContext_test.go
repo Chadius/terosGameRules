@@ -90,10 +90,10 @@ func (suite *VersusContext) SetUpTest(checker *C) {
 
 func (suite *VersusContext) TestNetToHitReliesOnToHitMinusDodgeOrDeflect(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.ToHitBonus, Equals, 2)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.ToHit.ToHitBonus, Equals, 2)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.ToHitBonus, Equals, 0)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.ToHit.ToHitBonus, Equals, 0)
 }
 
 func (suite *VersusContext) TestTargetTakesFullDamageAgainstPhysicalWhenNoArmor(checker *C) {

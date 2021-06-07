@@ -305,6 +305,12 @@ func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
 	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.ID, suite.powerRepo)
 
+	suite.bandit.Defense.MaxHitPoints = suite.fireball.AttackEffect.DamageBonus + suite.mysticMage.Offense.Mind + 1
+	suite.bandit.Defense.SetHPToMax()
+
+	suite.bandit2.Defense.MaxHitPoints = suite.fireball.AttackEffect.DamageBonus + suite.mysticMage.Offense.Mind + 1
+	suite.bandit2.Defense.SetHPToMax()
+
 	suite.forecastFireballOnBandits.CalculateForecast()
 	suite.resultFireballOnBandits.Commit()
 

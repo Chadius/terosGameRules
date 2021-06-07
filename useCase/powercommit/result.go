@@ -23,6 +23,8 @@ type ResultPerTarget struct {
 	TargetID string
 	Attack *AttackResult
 	AttackRoll, DefendRoll int
+	AttackerToHitBonus, DefenderToHitPenalty int
+	AttackerTotal, DefenderTotal int
 }
 
 // AttackResult shows what happens when the power was an attack.
@@ -70,11 +72,17 @@ func (result *Result) calculateResultForThisTarget(setup *powerusagescenario.Set
 	attackingSquaddie := repositories.SquaddieRepo.GetOriginalSquaddieByID(setup.UserID)
 	powerequip.SquaddieEquipPower(attackingSquaddie, setup.PowerID, repositories.PowerRepo)
 
-	toHitChance := attack.VersusContext.ToHitBonus
 	attackRoll, defendRoll := result.DieRoller.RollTwoDice()
-	results.Attack.HitTarget = attackRoll + toHitChance >= defendRoll
+	results.AttackerToHitBonus = attack.VersusContext.ToHit.AttackerToHitBonus
+	results.DefenderToHitPenalty = attack.VersusContext.ToHit.DefenderToHitPenalty
+
 	results.AttackRoll = attackRoll
 	results.DefendRoll = defendRoll
+
+	results.AttackerTotal = results.AttackRoll + results.AttackerToHitBonus
+	results.DefenderTotal = results.DefendRoll + results.DefenderToHitPenalty
+
+	results.Attack.HitTarget = results.AttackerTotal >= results.DefenderTotal
 
 	if results.Attack.HitTarget {
 		roll1, roll2 := result.DieRoller.RollTwoDice()

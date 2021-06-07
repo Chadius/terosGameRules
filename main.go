@@ -10,6 +10,7 @@ import (
 	"github.com/cserrant/terosBattleServer/utility"
 	"io/ioutil"
 	"log"
+	"strconv"
 )
 
 func main() {
@@ -76,18 +77,15 @@ func printPartOfAttackForecast(forecast *powerattackforecast.AttackForecast, set
 
 	//hitChance := power.GetChanceToHitBasedOnHitRate(forecast.VersusContext.ToHitBonus)
 	println(attacker.Identification.Name, "will attack", target.Identification.Name, "with", attackingPower.Name)
-	println("Attacker ToHit bonus", forecast.VersusContext.ToHitBonus)
+	println("Attacker ToHit bonus", forecast.VersusContext.ToHit.ToHitBonus)
 
 	if forecast.VersusContext.NormalDamage.IsFatalToTarget {
 		println("will kill if it hits")
 	}
 
 	//println("Chance to hit (out of 36) ", hitChance)
-	println("Damage taken              ", forecast.VersusContext.NormalDamage.DamageDealt)
-	//println("Barrier damage            ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt)
-	//println("---")
-	//println("Expected damage (36 = 1HP)", forecast.VersusContext.NormalDamage.DamageDealt * hitChance)
-	//println("Expected barrier damage   ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt * hitChance)
+	println("Forecasted Damage              ", forecast.VersusContext.NormalDamage.DamageDealt)
+	//println("Forecasted Barrier damage            ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt)
 }
 
 func printAttackReport(result *powercommit.ResultPerTarget, repositories *powerusagescenario.RepositoryCollection) {
@@ -100,8 +98,8 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *poweru
 
 	println(attacker.Identification.Name, "attacks", target.Identification.Name, "with", attackingPower.Name)
 
-	println(attacker.Identification.Name, "attacks with a", result.AttackRoll)
-	println(target.Identification.Name, "defends with a", result.DefendRoll)
+	println(attacker.Identification.Name, "attacks with a", result.AttackRoll, "+", result.AttackerToHitBonus, "=", result.AttackerTotal)
+	println(target.Identification.Name, "defends with a", result.DefendRoll, "+", result.DefenderToHitPenalty, "=", result.DefenderTotal)
 	if !result.Attack.HitTarget {
 		println("Missed")
 		return
@@ -116,7 +114,11 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *poweru
 	//println(result.Attack.Damage.DamageDealt, "damage taken")
 	//println(result.Attack.Damage.TotalBarrierBurnt, "barrier damage")
 
-	println(target.Identification.Name, "HP:", target.Defense.CurrentHitPoints,"/",target.Defense.MaxHitPoints,"Barrier",target.Defense.CurrentBarrier,"/",target.Defense.MaxBarrier)
+	healthStatus := target.Identification.Name + " HP: " + strconv.Itoa(target.Defense.CurrentHitPoints) + "/" + strconv.Itoa(target.Defense.MaxHitPoints)
+	if target.Defense.CurrentBarrier > 0  {
+		healthStatus += "Barrier" + strconv.Itoa(target.Defense.CurrentBarrier)
+	}
+	println(healthStatus)
 
 	if target.Defense.IsDead() {
 		println(target.Identification.Name, "falls!")
