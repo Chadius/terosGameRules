@@ -71,7 +71,7 @@ func (repository *Repository)tryToAddLevelUpBenefitToSource(levelUpBenefit *Leve
 		return false, err
 	}
 
-	classID := levelUpBenefit.ClassID
+	classID := levelUpBenefit.Identification.ClassID
 
 	if repository.levelUpBenefitsByClassID[classID] == nil {
 		repository.levelUpBenefitsByClassID[classID] = []*LevelUpBenefit{}
@@ -94,15 +94,15 @@ func (repository *Repository) GetLevelUpBenefitsByClassID(classID string) ([]*Le
 }
 
 // GetLevelUpBenefitsForClassByType returns the levels of a class by type (Small or Big).
-func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (map[Type][]*LevelUpBenefit, error) {
-	levelsInClassByType := map[Type][]*LevelUpBenefit{Small:[]*LevelUpBenefit{}, Big: []*LevelUpBenefit{}}
+func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (map[Size][]*LevelUpBenefit, error) {
+	levelsInClassByType := map[Size][]*LevelUpBenefit{Small: []*LevelUpBenefit{}, Big: []*LevelUpBenefit{}}
 	levelsInClass, err := repository.GetLevelUpBenefitsByClassID(classID)
 
 	if err != nil {
 		return levelsInClassByType, err
 	}
 	for _, level := range levelsInClass {
-		levelsInClassByType[level.LevelUpBenefitType] = append(levelsInClassByType[level.LevelUpBenefitType], level)
+		levelsInClassByType[level.Identification.LevelUpBenefitType] = append(levelsInClassByType[level.Identification.LevelUpBenefitType], level)
 	}
 	return levelsInClassByType, nil
 }

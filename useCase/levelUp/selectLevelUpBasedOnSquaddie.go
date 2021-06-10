@@ -19,7 +19,7 @@ func GetSquaddieClassLevels(
 
 		smallLevelCount := progress.AccumulateLevelsConsumed(func(consumedLevelID string) int {
 			return levelupbenefit.CountLevelUpBenefits(levelsInClass, func(benefit *levelupbenefit.LevelUpBenefit) bool {
-				return benefit.ID == consumedLevelID && benefit.LevelUpBenefitType == levelupbenefit.Small
+				return benefit.Identification.ID == consumedLevelID && benefit.Identification.LevelUpBenefitType == levelupbenefit.Small
 			})
 		})
 		levels[classID] = smallLevelCount
@@ -71,7 +71,7 @@ func selectBigLevelUpForSquaddie(
 	bigLevelSelectedID string,
 	squaddieLevels map[string]int,
 	classToUse *squaddieclass.Class,
-	levelsFromClass map[levelupbenefit.Type][]*levelupbenefit.LevelUpBenefit,
+	levelsFromClass map[levelupbenefit.Size][]*levelupbenefit.LevelUpBenefit,
 ) *levelupbenefit.LevelUpBenefit {
 
 	squaddieClassIsEven := squaddieLevels[classToUse.ID] % 2 == 0
@@ -86,7 +86,7 @@ func selectBigLevelUpForSquaddie(
 	}
 
 	bigLevelCandidates := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Big], func(level *levelupbenefit.LevelUpBenefit) bool {
-		return level.ID == bigLevelIDToRetrieve
+		return level.Identification.ID == bigLevelIDToRetrieve
 	})
 
 	if len(bigLevelCandidates) == 0 {
@@ -101,11 +101,11 @@ func selectBigLevelUpForSquaddie(
 //    If there are no small levels to choose from, return nil
 func selectSmallLevelUpForSquaddie(
 	squaddieToLevelUp *squaddie.Squaddie,
-	levelsFromClass map[levelupbenefit.Type][]*levelupbenefit.LevelUpBenefit,
+	levelsFromClass map[levelupbenefit.Size][]*levelupbenefit.LevelUpBenefit,
 ) *levelupbenefit.LevelUpBenefit {
 	smallLevelsToChooseFrom := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Small],
 		func(level *levelupbenefit.LevelUpBenefit) bool {
-			if squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[squaddieToLevelUp.ClassProgress.CurrentClass].IsLevelAlreadyConsumed(level.ID) {
+			if squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[squaddieToLevelUp.ClassProgress.CurrentClass].IsLevelAlreadyConsumed(level.Identification.ID) {
 				return false
 			}
 			return true

@@ -11,7 +11,7 @@ type LevelGeneratorInstruction struct {
 	NumberOfLevels int
 	ClassID        string
 	PrefixLevelID  string
-	Type           levelupbenefit.Type
+	Type           levelupbenefit.Size
 }
 
 // LevelGenerator is a Builder pattern that can be programmed to generate a slice of LevelUpBenefits.
@@ -40,9 +40,11 @@ func (generator *LevelGenerator) Build() []*levelupbenefit.LevelUpBenefit {
 	levels := []*levelupbenefit.LevelUpBenefit{}
 	for i:= 0; i < generator.Instructions.NumberOfLevels; i++ {
 		newLevelUpBenefit := &levelupbenefit.LevelUpBenefit{
-			LevelUpBenefitType: generator.Instructions.Type,
-			ClassID:            generator.Instructions.ClassID,
-			ID:                 generator.Instructions.PrefixLevelID + strconv.Itoa(i),
+			Identification: &levelupbenefit.Identification{
+				LevelUpBenefitType: generator.Instructions.Type,
+				ClassID:            generator.Instructions.ClassID,
+				ID:                 generator.Instructions.PrefixLevelID + strconv.Itoa(i),
+			},
 		}
 		levels = append(levels, newLevelUpBenefit)
 	}

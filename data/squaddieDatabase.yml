@@ -33,5 +33,6 @@
     deflect: 0
   powers:
     powers:
-      - name: Spear
-        id: powerSpear
+    -
+      name: Spear
+      id: powerSpear
