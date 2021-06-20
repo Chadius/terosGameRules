@@ -42,10 +42,10 @@ type AttackingEffect struct {
 	ToHitBonus                int  `json:"to_hit_bonus" yaml:"to_hit_bonus"`
 	DamageBonus               int  `json:"damage_bonus" yaml:"damage_bonus"`
 	ExtraBarrierBurn          int  `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
-	CriticalHitThreshold      int  `json:"critical_hit_threshold" yaml:"critical_hit_threshold"`
 	CanBeEquipped             bool `json:"can_be_equipped" yaml:"can_be_equipped"`
 	CanCounterAttack          bool `json:"can_counter_attack" yaml:"can_counter_attack"`
 	CounterAttackToHitPenalty int  `json:"counter_attack_penalty" yaml:"counter_attack_penalty"`
+	CriticalEffect *CriticalEffect `json:"critical_effect" yaml:"critical_effect"`
 }
 
 // NewPower generates a Power with default values.
@@ -60,7 +60,6 @@ func NewPower(name string) *Power {
 			ToHitBonus:           0,
 			DamageBonus:          0,
 			ExtraBarrierBurn:     0,
-			CriticalHitThreshold: 0,
 		},
 	}
 	return &newAttackingPower
@@ -80,54 +79,7 @@ func checkAttackingEffectForErrors(newAttackingPower *Power) (newError error) {
 	return nil
 }
 
-// GetChanceToHitBasedOnHitRate is a smarter look up table.
-func GetChanceToHitBasedOnHitRate(toHitBonus int) (chanceOutOf36 int) {
-	if toHitBonus > 4 {
-		return 36
-	}
-
-	if toHitBonus < -5 {
-		return 0
-	}
-
-	toHitChanceReference := map[int]int{
-		4:  35,
-		3:  33,
-		2:  30,
-		1:  26,
-		0:  21,
-		-1: 15,
-		-2: 10,
-		-3: 6,
-		-4: 3,
-		-5: 1,
-	}
-
-	return toHitChanceReference[toHitBonus]
-}
-
-// GetChanceToCriticalBasedOnThreshold is a smarter look up table.
-func GetChanceToCriticalBasedOnThreshold(criticalThreshold int) (chanceOutOf36 int) {
-	if criticalThreshold > 11 {
-		return 36
-	}
-
-	if criticalThreshold < 2 {
-		return 0
-	}
-
-	criticalChanceByCriticalThreshold := map[int]int{
-		11: 35,
-		10: 33,
-		9:  30,
-		8:  26,
-		7:  21,
-		6:  15,
-		5:  10,
-		4:  6,
-		3:  3,
-		2:  1,
-	}
-
-	return criticalChanceByCriticalThreshold[criticalThreshold]
+// CanCriticallyHit returns true if this power is capable of critically hitting for additional effects.
+func (p *Power) CanCriticallyHit() bool {
+	return p.AttackEffect != nil && p.AttackEffect.CriticalEffect != nil
 }

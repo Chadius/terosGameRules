@@ -158,7 +158,10 @@ func (suite *VersusContext) TestBarrierBurnCanBeTolerated(checker *C) {
 }
 
 func (suite *VersusContext) TestCriticalHitChanceIsShown(checker *C) {
-	suite.spear.AttackEffect.CriticalHitThreshold = 6
+	suite.spear.AttackEffect.CriticalEffect = &power.CriticalEffect{
+		CriticalHitThresholdBonus: 0,
+		Damage:                    3,
+	}
 	suite.forecastSpearOnBandit.CalculateForecast()
 
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CanCritical, Equals, true)
@@ -169,7 +172,10 @@ func (suite *VersusContext) TestCriticalHitChanceIsShown(checker *C) {
 }
 
 func (suite *VersusContext) TestCriticalDamageDistributes(checker *C) {
-	suite.spear.AttackEffect.CriticalHitThreshold = 6
+	suite.spear.AttackEffect.CriticalEffect = &power.CriticalEffect{
+		CriticalHitThresholdBonus: 0,
+		Damage:                    3,
+	}
 	suite.bandit.Defense.Armor = 1
 	suite.bandit.Defense.CurrentBarrier = 3
 

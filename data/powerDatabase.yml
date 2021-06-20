@@ -7,3 +7,5 @@
     can_be_equipped: true
     can_counter_attack: true
     counter_attack_penalty: -2
+    critical_effect:
+      damage: 2

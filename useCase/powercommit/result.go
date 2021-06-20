@@ -83,11 +83,7 @@ func (result *Result) calculateResultForThisTarget(setup *powerusagescenario.Set
 	results.DefenderTotal = results.DefendRoll + results.DefenderToHitPenalty
 
 	results.Attack.HitTarget = results.AttackerTotal >= results.DefenderTotal
-
-	if results.Attack.HitTarget {
-		roll1, roll2 := result.DieRoller.RollTwoDice()
-		results.Attack.CriticallyHitTarget = roll1 + roll2 < attack.VersusContext.CriticalHitThreshold
-	}
+	results.Attack.CriticallyHitTarget = attack.AttackerContext.CanCritical && results.AttackerTotal >= results.DefenderTotal + attack.AttackerContext.CriticalHitThreshold
 
 	if !results.Attack.HitTarget {
 		results.Attack.Damage = &damagedistribution.DamageDistribution{

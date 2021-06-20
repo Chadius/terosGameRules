@@ -110,9 +110,11 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *poweru
 	} else {
 		println("Hit")
 	}
-	//println(attackingPower.Name, "deals")
-	//println(result.Attack.Damage.DamageDealt, "damage taken")
-	//println(result.Attack.Damage.TotalBarrierBurnt, "barrier damage")
+	damageTaken := "  deals " + strconv.Itoa(result.Attack.Damage.DamageDealt)
+	if result.Attack.Damage.TotalBarrierBurnt > 0 {
+		damageTaken += " damage, " + strconv.Itoa(result.Attack.Damage.TotalBarrierBurnt) + " barrier burn"
+	}
+	println(damageTaken)
 
 	healthStatus := target.Identification.Name + " HP: " + strconv.Itoa(target.Defense.CurrentHitPoints) + "/" + strconv.Itoa(target.Defense.MaxHitPoints)
 	if target.Defense.CurrentBarrier > 0  {

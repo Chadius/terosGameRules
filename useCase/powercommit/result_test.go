@@ -231,7 +231,10 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 
 func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
-	suite.blot.AttackEffect.CriticalHitThreshold = 900
+	suite.blot.AttackEffect.CriticalEffect = &power.CriticalEffect{
+		CriticalHitThresholdBonus: 9000,
+		Damage:                    3,
+	}
 
 	suite.teros.Offense.Mind = 2
 
@@ -250,7 +253,7 @@ func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.CriticallyHitTarget, Equals, true)
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.DamageAbsorbedByBarrier, Equals, 3)
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.DamageAbsorbedByArmor, Equals, 0)
-	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.DamageDealt, Equals, 7)
+	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.DamageDealt, Equals, 5)
 
 	checker.Assert(
 		suite.bandit.Defense.CurrentHitPoints,

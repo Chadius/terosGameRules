@@ -60,12 +60,12 @@ func (context *AttackerContext) calculateRawDamage(setup powerusagescenario.Setu
 
 func (context *AttackerContext) calculateCriticalHit(setup powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) {
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
-	if power.AttackEffect.CriticalHitThreshold == 0 {
-		context.CanCritical = false
+	context.CanCritical = power.CanCriticallyHit()
+	if context.CanCritical == false {
 		return
 	}
 
 	context.CanCritical = true
-	context.CriticalHitThreshold = power.AttackEffect.CriticalHitThreshold
-	context.CriticalHitDamage = context.RawDamage * 2
+	context.CriticalHitThreshold = power.AttackEffect.CriticalEffect.CriticalHitThreshold()
+	context.CriticalHitDamage = context.RawDamage + power.AttackEffect.CriticalEffect.ExtraCriticalHitDamage()
 }
