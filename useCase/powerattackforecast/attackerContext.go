@@ -3,12 +3,13 @@ package powerattackforecast
 import (
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
 )
 
 // AttackerContext lists the attacker's relevant information when attacking
 type AttackerContext struct {
 	IsCounterAttack bool
-	CounterAttackPenalty int
 	TotalToHitBonus int
 
 	RawDamage       int
@@ -21,51 +22,79 @@ type AttackerContext struct {
 	CriticalHitDamage int
 }
 
-func (context *AttackerContext)calculate(setup powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) {
+func (context *AttackerContext)calculate(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
+	var err error
+
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
 
 	context.DamageType = power.PowerType
 	context.ExtraBarrierBurn = power.AttackEffect.ExtraBarrierBurn
 
-	context.RawDamage = context.calculateRawDamage(setup, repositories)
-	context.calculateToHitBonus(setup, repositories)
+	context.RawDamage, err = context.calculateRawDamage(setup, repositories)
+	if err != nil {
+		return err
+	}
+
+	err = context.calculateToHitBonus(setup, repositories)
+	if err != nil {
+		return err
+	}
 
 	context.calculateCriticalHit(setup, repositories)
+	return nil
 }
 
-func (context *AttackerContext) calculateToHitBonus(setup powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) {
-	user := repositories.SquaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
-
+func (context *AttackerContext) calculateToHitBonus(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
 	context.IsCounterAttack = setup.IsCounterAttack
-	context.TotalToHitBonus = power.AttackEffect.ToHitBonus + user.Offense.Aim
 	if context.IsCounterAttack {
-		context.CounterAttackPenalty = power.AttackEffect.CounterAttackToHitPenalty
-		context.TotalToHitBonus -= context.CounterAttackPenalty
+		counterAttackHitBonus, counterAttackHitBonusError := squaddiestats.GetSquaddieCounterAttackAimWithPower(setup.UserID, setup.PowerID, repositories)
+		if counterAttackHitBonusError != nil {
+			return counterAttackHitBonusError
+		}
+		context.TotalToHitBonus = counterAttackHitBonus
+		return nil
 	}
+
+	hitBonus, hitBonusError := squaddiestats.GetSquaddieAimWithPower(setup.UserID, setup.PowerID, repositories)
+	if hitBonusError != nil {
+		return hitBonusError
+	}
+	context.TotalToHitBonus = hitBonus
+	return nil
 }
 
-func (context *AttackerContext) calculateRawDamage(setup powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) int {
-	user := repositories.SquaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	powerToAttackWith := repositories.PowerRepo.GetPowerByID(setup.PowerID)
-	if powerToAttackWith.PowerType == power.Physical {
-		return powerToAttackWith.AttackEffect.DamageBonus + user.Offense.Strength
+func (context *AttackerContext) calculateRawDamage(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) (int, error) {
+	rawDamage, damageErr := squaddiestats.GetSquaddieRawDamageWithPower(setup.UserID, setup.PowerID, repositories)
+	if damageErr != nil {
+		return 0, damageErr
 	}
-
-	if powerToAttackWith.PowerType == power.Spell {
-		return powerToAttackWith.AttackEffect.DamageBonus + user.Offense.Mind
-	}
-	return 0
+	return rawDamage, nil
 }
 
-func (context *AttackerContext) calculateCriticalHit(setup powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) {
+func (context *AttackerContext) calculateCriticalHit(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
 	context.CanCritical = power.CanCriticallyHit()
-	if context.CanCritical == false {
-		return
+
+	canCounter, counterErr := squaddiestats.GetSquaddieCanCriticallyHitWithPower(setup.UserID, setup.PowerID, repositories)
+	if counterErr != nil {
+		return counterErr
 	}
 
-	context.CanCritical = true
-	context.CriticalHitThreshold = power.AttackEffect.CriticalEffect.CriticalHitThreshold()
-	context.CriticalHitDamage = context.RawDamage + power.AttackEffect.CriticalEffect.ExtraCriticalHitDamage()
+	context.CanCritical = canCounter
+	if context.CanCritical == false {
+		return nil
+	}
+
+	critThreshold, critThresholdError := squaddiestats.GetSquaddieCriticalThresholdWithPower(setup.UserID, setup.PowerID, repositories)
+	if critThresholdError != nil {
+		return critThresholdError
+	}
+	context.CriticalHitThreshold = critThreshold
+
+	counterDamage, counterDamageErr := squaddiestats.GetSquaddieCriticalRawDamageWithPower(setup.UserID, setup.PowerID, repositories)
+	if counterDamageErr != nil {
+		return counterErr
+	}
+	context.CriticalHitDamage = counterDamage
+	return nil
 }

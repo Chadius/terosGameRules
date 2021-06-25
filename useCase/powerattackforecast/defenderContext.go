@@ -1,8 +1,9 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
 )
 
 // DefenderContext lists the target's relevant information when under attack
@@ -16,47 +17,59 @@ type DefenderContext struct {
 	BarrierResistance int
 }
 
-func (context *DefenderContext) getPower(setup *powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) *power.Power {
-	return repositories.PowerRepo.GetPowerByID(setup.PowerID)
-}
+func (context *DefenderContext) calculate(setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
+	var err error
 
-func (context *DefenderContext) calculate(setup *powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) {
-	context.TotalToHitPenalty = context.calculateTotalToHitPenalty(setup, repositories)
-	context.ArmorResistance = context.calculateArmorResistance(setup, repositories)
-	context.BarrierResistance = context.calculateBarrierResistance(repositories)
-	context.HitPoints = context.calculateHitPoints(repositories)
-}
-
-func (context *DefenderContext) calculateTotalToHitPenalty(setup *powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) int {
-	attackingPower := context.getPower(setup, repositories)
-	target := repositories.SquaddieRepo.GetOriginalSquaddieByID(context.TargetID)
-
-	if attackingPower.PowerType == power.Physical {
-		return target.Defense.Dodge
+	context.TotalToHitPenalty, err = context.calculateTotalToHitPenalty(setup, repositories)
+	if err != nil {
+		return err
 	}
 
-	if attackingPower.PowerType == power.Spell {
-		return target.Defense.Deflect
+	context.ArmorResistance, err = context.calculateArmorResistance(setup, repositories)
+	if err != nil {
+		return err
 	}
-	return 0
-}
 
-func (context *DefenderContext) calculateArmorResistance(setup *powerusagescenario.Setup, repositories *powerusagescenario.RepositoryCollection) int {
-	attackingPower := context.getPower(setup, repositories)
-	target := repositories.SquaddieRepo.GetOriginalSquaddieByID(context.TargetID)
-
-	if attackingPower.PowerType == power.Physical {
-		return target.Defense.Armor
+	context.BarrierResistance, err = context.calculateBarrierResistance(setup, repositories)
+	if err != nil {
+		return err
 	}
-	return 0
+
+	context.HitPoints, err = context.calculateHitPoints(setup, repositories)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (context *DefenderContext) calculateBarrierResistance(repositories *powerusagescenario.RepositoryCollection) int {
-	target := repositories.SquaddieRepo.GetOriginalSquaddieByID(context.TargetID)
-	return target.Defense.CurrentBarrier
+func (context *DefenderContext) calculateTotalToHitPenalty(setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) (int, error) {
+	evade, err := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(context.TargetID, setup.PowerID, repositories)
+	if err != nil {
+		return 0, err
+	}
+	return evade, nil
 }
 
-func (context *DefenderContext) calculateHitPoints(repositories *powerusagescenario.RepositoryCollection) int {
-	target := repositories.SquaddieRepo.GetOriginalSquaddieByID(context.TargetID)
-	return target.Defense.CurrentHitPoints
+func (context *DefenderContext) calculateArmorResistance(setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) (int, error) {
+	armor, err := squaddiestats.GetSquaddieArmorAgainstPower(context.TargetID, setup.PowerID, repositories)
+	if err != nil {
+		return 0, err
+	}
+	return armor, nil
+}
+
+func (context *DefenderContext) calculateBarrierResistance(setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) (int, error) {
+	barrier, err := squaddiestats.GetSquaddieBarrierAgainstPower(context.TargetID, setup.PowerID, repositories)
+	if err != nil {
+		return 0, err
+	}
+	return barrier, nil
+}
+
+func (context *DefenderContext) calculateHitPoints(setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) (int, error) {
+	hitPoints, err := squaddiestats.GetSquaddieCurrentHitPoints(context.TargetID, setup.PowerID, repositories)
+	if err != nil {
+		return 0, err
+	}
+	return hitPoints, nil
 }

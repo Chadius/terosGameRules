@@ -5,6 +5,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 
@@ -31,12 +32,16 @@ func (suite *DefenderContext) SetUpTest(checker *C) {
 
 	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect.ToHitBonus = 1
-	suite.spear.AttackEffect.DamageBonus = 1
+	suite.spear.AttackEffect = &power.AttackingEffect{
+		ToHitBonus: 1,
+		DamageBonus: 1,
+	}
 
 	suite.blot = power.NewPower("blot")
 	suite.blot.PowerType = power.Spell
-	suite.blot.AttackEffect.DamageBonus = 3
+	suite.blot.AttackEffect = &power.AttackingEffect{
+		DamageBonus: 3,
+	}
 
 	suite.bandit = squaddie.NewSquaddie("bandit")
 	suite.bandit.Identification.Name = "bandit"
@@ -48,10 +53,12 @@ func (suite *DefenderContext) SetUpTest(checker *C) {
 
 	suite.axe = power.NewPower("axe")
 	suite.axe.PowerType = power.Physical
-	suite.axe.AttackEffect.ToHitBonus = 1
-	suite.axe.AttackEffect.DamageBonus = 4
-	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.CanBeEquipped = true
+	suite.axe.AttackEffect = &power.AttackingEffect{
+		ToHitBonus: 1,
+		DamageBonus: 4,
+		CanCounterAttack: true,
+		CanBeEquipped: true,
+	}
 
 	suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 
@@ -68,7 +75,7 @@ func (suite *DefenderContext) SetUpTest(checker *C) {
 			Targets:         []string{suite.bandit.Identification.ID},
 			IsCounterAttack: false,
 		},
-		Repositories: &powerusagescenario.RepositoryCollection{
+		Repositories: &repositories.RepositoryCollection{
 			SquaddieRepo:    suite.squaddieRepo,
 			PowerRepo:       suite.powerRepo,
 		},
@@ -81,7 +88,7 @@ func (suite *DefenderContext) SetUpTest(checker *C) {
 			Targets:         []string{suite.bandit.Identification.ID},
 			IsCounterAttack: false,
 		},
-		Repositories: &powerusagescenario.RepositoryCollection{
+		Repositories: &repositories.RepositoryCollection{
 			SquaddieRepo:    suite.squaddieRepo,
 			PowerRepo:       suite.powerRepo,
 		},

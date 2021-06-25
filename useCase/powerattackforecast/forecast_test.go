@@ -6,6 +6,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
 	"github.com/cserrant/terosBattleServer/usecase/powerequip"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -46,21 +47,27 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 
 	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect.ToHitBonus = 1
-	suite.spear.AttackEffect.DamageBonus = 1
-	suite.spear.AttackEffect.CanBeEquipped = true
-	suite.spear.AttackEffect.CanCounterAttack = true
+	suite.spear.AttackEffect = &power.AttackingEffect{
+		ToHitBonus: 1,
+		DamageBonus: 1,
+		CanBeEquipped: true,
+		CanCounterAttack: true,
+	}
 
 	suite.axe = power.NewPower("axe")
 	suite.axe.PowerType = power.Physical
-	suite.axe.AttackEffect.ToHitBonus = 1
-	suite.axe.AttackEffect.DamageBonus = 1
-	suite.axe.AttackEffect.CanBeEquipped = true
+	suite.axe.AttackEffect = &power.AttackingEffect{
+		ToHitBonus: 1,
+		DamageBonus: 1,
+		CanBeEquipped: true,
+	}
 
 	suite.fireball = power.NewPower("fireball")
 	suite.fireball.PowerType = power.Spell
-	suite.fireball.AttackEffect.DamageBonus = 3
-	suite.fireball.AttackEffect.CanBeEquipped = true
+	suite.fireball.AttackEffect = &power.AttackingEffect{
+		DamageBonus: 3,
+		CanBeEquipped: true,
+	}
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.mysticMage})
@@ -75,7 +82,7 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 			Targets:         []string{suite.bandit.Identification.ID},
 			IsCounterAttack: false,
 		},
-		Repositories: &powerusagescenario.RepositoryCollection{
+		Repositories: &repositories.RepositoryCollection{
 			SquaddieRepo:    suite.squaddieRepo,
 			PowerRepo:       suite.powerRepo,
 		},
@@ -88,7 +95,7 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 			Targets:         []string{suite.mysticMage.Identification.ID},
 			IsCounterAttack: false,
 		},
-		Repositories: &powerusagescenario.RepositoryCollection{
+		Repositories: &repositories.RepositoryCollection{
 			SquaddieRepo:    suite.squaddieRepo,
 			PowerRepo:       suite.powerRepo,
 		},
@@ -115,7 +122,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
 	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.CounterAttackToHitPenalty = 2
+	suite.axe.AttackEffect.CounterAttackToHitPenalty = -2
 	powerAddedErrors := suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 	checker.Assert(powerAddedErrors, IsNil)
 
