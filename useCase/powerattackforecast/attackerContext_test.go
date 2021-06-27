@@ -9,7 +9,7 @@ import (
 	. "gopkg.in/check.v1"
 )
 
-type AttackContext struct {
+type AttackContextTestSuite struct {
 	teros			*squaddie.Squaddie
 	bandit			*squaddie.Squaddie
 	spear			*power.Power
@@ -22,10 +22,10 @@ type AttackContext struct {
 	forecastBlotOnBandit *powerattackforecast.Forecast
 }
 
-var _ = Suite(&AttackContext{})
+var _ = Suite(&AttackContextTestSuite{})
 
 
-func (suite *AttackContext) SetUpTest(checker *C) {
+func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 	suite.teros = squaddie.NewSquaddie("teros")
 	suite.teros.Identification.Name = "teros"
 	suite.teros.Offense.Aim = 2
@@ -81,24 +81,24 @@ func (suite *AttackContext) SetUpTest(checker *C) {
 	}
 }
 
-func (suite *AttackContext) TestGetAttackerHitBonus(checker *C) {
+func (suite *AttackContextTestSuite) TestGetAttackerHitBonus(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus, Equals, 3)
 }
 
-func (suite *AttackContext) TestGetAttackerPhysicalRawDamage(checker *C) {
+func (suite *AttackContextTestSuite) TestGetAttackerPhysicalRawDamage(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.Type(power.Physical))
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage, Equals, 3)
 }
 
-func (suite *AttackContext) TestGetAttackerSpellDamage(checker *C) {
+func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.Type(power.Spell))
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage, Equals, 5)
 }
 
-func (suite *AttackContext) TestCriticalHits(checker *C) {
+func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
 	suite.spear.AttackEffect.CriticalEffect = &power.CriticalEffect{
 		CriticalHitThresholdBonus: 0,
 		Damage:                    3,

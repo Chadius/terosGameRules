@@ -1,14 +1,13 @@
 package levelup
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 )
 
 // SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given ID.
-func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, classRepo *squaddieclass.Repository, levelRepo *levelupbenefit.Repository) bool {
-	classToTest, _ := classRepo.GetClassByID(testingClassID)
+func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
+	classToTest, _ := repositories.ClassRepo.GetClassByID(testingClassID)
 
 	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired != true {
 		return true
@@ -21,25 +20,25 @@ func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID 
 		return false
 	}
 
-	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.ClassProgress.CurrentClass, levelRepo) == false {
+	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.ClassProgress.CurrentClass, repositories) == false {
 		return false
 	}
 
-	testingClassCompleted := areAllLevelsInClassTaken(squaddieToTest, testingClassID, levelRepo)
+	testingClassCompleted := areAllLevelsInClassTaken(squaddieToTest, testingClassID, repositories)
 	if testingClassCompleted == true {
 		return false
 	}
 	return true
 }
 
-func squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest *squaddie.Squaddie, classID string, levelRepo *levelupbenefit.Repository) bool {
-	levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
+func squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest *squaddie.Squaddie, classID string, repositories *repositories.RepositoryCollection) bool {
+	levelsInClass, _ := repositories.LevelRepo.GetLevelUpBenefitsByClassID(classID)
 	levelsSquaddieConsumedInThisClass := countLevelsInClassTaken(squaddieToTest, classID)
 	return levelsSquaddieConsumedInThisClass >= 10 || levelsSquaddieConsumedInThisClass >= len(levelsInClass)
 }
 
-func areAllLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string, levelRepo *levelupbenefit.Repository) bool {
-	levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
+func areAllLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string, repositories *repositories.RepositoryCollection) bool {
+	levelsInClass, _ := repositories.LevelRepo.GetLevelUpBenefitsByClassID(classID)
 	levelsSquaddieConsumedInThisClass := countLevelsInClassTaken(squaddieToTest, classID)
 	return levelsSquaddieConsumedInThisClass >= len(levelsInClass)
 }

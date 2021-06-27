@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/usecase/powerequip"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 
@@ -54,4 +56,34 @@ func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "Attack Formation A")
 	checker.Assert(attackIDNamePairs[0].ID, Equals, attackA.ID)
+}
+
+func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
+	spear := power.NewPower("spear")
+	spear.PowerType = power.Physical
+	spear.AttackEffect = &power.AttackingEffect{
+		CanBeEquipped: true,
+	}
+
+	powerRepo := power.NewPowerRepository()
+	powerRepo.AddSlicePowerSource([]*power.Power{spear})
+
+	powerequip.LoadAllOfSquaddieInnatePowers(
+		suite.teros,
+		[]*power.Reference{
+			spear.GetReference(),
+		},
+		&repositories.RepositoryCollection{PowerRepo: powerRepo},
+	)
+
+	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)
+
+	equippedSpearPower := powerequip.SquaddieEquipPower(suite.teros, spear.ID, &repositories.RepositoryCollection{PowerRepo: powerRepo})
+	checker.Assert(equippedSpearPower, Equals, true)
+
+	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, true)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, spear.ID)
+
+	suite.teros.PowerCollection.ClearInnatePowers()
+	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)
 }

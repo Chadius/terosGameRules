@@ -7,8 +7,8 @@ import (
 
 // PowerCollection tracks what powers the squaddie has as well as what is in use.
 type PowerCollection struct {
-	PowerReferences				[]*power.Reference			`json:"powers" yaml:"powers"`
-	CurrentlyEquippedPowerID	string						`json:"equipped_power_id" yaml:"equipped_power_id"`
+	PowerReferences          []*power.Reference `json:"powers" yaml:"powers"`
+	CurrentlyEquippedPowerID string             `json:"equipped_power_id" yaml:"equipped_power_id"`
 }
 
 // AddInnatePower gives the Squaddie access to the power.
@@ -34,6 +34,7 @@ func (powerCollection *PowerCollection) GetInnatePowerIDNames() []*power.Referen
 // ClearInnatePowers removes all of the squaddie's powers.
 func (powerCollection *PowerCollection) ClearInnatePowers() {
 	powerCollection.PowerReferences = []*power.Reference{}
+	powerCollection.CurrentlyEquippedPowerID = ""
 }
 
 // ClearTemporaryPowerReferences empties the temporary references to powers.
@@ -71,4 +72,20 @@ func FilterPowerID(references []*power.Reference, condition func(*power.Referenc
 		}
 	}
 	return selectedReferences
+}
+
+// HasEquippedPower returns true if the squaddie has already equipped a power.
+func (powerCollection *PowerCollection) HasEquippedPower() bool {
+	return powerCollection.CurrentlyEquippedPowerID != ""
+}
+
+// EquipPower sets the currently equipped power ID to the one given.
+func (powerCollection *PowerCollection) EquipPower(powerID string) {
+	powerCollection.CurrentlyEquippedPowerID = powerID
+}
+
+// GetEquippedPowerID returns the ID of the Power this squaddie has equipped.
+//  returns an empty string if nothing is equipped.
+func (powerCollection *PowerCollection) GetEquippedPowerID() string {
+	return powerCollection.CurrentlyEquippedPowerID
 }

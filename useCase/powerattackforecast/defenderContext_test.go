@@ -9,7 +9,7 @@ import (
 	. "gopkg.in/check.v1"
 )
 
-type DefenderContext struct {
+type DefenderContextTestSuite struct {
 	teros			*squaddie.Squaddie
 	bandit			*squaddie.Squaddie
 	spear			*power.Power
@@ -23,10 +23,10 @@ type DefenderContext struct {
 	forecastBlotOnBandit *powerattackforecast.Forecast
 }
 
-var _ = Suite(&DefenderContext{})
+var _ = Suite(&DefenderContextTestSuite{})
 
 
-func (suite *DefenderContext) SetUpTest(checker *C) {
+func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 	suite.teros = squaddie.NewSquaddie("teros")
 	suite.teros.Identification.Name = "teros"
 
@@ -95,12 +95,12 @@ func (suite *DefenderContext) SetUpTest(checker *C) {
 	}
 }
 
-func (suite *DefenderContext) TestGetDefenderDodge(checker *C) {
+func (suite *DefenderContextTestSuite) TestGetDefenderDodge(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty, Equals, 1)
 }
 
-func (suite *DefenderContext) TestGetDefenderArmorResistance(checker *C) {
+func (suite *DefenderContextTestSuite) TestGetDefenderArmorResistance(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance, Equals, 1)
 
@@ -108,12 +108,12 @@ func (suite *DefenderContext) TestGetDefenderArmorResistance(checker *C) {
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance, Equals, 0)
 }
 
-func (suite *DefenderContext) TestGetDefenderDeflect(checker *C) {
+func (suite *DefenderContextTestSuite) TestGetDefenderDeflect(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty, Equals, 2)
 }
 
-func (suite *DefenderContext) TestGetDefenderBarrierAbsorb(checker *C) {
+func (suite *DefenderContextTestSuite) TestGetDefenderBarrierAbsorb(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance, Equals, 3)
 

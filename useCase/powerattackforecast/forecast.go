@@ -60,16 +60,18 @@ func (forecast *Forecast) CalculateForecast() {
 }
 
 func (forecast *Forecast) isCounterattackPossible(targetID string) bool {
-	squaddieThatWantsToCounter := forecast.Repositories.SquaddieRepo.GetOriginalSquaddieByID(targetID)
-	if forecast.Setup.IsCounterAttack == false && powerequip.CanSquaddieCounterWithEquippedWeapon(squaddieThatWantsToCounter, forecast.Repositories.PowerRepo) {
-		return true
+	if forecast.Setup.IsCounterAttack == false {
+		canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(targetID, forecast.Repositories)
+		if canCounter {
+			return true
+		}
 	}
 	return false
 }
 
 func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID string) (*powerusagescenario.Setup, *AttackForecast) {
 	counterAttackingSquaddie := forecast.Repositories.SquaddieRepo.GetOriginalSquaddieByID(counterAttackingSquaddieID)
-	counterAttackingPowerID := counterAttackingSquaddie.PowerCollection.CurrentlyEquippedPowerID
+	counterAttackingPowerID := counterAttackingSquaddie.PowerCollection.GetEquippedPowerID()
 	counterAttackingTargetID := forecast.Setup.UserID
 
 	counterForecastSetup := powerusagescenario.Setup{

@@ -2,20 +2,20 @@ package levelup
 
 import (
 	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
 // GetSquaddieClassLevels returns a mapping of the squaddie's class to the number of times they leveled up.
 func GetSquaddieClassLevels(
 	squaddieToInspect *squaddie.Squaddie,
-	levelRepo *levelupbenefit.Repository,
+	repos *repositories.RepositoryCollection,
 ) map[string]int {
 	levels := map[string]int{}
 	for classID, progress := range squaddieToInspect.ClassProgress.ClassLevelsConsumed {
-		levelsInClass, _ := levelRepo.GetLevelUpBenefitsByClassID(classID)
+		levelsInClass, _ := repos.LevelRepo.GetLevelUpBenefitsByClassID(classID)
 
 		smallLevelCount := progress.AccumulateLevelsConsumed(func(consumedLevelID string) int {
 			return levelupbenefit.CountLevelUpBenefits(levelsInClass, func(benefit *levelupbenefit.LevelUpBenefit) bool {
@@ -32,30 +32,28 @@ func GetSquaddieClassLevels(
 func ImproveSquaddieBasedOnLevel(
 	squaddieToLevelUp *squaddie.Squaddie,
 	bigLevelID string,
-	levelRepo *levelupbenefit.Repository,
-	classRepo *squaddieclass.Repository,
-	powerRepo *power.Repository,
+	repos *repositories.RepositoryCollection,
 ) error {
-	classToUse, err := classRepo.GetClassByID(squaddieToLevelUp.ClassProgress.CurrentClass)
+	classToUse, err := repos.ClassRepo.GetClassByID(squaddieToLevelUp.ClassProgress.CurrentClass)
 	if err != nil {
 		return err
 	}
 
-	levelsFromClass, err := levelRepo.GetLevelUpBenefitsForClassByType(classToUse.ID)
+	levelsFromClass, err := repos.LevelRepo.GetLevelUpBenefitsForClassByType(classToUse.ID)
 	if err != nil {
 		return err
 	}
 
-	squaddieLevels := GetSquaddieClassLevels(squaddieToLevelUp, levelRepo)
+	squaddieLevels := GetSquaddieClassLevels(squaddieToLevelUp, repos)
 
 	bigLevelToConsume := selectBigLevelUpForSquaddie(squaddieToLevelUp, bigLevelID, squaddieLevels, classToUse, levelsFromClass)
 	if bigLevelToConsume != nil {
-		ImproveSquaddie(bigLevelToConsume, squaddieToLevelUp, powerRepo)
+		ImproveSquaddie(bigLevelToConsume, squaddieToLevelUp, repos)
 	}
 
 	smallLevelToConsume := selectSmallLevelUpForSquaddie(squaddieToLevelUp, levelsFromClass)
 	if smallLevelToConsume != nil {
-		ImproveSquaddie(smallLevelToConsume, squaddieToLevelUp, powerRepo)
+		ImproveSquaddie(smallLevelToConsume, squaddieToLevelUp, repos)
 	}
 	return nil
 }

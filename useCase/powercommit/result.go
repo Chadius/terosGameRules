@@ -71,7 +71,7 @@ func (result *Result) calculateResultForThisTarget(setup *powerusagescenario.Set
 	}
 
 	attackingSquaddie := repositories.SquaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	powerequip.SquaddieEquipPower(attackingSquaddie, setup.PowerID, repositories.PowerRepo)
+	powerequip.SquaddieEquipPower(attackingSquaddie, setup.PowerID, repositories)
 
 	attackRoll, defendRoll := result.DieRoller.RollTwoDice()
 	results.AttackerToHitBonus = attack.VersusContext.ToHit.AttackerToHitBonus

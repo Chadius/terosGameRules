@@ -24,6 +24,7 @@ type CounterAttackCalculate struct {
 
 	powerRepo 		*power.Repository
 	squaddieRepo 	*squaddie.Repository
+	repos *repositories.RepositoryCollection
 
 	forecastSpearOnBandit *powerattackforecast.Forecast
 	forecastSpearOnMysticMage *powerattackforecast.Forecast
@@ -75,6 +76,8 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.axe, suite.fireball})
 
+	suite.repos = &repositories.RepositoryCollection{PowerRepo: suite.powerRepo, SquaddieRepo: suite.squaddieRepo}
+
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.Identification.ID,
@@ -112,7 +115,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 	powerAddedErrors := suite.mysticMage.PowerCollection.AddInnatePower(suite.fireball)
 	checker.Assert(powerAddedErrors, IsNil)
 
-	mysticMageEquipsFireball := powerequip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID, suite.powerRepo)
+	mysticMageEquipsFireball := powerequip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID, suite.repos)
 	checker.Assert(mysticMageEquipsFireball, Equals, true)
 
 	suite.forecastSpearOnMysticMage.CalculateForecast()
@@ -126,7 +129,7 @@ func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker 
 	powerAddedErrors := suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 	checker.Assert(powerAddedErrors, IsNil)
 
-	banditEquipsAxe := powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
+	banditEquipsAxe := powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
 	checker.Assert(banditEquipsAxe, Equals, true)
 
 	suite.forecastSpearOnBandit.CalculateForecast()

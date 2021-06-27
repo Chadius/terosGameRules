@@ -17,13 +17,16 @@ import (
 func main() {
 	squaddieRepo := loadSquaddieRepo()
 	powerRepo := loadPowerRepo()
+	repos := repositories.RepositoryCollection{
+		PowerRepo: powerRepo,
+		SquaddieRepo: squaddieRepo,
+	}
 
 	attacker, target, power := loadActors(
 		"squaddieTeros",
 		"squaddieBandit",
 		"powerSpear",
-		squaddieRepo,
-		powerRepo,
+		&repos,
 	)
 
 	powerSetup := powerusagescenario.Setup{
@@ -149,16 +152,18 @@ func loadPowerRepo() (repo *power.Repository) {
 	return powerRepo
 }
 
-func loadActors (attackerID, targetID, powerID string, squaddieRepo *squaddie.Repository, powerRepo *power.Repository) (*squaddie.Squaddie, *squaddie.Squaddie, *power.Power) {
+func loadActors (attackerID, targetID, powerID string, repositories *repositories.RepositoryCollection) (*squaddie.Squaddie, *squaddie.Squaddie, *power.Power) {
+	squaddieRepo := repositories.SquaddieRepo
+	powerRepo := repositories.PowerRepo
 	attacker := squaddieRepo.GetOriginalSquaddieByID(attackerID)
 	attacker.Defense.SetBarrierToMax()
-	powerequip.EquipDefaultPower(attacker, powerRepo)
-	powerequip.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerCollection.PowerReferences, powerRepo)
+	powerequip.LoadAllOfSquaddieInnatePowers(attacker, attacker.PowerCollection.PowerReferences, repositories)
+	powerequip.EquipDefaultPower(attacker, repositories)
 
 	target := squaddieRepo.GetOriginalSquaddieByID(targetID)
 	target.Defense.SetBarrierToMax()
-	powerequip.EquipDefaultPower(target, powerRepo)
-	powerequip.LoadAllOfSquaddieInnatePowers(target, target.PowerCollection.PowerReferences, powerRepo)
+	powerequip.LoadAllOfSquaddieInnatePowers(target, target.PowerCollection.PowerReferences, repositories)
+	powerequip.EquipDefaultPower(target, repositories)
 
 	power := powerRepo.GetPowerByID(powerID)
 

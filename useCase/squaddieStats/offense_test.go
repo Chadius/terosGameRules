@@ -44,19 +44,19 @@ func (suite *squaddieOffense) SetUpTest(checker *C) {
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot})
 
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo: suite.powerRepo,
+	}
+
 	powerequip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
 		[]*power.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
-
-	suite.repos = &repositories.RepositoryCollection{
-		SquaddieRepo: suite.squaddieRepo,
-		PowerRepo: suite.powerRepo,
-	}
 }
 
 func (suite *squaddieOffense) TestSquaddieMeasuresAim(checker *C) {
@@ -116,7 +116,7 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker
 			suite.blot.GetReference(),
 			wait.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	_, err := squaddiestats.GetSquaddieAimWithPower(suite.teros.Identification.ID, wait.ID, suite.repos)

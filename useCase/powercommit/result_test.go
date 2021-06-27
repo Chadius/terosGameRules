@@ -28,6 +28,7 @@ type resultOnAttack struct {
 
 	powerRepo 		*power.Repository
 	squaddieRepo 	*squaddie.Repository
+	repos			*repositories.RepositoryCollection
 
 	forecastSpearOnBandit *powerattackforecast.Forecast
 	resultSpearOnBandit *powercommit.Result
@@ -98,13 +99,18 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot, suite.axe, suite.fireball})
 
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+
 	powerequip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
 		[]*power.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	powerequip.LoadAllOfSquaddieInnatePowers(
@@ -112,7 +118,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 		[]*power.Reference{
 			suite.axe.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	powerequip.LoadAllOfSquaddieInnatePowers(
@@ -120,7 +126,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 		[]*power.Reference{
 			suite.axe.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	powerequip.LoadAllOfSquaddieInnatePowers(
@@ -128,7 +134,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 		[]*power.Reference{
 			suite.fireball.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
@@ -285,7 +291,7 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 	suite.axe.AttackEffect.DamageBonus = 3
 	suite.bandit.Offense.Strength = 0
 	suite.bandit.Defense.Armor = 1
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	suite.resultSpearOnBandit.Commit()
@@ -315,8 +321,8 @@ func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 
 	suite.axe.AttackEffect.CanCounterAttack = true
 	suite.axe.AttackEffect.DamageBonus = 3
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
-	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.ID, suite.powerRepo)
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.ID, suite.repos)
 
 	suite.bandit.Defense.MaxHitPoints = suite.fireball.AttackEffect.DamageBonus + suite.mysticMage.Offense.Mind + 1
 	suite.bandit.Defense.SetHPToMax()
@@ -358,7 +364,7 @@ func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 	suite.axe.AttackEffect.DamageBonus = 3
 	suite.bandit.Offense.Strength = 0
 	suite.bandit.Defense.Armor = 0
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.powerRepo)
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	suite.resultSpearOnBandit.Commit()
@@ -383,6 +389,7 @@ type EquipPowerWhenCommitting struct {
 
 	powerRepo 		*power.Repository
 	squaddieRepo 	*squaddie.Repository
+	repos			*repositories.RepositoryCollection
 
 	forecastSpearOnBandit *powerattackforecast.Forecast
 	resultSpearOnBandit *powercommit.Result
@@ -435,13 +442,18 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot, suite.fireball})
 
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+
 	powerequip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
 		[]*power.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	powerequip.LoadAllOfSquaddieInnatePowers(
@@ -449,7 +461,7 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 		[]*power.Reference{
 			suite.fireball.GetReference(),
 		},
-		suite.powerRepo,
+		suite.repos,
 	)
 
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
@@ -511,13 +523,14 @@ func (suite *EquipPowerWhenCommitting) TestCommitWillTryToEquipPower(checker *C)
 }
 
 func (suite *EquipPowerWhenCommitting) TestSquaddieWillKeepPreviousPowerIfCommitPowerCannotBeEquipped(checker *C) {
-	powerequip.SquaddieEquipPower(suite.teros, suite.spear.ID, suite.powerRepo)
+	powerequip.SquaddieEquipPower(suite.teros, suite.spear.ID, suite.repos)
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysMissDieRoller{}
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
 
-	checker.Assert(powerequip.GetEquippedPower(suite.teros, suite.powerRepo).ID, Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, true)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID)
 }
 
 func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistAfterCommitting(checker *C) {
@@ -525,5 +538,5 @@ func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistA
 
 	suite.forecastFireballOnBandit.CalculateForecast()
 	suite.resultFireballOnBandit.Commit()
-	checker.Assert(powerequip.GetEquippedPower(suite.mysticMage, suite.powerRepo), IsNil)
+	checker.Assert(suite.mysticMage.PowerCollection.HasEquippedPower(), Equals, false)
 }

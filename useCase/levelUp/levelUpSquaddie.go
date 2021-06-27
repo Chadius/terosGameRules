@@ -6,6 +6,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerequip"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 )
 
 // improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.
@@ -28,7 +29,7 @@ func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImpr
 // ImproveSquaddie uses the LevelUpBenefit to improve the squaddie.
 //   Raises an error if the Squaddie does not have that class.
 //   Raises an error if the Squaddie marked the LevelUpBenefit as consumed.
-func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, powerRepo *power.Repository) error {
+func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, repos *repositories.RepositoryCollection) error {
 	if squaddieToImprove.ClassProgress.HasAddedClass(benefit.Identification.ClassID) == false {
 		return fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Identification.Name, benefit.Identification.ClassID)
 	}
@@ -37,7 +38,7 @@ func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *
 	}
 
 	improveSquaddieStats(benefit, squaddieToImprove)
-	err := refreshSquaddiePowers(benefit, squaddieToImprove, powerRepo)
+	err := refreshSquaddiePowers(benefit, squaddieToImprove, repos)
 	if err != nil {
 		return err
 	}
@@ -49,7 +50,7 @@ func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *
 	return nil
 }
 
-func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, powerRepo *power.Repository) error {
+func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, repos *repositories.RepositoryCollection) error {
 	initialSquaddiePowerReferences := squaddieToImprove.PowerCollection.PowerReferences
 	if initialSquaddiePowerReferences == nil || len(initialSquaddiePowerReferences) == 0 {
 		initialSquaddiePowerReferences = squaddieToImprove.PowerCollection.GetInnatePowerIDNames()
@@ -63,7 +64,7 @@ func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImp
 		powerReferencesToLoad = append(powerReferencesToKeep, benefit.PowerChanges.Gained...)
 	}
 
-	_, err := powerequip.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, powerRepo)
+	_, err := powerequip.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, repos)
 	return err
 }
 

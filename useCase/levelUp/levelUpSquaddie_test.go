@@ -6,6 +6,7 @@ import (
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
 	"github.com/cserrant/terosBattleServer/usecase/levelup"
+	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 
@@ -166,6 +167,8 @@ type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
 	mageClass *squaddieclass.Class
 	teros        *squaddie.Squaddie
 	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos *repositories.RepositoryCollection
 	gainPower    levelupbenefit.LevelUpBenefit
 	upgradePower levelupbenefit.LevelUpBenefit
 	spear        *power.Power
@@ -236,10 +239,18 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 			Gained: []*power.Reference{{Name: "spear", ID: suite.spearLevel2.ID}},
 		},
 	}
+
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
+
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo: suite.powerRepo,
+	}
 }
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPowers(checker *C) {
-	err := levelup.ImproveSquaddie(&suite.gainPower, suite.teros, suite.powerRepo)
+	err := levelup.ImproveSquaddie(&suite.gainPower, suite.teros, suite.repos)
 	checker.Assert(err, IsNil)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
@@ -249,10 +260,10 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 }
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePowers(checker *C) {
-	levelup.ImproveSquaddie(&suite.gainPower, suite.teros, suite.powerRepo)
+	levelup.ImproveSquaddie(&suite.gainPower, suite.teros, suite.repos)
 	suite.teros.PowerCollection.GetInnatePowerIDNames()
 
-	err := levelup.ImproveSquaddie(&suite.upgradePower, suite.teros, suite.powerRepo)
+	err := levelup.ImproveSquaddie(&suite.upgradePower, suite.teros, suite.repos)
 	checker.Assert(err, IsNil)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
