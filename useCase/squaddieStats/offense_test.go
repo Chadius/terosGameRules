@@ -63,12 +63,12 @@ func (suite *squaddieOffense) TestSquaddieMeasuresAim(checker *C) {
 	suite.teros.Offense.Aim = 1
 
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                1,
-		DamageBonus:               1,
-		ExtraBarrierBurn:          0,
-		CanBeEquipped:             true,
-		CanCounterAttack:          true,
-		CounterAttackToHitPenalty: -2,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		ExtraBarrierBurn:              0,
+		CanBeEquipped:                 true,
+		CanCounterAttack:              true,
+		CounterAttackPenaltyReduction: -2,
 		CriticalEffect:            &power.CriticalEffect{
 			CriticalHitThresholdBonus: 3,
 			Damage:                    5,
@@ -127,12 +127,12 @@ func (suite *squaddieOffense) TestGetRawDamageOfPhysicalPower(checker *C) {
 	suite.teros.Offense.Strength = 1
 
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                1,
-		DamageBonus:               1,
-		ExtraBarrierBurn:          0,
-		CanBeEquipped:             true,
-		CanCounterAttack:          true,
-		CounterAttackToHitPenalty: -2,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		ExtraBarrierBurn:              0,
+		CanBeEquipped:                 true,
+		CanCounterAttack:              true,
+		CounterAttackPenaltyReduction: -2,
 		CriticalEffect:            &power.CriticalEffect{
 			CriticalHitThresholdBonus: 3,
 			Damage:                    5,
@@ -162,12 +162,12 @@ func (suite *squaddieOffense) TestGetRawDamageOfSpellPower(checker *C) {
 
 func (suite *squaddieOffense) TestGetCriticalThresholdOfPower(checker *C) {
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                1,
-		DamageBonus:               1,
-		ExtraBarrierBurn:          0,
-		CanBeEquipped:             true,
-		CanCounterAttack:          true,
-		CounterAttackToHitPenalty: -2,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		ExtraBarrierBurn:              0,
+		CanBeEquipped:                 true,
+		CanCounterAttack:              true,
+		CounterAttackPenaltyReduction: -2,
 		CriticalEffect:            &power.CriticalEffect{
 			CriticalHitThresholdBonus: 2,
 			Damage:                    5,
@@ -181,12 +181,12 @@ func (suite *squaddieOffense) TestGetCriticalThresholdOfPower(checker *C) {
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfPowerDoesNotCrit(checker *C) {
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                1,
-		DamageBonus:               1,
-		ExtraBarrierBurn:          0,
-		CanBeEquipped:             true,
-		CanCounterAttack:          true,
-		CounterAttackToHitPenalty: -2,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		ExtraBarrierBurn:              0,
+		CanBeEquipped:                 true,
+		CanCounterAttack:              true,
+		CounterAttackPenaltyReduction: -2,
 	}
 
 	_, critErr := squaddiestats.GetSquaddieCriticalThresholdWithPower(suite.teros.Identification.ID, suite.blot.ID, suite.repos)
@@ -197,12 +197,12 @@ func (suite *squaddieOffense) TestGetCriticalDamageOfPower(checker *C) {
 	suite.teros.Offense.Strength = 1
 
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                1,
-		DamageBonus:               1,
-		ExtraBarrierBurn:          0,
-		CanBeEquipped:             true,
-		CanCounterAttack:          true,
-		CounterAttackToHitPenalty: -2,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		ExtraBarrierBurn:              0,
+		CanBeEquipped:                 true,
+		CanCounterAttack:              true,
+		CounterAttackPenaltyReduction: -2,
 		CriticalEffect:            &power.CriticalEffect{
 			CriticalHitThresholdBonus: 2,
 			Damage:                    5,
@@ -236,14 +236,14 @@ func (suite *squaddieOffense) TestSquaddieShowsCounterAttackToHit(checker *C) {
 	suite.teros.Offense.Aim = 2
 
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		CanCounterAttack:          true,
-		CounterAttackToHitPenalty: -2,
+		ToHitBonus:                    1,
+		CanCounterAttack:              true,
+		CounterAttackPenaltyReduction: 1,
 	}
 
 	spearAim, spearErr := squaddiestats.GetSquaddieCounterAttackAimWithPower(suite.teros.Identification.ID, suite.spear.ID, suite.repos)
 	checker.Assert(spearErr, IsNil)
-	checker.Assert(spearAim, Equals, 1)
+	checker.Assert(spearAim, Equals, 2)
 }
 
 func (suite *squaddieOffense) TestGetTotalBarrierBurnOfAttacks(checker *C) {

@@ -22,7 +22,7 @@ type AttackerContext struct {
 	CriticalHitDamage int
 }
 
-func (context *AttackerContext)calculate(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
+func (context *AttackerContext) calculate(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
 	var err error
 
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
@@ -73,7 +73,10 @@ func (context *AttackerContext) calculateRawDamage(setup powerusagescenario.Setu
 
 func (context *AttackerContext) calculateCriticalHit(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
-	context.CanCritical = power.CanCriticallyHit()
+	if power.AttackEffect == nil {
+		return nil
+	}
+	context.CanCritical = power.AttackEffect.CanCriticallyHit()
 
 	canCounter, counterErr := squaddiestats.GetSquaddieCanCriticallyHitWithPower(setup.UserID, setup.PowerID, repositories)
 	if counterErr != nil {

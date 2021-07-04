@@ -6,6 +6,6 @@
     damage_bonus: 2
     can_be_equipped: true
     can_counter_attack: true
-    counter_attack_penalty: -2
+    counter_attack_penalty_reduction: 0
     critical_effect:
       damage: 2

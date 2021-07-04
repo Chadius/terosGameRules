@@ -20,14 +20,14 @@ func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 		},
 		PowerType:    power.Physical,
 		AttackEffect: &power.AttackingEffect{
-			ToHitBonus:                0,
-			DamageBonus:               0,
-			CanCounterAttack:          false,
-			CounterAttackToHitPenalty: 0,
-			CriticalEffect:            nil,
+			ToHitBonus:                    0,
+			DamageBonus:                   0,
+			CanCounterAttack:              false,
+			CounterAttackPenaltyReduction: 0,
+			CriticalEffect:                nil,
 		},
 	}
-	checker.Assert(staticPower.CanCriticallyHit(), Equals, false)
+	checker.Assert(staticPower.AttackEffect.CanCriticallyHit(), Equals, false)
 
 	criticalPower := &power.Power{
 		Reference:    power.Reference{
@@ -36,15 +36,15 @@ func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 		},
 		PowerType:    power.Physical,
 		AttackEffect: &power.AttackingEffect{
-			ToHitBonus:                0,
-			DamageBonus:               0,
-			CanCounterAttack:          false,
-			CounterAttackToHitPenalty: 0,
+			ToHitBonus:                    0,
+			DamageBonus:                   0,
+			CanCounterAttack:              false,
+			CounterAttackPenaltyReduction: 0,
 			CriticalEffect:            &power.CriticalEffect{
 				CriticalHitThresholdBonus: 0,
 				Damage:                    1,
 			},
 		},
 	}
-	checker.Assert(criticalPower.CanCriticallyHit(), Equals, true)
+	checker.Assert(criticalPower.AttackEffect.CanCriticallyHit(), Equals, true)
 }

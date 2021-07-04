@@ -125,7 +125,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
 	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.CounterAttackToHitPenalty = -2
+	suite.axe.AttackEffect.CounterAttackPenaltyReduction = -2
 	powerAddedErrors := suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 	checker.Assert(powerAddedErrors, IsNil)
 

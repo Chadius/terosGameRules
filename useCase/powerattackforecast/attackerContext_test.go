@@ -37,6 +37,8 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 	suite.spear.AttackEffect = &power.AttackingEffect{
 		ToHitBonus: 1,
 		DamageBonus: 1,
+		CanCounterAttack: true,
+		CounterAttackPenaltyReduction: 0,
 	}
 
 	suite.blot = power.NewPower("blot")
@@ -84,6 +86,23 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 func (suite *AttackContextTestSuite) TestGetAttackerHitBonus(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus, Equals, 3)
+}
+
+func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(checker *C) {
+	forecastCounterSpearOnBandit := &powerattackforecast.Forecast{
+		Setup: powerusagescenario.Setup{
+			UserID:          suite.teros.Identification.ID,
+			PowerID:         suite.spear.ID,
+			Targets:         []string{suite.bandit.Identification.ID},
+			IsCounterAttack: true,
+		},
+		Repositories: &repositories.RepositoryCollection{
+			SquaddieRepo:    suite.squaddieRepo,
+			PowerRepo:       suite.powerRepo,
+		},
+	}
+	forecastCounterSpearOnBandit.CalculateForecast()
+	checker.Assert(forecastCounterSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus, Equals, 1)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerPhysicalRawDamage(checker *C) {

@@ -97,7 +97,7 @@ func (suite *PowerCreationSuite) TestLoadPowersWithJSON(checker *C) {
 					"power_type": "Physical",
 					"attack_effect": {
 						"can_counter_attack": true,
-						"counter_attack_penalty": -2
+						"counter_attack_penalty_reduction": -2
 					}
 				}]`)
 	newRepo := power.NewPowerRepository()
@@ -127,7 +127,7 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
   attack_effect:
     damage_bonus: 2
     can_counter_attack: true
-    counter_attack_penalty: -2
+    counter_attack_penalty_reduction: -2
 `)
 	newRepo := power.NewPowerRepository()
 	success, _ := newRepo.AddYAMLSource(yamlByteStream)
@@ -139,5 +139,5 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
 	checker.Assert(scimitar.ID, Equals, "deadbeef")
 	checker.Assert(scimitar.AttackEffect.DamageBonus, Equals, 2)
 	checker.Assert(scimitar.AttackEffect.CanCounterAttack, Equals, true)
-	checker.Assert(scimitar.AttackEffect.CounterAttackToHitPenalty, Equals, -2)
+	checker.Assert(scimitar.AttackEffect.CounterAttackPenaltyReduction, Equals, -2)
 }

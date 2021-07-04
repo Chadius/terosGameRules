@@ -2,7 +2,6 @@ package power
 
 import (
 	"fmt"
-
 	"github.com/cserrant/terosBattleServer/utility"
 )
 
@@ -37,17 +36,6 @@ func (p Power) GetReference() *Reference {
 	}
 }
 
-// AttackingEffect is a power designed to deal damage.
-type AttackingEffect struct {
-	ToHitBonus                int  `json:"to_hit_bonus" yaml:"to_hit_bonus"`
-	DamageBonus               int  `json:"damage_bonus" yaml:"damage_bonus"`
-	ExtraBarrierBurn          int  `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
-	CanBeEquipped             bool `json:"can_be_equipped" yaml:"can_be_equipped"`
-	CanCounterAttack          bool `json:"can_counter_attack" yaml:"can_counter_attack"`
-	CounterAttackToHitPenalty int  `json:"counter_attack_penalty" yaml:"counter_attack_penalty"`
-	CriticalEffect *CriticalEffect `json:"critical_effect" yaml:"critical_effect"`
-}
-
 // NewPower generates a Power with default values.
 func NewPower(name string) *Power {
 	newAttackingPower := Power{
@@ -62,19 +50,10 @@ func NewPower(name string) *Power {
 
 // CheckPowerForErrors verifies the Power's fields and raises an error if it's invalid.
 func CheckPowerForErrors(newPower *Power) (newError error) {
-	return checkAttackingEffectForErrors(newPower)
-}
-
-func checkAttackingEffectForErrors(newAttackingPower *Power) (newError error) {
-	if newAttackingPower.PowerType != Physical &&
-		newAttackingPower.PowerType != Spell {
-		return fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newAttackingPower.Name, newAttackingPower.PowerType)
+	if newPower.PowerType != Physical &&
+		newPower.PowerType != Spell {
+		return fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name, newPower.PowerType)
 	}
 
 	return nil
-}
-
-// CanCriticallyHit returns true if this power is capable of critically hitting for additional effects.
-func (p *Power) CanCriticallyHit() bool {
-	return p.AttackEffect != nil && p.AttackEffect.CriticalEffect != nil
 }
