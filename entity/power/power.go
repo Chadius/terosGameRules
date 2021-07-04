@@ -41,7 +41,7 @@ func NewPower(name string) *Power {
 	newAttackingPower := Power{
 		Reference: Reference{
 			Name: name,
-			ID:   utility.StringWithCharset(8, "abcdefgh0123456789"),
+			ID:   "power_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
 		PowerType: Physical,
 	}

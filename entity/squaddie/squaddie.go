@@ -29,7 +29,7 @@ type Squaddie struct {
 func NewSquaddie(name string) *Squaddie {
 	newSquaddie := Squaddie{
 		Identification: Identification{
-			ID:                  utility.StringWithCharset(8, "abcdefgh0123456789"),
+			ID:                  "squaddie_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
 			Name:                name,
 			Affiliation:         Player,
 		},

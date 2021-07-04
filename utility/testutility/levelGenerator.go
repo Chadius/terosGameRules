@@ -2,7 +2,6 @@ package testutility
 
 import (
 	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/utility"
 	"strconv"
 )
 
@@ -17,22 +16,6 @@ type LevelGeneratorInstruction struct {
 // LevelGenerator is a Builder pattern that can be programmed to generate a slice of LevelUpBenefits.
 type LevelGenerator struct {
 	Instructions *LevelGeneratorInstruction
-}
-
-// NewLevelGenerator returns a pointer to LevelGenerator following the given instructions.
-func NewLevelGenerator(instructions *LevelGeneratorInstruction) *LevelGenerator {
-	if instructions == nil {
-		instructions = &LevelGeneratorInstruction{
-			NumberOfLevels: 0,
-			PrefixLevelID:  "defaultGeneratorLevel" + utility.StringWithCharset(8, "abcdefg0123456789"),
-			Type:           levelupbenefit.Small,
-			ClassID:        "defaultGeneratorClass" + utility.StringWithCharset(8, "abcdefg0123456789"),
-		}
-	}
-
-	return &LevelGenerator{
-		Instructions: instructions,
-	}
 }
 
 // Build follows the instructions to create a slice of levelUpBenefits.

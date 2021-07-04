@@ -61,6 +61,8 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 		ToHitBonus: 1,
 		DamageBonus: 1,
 		CanBeEquipped: true,
+		CanCounterAttack: true,
+		CounterAttackPenaltyReduction: 0,
 	}
 
 	suite.fireball = power.NewPower("fireball")
@@ -125,7 +127,6 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
 	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.CounterAttackPenaltyReduction = -2
 	powerAddedErrors := suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 	checker.Assert(powerAddedErrors, IsNil)
 
