@@ -36,11 +36,21 @@ func main() {
 		IsCounterAttack: false,
 	}
 
+	powerToUse := powerRepo.GetPowerByID(power.ID)
+	if powerToUse.AttackEffect != nil {
+		processAttack(&powerSetup, &repos)
+	}
+	if powerToUse.HealingEffect != nil {
+		processHeal(&powerSetup, &repos)
+	}
+}
+
+func processAttack(powerSetup *powerusagescenario.Setup, repos *repositories.RepositoryCollection) {
 	powerForecast := &powerattackforecast.Forecast{
-		Setup: powerSetup,
+		Setup: *powerSetup,
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    squaddieRepo,
-			PowerRepo:       powerRepo,
+			SquaddieRepo:    repos.SquaddieRepo,
+			PowerRepo:       repos.PowerRepo,
 		},
 	}
 	powerForecast.CalculateForecast()
@@ -79,7 +89,6 @@ func printPartOfAttackForecast(forecast *powerattackforecast.AttackForecast, set
 	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
 	attackingPower := powerRepo.GetPowerByID(setup.PowerID)
 
-	//hitChance := power.GetChanceToHitBasedOnHitRate(forecast.VersusContext.ToHitBonus)
 	println(attacker.Identification.Name, "will attack", target.Identification.Name, "with", attackingPower.Name)
 	println("Attacker ToHit bonus", forecast.VersusContext.ToHit.ToHitBonus)
 
@@ -87,9 +96,7 @@ func printPartOfAttackForecast(forecast *powerattackforecast.AttackForecast, set
 		println("will kill if it hits")
 	}
 
-	//println("Chance to hit (out of 36) ", hitChance)
-	println("Forecasted Damage              ", forecast.VersusContext.NormalDamage.DamageDealt)
-	//println("Forecasted Barrier damage            ", forecast.VersusContext.NormalDamage.TotalBarrierBurnt)
+	println("Forecasted Damage              ", forecast.VersusContext.NormalDamage.RawDamageDealt)
 }
 
 func printAttackReport(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) {
@@ -102,8 +109,8 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *reposi
 
 	println(attacker.Identification.Name, "attacks", target.Identification.Name, "with", attackingPower.Name)
 
-	println(attacker.Identification.Name, "attacks with a", result.AttackRoll, "+", result.AttackerToHitBonus, "=", result.AttackerTotal)
-	println(target.Identification.Name, "defends with a", result.DefendRoll, "+", result.DefenderToHitPenalty, "=", result.DefenderTotal)
+	println(attacker.Identification.Name, "attacks with a", result.Attack.AttackRoll, "+", result.Attack.AttackerToHitBonus, "=", result.Attack.AttackerTotal)
+	println(target.Identification.Name, "defends with a", result.Attack.DefendRoll, "+", result.Attack.DefenderToHitPenalty, "=", result.Attack.DefenderTotal)
 	if !result.Attack.HitTarget {
 		println("Missed")
 		return
@@ -114,9 +121,9 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *reposi
 	} else {
 		println("Hit")
 	}
-	damageTaken := "  deals " + strconv.Itoa(result.Attack.Damage.DamageDealt)
-	if result.Attack.Damage.TotalBarrierBurnt > 0 {
-		damageTaken += " damage, " + strconv.Itoa(result.Attack.Damage.TotalBarrierBurnt) + " barrier burn"
+	damageTaken := "  deals " + strconv.Itoa(result.Attack.Damage.RawDamageDealt)
+	if result.Attack.Damage.TotalRawBarrierBurnt > 0 {
+		damageTaken += " damage, " + strconv.Itoa(result.Attack.Damage.TotalRawBarrierBurnt) + " barrier burn"
 	}
 	println(damageTaken)
 
@@ -129,6 +136,59 @@ func printAttackReport(result *powercommit.ResultPerTarget, repositories *reposi
 	if target.Defense.IsDead() {
 		println(target.Identification.Name, "falls!")
 	}
+}
+
+func processHeal(powerSetup *powerusagescenario.Setup, repos *repositories.RepositoryCollection) {
+	powerForecast := &powerattackforecast.Forecast{
+		Setup: *powerSetup,
+		Repositories: &repositories.RepositoryCollection{
+			SquaddieRepo:    repos.SquaddieRepo,
+			PowerRepo:       repos.PowerRepo,
+		},
+	}
+	powerForecast.CalculateForecast()
+
+	for _, calculation := range powerForecast.ForecastedResultPerTarget {
+		printHealingForecast(calculation.HealingForecast, powerSetup, repos)
+	}
+
+	println("---")
+	powerResult := &powercommit.Result{
+		Forecast: powerForecast,
+		DieRoller: &utility.RandomDieRoller{},
+	}
+	powerResult.Commit()
+
+	for _, healingReport := range powerResult.ResultPerTarget {
+		printHealingReport(healingReport, powerForecast.Repositories)
+		println()
+	}
+}
+
+func printHealingReport(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) {
+	squaddieRepo := repositories.SquaddieRepo
+	powerRepo := repositories.PowerRepo
+
+	healer := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+	healingPower := powerRepo.GetPowerByID(result.PowerID)
+
+	println(healer.Identification.Name, "heals", target.Identification.Name, "with", healingPower.Name)
+
+	println("  heals ", result.Healing.HitPointsRestored)
+}
+
+func printHealingForecast(forecast *powerattackforecast.HealingForecast, setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) {
+	squaddieRepo := repositories.SquaddieRepo
+	powerRepo := repositories.PowerRepo
+
+	attacker := squaddieRepo.GetOriginalSquaddieByID(setup.UserID)
+	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
+	healingPower := powerRepo.GetPowerByID(setup.PowerID)
+
+	println(attacker.Identification.Name, "will heal", target.Identification.Name, "with", healingPower.Name)
+
+	println("Forecasted Healing              ", forecast.RawHitPointsRestored)
 }
 
 func loadSquaddieRepo() (repo *squaddie.Repository) {
@@ -166,6 +226,5 @@ func loadActors (attackerID, targetID, powerID string, repositories *repositorie
 	powerequip.EquipDefaultPower(target, repositories)
 
 	power := powerRepo.GetPowerByID(powerID)
-
 	return attacker, target, power
 }

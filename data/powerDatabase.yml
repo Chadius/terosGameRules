@@ -9,3 +9,9 @@
     counter_attack_penalty_reduction: 0
     critical_effect:
       damage: 2
+-
+  name: Healing Staff
+  id: powerHeal
+  power_type: Spell
+  healing_effect:
+    hit_points_healed: 2

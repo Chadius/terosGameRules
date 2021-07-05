@@ -50,7 +50,8 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	if unmarshalError != nil {
 		return false, unmarshalError
 	}
-	for _, powerToAdd := range listOfPowers {
+	for index := range listOfPowers {
+		powerToAdd := listOfPowers[index]
 		success, err := repository.tryToAddPower(&powerToAdd)
 		if success == false {
 			return false, err
