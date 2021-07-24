@@ -3,6 +3,7 @@ package squaddie
 import (
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosBattleServer/utility"
 )
 
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.
@@ -41,7 +42,9 @@ func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID,
 //   Raises an error if classID has not been added to the squaddie yet.
 func (classProgress *ClassProgress) SetClass(classID string) error {
 	if _, exists := classProgress.ClassLevelsConsumed[classID]; !exists {
-		return fmt.Errorf(`cannot switch to unknown class "%s"`, classID)
+		newError := fmt.Errorf(`cannot switch to unknown class "%s"`, classID)
+		utility.Log(newError.Error(),0, utility.Error)
+		return newError
 	}
 
 	if classProgress.BaseClassID == "" {

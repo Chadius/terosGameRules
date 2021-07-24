@@ -63,7 +63,9 @@ func (repository *Repository) GetNumberOfClasses() int {
 func (repository *Repository) GetClassByID(classID string) (*Class, error) {
 	class, classFound := repository.classesByID[classID]
 	if classFound == false {
-		return nil, fmt.Errorf(`class repository: No class found with ID: "%s"`, classID)
+		newError := fmt.Errorf(`class repository: No class found with ID: "%s"`, classID)
+		utility.Log(newError.Error(),0, utility.Error)
+		return nil, newError
 	}
 
 	return class, nil

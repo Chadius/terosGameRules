@@ -53,7 +53,9 @@ func NewPower(name string) *Power {
 func CheckPowerForErrors(newPower *Power) (newError error) {
 	if newPower.PowerType != Physical &&
 		newPower.PowerType != Spell {
-		return fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name, newPower.PowerType)
+		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name, newPower.PowerType)
+		utility.Log(newError.Error(),0, utility.Error)
+		return newError
 	}
 
 	return nil

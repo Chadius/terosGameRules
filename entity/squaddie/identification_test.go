@@ -40,5 +40,5 @@ func (suite *SquaddieMovementTests) TestRaisesErrorIfSquaddieHasUnknownAffiliati
 	newSquaddie.Identification.Affiliation = "Unknown Affiliation"
 	err := squaddie.CheckSquaddieForErrors(newSquaddie)
 	checker.Assert(err, NotNil)
-	checker.Assert(err, ErrorMatches,"Squaddie has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err, ErrorMatches,"squaddie has unknown affiliation: 'Unknown Affiliation'")
 }

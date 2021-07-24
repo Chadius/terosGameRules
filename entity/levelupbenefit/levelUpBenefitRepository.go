@@ -87,7 +87,9 @@ func (repository *Repository) GetLevelUpBenefitsByClassID(classID string) ([]*Le
 
 	classBenefits, classExists := repository.levelUpBenefitsByClassID[classID]
 	if !classExists {
-		return nil, fmt.Errorf(`no LevelUpBenefits for this class ID: "%s"`, classID)
+		newError := fmt.Errorf(`no LevelUpBenefits for this class ID: "%s"`, classID)
+		utility.Log(newError.Error(),0, utility.Error)
+		return nil, newError
 	}
 
 	return classBenefits, nil

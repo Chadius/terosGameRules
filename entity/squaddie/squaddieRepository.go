@@ -147,7 +147,9 @@ func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName str
 	}
 
 	if newName == "" {
-		return nil, fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Identification.Name)
+		newError := fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Identification.Name)
+		utility.Log(newError.Error(),0, utility.Error)
+		return nil, newError
 	}
 
 	clone.Identification.Name = newName

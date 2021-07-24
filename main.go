@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	utility.Logger = &utility.FileLogger{}
 	squaddieRepo := loadSquaddieRepo()
 	powerRepo := loadPowerRepo()
 	repos := repositories.RepositoryCollection{

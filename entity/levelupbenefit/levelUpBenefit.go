@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosBattleServer/utility"
 )
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
@@ -18,11 +19,15 @@ type LevelUpBenefit struct {
 // CheckForErrors ensures the LevelUpBenefit has valid fields
 func (benefit *LevelUpBenefit) CheckForErrors() error {
 	if benefit.Identification.LevelUpBenefitType != Small && benefit.Identification.LevelUpBenefitType != Big {
-		return fmt.Errorf(`unknown level up benefit type: "%s"`, benefit.Identification.LevelUpBenefitType)
+		newError := fmt.Errorf(`unknown level up benefit type: "%s"`, benefit.Identification.LevelUpBenefitType)
+		utility.Log(newError.Error(),0, utility.Error)
+		return newError
 	}
 
 	if benefit.Identification.ClassID == "" {
-		return errors.New(`no classID found for LevelUpBenefit`)
+		newError := errors.New(`no classID found for LevelUpBenefit`)
+		utility.Log(newError.Error(),0, utility.Error)
+		return newError
 	}
 	return nil
 }
