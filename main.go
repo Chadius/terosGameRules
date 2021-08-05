@@ -1,24 +1,22 @@
 package main
 
 import (
+	"github.com/cserrant/terosBattleServer/entity/actioncontroller"
+	"github.com/cserrant/terosBattleServer/entity/actionviewer"
 	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
 	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powercommit"
 	"github.com/cserrant/terosBattleServer/usecase/powerequip"
 	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	"github.com/cserrant/terosBattleServer/utility"
 	"io/ioutil"
 	"log"
-	"strconv"
 )
 
 func main() {
 	utility.Logger = &utility.FileLogger{}
 	squaddieRepo := loadSquaddieRepo()
 	powerRepo := loadPowerRepo()
-	repos := repositories.RepositoryCollection{
+	repos := &repositories.RepositoryCollection{
 		PowerRepo: powerRepo,
 		SquaddieRepo: squaddieRepo,
 	}
@@ -27,169 +25,18 @@ func main() {
 		"squaddieTeros",
 		"squaddieBandit",
 		"powerSpear",
-		&repos,
+		repos,
 	)
 
-	powerSetup := powerusagescenario.Setup{
-		UserID:          attacker.Identification.ID,
-		PowerID:         power.ID,
-		Targets:         []string{target.Identification.ID},
-		IsCounterAttack: false,
-	}
+	controller := actioncontroller.WhiteRoomController{}
+	viewer := actionviewer.ConsoleActionViewer{}
+	powerSetup := controller.SetupAction(attacker, target, power)
 
-	powerToUse := powerRepo.GetPowerByID(power.ID)
-	if powerToUse.AttackEffect != nil {
-		processAttack(&powerSetup, &repos)
-	}
-	if powerToUse.HealingEffect != nil {
-		processHeal(&powerSetup, &repos)
-	}
-}
+	forecast := controller.GenerateForecast(powerSetup, repos)
+	viewer.PrintActionForecast(forecast, repos)
 
-func processAttack(powerSetup *powerusagescenario.Setup, repos *repositories.RepositoryCollection) {
-	powerForecast := &powerattackforecast.Forecast{
-		Setup: *powerSetup,
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    repos.SquaddieRepo,
-			PowerRepo:       repos.PowerRepo,
-		},
-	}
-	powerForecast.CalculateForecast()
-
-	for _, forecast := range powerForecast.ForecastedResultPerTarget {
-		printAttackForecast(&forecast)
-	}
-
-	println("---")
-	powerResult := &powercommit.Result{
-		Forecast: powerForecast,
-		DieRoller: &utility.RandomDieRoller{},
-	}
-	powerResult.Commit()
-
-	for _, attackReport := range powerResult.ResultPerTarget {
-		printAttackReport(attackReport, powerForecast.Repositories)
-		println()
-	}
-}
-
-func printAttackForecast(forecast *powerattackforecast.Calculation) {
-	printPartOfAttackForecast(forecast.Attack, forecast.Setup, forecast.Repositories)
-	if forecast.CounterAttack != nil {
-		println("")
-		println("then Counterattack:")
-		printPartOfAttackForecast(forecast.CounterAttack, forecast.CounterAttackSetup, forecast.Repositories)
-	}
-}
-
-func printPartOfAttackForecast(forecast *powerattackforecast.AttackForecast, setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	attacker := squaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
-	attackingPower := powerRepo.GetPowerByID(setup.PowerID)
-
-	println(attacker.Identification.Name, "will attack", target.Identification.Name, "with", attackingPower.Name)
-	println("Attacker ToHit bonus", forecast.VersusContext.ToHit.ToHitBonus)
-
-	if forecast.VersusContext.NormalDamage.IsFatalToTarget {
-		println("will kill if it hits")
-	}
-
-	println("Forecasted Damage              ", forecast.VersusContext.NormalDamage.RawDamageDealt)
-}
-
-func printAttackReport(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	attacker := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
-	attackingPower := powerRepo.GetPowerByID(result.PowerID)
-
-	println(attacker.Identification.Name, "attacks", target.Identification.Name, "with", attackingPower.Name)
-
-	println(attacker.Identification.Name, "attacks with a", result.Attack.AttackRoll, "+", result.Attack.AttackerToHitBonus, "=", result.Attack.AttackerTotal)
-	println(target.Identification.Name, "defends with a", result.Attack.DefendRoll, "+", result.Attack.DefenderToHitPenalty, "=", result.Attack.DefenderTotal)
-	if !result.Attack.HitTarget {
-		println("Missed")
-		return
-	}
-
-	if result.Attack.CriticallyHitTarget {
-		println("Critical Hit")
-	} else {
-		println("Hit")
-	}
-	damageTaken := "  deals " + strconv.Itoa(result.Attack.Damage.RawDamageDealt)
-	if result.Attack.Damage.TotalRawBarrierBurnt > 0 {
-		damageTaken += " damage, " + strconv.Itoa(result.Attack.Damage.TotalRawBarrierBurnt) + " barrier burn"
-	}
-	println(damageTaken)
-
-	healthStatus := target.Identification.Name + " HP: " + strconv.Itoa(target.Defense.CurrentHitPoints) + "/" + strconv.Itoa(target.Defense.MaxHitPoints)
-	if target.Defense.CurrentBarrier > 0  {
-		healthStatus += "Barrier" + strconv.Itoa(target.Defense.CurrentBarrier)
-	}
-	println(healthStatus)
-
-	if target.Defense.IsDead() {
-		println(target.Identification.Name, "falls!")
-	}
-}
-
-func processHeal(powerSetup *powerusagescenario.Setup, repos *repositories.RepositoryCollection) {
-	powerForecast := &powerattackforecast.Forecast{
-		Setup: *powerSetup,
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    repos.SquaddieRepo,
-			PowerRepo:       repos.PowerRepo,
-		},
-	}
-	powerForecast.CalculateForecast()
-
-	for _, calculation := range powerForecast.ForecastedResultPerTarget {
-		printHealingForecast(calculation.HealingForecast, powerSetup, repos)
-	}
-
-	println("---")
-	powerResult := &powercommit.Result{
-		Forecast: powerForecast,
-		DieRoller: &utility.RandomDieRoller{},
-	}
-	powerResult.Commit()
-
-	for _, healingReport := range powerResult.ResultPerTarget {
-		printHealingReport(healingReport, powerForecast.Repositories)
-		println()
-	}
-}
-
-func printHealingReport(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	healer := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
-	healingPower := powerRepo.GetPowerByID(result.PowerID)
-
-	println(healer.Identification.Name, "heals", target.Identification.Name, "with", healingPower.Name)
-
-	println("  heals ", result.Healing.HitPointsRestored)
-}
-
-func printHealingForecast(forecast *powerattackforecast.HealingForecast, setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	attacker := squaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
-	healingPower := powerRepo.GetPowerByID(setup.PowerID)
-
-	println(attacker.Identification.Name, "will heal", target.Identification.Name, "with", healingPower.Name)
-
-	println("Forecasted Healing              ", forecast.RawHitPointsRestored)
+	result := controller.GenerateResult(forecast, repos)
+	viewer.PrintActionResults(result, repos)
 }
 
 func loadSquaddieRepo() (repo *squaddie.Repository) {
