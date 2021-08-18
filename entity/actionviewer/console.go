@@ -1,154 +1,386 @@
 package actionviewer
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
+	"fmt"
+	"github.com/cserrant/terosBattleServer/entity/damagedistribution"
 	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
 	"github.com/cserrant/terosBattleServer/usecase/powercommit"
 	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"strconv"
 )
 
+// ConsoleActionViewerVerbosity represents options you can use to show how verbose you want the output.
+type ConsoleActionViewerVerbosity struct {
+	ShowRolls bool
+	ShowTargetStatus bool
+}
+
 // ConsoleActionViewer prints the results of actions to the console
-type ConsoleActionViewer struct {}
-
-// PrintActionForecast outputs the calculated forecast.
-func (controller *ConsoleActionViewer) PrintActionForecast(action *powerattackforecast.Forecast, repos *repositories.RepositoryCollection ) {
-	powerToUse := repos.PowerRepo.GetPowerByID(action.Setup.PowerID)
-	if powerToUse.AttackEffect != nil {
-		controller.printAllAttackForecasts(action, repos)
-	}
-	if powerToUse.HealingEffect != nil {
-		controller.printAllHealingForecasts(action, repos)
-	}
+type ConsoleActionViewer struct {
+	Messages []string
+	IgnorePrinting bool
 }
 
-// PrintActionResults outputs the calculated results.
-func (controller *ConsoleActionViewer) PrintActionResults(result *powercommit.Result, repos *repositories.RepositoryCollection ) {
-	powerToUse := repos.PowerRepo.GetPowerByID(result.Forecast.Setup.PowerID)
-	if powerToUse.AttackEffect != nil {
-		controller.printAllAttackResults(result, repos)
-	}
-	if powerToUse.HealingEffect != nil {
-		controller.printAllHealingResults(result, repos)
-	}
+type messagesByPowerUsage struct {
+	userAffectsTargetMessages []string
+	targetStatusMessages []string
+	rollMessages []string
+	powerResults []*powercommit.ResultPerTarget
 }
 
-func (controller *ConsoleActionViewer) printAllAttackForecasts(action *powerattackforecast.Forecast, repos *repositories.RepositoryCollection ) {
-	for _, forecast := range action.ForecastedResultPerTarget {
-		printAttackForecastPerTarget(&forecast)
-	}
-}
-
-func printAttackForecastPerTarget(forecast *powerattackforecast.Calculation) {
-	printAttackIterationForecast(forecast.Attack, forecast.Setup, forecast.Repositories)
-	if forecast.CounterAttack != nil {
-		println("")
-		println("then Counterattack:")
-		printAttackIterationForecast(forecast.CounterAttack, forecast.CounterAttackSetup, forecast.Repositories)
-	}
-}
-
-func printAttackIterationForecast(forecast *powerattackforecast.AttackForecast, setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	attacker := squaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
-	attackingPower := powerRepo.GetPowerByID(setup.PowerID)
-
-	println(attacker.Identification.Name, "will attack", target.Identification.Name, "with", attackingPower.Name)
-	println("Attacker ToHit bonus", forecast.VersusContext.ToHit.ToHitBonus)
-
-	if forecast.VersusContext.NormalDamage.IsFatalToTarget {
-		println("will kill if it hits")
-	}
-
-	println("Forecasted Damage              ", forecast.VersusContext.NormalDamage.RawDamageDealt)
-}
-
-func (controller *ConsoleActionViewer) printAllAttackResults(result *powercommit.Result, repos *repositories.RepositoryCollection ) {
-	for _, attackReport := range result.ResultPerTarget {
-		controller.printAttackPerTarget(attackReport, repos)
-		println()
-	}
-}
-
-func (controller *ConsoleActionViewer) printAttackPerTarget(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	attacker := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
-	attackingPower := powerRepo.GetPowerByID(result.PowerID)
-
-	println(attacker.Identification.Name, "attacks", target.Identification.Name, "with", attackingPower.Name)
-
-	println(attacker.Identification.Name, "attacks with a", result.Attack.AttackRoll, "+", result.Attack.AttackerToHitBonus, "=", result.Attack.AttackerTotal)
-	println(target.Identification.Name, "defends with a", result.Attack.DefendRoll, "+", result.Attack.DefenderToHitPenalty, "=", result.Attack.DefenderTotal)
-	if !result.Attack.HitTarget {
-		println("Missed")
+// PrintMessages will print all the messages in the buffer, then clear the screen.
+func (viewer *ConsoleActionViewer) PrintMessages() {
+	if viewer.IgnorePrinting {
 		return
 	}
 
-	if result.Attack.CriticallyHitTarget {
-		println("Critical Hit")
+	for _, message := range viewer.Messages {
+		println(message)
+	}
+
+	viewer.Messages = []string{}
+}
+
+// PrintForecast will generate messages for the given Result and clear the Messages.
+func (viewer *ConsoleActionViewer) PrintForecast(powerForecast *powerattackforecast.Forecast, repositories *repositories.RepositoryCollection) {
+	for resultIndex, forecast := range powerForecast.ForecastedResultPerTarget {
+		if forecast.Attack != nil {
+			viewer.createMessagesForAttackOrCounterAttack(forecast, repositories, resultIndex, false)
+		}
+
+		if forecast.CounterAttack != nil {
+			viewer.createMessagesForAttackOrCounterAttack(forecast, repositories, resultIndex, true)
+		}
+
+		if forecast.HealingForecast != nil {
+			viewer.createMessagesForHealing(repositories, forecast, resultIndex)
+		}
+	}
+
+	viewer.PrintMessages()
+}
+
+func (viewer *ConsoleActionViewer) createMessagesForHealing(repositories *repositories.RepositoryCollection, forecast powerattackforecast.Calculation, resultIndex int) {
+	healer := repositories.SquaddieRepo.GetSquaddieByID(forecast.Setup.UserID)
+	target := repositories.SquaddieRepo.GetSquaddieByID(forecast.Setup.Targets[0])
+	powerToUse := repositories.PowerRepo.GetPowerByID(forecast.Setup.PowerID)
+
+	damageHealedDescription := fmt.Sprintf(", for %d healing", forecast.HealingForecast.RawHitPointsRestored)
+	if forecast.HealingForecast.RawHitPointsRestored == 0 {
+		damageHealedDescription = " for NO HEALING"
+	}
+
+	effectMessage := fmt.Sprintf("%s", damageHealedDescription)
+
+	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", healer.Identification.Name, powerToUse.Name)
+	if resultIndex > 0 {
+		attackerAndPowerMessage = "- also"
+	}
+
+	attackMessage := fmt.Sprintf(
+		"%s heals %s%s",
+		attackerAndPowerMessage,
+		target.Identification.Name,
+		effectMessage,
+	)
+
+	viewer.Messages = append(viewer.Messages, attackMessage)
+}
+
+func (viewer *ConsoleActionViewer) createMessagesForAttackOrCounterAttack(forecast powerattackforecast.Calculation, repositories *repositories.RepositoryCollection, resultIndex int, isACounterAttack bool) {
+	attackForecast := forecast.Attack
+	attackSetup := forecast.Setup
+	if isACounterAttack {
+		attackForecast = forecast.CounterAttack
+		attackSetup = forecast.CounterAttackSetup
+	}
+
+	attackerHitBonus := attackForecast.VersusContext.ToHit
+	chanceOutOf36 := getChanceToHitMessageSnippet(attackerHitBonus.ToHitBonus, true)
+	effectMessage := getDamageDistributionMessageSnippet(attackForecast.VersusContext.NormalDamage)
+
+	attacker := repositories.SquaddieRepo.GetSquaddieByID(attackSetup.UserID)
+	target := repositories.SquaddieRepo.GetSquaddieByID(attackForecast.DefenderContext.TargetID)
+	powerToUse := repositories.PowerRepo.GetPowerByID(attackSetup.PowerID)
+
+	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", attacker.Identification.Name, powerToUse.Name)
+	if resultIndex > 0 && !isACounterAttack {
+		attackerAndPowerMessage = "- also"
+	}
+
+	versusMessage := "vs"
+	if isACounterAttack {
+		versusMessage = "counters"
+	}
+
+	attackMessage := fmt.Sprintf(
+		"%s %s %s: %+d %s%s",
+		attackerAndPowerMessage,
+		versusMessage,
+		target.Identification.Name,
+		attackerHitBonus.ToHitBonus,
+		chanceOutOf36,
+		effectMessage,
+	)
+
+	viewer.Messages = append(viewer.Messages, attackMessage)
+
+	if attackForecast.VersusContext.CanCritical {
+		critThreshold := attackForecast.VersusContext.ToHit.ToHitBonus - attackForecast.VersusContext.CriticalHitThreshold
+
+		if critThreshold >= -5 {
+			critChanceOutOf36 := getChanceToHitMessageSnippet(critThreshold, false)
+			critEffectMessage := getDamageDistributionMessageSnippet(attackForecast.VersusContext.CriticalHitDamage)
+
+			criticalHitAttackMessage := fmt.Sprintf(" crit: %s%s", critChanceOutOf36, critEffectMessage)
+			viewer.Messages = append(viewer.Messages, criticalHitAttackMessage)
+		}
+	}
+}
+
+func getDamageDistributionMessageSnippet(damageDistribution *damagedistribution.DamageDistribution) string {
+	damageTakenDescription := fmt.Sprintf(", for %d damage", damageDistribution.RawDamageDealt)
+	if damageDistribution.RawDamageDealt == 0 {
+		damageTakenDescription = " for NO DAMAGE"
+	}
+
+	barrierBurnDescription := ""
+	if damageDistribution.TotalRawBarrierBurnt > 0 {
+		barrierBurnDescription = fmt.Sprintf(" + %d barrier burn", damageDistribution.TotalRawBarrierBurnt)
+	}
+
+	if damageDistribution.IsFatalToTarget {
+		damageTakenDescription = ", FATAL"
+		barrierBurnDescription = ""
+	}
+
+	effectMessage := fmt.Sprintf("%s%s", damageTakenDescription, barrierBurnDescription)
+	return effectMessage
+}
+
+func getChanceToHitMessageSnippet(toHitBonus int, includeParenthesis bool) string {
+	toHitLookup := map[int]int{
+		-5: 1,
+		-4: 3,
+		-3: 6,
+		-2: 10,
+		-1: 15,
+		0: 21,
+		1: 26,
+		2: 30,
+		3: 33,
+		4: 35,
+	}
+	chanceOutOf36 := 0
+	if toHitBonus > 4 {
+		chanceOutOf36 = 36
+	} else if toHitBonus < -5 {
+		chanceOutOf36 = 0
 	} else {
-		println("Hit")
+		chanceOutOf36 = toHitLookup[toHitBonus]
 	}
-	damageTaken := "  deals " + strconv.Itoa(result.Attack.Damage.RawDamageDealt)
-	if result.Attack.Damage.TotalRawBarrierBurnt > 0 {
-		damageTaken += " damage, " + strconv.Itoa(result.Attack.Damage.TotalRawBarrierBurnt) + " barrier burn"
+	if includeParenthesis {
+		return fmt.Sprintf("(%d/36)", chanceOutOf36)
 	}
-	println(damageTaken)
+	return fmt.Sprintf("%d/36", chanceOutOf36)
+}
 
-	healthStatus := target.Identification.Name + " HP: " + strconv.Itoa(target.Defense.CurrentHitPoints) + "/" + strconv.Itoa(target.Defense.MaxHitPoints)
-	if target.Defense.CurrentBarrier > 0  {
-		healthStatus += "Barrier" + strconv.Itoa(target.Defense.CurrentBarrier)
+// PrintResult will generate messages for the given Result and clear the Messages.
+func (viewer *ConsoleActionViewer) PrintResult(powerResult *powercommit.Result, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity) {
+	messagesPerPowerUsage := viewer.collatePowerResultPerTargetsByResult(powerResult)
+	viewer.addUserAffectTargetMessagesByResult(messagesPerPowerUsage, repositories, verbosity)
+	if verbosity != nil && verbosity.ShowRolls == true {
+		viewer.addRollMessagesByResult(messagesPerPowerUsage, repositories)
 	}
-	println(healthStatus)
+	if verbosity != nil && verbosity.ShowTargetStatus == true {
+		viewer.addTargetStatusMessagesByResult(messagesPerPowerUsage, repositories)
+	}
+	viewer.printResultMessagesInOrder(messagesPerPowerUsage)
+	viewer.PrintMessages()
+}
 
-	if target.Defense.IsDead() {
-		println(target.Identification.Name, "falls!")
+func (viewer *ConsoleActionViewer) printResultMessagesInOrder(messagesPerPowerUsage []*messagesByPowerUsage) {
+	for _, perGroupMessages := range messagesPerPowerUsage {
+		for _, resultMessage := range perGroupMessages.userAffectsTargetMessages {
+			viewer.Messages = append(viewer.Messages, resultMessage)
+		}
+
+		for _, targetStatusMessage := range perGroupMessages.targetStatusMessages {
+			viewer.Messages = append(viewer.Messages, targetStatusMessage)
+		}
+
+		for _, rollMessage := range perGroupMessages.rollMessages {
+			viewer.Messages = append(viewer.Messages, rollMessage)
+		}
 	}
 }
 
-func (controller *ConsoleActionViewer) printAllHealingForecasts(action *powerattackforecast.Forecast, repos *repositories.RepositoryCollection) {
-	for _, calculation := range action.ForecastedResultPerTarget {
-		controller.printHealingForecastPerTarget(calculation.HealingForecast, &action.Setup, repos)
+func (viewer *ConsoleActionViewer) addRollMessagesByResult(messagesPerPowerUsage []*messagesByPowerUsage, repositories *repositories.RepositoryCollection) {
+	for _, perGroupMessages := range messagesPerPowerUsage {
+		rollMessages := []string{}
+		for _, result := range perGroupMessages.powerResults {
+			rollMessages = append(rollMessages, viewer.createRollMessage(result, repositories))
+		}
+
+		for _, message := range rollMessages {
+			perGroupMessages.rollMessages = append(perGroupMessages.rollMessages, message)
+		}
 	}
 }
 
-func (controller *ConsoleActionViewer) printHealingForecastPerTarget(forecast *powerattackforecast.HealingForecast, setup *powerusagescenario.Setup, repositories *repositories.RepositoryCollection) {
+func (viewer *ConsoleActionViewer) addTargetStatusMessagesByResult(messagesPerPowerUsage []*messagesByPowerUsage, repositories *repositories.RepositoryCollection) {
+	for _, perGroupMessages := range messagesPerPowerUsage {
+		targetStatusMessages := []string{}
+		for _, result := range perGroupMessages.powerResults {
+			targetStatusMessages = append(targetStatusMessages, viewer.createTargetStatusMessage(result, repositories))
+		}
+
+		for _, message := range targetStatusMessages {
+			perGroupMessages.targetStatusMessages = append(perGroupMessages.targetStatusMessages, message)
+		}
+	}
+}
+
+func (viewer *ConsoleActionViewer) addUserAffectTargetMessagesByResult(messagesPerPowerUsage []*messagesByPowerUsage, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity) {
+	userCausedThePreviousResult := false
+	for _, perGroupMessages := range messagesPerPowerUsage {
+		userAffectsTargetMessages := []string{}
+		for index, result := range perGroupMessages.powerResults {
+			userCausedThePreviousResult = index != 0
+			userAffectsTargetMessages = append(userAffectsTargetMessages, viewer.createMessageForResultPerTarget(result, repositories, userCausedThePreviousResult, verbosity))
+		}
+
+		for _, message := range userAffectsTargetMessages {
+			perGroupMessages.userAffectsTargetMessages = append(perGroupMessages.userAffectsTargetMessages, message)
+		}
+	}
+}
+
+func (viewer *ConsoleActionViewer) collatePowerResultPerTargetsByResult(powerResult *powercommit.Result) []*messagesByPowerUsage {
+	messagesPerPowerUsage := []*messagesByPowerUsage{}
+	previousUserID := ""
+	perTargetResultsFromTheSameResult := []*powercommit.ResultPerTarget{}
+	for _, result := range powerResult.ResultPerTarget {
+		if result.UserID != previousUserID {
+			if previousUserID != "" {
+				messagesPerPowerUsage = append(messagesPerPowerUsage, &messagesByPowerUsage{powerResults: perTargetResultsFromTheSameResult})
+				perTargetResultsFromTheSameResult = nil
+			}
+		}
+		perTargetResultsFromTheSameResult = append(perTargetResultsFromTheSameResult, result)
+		previousUserID = result.UserID
+	}
+	messagesPerPowerUsage = append(messagesPerPowerUsage, &messagesByPowerUsage{powerResults: perTargetResultsFromTheSameResult})
+	return messagesPerPowerUsage
+}
+
+func (viewer *ConsoleActionViewer) createRollMessage(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) string {
 	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	attacker := squaddieRepo.GetOriginalSquaddieByID(setup.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(setup.Targets[0])
-	healingPower := powerRepo.GetPowerByID(setup.PowerID)
-
-	println(attacker.Identification.Name, "will heal", target.Identification.Name, "with", healingPower.Name)
-
-	println("Forecasted Healing              ", forecast.RawHitPointsRestored)
-}
-
-func (controller *ConsoleActionViewer) printAllHealingResults(powerResult *powercommit.Result, repos *repositories.RepositoryCollection) {
-	for _, healingReport := range powerResult.ResultPerTarget {
-		controller.printHealingReportPerTarget(healingReport, repos)
-		println()
-	}
-}
-
-func (controller *ConsoleActionViewer) printHealingReportPerTarget(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) {
-	squaddieRepo := repositories.SquaddieRepo
-	powerRepo := repositories.PowerRepo
-
-	healer := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
+	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
 	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
-	healingPower := powerRepo.GetPowerByID(result.PowerID)
 
-	println("---")
+	if result.Attack != nil {
+		return fmt.Sprintf(
+			"   %s rolls %d + %d = %d, %s rolls %d + %d = %d",
+			user.Identification.Name, result.Attack.AttackRoll, result.Attack.AttackerToHitBonus, result.Attack.AttackerTotal,
+			target.Identification.Name, result.Attack.DefendRoll, result.Attack.DefenderToHitPenalty, result.Attack.DefenderTotal,
+		)
+	}
+	return "   Auto-hit"
+}
 
-	println(healer.Identification.Name, "heals", target.Identification.Name, "with", healingPower.Name)
+func (viewer *ConsoleActionViewer) createTargetStatusMessage(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) string {
+	squaddieRepo := repositories.SquaddieRepo
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
 
-	println("  heals ", result.Healing.HitPointsRestored)
+	barrierMessage := ""
+	if target.Defense.MaxBarrier > 0 {
+		barrierMessage = fmt.Sprintf(", %d barrier", target.Defense.CurrentBarrier)
+	}
+
+	targetStatusMessage := fmt.Sprintf("   %s: %d/%d HP%s",
+		target.Identification.Name,
+		target.Defense.CurrentHitPoints,
+		target.Defense.MaxHitPoints,
+		barrierMessage,
+	)
+
+	return targetStatusMessage
+}
+
+func (viewer *ConsoleActionViewer) createMessageForResultPerTarget(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
+	if result.Attack == nil && result.Healing == nil {
+		return "Unknown"
+	}
+
+	if result.Attack != nil {
+		attackResultMessage := viewer.makeMessageForResultPerTargetAttackEffect(result, repositories, userCausedThePreviousResult, verbosity)
+		return attackResultMessage
+	}
+	if result.Healing != nil {
+		healingResultMessage := viewer.makeMessageForResultPerTargetHealingEffect(result, repositories, userCausedThePreviousResult, verbosity)
+		return healingResultMessage
+	}
+
+	return "Unknown"
+}
+
+func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetAttackEffect(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
+	squaddieRepo := repositories.SquaddieRepo
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+
+	hitMessage := "misses"
+	effectMessage := ""
+	criticalHit := ""
+	if result.Attack.CriticallyHitTarget {
+		criticalHit = "CRITICALLY "
+	}
+
+	if result.Attack.HitTarget {
+		if result.Attack.IsCounterAttack {
+			hitMessage = "counters"
+		} else {
+			hitMessage = "hits"
+		}
+	}
+
+	if result.Attack.HitTarget || result.Attack.CriticallyHitTarget {
+		if target.Defense.IsDead() {
+			effectMessage = ", felling"
+		} else {
+			damageTakenDescription := fmt.Sprintf(", for %d damage", result.Attack.Damage.ActualDamageTaken)
+			barrierBurnDescription := ""
+			if result.Attack.Damage.TotalRawBarrierBurnt > 0 {
+				barrierBurnDescription = fmt.Sprintf(" + %d barrier burn", result.Attack.Damage.TotalRawBarrierBurnt)
+			}
+
+			effectMessage = fmt.Sprintf("%s%s", damageTakenDescription, barrierBurnDescription)
+		}
+	}
+
+	userPrefix := viewer.getMessagePrefix(result, repositories, userCausedThePreviousResult, verbosity)
+
+	return fmt.Sprintf("%s %s%s %s%s", userPrefix, criticalHit, hitMessage, target.Identification.Name, effectMessage)
+}
+
+func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetHealingEffect(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
+	squaddieRepo := repositories.SquaddieRepo
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+
+	userPrefix := viewer.getMessagePrefix(result, repositories, userCausedThePreviousResult, verbosity)
+	return fmt.Sprintf("%s heals %s, for %d healing", userPrefix, target.Identification.Name, result.Healing.HitPointsRestored)
+}
+
+func (viewer *ConsoleActionViewer) getMessagePrefix(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
+	squaddieRepo := repositories.SquaddieRepo
+	powerRepo := repositories.PowerRepo
+
+	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
+	powerUsed := powerRepo.GetPowerByID(result.PowerID)
+
+	userPrefix := fmt.Sprintf("%s (%s)", user.Identification.Name, powerUsed.Name)
+	if userCausedThePreviousResult {
+		userPrefix = "- also"
+	}
+
+	return userPrefix
 }

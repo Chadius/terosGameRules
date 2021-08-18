@@ -35,6 +35,7 @@ type AttackResult struct {
 	HitTarget           bool
 	CriticallyHitTarget bool
 	Damage *damagedistribution.DamageDistribution
+	IsCounterAttack bool
 }
 
 // HealResult shows the effects of recovery abilities.
@@ -95,7 +96,9 @@ func (result *Result) calculateAttackResultForThisTarget(setup *powerusagescenar
 		UserID:   setup.UserID,
 		TargetID: setup.Targets[0],
 		PowerID:  setup.PowerID,
-		Attack:   &AttackResult{},
+		Attack:   &AttackResult{
+			IsCounterAttack: attack.AttackerContext.IsCounterAttack,
+		},
 	}
 
 	attackingSquaddie := repositories.SquaddieRepo.GetOriginalSquaddieByID(setup.UserID)

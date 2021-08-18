@@ -33,10 +33,13 @@ func main() {
 	powerSetup := controller.SetupAction(attacker, target, power)
 
 	forecast := controller.GenerateForecast(powerSetup, repos)
-	viewer.PrintActionForecast(forecast, repos)
+	viewer.PrintForecast(forecast, repos)
 
+	println()
 	result := controller.GenerateResult(forecast, repos)
-	viewer.PrintActionResults(result, repos)
+	viewer.PrintResult(result, repos, &actionviewer.ConsoleActionViewerVerbosity{
+		ShowTargetStatus: true,
+	})
 }
 
 func loadSquaddieRepo() (repo *squaddie.Repository) {
