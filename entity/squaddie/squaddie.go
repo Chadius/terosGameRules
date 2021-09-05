@@ -8,11 +8,12 @@ import (
 // Affiliation describes the Squaddie's allegiance
 type Affiliation string
 
+// Squaddie Affiliation constants
 const (
-	// Player Squaddies are controlled by the player and try to succeed at missions.
-	Player = "Player"
-	// Enemy Squaddies oppose the player
-	Enemy = "Enemy"
+	Player Affiliation = "Player"
+	Enemy Affiliation = "Enemy"
+	Ally Affiliation = "Ally"
+	Neutral Affiliation = "Neutral"
 )
 
 // Squaddie represents a person, creature or thing that can take actions on a battlefield.
@@ -63,7 +64,9 @@ func NewSquaddie(name string) *Squaddie {
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
 func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
 	if newSquaddie.Identification.Affiliation != Player &&
-		newSquaddie.Identification.Affiliation != Enemy {
+		newSquaddie.Identification.Affiliation != Enemy &&
+		newSquaddie.Identification.Affiliation != Ally &&
+		newSquaddie.Identification.Affiliation != Neutral {
 		newError := fmt.Errorf("squaddie has unknown affiliation: '%s'", newSquaddie.Identification.Affiliation)
 		utility.Log(newError.Error(),0, utility.Error)
 		return newError

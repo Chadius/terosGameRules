@@ -95,6 +95,9 @@ func (suite *PowerCreationSuite) TestLoadPowersWithJSON(checker *C) {
 					"id": "deadbeef",
 					"damage_bonus": 2,
 					"power_type": "Physical",
+					"targeting": {
+						"target_foe": true
+					},
 					"attack_effect": {
 						"can_counter_attack": true,
 						"counter_attack_penalty_reduction": -2
@@ -124,6 +127,8 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
   name: Scimitar
   id: deadbeef
   power_type: Physical
+  targeting:
+    target_foe: true
   attack_effect:
     damage_bonus: 2
     can_counter_attack: true
@@ -140,4 +145,5 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
 	checker.Assert(scimitar.AttackEffect.DamageBonus, Equals, 2)
 	checker.Assert(scimitar.AttackEffect.CanCounterAttack, Equals, true)
 	checker.Assert(scimitar.AttackEffect.CounterAttackPenaltyReduction, Equals, -2)
+	checker.Assert(scimitar.Targeting.TargetFoe, Equals, true)
 }

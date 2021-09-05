@@ -2,6 +2,8 @@
   name: Spear
   id: powerSpear
   power_type: Physical
+  targeting:
+    target_foe: true
   attack_effect:
     damage_bonus: 2
     can_be_equipped: true
@@ -13,5 +15,7 @@
   name: Healing Staff
   id: powerHeal
   power_type: Spell
+  targeting:
+    target_friend: true
   healing_effect:
     hit_points_healed: 2

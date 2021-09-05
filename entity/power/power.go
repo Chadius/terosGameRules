@@ -21,10 +21,18 @@ const (
 	Spell = "Spell"
 )
 
+// Targeting notes how the power can be targeted.
+type Targeting struct {
+	TargetSelf bool `json:"target_self" yaml:"target_self"`
+	TargetFoe bool `json:"target_foe" yaml:"target_foe"`
+	TargetFriend bool `json:"target_friend" yaml:"target_friend"`
+}
+
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
 	Reference `yaml:",inline"`
 	PowerType Type `json:"power_type" yaml:"power_type"`
+	Targeting Targeting `json:"targeting" yaml:"targeting"`
 	AttackEffect *AttackingEffect  `json:"attack_effect" yaml:"attack_effect"`
 	HealingEffect *HealingEffect  `json:"healing_effect" yaml:"healing_effect"`
 }
