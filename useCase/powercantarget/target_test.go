@@ -278,3 +278,26 @@ func (suite *TargetingCheck) TestNeutralAffiliationInvalidAttacks(checker *C) {
 	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.healingStaff.ID, suite.citizen.Identification.ID, suite.repos), Equals, false)
 	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.healingStaff.ID, suite.bomb2.Identification.ID, suite.repos), Equals, false)
 }
+
+func (suite *TargetingCheck) TestTargetGivesAffiliationReasonForFailure(checker *C) {
+	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.meditation.ID, suite.teros.Identification.ID, suite.repos)
+	checker.Assert(canTarget, Equals, true)
+	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
+
+	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.meditation.ID, suite.lini.Identification.ID, suite.repos)
+	checker.Assert(canTarget, Equals, false)
+	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.PowerCannotTargetAffiliation)
+}
+
+func (suite *TargetingCheck) TestTargetGivesTargetIsDeadReasonForFailure(checker *C) {
+	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	checker.Assert(canTarget, Equals, true)
+	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
+
+	suite.bandit.Defense.ReduceHitPoints(suite.bandit.Defense.MaxHitPoints)
+	checker.Assert(suite.bandit.Defense.IsDead(), Equals, true)
+
+	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	checker.Assert(canTarget, Equals, false)
+	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsDead)
+}

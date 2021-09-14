@@ -17,6 +17,9 @@
     -
       name: Spear
       id: powerSpear
+    -
+      name: Healing Staff
+      id: powerHeal
 -
   identification:
     name: Bandit

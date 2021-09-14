@@ -32,6 +32,16 @@ func main() {
 	viewer := actionviewer.ConsoleActionViewer{}
 	powerSetup := controller.SetupAction(attacker, target, power)
 
+	reasonsForInvalidAction := controller.CheckForValidAction(powerSetup, repos)
+	if len(reasonsForInvalidAction) > 0 {
+		for _, reason := range reasonsForInvalidAction {
+			for _, description := range reason.Description {
+				println(description)
+			}
+		}
+		return
+	}
+
 	forecast := controller.GenerateForecast(powerSetup, repos)
 	viewer.PrintForecast(forecast, repos)
 
