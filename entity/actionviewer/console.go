@@ -367,7 +367,12 @@ func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetHealingEffect(re
 	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
 
 	userPrefix := viewer.getMessagePrefix(result, repositories, userCausedThePreviousResult, verbosity)
-	return fmt.Sprintf("%s heals %s, for %d healing", userPrefix, target.Identification.Name, result.Healing.HitPointsRestored)
+	hitPointsRestored := fmt.Sprintf(", for %d healing", result.Healing.HitPointsRestored)
+	if result.Healing.HitPointsRestored == 0 {
+		hitPointsRestored = " for NO HEALING"
+	}
+
+	return fmt.Sprintf("%s heals %s%s", userPrefix, target.Identification.Name, hitPointsRestored)
 }
 
 func (viewer *ConsoleActionViewer) getMessagePrefix(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {

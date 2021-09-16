@@ -17,6 +17,23 @@
     -
       name: Spear
       id: powerSpear
+-
+  identification:
+    name: Lini
+    id: squaddieLini
+    affiliation: Player
+  offense:
+    aim: 1
+    strength: 0
+    mind: 1
+  defense:
+    max_hit_points: 5
+    max_barrier: 1
+    armor: 1
+    dodge: 2
+    deflect: 1
+  powers:
+    powers:
     -
       name: Healing Staff
       id: powerHeal

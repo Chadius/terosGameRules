@@ -18,4 +18,4 @@
   targeting:
     target_friend: true
   healing_effect:
-    hit_points_healed: 2
+    hit_points_healed: 3

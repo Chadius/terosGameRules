@@ -140,7 +140,12 @@ type HealingForecast struct {
 
 // CalculateHealingForecast figures out what will happen when this attack power is used.
 func (forecast *Forecast) CalculateHealingForecast(targetID string) *HealingForecast {
-	maximumHealing, err := squaddiestats.GetHitPointsHealedWithPower(forecast.Setup.UserID, forecast.Setup.PowerID, forecast.Repositories)
+	maximumHealing, err := squaddiestats.GetHitPointsHealedWithPower(
+		forecast.Setup.UserID,
+		forecast.Setup.PowerID,
+		targetID,
+		forecast.Repositories,
+	)
 	if err != nil {
 		return &HealingForecast{
 			RawHitPointsRestored: 0,

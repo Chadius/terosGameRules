@@ -182,8 +182,10 @@ func GetSquaddieCanCriticallyHitWithPower(squaddieID, powerID string, repos *rep
 }
 
 // GetHitPointsHealedWithPower returns the actual number of hit points healed.
-func GetHitPointsHealedWithPower(squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error) {
+func GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *repositories.RepositoryCollection) (int, error) {
 	squaddieToHeal, healingPower, err := getSquaddieAndHealingPower(squaddieID, powerID, repos)
+	target := repos.SquaddieRepo.GetSquaddieByID(targetID)
+
 	if err != nil {
 		return 0, nil
 	}
@@ -196,5 +198,10 @@ func GetHitPointsHealedWithPower(squaddieID, powerID string, repos *repositories
 		squaddieMindBonus = 0
 	}
 
-	return healingPower.HealingEffect.HitPointsHealed + squaddieMindBonus, nil
+	maximumHealing := healingPower.HealingEffect.HitPointsHealed + squaddieMindBonus
+	missingHitPoints := target.Defense.MaxHitPoints - target.Defense.CurrentHitPoints
+	if missingHitPoints < maximumHealing {
+		return missingHitPoints, nil
+	}
+	return maximumHealing, nil
 }

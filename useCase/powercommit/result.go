@@ -151,7 +151,7 @@ func (result *Result) calculateHealingResultForThisTarget(setup *powerusagescena
 	powerequip.SquaddieEquipPower(healingSquaddie, setup.PowerID, repositories)
 
 	targetSquaddie := repositories.SquaddieRepo.GetOriginalSquaddieByID(resultForThisTarget.TargetID)
-	maximumHealing, err := squaddiestats.GetHitPointsHealedWithPower(setup.UserID, setup.PowerID, repositories)
+	maximumHealing, err := squaddiestats.GetHitPointsHealedWithPower(setup.UserID, setup.PowerID, resultForThisTarget.TargetID, repositories)
 	if err != nil {
 		return resultForThisTarget
 	}

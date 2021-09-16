@@ -191,6 +191,7 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(checker *C) {
+	suite.teros.Defense.CurrentHitPoints = 1
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast, NotNil)
@@ -218,4 +219,12 @@ func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C)
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed)
+}
+
+func (suite *HealingEffectForecast) TestForecastedHealingCapsAtMaxHP(checker *C) {
+	suite.teros.Defense.ReduceHitPoints(1)
+	suite.forecastHealingStaffOnTeros.CalculateForecast()
+
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast, NotNil)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, 1)
 }
