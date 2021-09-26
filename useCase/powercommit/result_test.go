@@ -543,6 +543,7 @@ func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistA
 type ResultOnHealing struct {
 	lini *squaddie.Squaddie
 	teros *squaddie.Squaddie
+	vale *squaddie.Squaddie
 
 	healingStaff *power.Power
 
@@ -552,6 +553,9 @@ type ResultOnHealing struct {
 
 	forecastHealingStaffOnTeros *powerattackforecast.Forecast
 	resultHealingStaffOnTeros *powercommit.Result
+
+	forecastHealingStaffOnTerosAndVale *powerattackforecast.Forecast
+	resultHealingStaffOnTerosAndVale *powercommit.Result
 }
 
 var _ = Suite(&ResultOnHealing{})
@@ -565,6 +569,10 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 	suite.lini.Identification.ID = "squaddie_lini"
 	suite.lini.Identification.Name = "Lini"
 
+	suite.vale = squaddie.NewSquaddie("Vale")
+	suite.vale.Identification.ID = "squaddie_vale"
+	suite.vale.Identification.Name = "Vale"
+
 	suite.healingStaff = power.NewPower("healing_staff")
 	suite.healingStaff.PowerType = power.Spell
 	suite.healingStaff.HealingEffect = &power.HealingEffect{
@@ -572,7 +580,7 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 	}
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.lini})
+	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.lini, suite.vale})
 
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.healingStaff})
@@ -595,6 +603,23 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 	suite.resultHealingStaffOnTeros = &powercommit.Result{
 		Forecast: suite.forecastHealingStaffOnTeros,
 	}
+
+	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
+		Setup: powerusagescenario.Setup{
+			UserID:          suite.lini.Identification.ID,
+			PowerID:         suite.healingStaff.ID,
+			Targets:         []string{suite.teros.Identification.ID,suite.vale.Identification.ID},
+			IsCounterAttack: false,
+		},
+		Repositories: &repositories.RepositoryCollection{
+			SquaddieRepo:    suite.squaddieRepo,
+			PowerRepo:       suite.powerRepo,
+		},
+	}
+
+	suite.resultHealingStaffOnTerosAndVale = &powercommit.Result{
+		Forecast: suite.forecastHealingStaffOnTerosAndVale,
+	}
 }
 
 func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
@@ -613,3 +638,31 @@ func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
 		1 + suite.resultHealingStaffOnTeros.ResultPerTarget[0].Healing.HitPointsRestored,
 	)
 }
+
+func (suite *ResultOnHealing) TestHealResultShowsForEachTarget(checker *C) {
+	suite.teros.Defense.CurrentHitPoints = 1
+	suite.vale.Defense.CurrentHitPoints = 2
+	suite.lini.Offense.Mind = 1
+
+	suite.forecastHealingStaffOnTerosAndVale.CalculateForecast()
+	suite.resultHealingStaffOnTerosAndVale.Commit()
+
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget, HasLen, 2)
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].PowerID, Equals, suite.healingStaff.ID)
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].Healing.HitPointsRestored, Equals, 4)
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].PowerID, Equals, suite.healingStaff.ID)
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].Healing.HitPointsRestored, Equals, 3)
+
+	checker.Assert(
+		suite.teros.Defense.CurrentHitPoints,
+		Equals,
+		1 + suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].Healing.HitPointsRestored,
+	)
+
+	checker.Assert(
+		suite.vale.Defense.CurrentHitPoints,
+		Equals,
+		2 + suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].Healing.HitPointsRestored,
+	)
+}
+

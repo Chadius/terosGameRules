@@ -136,6 +136,7 @@ func (forecast *Forecast) CalculateAttackForecast(targetID string) *AttackForeca
 // HealingForecast showcases beneficial abilities
 type HealingForecast struct {
 	RawHitPointsRestored int
+	TargetID string
 }
 
 // CalculateHealingForecast figures out what will happen when this attack power is used.
@@ -149,10 +150,12 @@ func (forecast *Forecast) CalculateHealingForecast(targetID string) *HealingFore
 	if err != nil {
 		return &HealingForecast{
 			RawHitPointsRestored: 0,
+			TargetID: targetID,
 		}
 	}
 
 	return &HealingForecast{
 		RawHitPointsRestored: maximumHealing,
+		TargetID: targetID,
 	}
 }

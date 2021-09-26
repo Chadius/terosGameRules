@@ -320,13 +320,14 @@ func (suite *healingPower) SetUpTest(checker *C) {
 }
 
 func (suite *healingPower) TestSquaddieKnowsHealingPotential(checker *C) {
+	suite.lini.Defense.CurrentHitPoints = 1
 	suite.lini.Offense.Mind = 1
 	suite.healingStaff.HealingEffect = &power.HealingEffect{
 		HitPointsHealed: 3,
 		HealingAdjustmentBasedOnUserMind: power.Full,
 	}
 
-	staffHeal, staffErr := squaddiestats.GetHitPointsHealedWithPower(suite.lini.Identification.ID, suite.healingStaff.ID, suite.repos)
+	staffHeal, staffErr := squaddiestats.GetHitPointsHealedWithPower(suite.lini.Identification.ID, suite.healingStaff.ID, suite.lini.Identification.ID, suite.repos)
 	checker.Assert(staffErr, IsNil)
 	checker.Assert(staffHeal, Equals, 4)
 }
