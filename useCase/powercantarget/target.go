@@ -13,12 +13,17 @@ const (
 	TargetIsValid InvalidTargetReason = "TargetIsValid"
 	PowerCannotTargetAffiliation InvalidTargetReason = "PowerCannotTargetAffiliation"
 	TargetIsDead InvalidTargetReason = "TargetIsDead"
+	UserIsDead InvalidTargetReason = "UserIsDead"
 )
 
 // IsValidTarget checks to see if the user can apply the power against the target.
 //   returns a bool and a InvalidTargetReason.
 //   If the action is valid, the bool is true and the InvalidTargetReason is TargetIsValid.
 func IsValidTarget(userID string, powerID string, targetID string, repos *repositories.RepositoryCollection) (bool, InvalidTargetReason) {
+	if !(TargetIsStillAlive(userID, repos)) {
+		return false, UserIsDead
+	}
+
 	if !(TargetIsStillAlive(targetID, repos) || UserCanTargetDead())  {
 		return false, TargetIsDead
 	}

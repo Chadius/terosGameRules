@@ -301,3 +301,16 @@ func (suite *TargetingCheck) TestTargetGivesTargetIsDeadReasonForFailure(checker
 	checker.Assert(canTarget, Equals, false)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsDead)
 }
+
+func (suite *TargetingCheck) TestTargetGivesUserIsDeadReasonForFailure(checker *C) {
+	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	checker.Assert(canTarget, Equals, true)
+	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
+
+	suite.teros.Defense.ReduceHitPoints(suite.teros.Defense.MaxHitPoints)
+	checker.Assert(suite.teros.Defense.IsDead(), Equals, true)
+
+	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	checker.Assert(canTarget, Equals, false)
+	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.UserIsDead)
+}

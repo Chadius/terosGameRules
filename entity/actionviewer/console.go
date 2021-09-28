@@ -195,6 +195,7 @@ func (viewer *ConsoleActionViewer) PrintResult(powerResult *powercommit.Result, 
 		viewer.addTargetStatusMessagesByResult(messagesPerPowerUsage, repositories)
 	}
 	viewer.printResultMessagesInOrder(messagesPerPowerUsage)
+	viewer.Messages = append(viewer.Messages, "---")
 	viewer.PrintMessages()
 }
 

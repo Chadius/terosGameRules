@@ -2,14 +2,13 @@ package actioncontroller
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/power"
 	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
 	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
 	"github.com/cserrant/terosBattleServer/usecase/powercantarget"
 	"github.com/cserrant/terosBattleServer/usecase/powercommit"
 	"github.com/cserrant/terosBattleServer/usecase/repositories"
 	"github.com/cserrant/terosBattleServer/utility"
+	"math/rand"
 	"strings"
 )
 
@@ -17,11 +16,11 @@ import (
 type WhiteRoomController struct {}
 
 // SetupAction creates a record of the next action.
-func (controller *WhiteRoomController) SetupAction(attacker, target *squaddie.Squaddie, power *power.Power) *powerusagescenario.Setup {
+func (controller *WhiteRoomController) SetupAction(userID string, targetIDs []string, powerID string) *powerusagescenario.Setup {
 	powerSetup := &powerusagescenario.Setup{
-		UserID:          attacker.Identification.ID,
-		PowerID:         power.ID,
-		Targets:         []string{target.Identification.ID},
+		UserID:          userID,
+		PowerID:         powerID,
+		Targets:         targetIDs,
 		IsCounterAttack: false,
 	}
 	return powerSetup
@@ -41,11 +40,20 @@ func (controller *WhiteRoomController) GenerateForecast(action *powerusagescenar
 }
 
 // GenerateResult uses the forecast to create results.
-func (controller *WhiteRoomController) GenerateResult(forecast *powerattackforecast.Forecast, repos *repositories.RepositoryCollection) *powercommit.Result {
+func (controller *WhiteRoomController) GenerateResult(
+	forecast *powerattackforecast.Forecast,
+	repos *repositories.RepositoryCollection,
+	useRandomSeed bool,
+	randomSeed int64) *powercommit.Result {
+
 	powerResult := &powercommit.Result{
 		Forecast: forecast,
 		DieRoller: &utility.RandomDieRoller{},
 	}
+	if useRandomSeed == true {
+		rand.Seed(randomSeed)
+	}
+
 	powerResult.Commit()
 	return powerResult
 }
@@ -72,6 +80,20 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 		user := repos.SquaddieRepo.GetSquaddieByID(action.UserID)
 		powerUsed := repos.PowerRepo.GetPowerByID(action.PowerID)
 		target := repos.SquaddieRepo.GetSquaddieByID(targetID)
+
+		if reasonForInvalidTarget == powercantarget.UserIsDead {
+			descriptions = append(
+				descriptions,
+				InvalidAttackDescription{
+					reasonForInvalidTarget,
+					[]string{
+						"User is dead, cannot use power",
+						fmt.Sprintf("  %s[%s] is dead", user.Identification.Name, user.Identification.ID),
+					},
+				},
+			)
+			continue
+		}
 
 		if reasonForInvalidTarget == powercantarget.TargetIsDead {
 			descriptions = append(

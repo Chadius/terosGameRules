@@ -12,6 +12,16 @@
     critical_effect:
       damage: 2
 -
+  name: Axe
+  id: powerAxe
+  power_type: Physical
+  targeting:
+    target_foe: true
+  attack_effect:
+    damage_bonus: 1
+    can_be_equipped: true
+    can_counter_attack: true
+-
   name: Healing Staff
   id: powerHeal
   power_type: Spell
