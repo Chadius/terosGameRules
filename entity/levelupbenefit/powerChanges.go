@@ -1,6 +1,6 @@
 package levelupbenefit
 
-import "github.com/cserrant/terosbattleserver/entity/power"
+import "github.com/chadius/terosbattleserver/entity/power"
 
 // PowerChanges tracks changes to the squaddie's innate powers.
 type PowerChanges struct {

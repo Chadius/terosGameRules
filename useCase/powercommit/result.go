@@ -1,13 +1,13 @@
 package powercommit
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
-	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
-	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
-	"github.com/cserrant/terosbattleserver/usecase/powerequip"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/damagedistribution"
+	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
+	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
+	"github.com/chadius/terosbattleserver/usecase/powerequip"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // Result applies the Forecast given to determine what actually happened.

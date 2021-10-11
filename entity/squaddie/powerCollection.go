@@ -2,8 +2,8 @@ package squaddie
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // PowerCollection tracks what powers the squaddie has as well as what is in use.

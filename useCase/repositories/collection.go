@@ -1,10 +1,10 @@
 package repositories
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 )
 
 // RepositoryCollection holds all of the repositories used in the setup.

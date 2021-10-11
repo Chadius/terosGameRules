@@ -1,11 +1,11 @@
 package squaddiestats_test
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/usecase/powerequip"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/usecase/powerequip"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	. "gopkg.in/check.v1"
 	"testing"
 )

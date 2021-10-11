@@ -1,7 +1,7 @@
 package testutility
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"strconv"
 )
 

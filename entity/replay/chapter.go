@@ -1,7 +1,7 @@
 package replay
 
 import (
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 

@@ -2,12 +2,12 @@ package levelup
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/usecase/powerequip"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/usecase/powerequip"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.

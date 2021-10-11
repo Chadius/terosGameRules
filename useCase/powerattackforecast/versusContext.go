@@ -1,8 +1,8 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
-	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/damagedistribution"
+	"github.com/chadius/terosbattleserver/entity/power"
 )
 
 // VersusContext compares an AttackerContext and DefenderContext to determine the possible results.

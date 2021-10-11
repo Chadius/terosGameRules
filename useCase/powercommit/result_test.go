@@ -1,14 +1,14 @@
 package powercommit_test
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
-	"github.com/cserrant/terosbattleserver/usecase/powercommit"
-	"github.com/cserrant/terosbattleserver/usecase/powerequip"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/utility/testutility"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
+	"github.com/chadius/terosbattleserver/usecase/powercommit"
+	"github.com/chadius/terosbattleserver/usecase/powerequip"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 	"testing"
 )

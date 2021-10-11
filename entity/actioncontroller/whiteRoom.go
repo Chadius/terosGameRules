@@ -2,12 +2,12 @@ package actioncontroller
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
-	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
-	"github.com/cserrant/terosbattleserver/usecase/powercantarget"
-	"github.com/cserrant/terosbattleserver/usecase/powercommit"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
+	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
+	"github.com/chadius/terosbattleserver/usecase/powercantarget"
+	"github.com/chadius/terosbattleserver/usecase/powercommit"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/utility"
 	"math/rand"
 	"strings"
 )

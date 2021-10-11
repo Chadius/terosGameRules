@@ -2,7 +2,7 @@ package power
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // Reference is used to identify a power and is used to quickly identify a power.

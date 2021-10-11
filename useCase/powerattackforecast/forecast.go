@@ -1,10 +1,10 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
-	"github.com/cserrant/terosbattleserver/usecase/powerequip"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
+	"github.com/chadius/terosbattleserver/usecase/powerequip"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 )
 
 // Forecast will store the information needed to explain what will happen when a squaddie

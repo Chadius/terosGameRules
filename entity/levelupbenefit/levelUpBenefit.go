@@ -3,8 +3,8 @@ package levelupbenefit
 import (
 	"errors"
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.

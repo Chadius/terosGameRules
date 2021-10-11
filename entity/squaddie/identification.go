@@ -1,6 +1,6 @@
 package squaddie
 
-import "github.com/cserrant/terosbattleserver/utility"
+import "github.com/chadius/terosbattleserver/utility"
 
 // Identification is akin to an ID card for each Squaddie. Each Squaddie carries a unique Identification.
 type Identification struct {

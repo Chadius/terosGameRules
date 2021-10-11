@@ -1,11 +1,11 @@
 package levelup
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // GetSquaddieClassLevels returns a mapping of the squaddie's class to the number of times they leveled up.

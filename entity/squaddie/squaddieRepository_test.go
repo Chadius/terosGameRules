@@ -3,9 +3,9 @@ package squaddie_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 

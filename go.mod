@@ -1,4 +1,4 @@
-module github.com/cserrant/terosbattleserver
+module github.com/chadius/terosbattleserver
 
 go 1.15
 

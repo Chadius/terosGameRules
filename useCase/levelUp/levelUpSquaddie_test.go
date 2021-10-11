@@ -1,12 +1,12 @@
 package levelup_test
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
-	"github.com/cserrant/terosbattleserver/usecase/levelup"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/usecase/levelup"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 

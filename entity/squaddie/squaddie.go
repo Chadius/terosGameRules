@@ -2,7 +2,7 @@ package squaddie
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // Affiliation describes the Squaddie's allegiance

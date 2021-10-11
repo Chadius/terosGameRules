@@ -3,7 +3,7 @@ package levelupbenefit
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 

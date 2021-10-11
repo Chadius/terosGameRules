@@ -2,7 +2,7 @@ package power
 
 import (
 	"encoding/json"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 

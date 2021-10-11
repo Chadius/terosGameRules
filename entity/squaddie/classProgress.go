@@ -2,8 +2,8 @@ package squaddie
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/utility"
 )
 
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.

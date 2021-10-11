@@ -2,14 +2,14 @@ package terosbattleserver
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/actioncontroller"
-	"github.com/cserrant/terosbattleserver/entity/actionviewer"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/entity/replay"
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/usecase/powerequip"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/actioncontroller"
+	"github.com/chadius/terosbattleserver/entity/actionviewer"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/replay"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/usecase/powerequip"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/utility"
 	"io/ioutil"
 	"log"
 )

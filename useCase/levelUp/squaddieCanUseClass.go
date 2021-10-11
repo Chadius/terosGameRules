@@ -1,8 +1,8 @@
 package levelup
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/squaddie"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
 // SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given ID.

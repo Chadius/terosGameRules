@@ -2,10 +2,10 @@ package actionviewer
 
 import (
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
-	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
-	"github.com/cserrant/terosbattleserver/usecase/powercommit"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/entity/damagedistribution"
+	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
+	"github.com/chadius/terosbattleserver/usecase/powercommit"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
 // ConsoleActionViewerVerbosity represents options you can use to show how verbose you want the output.

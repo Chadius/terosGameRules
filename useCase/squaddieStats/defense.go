@@ -1,8 +1,8 @@
 package squaddiestats
 
 import (
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
 // GetSquaddieToHitPenaltyAgainstPower returns how well the squaddie can evade the attack

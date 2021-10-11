@@ -3,8 +3,8 @@ package squaddie
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cserrant/terosbattleserver/entity/power"
-	"github.com/cserrant/terosbattleserver/utility"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 
