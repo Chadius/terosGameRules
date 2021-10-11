@@ -1,14 +1,14 @@
 package replay_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/replay"
+	"github.com/cserrant/terosbattleserver/entity/replay"
 	. "gopkg.in/check.v1"
 	"testing"
 )
 
 func Test(t *testing.T) { TestingT(t) }
 
-type MapReplayTest struct {}
+type MapReplayTest struct{}
 
 var _ = Suite(&MapReplayTest{})
 

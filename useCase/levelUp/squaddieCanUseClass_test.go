@@ -1,12 +1,12 @@
 package levelup_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
-	"github.com/cserrant/terosBattleServer/usecase/levelup"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility/testutility"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/usecase/levelup"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -16,21 +16,21 @@ func Test(t *testing.T) { TestingT(t) }
 type SquaddieQualifiesForClassSuite struct {
 	classRepo *squaddieclass.Repository
 	levelRepo *levelupbenefit.Repository
-	repos *repositories.RepositoryCollection
+	repos     *repositories.RepositoryCollection
 
-	mageClass *squaddieclass.Class
+	mageClass  *squaddieclass.Class
 	mageLevel0 *levelupbenefit.LevelUpBenefit
 	mageLevel1 *levelupbenefit.LevelUpBenefit
 
-	dimensionWalkerClass *squaddieclass.Class
+	dimensionWalkerClass  *squaddieclass.Class
 	dimensionWalkerLevel0 *levelupbenefit.LevelUpBenefit
 	dimensionWalkerLevel1 *levelupbenefit.LevelUpBenefit
 
-	ancientTomeClass *squaddieclass.Class
+	ancientTomeClass       *squaddieclass.Class
 	ancientTomeClassLevel0 *levelupbenefit.LevelUpBenefit
 
 	atLeastTenLevelsBaseClass *squaddieclass.Class
-	lotsOfLevels []*levelupbenefit.LevelUpBenefit
+	lotsOfLevels              []*levelupbenefit.LevelUpBenefit
 
 	teros *squaddie.Squaddie
 }
@@ -87,7 +87,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 			Gained: nil,
 			Lost:   nil,
 		},
-		Movement:           nil,
+		Movement: nil,
 	}
 
 	suite.mageLevel1 = &levelupbenefit.LevelUpBenefit{
@@ -112,7 +112,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 			Gained: nil,
 			Lost:   nil,
 		},
-		Movement:           &squaddie.Movement{
+		Movement: &squaddie.Movement{
 			Distance:  1,
 			Type:      "",
 			HitAndRun: false,
@@ -125,7 +125,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 			ClassID:            suite.dimensionWalkerClass.ID,
 			ID:                 "dwLevel0",
 		},
-		Movement:           &squaddie.Movement{
+		Movement: &squaddie.Movement{
 			Distance:  1,
 			Type:      "light",
 			HitAndRun: false,
@@ -184,7 +184,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 				PrefixLevelID:  "lotsLevelsBig",
 				Type:           levelupbenefit.Big,
 			},
-		}).Build()...
+		}).Build()...,
 	)
 
 	suite.levelRepo.AddLevels(suite.lotsOfLevels)

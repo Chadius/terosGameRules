@@ -1,18 +1,18 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/damagedistribution"
-	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
+	"github.com/cserrant/terosbattleserver/entity/power"
 )
 
 // VersusContext compares an AttackerContext and DefenderContext to determine the possible results.
 type VersusContext struct {
 	ToHit *damagedistribution.ToHitComparison
 
-	NormalDamage *damagedistribution.DamageDistribution
+	NormalDamage      *damagedistribution.DamageDistribution
 	CriticalHitDamage *damagedistribution.DamageDistribution
 
-	CanCritical bool
+	CanCritical          bool
 	CriticalHitThreshold int
 }
 
@@ -71,7 +71,7 @@ func (context *VersusContext) calculateDamageAbsorbedByArmor(attackerContext Att
 }
 
 func (context *VersusContext) setBarrierBurntAndDamageAbsorbed(distribution *damagedistribution.DamageDistribution, attackerContext AttackerContext, defenderContext DefenderContext, damageDealtToTarget int) {
-	barrierAbsorbsAllDamageAndExtraBurn := damageDealtToTarget + attackerContext.ExtraBarrierBurn <= defenderContext.BarrierResistance
+	barrierAbsorbsAllDamageAndExtraBurn := damageDealtToTarget+attackerContext.ExtraBarrierBurn <= defenderContext.BarrierResistance
 	if barrierAbsorbsAllDamageAndExtraBurn {
 		distribution.ExtraBarrierBurnt = attackerContext.ExtraBarrierBurn
 		distribution.DamageAbsorbedByBarrier = damageDealtToTarget

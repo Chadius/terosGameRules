@@ -2,15 +2,15 @@ package squaddie
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.
 type ClassProgress struct {
-	BaseClassID         		string                          `json:"base_class" yaml:"base_class"`
-	CurrentClass        		string                         `json:"current_class" yaml:"current_class"`
-	ClassLevelsConsumed 		map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
+	BaseClassID         string                          `json:"base_class" yaml:"base_class"`
+	CurrentClass        string                          `json:"current_class" yaml:"current_class"`
+	ClassLevelsConsumed map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
 }
 
 // AddClass gives the ClassProgress a new class it can gain levels in.
@@ -33,7 +33,7 @@ func (classProgress *ClassProgress) GetLevelCountsByClass() map[string]int {
 }
 
 // MarkLevelUpBenefitAsConsumed makes the ClassProgress remember it used this benefit to level up already.
-func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string)  {
+func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string) {
 	classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed = append(classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
 }
 
@@ -43,7 +43,7 @@ func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID,
 func (classProgress *ClassProgress) SetClass(classID string) error {
 	if _, exists := classProgress.ClassLevelsConsumed[classID]; !exists {
 		newError := fmt.Errorf(`cannot switch to unknown class "%s"`, classID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 

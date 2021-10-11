@@ -2,17 +2,17 @@ package squaddiestats
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 func getSquaddie(squaddieID string, repos *repositories.RepositoryCollection) (*squaddie.Squaddie, error) {
 	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
 	if squaddie == nil {
 		newError := fmt.Errorf("squaddie could not be found, ID: %s", squaddieID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	return squaddie, nil
@@ -22,12 +22,12 @@ func getHealingPower(powerID string, repos *repositories.RepositoryCollection) (
 	power := repos.PowerRepo.GetPowerByID(powerID)
 	if power == nil {
 		newError := fmt.Errorf("power could not be found, ID: %s", powerID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	if power.HealingEffect == nil {
 		newError := fmt.Errorf("cannot heal with power, ID: %s", powerID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	return power, nil
@@ -37,12 +37,12 @@ func getAttackPower(powerID string, repos *repositories.RepositoryCollection) (*
 	power := repos.PowerRepo.GetPowerByID(powerID)
 	if power == nil {
 		newError := fmt.Errorf("power could not be found, ID: %s", powerID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	if power.AttackEffect == nil {
 		newError := fmt.Errorf("cannot attack with power, ID: %s", powerID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	return power, nil
@@ -108,7 +108,7 @@ func GetSquaddieCriticalThresholdWithPower(squaddieID, powerID string, repos *re
 
 	if powerToMeasure.AttackEffect.CanCriticallyHit() != true {
 		newError := fmt.Errorf("cannot critical hit with power, ID: %s", powerID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
 
@@ -116,7 +116,7 @@ func GetSquaddieCriticalThresholdWithPower(squaddieID, powerID string, repos *re
 }
 
 // GetSquaddieCriticalRawDamageWithPower returns the total critical hit damage the squaddie deals (includes raw damage.)
-func GetSquaddieCriticalRawDamageWithPower (squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error) {
+func GetSquaddieCriticalRawDamageWithPower(squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error) {
 	_, powerToMeasure, err := getSquaddieAndAttackPower(squaddieID, powerID, repos)
 	if err != nil {
 		return 0, err
@@ -129,7 +129,7 @@ func GetSquaddieCriticalRawDamageWithPower (squaddieID, powerID string, repos *r
 
 	if powerToMeasure.AttackEffect.CanCriticallyHit() != true {
 		newError := fmt.Errorf("cannot critical hit with power, ID: %s", powerID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
 

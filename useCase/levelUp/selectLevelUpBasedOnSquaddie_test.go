@@ -1,25 +1,25 @@
 package levelup_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
-	"github.com/cserrant/terosBattleServer/usecase/levelup"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility/testutility"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/usecase/levelup"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddieChoosesLevelsSuite struct {
-	teros *squaddie.Squaddie
-	mageClass *squaddieclass.Class
-	onlySmallLevelsClass *squaddieclass.Class
+	teros                 *squaddie.Squaddie
+	mageClass             *squaddieclass.Class
+	onlySmallLevelsClass  *squaddieclass.Class
 	classWithInitialLevel *squaddieclass.Class
-	lotsOfSmallLevels []*levelupbenefit.LevelUpBenefit
-	lotsOfBigLevels []*levelupbenefit.LevelUpBenefit
-	classRepo *squaddieclass.Repository
-	levelRepo *levelupbenefit.Repository
-	repos *repositories.RepositoryCollection
+	lotsOfSmallLevels     []*levelupbenefit.LevelUpBenefit
+	lotsOfBigLevels       []*levelupbenefit.LevelUpBenefit
+	classRepo             *squaddieclass.Repository
+	levelRepo             *levelupbenefit.Repository
+	repos                 *repositories.RepositoryCollection
 }
 
 var _ = Suite(&SquaddieChoosesLevelsSuite{})
@@ -116,8 +116,8 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 	})
 
 	suite.repos = &repositories.RepositoryCollection{
-		LevelRepo:    suite.levelRepo,
-		ClassRepo:    suite.classRepo,
+		LevelRepo: suite.levelRepo,
+		ClassRepo: suite.classRepo,
 	}
 
 	suite.teros = squaddie.NewSquaddie("teros")

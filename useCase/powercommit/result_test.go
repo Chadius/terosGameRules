@@ -1,14 +1,14 @@
 package powercommit_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powercommit"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility/testutility"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/powercommit"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -16,25 +16,25 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type resultOnAttack struct {
-	teros			*squaddie.Squaddie
-	bandit			*squaddie.Squaddie
-	bandit2			*squaddie.Squaddie
-	mysticMage		*squaddie.Squaddie
+	teros      *squaddie.Squaddie
+	bandit     *squaddie.Squaddie
+	bandit2    *squaddie.Squaddie
+	mysticMage *squaddie.Squaddie
 
 	spear    *power.Power
-	blot    *power.Power
+	blot     *power.Power
 	fireball *power.Power
 	axe      *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos			*repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 
 	forecastSpearOnBandit *powerattackforecast.Forecast
-	resultSpearOnBandit *powercommit.Result
+	resultSpearOnBandit   *powercommit.Result
 
 	forecastBlotOnBandit *powerattackforecast.Forecast
-	resultBlotOnBandit *powercommit.Result
+	resultBlotOnBandit   *powercommit.Result
 
 	forecastSpearOnMysticMage *powerattackforecast.Forecast
 
@@ -66,10 +66,10 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 
 	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect  = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
-		CanBeEquipped: true,
+	suite.spear.AttackEffect = &power.AttackingEffect{
+		ToHitBonus:       1,
+		DamageBonus:      1,
+		CanBeEquipped:    true,
 		CanCounterAttack: true,
 	}
 
@@ -81,8 +81,8 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	suite.axe.ID = "axe"
 	suite.axe.PowerType = power.Physical
 	suite.axe.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
+		ToHitBonus:    1,
+		DamageBonus:   1,
 		CanBeEquipped: true,
 	}
 
@@ -145,8 +145,8 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultSpearOnBandit = &powercommit.Result{
@@ -161,8 +161,8 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultBlotOnBandit = &powercommit.Result{
@@ -177,8 +177,8 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -190,8 +190,8 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultFireballOnBandits = &powercommit.Result{
@@ -239,7 +239,7 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 	checker.Assert(
 		suite.bandit.Defense.CurrentHitPoints,
 		Equals,
-		suite.bandit.Defense.MaxHitPoints - suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.RawDamageDealt,
+		suite.bandit.Defense.MaxHitPoints-suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.RawDamageDealt,
 	)
 }
 
@@ -313,7 +313,7 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 	checker.Assert(
 		suite.teros.Defense.CurrentHitPoints,
 		Equals,
-		suite.teros.Defense.MaxHitPoints - suite.resultSpearOnBandit.ResultPerTarget[1].Attack.Damage.RawDamageDealt,
+		suite.teros.Defense.MaxHitPoints-suite.resultSpearOnBandit.ResultPerTarget[1].Attack.Damage.RawDamageDealt,
 	)
 }
 
@@ -378,26 +378,26 @@ func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 }
 
 type EquipPowerWhenCommitting struct {
-	teros			*squaddie.Squaddie
-	bandit			*squaddie.Squaddie
-	mysticMage		*squaddie.Squaddie
+	teros      *squaddie.Squaddie
+	bandit     *squaddie.Squaddie
+	mysticMage *squaddie.Squaddie
 
 	spear    *power.Power
-	blot    *power.Power
+	blot     *power.Power
 	fireball *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos			*repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 
 	forecastSpearOnBandit *powerattackforecast.Forecast
-	resultSpearOnBandit *powercommit.Result
+	resultSpearOnBandit   *powercommit.Result
 
 	forecastBlotOnBandit *powerattackforecast.Forecast
-	resultBlotOnBandit *powercommit.Result
+	resultBlotOnBandit   *powercommit.Result
 
 	forecastFireballOnBandit *powerattackforecast.Forecast
-	resultFireballOnBandit *powercommit.Result
+	resultFireballOnBandit   *powercommit.Result
 }
 
 var _ = Suite(&EquipPowerWhenCommitting{})
@@ -419,9 +419,9 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
-		CanBeEquipped: true,
+		ToHitBonus:       1,
+		DamageBonus:      1,
+		CanBeEquipped:    true,
 		CanCounterAttack: true,
 	}
 
@@ -471,8 +471,8 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultSpearOnBandit = &powercommit.Result{
@@ -487,8 +487,8 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultBlotOnBandit = &powercommit.Result{
@@ -503,8 +503,8 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultFireballOnBandit = &powercommit.Result{
@@ -541,21 +541,21 @@ func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistA
 }
 
 type ResultOnHealing struct {
-	lini *squaddie.Squaddie
+	lini  *squaddie.Squaddie
 	teros *squaddie.Squaddie
-	vale *squaddie.Squaddie
+	vale  *squaddie.Squaddie
 
 	healingStaff *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos *repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 
 	forecastHealingStaffOnTeros *powerattackforecast.Forecast
-	resultHealingStaffOnTeros *powercommit.Result
+	resultHealingStaffOnTeros   *powercommit.Result
 
 	forecastHealingStaffOnTerosAndVale *powerattackforecast.Forecast
-	resultHealingStaffOnTerosAndVale *powercommit.Result
+	resultHealingStaffOnTerosAndVale   *powercommit.Result
 }
 
 var _ = Suite(&ResultOnHealing{})
@@ -595,8 +595,8 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -608,12 +608,12 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.lini.Identification.ID,
 			PowerID:         suite.healingStaff.ID,
-			Targets:         []string{suite.teros.Identification.ID,suite.vale.Identification.ID},
+			Targets:         []string{suite.teros.Identification.ID, suite.vale.Identification.ID},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -635,7 +635,7 @@ func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
 	checker.Assert(
 		suite.teros.Defense.CurrentHitPoints,
 		Equals,
-		1 + suite.resultHealingStaffOnTeros.ResultPerTarget[0].Healing.HitPointsRestored,
+		1+suite.resultHealingStaffOnTeros.ResultPerTarget[0].Healing.HitPointsRestored,
 	)
 }
 
@@ -656,13 +656,12 @@ func (suite *ResultOnHealing) TestHealResultShowsForEachTarget(checker *C) {
 	checker.Assert(
 		suite.teros.Defense.CurrentHitPoints,
 		Equals,
-		1 + suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].Healing.HitPointsRestored,
+		1+suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].Healing.HitPointsRestored,
 	)
 
 	checker.Assert(
 		suite.vale.Defense.CurrentHitPoints,
 		Equals,
-		2 + suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].Healing.HitPointsRestored,
+		2+suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].Healing.HitPointsRestored,
 	)
 }
-

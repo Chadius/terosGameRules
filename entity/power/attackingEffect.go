@@ -2,7 +2,7 @@ package power
 
 import (
 	"errors"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // CounterAttackPenaltyInitialValue is the default penalty counter attacks suffer on to hit rolls.
@@ -28,7 +28,7 @@ func (a *AttackingEffect) CanCriticallyHit() bool {
 func (a *AttackingEffect) CounterAttackPenalty() (int, error) {
 	if a.CanCounterAttack != true {
 		newError := errors.New("power cannot counter, cannot calculate penalty")
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
 

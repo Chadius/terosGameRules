@@ -1,20 +1,20 @@
 package levelup_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
-	"github.com/cserrant/terosBattleServer/usecase/levelup"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/usecase/levelup"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddieUsesLevelUpBenefitSuite struct {
-	mageClass *squaddieclass.Class
-	statBooster levelupbenefit.LevelUpBenefit
-	teros *squaddie.Squaddie
-	improveAllMovement *levelupbenefit.LevelUpBenefit
+	mageClass              *squaddieclass.Class
+	statBooster            levelupbenefit.LevelUpBenefit
+	teros                  *squaddie.Squaddie
+	improveAllMovement     *levelupbenefit.LevelUpBenefit
 	upgradeToLightMovement *levelupbenefit.LevelUpBenefit
 }
 
@@ -40,15 +40,15 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 
 	suite.statBooster = levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
-			ID:           "deadbeef",
-			ClassID:      suite.mageClass.ID,
+			ID:      "deadbeef",
+			ClassID: suite.mageClass.ID,
 		},
 		Defense: &levelupbenefit.Defense{
 			MaxHitPoints: 0,
-			Dodge :       4,
-			Deflect :     3,
-			MaxBarrier :  2,
-			Armor :       1,
+			Dodge:        4,
+			Deflect:      3,
+			MaxBarrier:   2,
+			Armor:        1,
 		},
 		Offense: &levelupbenefit.Offense{
 			Aim:      7,
@@ -63,8 +63,8 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 			ClassID: suite.mageClass.ID,
 		},
 		Movement: &squaddie.Movement{
-			Distance: 1,
-			Type: "fly",
+			Distance:  1,
+			Type:      "fly",
 			HitAndRun: true,
 		},
 	}
@@ -146,7 +146,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker
 	err := levelup.ImproveSquaddie(suite.improveAllMovement, suite.teros, nil)
 	checker.Assert(err, IsNil)
 
-	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, startingMovement + 1)
+	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, startingMovement+1)
 	checker.Assert(suite.teros.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
 }
@@ -158,17 +158,17 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovemen
 	err := levelup.ImproveSquaddie(suite.upgradeToLightMovement, suite.teros, nil)
 	checker.Assert(err, IsNil)
 
-	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, startingMovement + 1)
+	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, startingMovement+1)
 	checker.Assert(suite.teros.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
 }
 
 type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
-	mageClass *squaddieclass.Class
+	mageClass    *squaddieclass.Class
 	teros        *squaddie.Squaddie
 	powerRepo    *power.Repository
 	squaddieRepo *squaddie.Repository
-	repos *repositories.RepositoryCollection
+	repos        *repositories.RepositoryCollection
 	gainPower    levelupbenefit.LevelUpBenefit
 	upgradePower levelupbenefit.LevelUpBenefit
 	spear        *power.Power
@@ -245,7 +245,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
-		PowerRepo: suite.powerRepo,
+		PowerRepo:    suite.powerRepo,
 	}
 }
 

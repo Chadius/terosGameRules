@@ -1,14 +1,14 @@
 package squaddie_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
 type ClassProgressTests struct {
-	teros *squaddie.Squaddie
-	mageClass *squaddieclass.Class
+	teros         *squaddie.Squaddie
+	mageClass     *squaddieclass.Class
 	mushroomClass *squaddieclass.Class
 }
 

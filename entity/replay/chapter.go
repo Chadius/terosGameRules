@@ -1,21 +1,21 @@
 package replay
 
 import (
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 
 // SquaddieAction records everything a squaddie could have performed in a single turn.
 type SquaddieAction struct {
-	RandomSeed int64 `json:"random_seed" yaml:"random_seed"`
-	UserID string `json:"user_id" yaml:"user_id"`
-	PowerID string `json:"power_id" yaml:"power_id"`
-	TargetIDs []string `json:"target_ids" yaml:"target_ids"`
+	RandomSeed int64    `json:"random_seed" yaml:"random_seed"`
+	UserID     string   `json:"user_id" yaml:"user_id"`
+	PowerID    string   `json:"power_id" yaml:"power_id"`
+	TargetIDs  []string `json:"target_ids" yaml:"target_ids"`
 }
 
 // ChapterReplay contains the information needed to recreate a replay of one chapter in a game.
 type ChapterReplay struct {
-	Version string `json:"version" yaml:"version"`
+	Version string            `json:"version" yaml:"version"`
 	Actions []*SquaddieAction `json:"actions" yaml:"actions"`
 }
 

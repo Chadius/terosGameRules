@@ -3,8 +3,8 @@ package squaddie
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 
@@ -148,7 +148,7 @@ func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName str
 
 	if newName == "" {
 		newError := fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Identification.Name)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 
@@ -175,4 +175,3 @@ func (repository *Repository) GetOriginalSquaddieByID(squaddieID string) *Squadd
 	squaddie, _ := repository.squaddiesByID[squaddieID]
 	return squaddie
 }
-

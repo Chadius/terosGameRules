@@ -1,29 +1,28 @@
 package powerattackforecast_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 
 type AttackContextTestSuite struct {
-	teros			*squaddie.Squaddie
-	bandit			*squaddie.Squaddie
-	spear			*power.Power
-	blot			*power.Power
+	teros  *squaddie.Squaddie
+	bandit *squaddie.Squaddie
+	spear  *power.Power
+	blot   *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
 
 	forecastSpearOnBandit *powerattackforecast.Forecast
-	forecastBlotOnBandit *powerattackforecast.Forecast
+	forecastBlotOnBandit  *powerattackforecast.Forecast
 }
 
 var _ = Suite(&AttackContextTestSuite{})
-
 
 func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 	suite.teros = squaddie.NewSquaddie("teros")
@@ -35,16 +34,16 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
-		CanCounterAttack: true,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		CanCounterAttack:              true,
 		CounterAttackPenaltyReduction: 0,
 	}
 
 	suite.blot = power.NewPower("blot")
 	suite.blot.PowerType = power.Spell
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		DamageBonus : 3,
+		DamageBonus: 3,
 	}
 
 	suite.bandit = squaddie.NewSquaddie("bandit")
@@ -64,8 +63,8 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -77,8 +76,8 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 }
@@ -97,8 +96,8 @@ func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(che
 			IsCounterAttack: true,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	forecastCounterSpearOnBandit.CalculateForecast()

@@ -2,7 +2,7 @@ package power
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // Reference is used to identify a power and is used to quickly identify a power.
@@ -23,18 +23,18 @@ const (
 
 // Targeting notes how the power can be targeted.
 type Targeting struct {
-	TargetSelf bool `json:"target_self" yaml:"target_self"`
-	TargetFoe bool `json:"target_foe" yaml:"target_foe"`
+	TargetSelf   bool `json:"target_self" yaml:"target_self"`
+	TargetFoe    bool `json:"target_foe" yaml:"target_foe"`
 	TargetFriend bool `json:"target_friend" yaml:"target_friend"`
 }
 
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
-	Reference `yaml:",inline"`
-	PowerType Type `json:"power_type" yaml:"power_type"`
-	Targeting Targeting `json:"targeting" yaml:"targeting"`
-	AttackEffect *AttackingEffect  `json:"attack_effect" yaml:"attack_effect"`
-	HealingEffect *HealingEffect  `json:"healing_effect" yaml:"healing_effect"`
+	Reference     `yaml:",inline"`
+	PowerType     Type             `json:"power_type" yaml:"power_type"`
+	Targeting     Targeting        `json:"targeting" yaml:"targeting"`
+	AttackEffect  *AttackingEffect `json:"attack_effect" yaml:"attack_effect"`
+	HealingEffect *HealingEffect   `json:"healing_effect" yaml:"healing_effect"`
 }
 
 // GetReference returns a new PowerReference.
@@ -62,7 +62,7 @@ func CheckPowerForErrors(newPower *Power) (newError error) {
 	if newPower.PowerType != Physical &&
 		newPower.PowerType != Spell {
 		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name, newPower.PowerType)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 

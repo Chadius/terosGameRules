@@ -3,30 +3,30 @@ package levelupbenefit
 import (
 	"errors"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
 type LevelUpBenefit struct {
-	Identification				*Identification              `json:"identification" yaml:"identification"`
-	Defense						*Defense						`json:"defense" yaml:"defense"`
-	Offense						*Offense						`json:"offense" yaml:"offense"`
-	PowerChanges				*PowerChanges				`json:"powers" yaml:"powers"`
-	Movement           *squaddie.Movement `json:"Movement" yaml:"Movement"`
+	Identification *Identification    `json:"identification" yaml:"identification"`
+	Defense        *Defense           `json:"defense" yaml:"defense"`
+	Offense        *Offense           `json:"offense" yaml:"offense"`
+	PowerChanges   *PowerChanges      `json:"powers" yaml:"powers"`
+	Movement       *squaddie.Movement `json:"Movement" yaml:"Movement"`
 }
 
 // CheckForErrors ensures the LevelUpBenefit has valid fields
 func (benefit *LevelUpBenefit) CheckForErrors() error {
 	if benefit.Identification.LevelUpBenefitType != Small && benefit.Identification.LevelUpBenefitType != Big {
 		newError := fmt.Errorf(`unknown level up benefit type: "%s"`, benefit.Identification.LevelUpBenefitType)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
 	if benefit.Identification.ClassID == "" {
 		newError := errors.New(`no classID found for LevelUpBenefit`)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 	return nil

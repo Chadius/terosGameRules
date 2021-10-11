@@ -1,7 +1,7 @@
 package squaddieclass_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -9,7 +9,7 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type ClassRepositoryUnmarshalSuite struct {
-	repo *squaddieclass.Repository
+	repo           *squaddieclass.Repository
 	jsonByteStream []byte
 }
 
@@ -50,8 +50,8 @@ func (suite *ClassRepositoryUnmarshalSuite) TestLoadClassesDirectly(checker *C) 
 }
 
 type ClassRepositoryRetrieveSuite struct {
-	repo *squaddieclass.Repository
-	mageClass *squaddieclass.Class
+	repo                 *squaddieclass.Repository
+	mageClass            *squaddieclass.Class
 	dimensionWalkerClass *squaddieclass.Class
 }
 
@@ -81,5 +81,5 @@ func (suite *ClassRepositoryRetrieveSuite) TestGetClassByID(checker *C) {
 
 func (suite *ClassRepositoryRetrieveSuite) TestRaiseErrorWhenClassDoesNotExist(checker *C) {
 	_, err := suite.repo.GetClassByID("bad ID")
-	checker.Assert(err, ErrorMatches,`class repository: No class found with ID: "bad ID"`)
+	checker.Assert(err, ErrorMatches, `class repository: No class found with ID: "bad ID"`)
 }

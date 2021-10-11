@@ -2,8 +2,8 @@ package squaddie
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // PowerCollection tracks what powers the squaddie has as well as what is in use.
@@ -17,7 +17,7 @@ type PowerCollection struct {
 func (powerCollection *PowerCollection) AddInnatePower(newPower *power.Power) error {
 	if ContainsPowerID(powerCollection.PowerReferences, newPower.ID) {
 		newError := fmt.Errorf(`squaddie already has innate power with ID "%s"`, newPower.ID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 

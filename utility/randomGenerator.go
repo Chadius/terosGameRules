@@ -14,7 +14,7 @@ func RandomInt(maxInt int) int {
 
 // RandomDieRoller generates a random number from 1 to 6,
 //   to simulate the common six sided die.
-type RandomDieRoller struct {}
+type RandomDieRoller struct{}
 
 // RollTwoDice rolls two dice.
 func (r RandomDieRoller) RollTwoDice() (int, int) {

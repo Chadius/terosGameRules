@@ -1,28 +1,28 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
 )
 
 // Forecast will store the information needed to explain what will happen when a squaddie
 //  uses a given power. It can be asked multiple questions.
 type Forecast struct {
 	Setup                     powerusagescenario.Setup
-	Repositories *repositories.RepositoryCollection
+	Repositories              *repositories.RepositoryCollection
 	ForecastedResultPerTarget []Calculation
 }
 
 // Calculation holds the results of the forecast.
 type Calculation struct {
 	Repositories *repositories.RepositoryCollection
-	Setup *powerusagescenario.Setup
+	Setup        *powerusagescenario.Setup
 
-	Attack	*AttackForecast
+	Attack             *AttackForecast
 	CounterAttackSetup *powerusagescenario.Setup
-	CounterAttack *AttackForecast
+	CounterAttack      *AttackForecast
 
 	HealingForecast *HealingForecast
 }
@@ -31,7 +31,7 @@ type Calculation struct {
 type AttackForecast struct {
 	AttackerContext AttackerContext
 	DefenderContext DefenderContext
-	VersusContext VersusContext
+	VersusContext   VersusContext
 }
 
 // CalculateForecast gives a numerical prediction of the power's effect.
@@ -103,10 +103,10 @@ func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID
 	}
 
 	counterAttackForecast := Forecast{
-		Setup:                     counterForecastSetup,
+		Setup: counterForecastSetup,
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    forecast.Repositories.SquaddieRepo,
-			PowerRepo:       forecast.Repositories.PowerRepo,
+			SquaddieRepo: forecast.Repositories.SquaddieRepo,
+			PowerRepo:    forecast.Repositories.PowerRepo,
 		},
 	}
 
@@ -129,14 +129,14 @@ func (forecast *Forecast) CalculateAttackForecast(targetID string) *AttackForeca
 	return &AttackForecast{
 		AttackerContext: attackerContext,
 		DefenderContext: defenderContext,
-		VersusContext: versusContext,
+		VersusContext:   versusContext,
 	}
 }
 
 // HealingForecast showcases beneficial abilities
 type HealingForecast struct {
 	RawHitPointsRestored int
-	TargetID string
+	TargetID             string
 }
 
 // CalculateHealingForecast figures out what will happen when this attack power is used.
@@ -150,12 +150,12 @@ func (forecast *Forecast) CalculateHealingForecast(targetID string) *HealingFore
 	if err != nil {
 		return &HealingForecast{
 			RawHitPointsRestored: 0,
-			TargetID: targetID,
+			TargetID:             targetID,
 		}
 	}
 
 	return &HealingForecast{
 		RawHitPointsRestored: maximumHealing,
-		TargetID: targetID,
+		TargetID:             targetID,
 	}
 }

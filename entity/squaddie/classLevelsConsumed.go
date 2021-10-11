@@ -3,8 +3,8 @@ package squaddie
 // ClassLevelsConsumed tracks information about how a Squaddie uses a class as well
 //    as the progress made in a given class.
 type ClassLevelsConsumed struct {
-	ClassID string `json:"id" yaml:"id"`
-	ClassName string `json:"name" yaml:"name"`
+	ClassID        string   `json:"id" yaml:"id"`
+	ClassName      string   `json:"name" yaml:"name"`
 	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
 }
 

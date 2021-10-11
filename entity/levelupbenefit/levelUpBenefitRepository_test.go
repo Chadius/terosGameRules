@@ -1,22 +1,22 @@
 package levelupbenefit_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
-	"github.com/cserrant/terosBattleServer/utility/testutility"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 	"testing"
 )
 
 func Test(t *testing.T) { TestingT(t) }
 
-type LevelUpBenefitRepositorySuite struct{
-	levelRepo *levelupbenefit.Repository
-	jsonByteStream []byte
-	yamlByteStream []byte
-	mageClass *squaddieclass.Class
+type LevelUpBenefitRepositorySuite struct {
+	levelRepo         *levelupbenefit.Repository
+	jsonByteStream    []byte
+	yamlByteStream    []byte
+	mageClass         *squaddieclass.Class
 	lotsOfSmallLevels []*levelupbenefit.LevelUpBenefit
-	lotsOfBigLevels []*levelupbenefit.LevelUpBenefit
+	lotsOfBigLevels   []*levelupbenefit.LevelUpBenefit
 }
 
 var _ = Suite(&LevelUpBenefitRepositorySuite{})

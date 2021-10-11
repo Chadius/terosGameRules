@@ -1,11 +1,11 @@
 package powercantarget_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powercantarget"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powercantarget"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -13,23 +13,23 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type TargetingCheck struct {
-	teros			*squaddie.Squaddie
-	lini			*squaddie.Squaddie
-	bandit			*squaddie.Squaddie
-	bandit2			*squaddie.Squaddie
-	citizen			*squaddie.Squaddie
-	mayor			*squaddie.Squaddie
-	bomb			*squaddie.Squaddie
-	bomb2			*squaddie.Squaddie
+	teros   *squaddie.Squaddie
+	lini    *squaddie.Squaddie
+	bandit  *squaddie.Squaddie
+	bandit2 *squaddie.Squaddie
+	citizen *squaddie.Squaddie
+	mayor   *squaddie.Squaddie
+	bomb    *squaddie.Squaddie
+	bomb2   *squaddie.Squaddie
 
-	meditation    	*power.Power
-	axe      		*power.Power
-	healingStaff	*power.Power
-	selfDestruct	*power.Power
+	meditation   *power.Power
+	axe          *power.Power
+	healingStaff *power.Power
+	selfDestruct *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos			*repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 }
 
 var _ = Suite(&TargetingCheck{})

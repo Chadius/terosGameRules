@@ -1,7 +1,7 @@
 package power_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -14,11 +14,11 @@ var _ = Suite(&PowerChanceCheckSuite{})
 
 func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 	staticPower := &power.Power{
-		Reference:    power.Reference{
+		Reference: power.Reference{
 			Name: "Static",
 			ID:   "power0",
 		},
-		PowerType:    power.Physical,
+		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
 			ToHitBonus:                    0,
 			DamageBonus:                   0,
@@ -30,17 +30,17 @@ func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 	checker.Assert(staticPower.AttackEffect.CanCriticallyHit(), Equals, false)
 
 	criticalPower := &power.Power{
-		Reference:    power.Reference{
+		Reference: power.Reference{
 			Name: "Critical",
 			ID:   "power1",
 		},
-		PowerType:    power.Physical,
+		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
 			ToHitBonus:                    0,
 			DamageBonus:                   0,
 			CanCounterAttack:              false,
 			CounterAttackPenaltyReduction: 0,
-			CriticalEffect:            &power.CriticalEffect{
+			CriticalEffect: &power.CriticalEffect{
 				CriticalHitThresholdBonus: 0,
 				Damage:                    1,
 			},

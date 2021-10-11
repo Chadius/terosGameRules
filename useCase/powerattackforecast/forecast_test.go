@@ -1,12 +1,12 @@
 package powerattackforecast_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -14,19 +14,19 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type CounterAttackCalculate struct {
-	teros			*squaddie.Squaddie
-	bandit			*squaddie.Squaddie
-	mysticMage		*squaddie.Squaddie
+	teros      *squaddie.Squaddie
+	bandit     *squaddie.Squaddie
+	mysticMage *squaddie.Squaddie
 
 	spear    *power.Power
 	fireball *power.Power
 	axe      *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos *repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 
-	forecastSpearOnBandit *powerattackforecast.Forecast
+	forecastSpearOnBandit     *powerattackforecast.Forecast
 	forecastSpearOnMysticMage *powerattackforecast.Forecast
 }
 
@@ -49,26 +49,26 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 	suite.spear = power.NewPower("spear")
 	suite.spear.PowerType = power.Physical
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
-		CanBeEquipped: true,
+		ToHitBonus:       1,
+		DamageBonus:      1,
+		CanBeEquipped:    true,
 		CanCounterAttack: true,
 	}
 
 	suite.axe = power.NewPower("axe")
 	suite.axe.PowerType = power.Physical
 	suite.axe.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
-		CanBeEquipped: true,
-		CanCounterAttack: true,
+		ToHitBonus:                    1,
+		DamageBonus:                   1,
+		CanBeEquipped:                 true,
+		CanCounterAttack:              true,
 		CounterAttackPenaltyReduction: 0,
 	}
 
 	suite.fireball = power.NewPower("fireball")
 	suite.fireball.PowerType = power.Spell
 	suite.fireball.AttackEffect = &power.AttackingEffect{
-		DamageBonus: 3,
+		DamageBonus:   3,
 		CanBeEquipped: true,
 	}
 
@@ -88,8 +88,8 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -101,8 +101,8 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 }
@@ -139,17 +139,17 @@ func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker 
 }
 
 type HealingEffectForecast struct {
-	lini *squaddie.Squaddie
+	lini  *squaddie.Squaddie
 	teros *squaddie.Squaddie
-	vale *squaddie.Squaddie
+	vale  *squaddie.Squaddie
 
 	healingStaff *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos *repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 
-	forecastHealingStaffOnTeros *powerattackforecast.Forecast
+	forecastHealingStaffOnTeros        *powerattackforecast.Forecast
 	forecastHealingStaffOnTerosAndVale *powerattackforecast.Forecast
 }
 
@@ -190,8 +190,8 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -203,8 +203,8 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 }
@@ -223,7 +223,7 @@ func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker
 	suite.lini.Offense.Mind = 3
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed + suite.lini.Offense.Mind)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+suite.lini.Offense.Mind)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C) {
@@ -232,7 +232,7 @@ func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C)
 	suite.healingStaff.HealingEffect.HealingAdjustmentBasedOnUserMind = power.Half
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed + (suite.lini.Offense.Mind) / 2)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+(suite.lini.Offense.Mind)/2)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C) {

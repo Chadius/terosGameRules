@@ -1,11 +1,11 @@
 package squaddie_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
 )
 
-type SquaddieMovementTests struct{
+type SquaddieMovementTests struct {
 	teros *squaddie.Squaddie
 }
 

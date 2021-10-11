@@ -2,12 +2,12 @@ package levelup
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.
@@ -33,12 +33,12 @@ func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImpr
 func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, repos *repositories.RepositoryCollection) error {
 	if squaddieToImprove.ClassProgress.HasAddedClass(benefit.Identification.ClassID) == false {
 		newError := fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Identification.Name, benefit.Identification.ClassID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 	if squaddieToImprove.ClassProgress.IsClassLevelAlreadyUsed(benefit.Identification.ID) {
 		newError := fmt.Errorf(`%s already consumed LevelUpBenefit - class:"%s" id:"%s"`, squaddieToImprove.Identification.Name, benefit.Identification.ClassID, benefit.Identification.ID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 

@@ -3,7 +3,7 @@ package squaddieclass
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // Repository will interact with external devices to manage Squaddie Classes.
@@ -64,7 +64,7 @@ func (repository *Repository) GetClassByID(classID string) (*Class, error) {
 	class, classFound := repository.classesByID[classID]
 	if classFound == false {
 		newError := fmt.Errorf(`class repository: No class found with ID: "%s"`, classID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 

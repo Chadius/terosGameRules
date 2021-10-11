@@ -1,18 +1,18 @@
 package squaddie_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
-type SquaddieIdentificationCreationTests struct{
-	teros *squaddie.Squaddie
-	mageClass *squaddieclass.Class
+type SquaddieIdentificationCreationTests struct {
+	teros         *squaddie.Squaddie
+	mageClass     *squaddieclass.Class
 	mushroomClass *squaddieclass.Class
 }
 
-var _ = Suite(&SquaddieIdentificationCreationTests {})
+var _ = Suite(&SquaddieIdentificationCreationTests{})
 
 func (suite *SquaddieIdentificationCreationTests) SetUpTest(checker *C) {
 	suite.teros = squaddie.NewSquaddie("teros")
@@ -40,5 +40,5 @@ func (suite *SquaddieMovementTests) TestRaisesErrorIfSquaddieHasUnknownAffiliati
 	newSquaddie.Identification.Affiliation = "Unknown Affiliation"
 	err := squaddie.CheckSquaddieForErrors(newSquaddie)
 	checker.Assert(err, NotNil)
-	checker.Assert(err, ErrorMatches,"squaddie has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err, ErrorMatches, "squaddie has unknown affiliation: 'Unknown Affiliation'")
 }

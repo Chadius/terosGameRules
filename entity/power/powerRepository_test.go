@@ -1,14 +1,14 @@
 package power_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
 )
 
-type PowerCreationSuite struct{
-	spear *power.Power
+type PowerCreationSuite struct {
+	spear  *power.Power
 	spear2 *power.Power
-	repo *power.Repository
+	repo   *power.Repository
 }
 
 var _ = Suite(&PowerCreationSuite{})
@@ -30,7 +30,7 @@ func (suite *PowerCreationSuite) SetUpTest(checker *C) {
 	suite.spear2 = power.NewPower("Spear")
 	suite.spear2.PowerType = power.Physical
 	suite.spear2.ID = "spearLevel2"
-	suite.spear2.AttackEffect  = &power.AttackingEffect{
+	suite.spear2.AttackEffect = &power.AttackingEffect{
 		ToHitBonus: 2,
 	}
 

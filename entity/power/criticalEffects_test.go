@@ -1,17 +1,17 @@
 package power_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
 )
 
-type CriticalEffectActivation struct {}
+type CriticalEffectActivation struct{}
 
 var _ = Suite(&CriticalEffectActivation{})
 
-func (suite *CriticalEffectActivation) SetUpTest (checker *C) {}
+func (suite *CriticalEffectActivation) SetUpTest(checker *C) {}
 
-func (suite *CriticalEffectActivation) TestCanSetCriticalHitThreshold (checker *C) {
+func (suite *CriticalEffectActivation) TestCanSetCriticalHitThreshold(checker *C) {
 	defaultCriticalHitEffect := &power.CriticalEffect{}
 
 	checker.Assert(defaultCriticalHitEffect.CriticalHitThreshold(), Equals, 6)
@@ -23,7 +23,7 @@ func (suite *CriticalEffectActivation) TestCanSetCriticalHitThreshold (checker *
 	checker.Assert(moreLikelyToCrit.CriticalHitThreshold(), Equals, 4)
 }
 
-func (suite *CriticalEffectActivation) TestExtraCriticalHitDamage (checker *C) {
+func (suite *CriticalEffectActivation) TestExtraCriticalHitDamage(checker *C) {
 	extraCriticalDamage := &power.CriticalEffect{
 		Damage: 6,
 	}

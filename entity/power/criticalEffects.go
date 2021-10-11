@@ -3,7 +3,7 @@ package power
 // CriticalEffect records the various extras that affect the target once the power crits.
 type CriticalEffect struct {
 	CriticalHitThresholdBonus int `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
-	Damage int `json:"damage" yaml:"damage"`
+	Damage                    int `json:"damage" yaml:"damage"`
 }
 
 // CriticalHitThresholdInitialValue is the default value the attack must exceed the defense by.

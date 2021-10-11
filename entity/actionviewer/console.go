@@ -2,29 +2,29 @@ package actionviewer
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/damagedistribution"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powercommit"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/powercommit"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 )
 
 // ConsoleActionViewerVerbosity represents options you can use to show how verbose you want the output.
 type ConsoleActionViewerVerbosity struct {
-	ShowRolls bool
+	ShowRolls        bool
 	ShowTargetStatus bool
 }
 
 // ConsoleActionViewer prints the results of actions to the console
 type ConsoleActionViewer struct {
-	Messages []string
+	Messages       []string
 	IgnorePrinting bool
 }
 
 type messagesByPowerUsage struct {
 	userAffectsTargetMessages []string
-	targetStatusMessages []string
-	rollMessages []string
-	powerResults []*powercommit.ResultPerTarget
+	targetStatusMessages      []string
+	rollMessages              []string
+	powerResults              []*powercommit.ResultPerTarget
 }
 
 // PrintMessages will print all the messages in the buffer, then clear the screen.
@@ -164,11 +164,11 @@ func getChanceToHitMessageSnippet(toHitBonus int, includeParenthesis bool) strin
 		-3: 6,
 		-2: 10,
 		-1: 15,
-		0: 21,
-		1: 26,
-		2: 30,
-		3: 33,
-		4: 35,
+		0:  21,
+		1:  26,
+		2:  30,
+		3:  33,
+		4:  35,
 	}
 	chanceOutOf36 := 0
 	if toHitBonus > 4 {

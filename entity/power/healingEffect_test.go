@@ -1,14 +1,14 @@
 package power_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
 )
 
-type HealingEffectLoadedFromData struct{
+type HealingEffectLoadedFromData struct {
 	healStaffJSON []byte
 	healStaffYAML []byte
-	repo *power.Repository
+	repo          *power.Repository
 }
 
 var _ = Suite(&HealingEffectLoadedFromData{})

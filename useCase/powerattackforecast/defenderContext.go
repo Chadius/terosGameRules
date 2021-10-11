@@ -1,9 +1,9 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
 )
 
 // DefenderContext lists the target's relevant information when under attack
@@ -12,8 +12,8 @@ type DefenderContext struct {
 
 	TotalToHitPenalty int
 
-	HitPoints int
-	ArmorResistance int
+	HitPoints         int
+	ArmorResistance   int
 	BarrierResistance int
 }
 

@@ -2,18 +2,18 @@ package actioncontroller
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powercantarget"
-	"github.com/cserrant/terosBattleServer/usecase/powercommit"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/powercantarget"
+	"github.com/cserrant/terosbattleserver/usecase/powercommit"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility"
 	"math/rand"
 	"strings"
 )
 
 // WhiteRoomController assumes all Squaddies are within range and can attack each other.
-type WhiteRoomController struct {}
+type WhiteRoomController struct{}
 
 // SetupAction creates a record of the next action.
 func (controller *WhiteRoomController) SetupAction(userID string, targetIDs []string, powerID string) *powerusagescenario.Setup {
@@ -31,8 +31,8 @@ func (controller *WhiteRoomController) GenerateForecast(action *powerusagescenar
 	powerForecast := &powerattackforecast.Forecast{
 		Setup: *action,
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    repos.SquaddieRepo,
-			PowerRepo:       repos.PowerRepo,
+			SquaddieRepo: repos.SquaddieRepo,
+			PowerRepo:    repos.PowerRepo,
 		},
 	}
 	powerForecast.CalculateForecast()
@@ -47,7 +47,7 @@ func (controller *WhiteRoomController) GenerateResult(
 	randomSeed int64) *powercommit.Result {
 
 	powerResult := &powercommit.Result{
-		Forecast: forecast,
+		Forecast:  forecast,
 		DieRoller: &utility.RandomDieRoller{},
 	}
 	if useRandomSeed == true {
@@ -60,7 +60,7 @@ func (controller *WhiteRoomController) GenerateResult(
 
 //InvalidAttackDescription gives more detail on why an attack is invalid.
 type InvalidAttackDescription struct {
-	Reason powercantarget.InvalidTargetReason
+	Reason      powercantarget.InvalidTargetReason
 	Description []string
 }
 

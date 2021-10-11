@@ -1,23 +1,23 @@
 package power_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
 )
 
-type AttackingEffectCounterAttackPenaltyTest struct {}
+type AttackingEffectCounterAttackPenaltyTest struct{}
 
 var _ = Suite(&AttackingEffectCounterAttackPenaltyTest{})
 
-func (suite *AttackingEffectCounterAttackPenaltyTest) SetUpTest (checker *C) {}
+func (suite *AttackingEffectCounterAttackPenaltyTest) SetUpTest(checker *C) {}
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker *C) {
 	counterAttackingPower := &power.Power{
-		Reference:    power.Reference{
+		Reference: power.Reference{
 			Name: "Static",
 			ID:   "power0",
 		},
-		PowerType:    power.Physical,
+		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
 			ToHitBonus:                    0,
 			DamageBonus:                   0,
@@ -34,11 +34,11 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestRaisesErrorIfPowerCannotCounterAttack(checker *C) {
 	cannotCounterWithThisPower := &power.Power{
-		Reference:    power.Reference{
+		Reference: power.Reference{
 			Name: "Static",
 			ID:   "power0",
 		},
-		PowerType:    power.Physical,
+		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
 			ToHitBonus:                    0,
 			DamageBonus:                   0,
@@ -54,11 +54,11 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestRaisesErrorIfPowerCann
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestAppliesPenaltyReduction(checker *C) {
 	counterAttackingPower := &power.Power{
-		Reference:    power.Reference{
+		Reference: power.Reference{
 			Name: "Static",
 			ID:   "power0",
 		},
-		PowerType:    power.Physical,
+		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
 			ToHitBonus:                    0,
 			DamageBonus:                   0,

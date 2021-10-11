@@ -2,11 +2,11 @@ package powerequip
 
 import (
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // EquipDefaultPower will automatically equip the first power the squaddie has.
@@ -53,7 +53,7 @@ func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesT
 		powerToAdd := repos.PowerRepo.GetPowerByID(powerIDName.ID)
 		if powerToAdd == nil {
 			newError := fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Identification.Name, powerIDName.Name)
-			utility.Log(newError.Error(),0, utility.Error)
+			utility.Log(newError.Error(), 0, utility.Error)
 			return numberOfPowersAdded, newError
 		}
 
@@ -73,7 +73,7 @@ func CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories
 	equippedPowerID := squaddie.PowerCollection.GetEquippedPowerID()
 	if equippedPowerID == "" {
 		newError := fmt.Errorf("squaddie has no equipped power, %s", squaddieID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return false, newError
 	}
 

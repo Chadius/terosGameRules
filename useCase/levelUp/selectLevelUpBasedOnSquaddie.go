@@ -1,11 +1,11 @@
 package levelup
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // GetSquaddieClassLevels returns a mapping of the squaddie's class to the number of times they leveled up.
@@ -72,7 +72,7 @@ func selectBigLevelUpForSquaddie(
 	levelsFromClass map[levelupbenefit.Size][]*levelupbenefit.LevelUpBenefit,
 ) *levelupbenefit.LevelUpBenefit {
 
-	squaddieClassIsEven := squaddieLevels[classToUse.ID] % 2 == 0
+	squaddieClassIsEven := squaddieLevels[classToUse.ID]%2 == 0
 	if !squaddieClassIsEven {
 		return nil
 	}
@@ -110,7 +110,7 @@ func selectSmallLevelUpForSquaddie(
 		},
 	)
 
-	if len(smallLevelsToChooseFrom)> 0 {
+	if len(smallLevelsToChooseFrom) > 0 {
 		return smallLevelsToChooseFrom[utility.RandomInt(len(smallLevelsToChooseFrom))]
 	}
 	return nil

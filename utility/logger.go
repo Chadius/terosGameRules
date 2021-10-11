@@ -17,9 +17,9 @@ type LoggerInterface interface {
 
 // LogMessage is a structured way of writing error messages.
 type LogMessage struct {
-	Message string
+	Message               string
 	InvocationDescription string
-	Severity LogSeverity
+	Severity              LogSeverity
 }
 
 // LogSeverity indicates how important the message is.
@@ -38,7 +38,7 @@ type InMemoryLogger struct {
 // LogMessage logs a message with full options
 func (logger *InMemoryLogger) LogMessage(message string, indents int, severity LogSeverity, invocationLevels int) {
 	spaceIndents := ""
-	for indentIndex:=0; indentIndex<indents; indentIndex++ {
+	for indentIndex := 0; indentIndex < indents; indentIndex++ {
 		spaceIndents = spaceIndents + "  "
 	}
 
@@ -64,12 +64,12 @@ type FileLogger struct {
 // LogMessage logs a message with full options
 func (logger *FileLogger) LogMessage(message string, indents int, severity LogSeverity, invocationLevels int) {
 	spaceIndents := ""
-	for indentIndex:=0; indentIndex<indents; indentIndex++ {
+	for indentIndex := 0; indentIndex < indents; indentIndex++ {
 		spaceIndents = spaceIndents + "  "
 	}
 	logger.openFileIfNeeded()
 	println(logger.logFile)
-	log.Printf("%s %s %s", string(severity)[0:5], spaceIndents + message, getInvocationDescription(invocationLevels))
+	log.Printf("%s %s %s", string(severity)[0:5], spaceIndents+message, getInvocationDescription(invocationLevels))
 	defer logger.logFile.Close()
 }
 
@@ -85,7 +85,7 @@ func Log(message string, indents int, severity LogSeverity) {
 	}
 
 	spaceIndents := ""
-	for indentIndex:=0; indentIndex<indents; indentIndex++ {
+	for indentIndex := 0; indentIndex < indents; indentIndex++ {
 		spaceIndents = spaceIndents + "  "
 	}
 

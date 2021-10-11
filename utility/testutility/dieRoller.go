@@ -1,7 +1,7 @@
 package testutility
 
 // AlwaysMissDieRoller generates rolls that are guaranteed to miss.
-type AlwaysMissDieRoller struct {}
+type AlwaysMissDieRoller struct{}
 
 // RollTwoDice rolls two dice so the attacker will certainly miss.
 func (a AlwaysMissDieRoller) RollTwoDice() (int, int) {
@@ -9,7 +9,7 @@ func (a AlwaysMissDieRoller) RollTwoDice() (int, int) {
 }
 
 // AlwaysHitDieRoller generates rolls that are guaranteed to hit.
-type AlwaysHitDieRoller struct {}
+type AlwaysHitDieRoller struct{}
 
 // RollTwoDice rolls two dice so the attacker will certainly hit.
 func (a AlwaysHitDieRoller) RollTwoDice() (int, int) {

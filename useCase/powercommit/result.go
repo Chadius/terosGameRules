@@ -1,41 +1,41 @@
 package powercommit
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/damagedistribution"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
+	"github.com/cserrant/terosbattleserver/utility"
 )
 
 // Result applies the Forecast given to determine what actually happened.
 //  changes are committed.
 type Result struct {
-	Forecast *powerattackforecast.Forecast
-	DieRoller utility.SixSideGenerator
+	Forecast        *powerattackforecast.Forecast
+	DieRoller       utility.SixSideGenerator
 	ResultPerTarget []*ResultPerTarget
 }
 
 // ResultPerTarget shows what happened to each target.
 type ResultPerTarget struct {
-	UserID string
-	PowerID string
+	UserID   string
+	PowerID  string
 	TargetID string
-	Attack *AttackResult
-	Healing *HealResult
+	Attack   *AttackResult
+	Healing  *HealResult
 }
 
 // AttackResult shows what happens when the power was an attack.
 type AttackResult struct {
-	AttackRoll, DefendRoll int
+	AttackRoll, DefendRoll                   int
 	AttackerToHitBonus, DefenderToHitPenalty int
-	AttackerTotal, DefenderTotal int
-	HitTarget           bool
-	CriticallyHitTarget bool
-	Damage *damagedistribution.DamageDistribution
-	IsCounterAttack bool
+	AttackerTotal, DefenderTotal             int
+	HitTarget                                bool
+	CriticallyHitTarget                      bool
+	Damage                                   *damagedistribution.DamageDistribution
+	IsCounterAttack                          bool
 }
 
 // HealResult shows the effects of recovery abilities.
@@ -96,7 +96,7 @@ func (result *Result) calculateAttackResultForThisTarget(setup *powerusagescenar
 		UserID:   setup.UserID,
 		TargetID: setup.Targets[0],
 		PowerID:  setup.PowerID,
-		Attack:   &AttackResult{
+		Attack: &AttackResult{
 			IsCounterAttack: attack.AttackerContext.IsCounterAttack,
 		},
 	}
@@ -115,7 +115,7 @@ func (result *Result) calculateAttackResultForThisTarget(setup *powerusagescenar
 	results.Attack.DefenderTotal = results.Attack.DefendRoll + results.Attack.DefenderToHitPenalty
 
 	results.Attack.HitTarget = results.Attack.AttackerTotal >= results.Attack.DefenderTotal
-	results.Attack.CriticallyHitTarget = attack.AttackerContext.CanCritical && results.Attack.AttackerTotal >= results.Attack.DefenderTotal + attack.AttackerContext.CriticalHitThreshold
+	results.Attack.CriticallyHitTarget = attack.AttackerContext.CanCritical && results.Attack.AttackerTotal >= results.Attack.DefenderTotal+attack.AttackerContext.CriticalHitThreshold
 
 	if !results.Attack.HitTarget {
 		results.Attack.Damage = &damagedistribution.DamageDistribution{

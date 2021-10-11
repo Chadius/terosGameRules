@@ -7,4 +7,3 @@ type Setup struct {
 	Targets         []string
 	IsCounterAttack bool
 }
-

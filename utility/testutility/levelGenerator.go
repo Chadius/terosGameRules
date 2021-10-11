@@ -1,7 +1,7 @@
 package testutility
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
 	"strconv"
 )
 
@@ -21,7 +21,7 @@ type LevelGenerator struct {
 // Build follows the instructions to create a slice of levelUpBenefits.
 func (generator *LevelGenerator) Build() []*levelupbenefit.LevelUpBenefit {
 	levels := []*levelupbenefit.LevelUpBenefit{}
-	for i:= 0; i < generator.Instructions.NumberOfLevels; i++ {
+	for i := 0; i < generator.Instructions.NumberOfLevels; i++ {
 		newLevelUpBenefit := &levelupbenefit.LevelUpBenefit{
 			Identification: &levelupbenefit.Identification{
 				LevelUpBenefitType: generator.Instructions.Type,

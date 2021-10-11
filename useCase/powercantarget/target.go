@@ -1,8 +1,8 @@
 package powercantarget
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 )
 
 // InvalidTargetReason explains why the target is invalid
@@ -10,10 +10,10 @@ type InvalidTargetReason string
 
 // InvalidTargetReason constants. If a target is invalid it should fall into one of these categories.
 const (
-	TargetIsValid InvalidTargetReason = "TargetIsValid"
+	TargetIsValid                InvalidTargetReason = "TargetIsValid"
 	PowerCannotTargetAffiliation InvalidTargetReason = "PowerCannotTargetAffiliation"
-	TargetIsDead InvalidTargetReason = "TargetIsDead"
-	UserIsDead InvalidTargetReason = "UserIsDead"
+	TargetIsDead                 InvalidTargetReason = "TargetIsDead"
+	UserIsDead                   InvalidTargetReason = "UserIsDead"
 )
 
 // IsValidTarget checks to see if the user can apply the power against the target.
@@ -24,7 +24,7 @@ func IsValidTarget(userID string, powerID string, targetID string, repos *reposi
 		return false, UserIsDead
 	}
 
-	if !(TargetIsStillAlive(targetID, repos) || UserCanTargetDead())  {
+	if !(TargetIsStillAlive(targetID, repos) || UserCanTargetDead()) {
 		return false, TargetIsDead
 	}
 

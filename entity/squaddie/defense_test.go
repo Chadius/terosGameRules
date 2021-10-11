@@ -1,12 +1,12 @@
 package squaddie_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/damagedistribution"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/damagedistribution"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
 )
 
-type SquaddieDefenseSuite struct{
+type SquaddieDefenseSuite struct {
 	teros *squaddie.Squaddie
 }
 
@@ -36,7 +36,7 @@ func (suite *SquaddieDefenseSuite) TestDefaultHitPoints(checker *C) {
 
 func (suite *SquaddieDefenseSuite) TestTakeDamageLowersHitPoints(checker *C) {
 	suite.teros.Defense.ReduceHitPoints(3)
-	checker.Assert(suite.teros.Defense.CurrentHitPoints, Equals, suite.teros.Defense.MaxHitPoints - 3)
+	checker.Assert(suite.teros.Defense.CurrentHitPoints, Equals, suite.teros.Defense.MaxHitPoints-3)
 }
 
 func (suite *SquaddieDefenseSuite) TestCannotReduceHitPointsBelowZero(checker *C) {
@@ -48,7 +48,7 @@ func (suite *SquaddieDefenseSuite) TestTakeBarrierBurnLowersBarrier(checker *C) 
 	suite.teros.Defense.MaxBarrier = 3
 	suite.teros.Defense.SetBarrierToMax()
 	suite.teros.Defense.ReduceBarrier(2)
-	checker.Assert(suite.teros.Defense.CurrentBarrier, Equals, suite.teros.Defense.MaxBarrier - 2)
+	checker.Assert(suite.teros.Defense.CurrentBarrier, Equals, suite.teros.Defense.MaxBarrier-2)
 }
 
 func (suite *SquaddieDefenseSuite) TestCannotReduceBarrierBelowZero(checker *C) {
@@ -66,7 +66,7 @@ func (suite *SquaddieDefenseSuite) TestDamageDistributionLowersBarrierAndHealth(
 		},
 	)
 	checker.Assert(suite.teros.Defense.CurrentBarrier, Equals, 0)
-	checker.Assert(suite.teros.Defense.CurrentHitPoints, Equals, suite.teros.Defense.MaxHitPoints - 1)
+	checker.Assert(suite.teros.Defense.CurrentHitPoints, Equals, suite.teros.Defense.MaxHitPoints-1)
 }
 
 func (suite *SquaddieDefenseSuite) TestDamageDistributionShowsCappedDamage(checker *C) {
@@ -89,5 +89,5 @@ func (suite *SquaddieDefenseSuite) TestSquaddiesAreDeadWhenAtZeroHitPoints(check
 func (suite *SquaddieDefenseSuite) TestGainHitPoints(checker *C) {
 	suite.teros.Defense.CurrentHitPoints = 1
 	healingAmount := suite.teros.Defense.GainHitPoints(suite.teros.Defense.MaxHitPoints)
-	checker.Assert(healingAmount, Equals, suite.teros.Defense.MaxHitPoints - 1)
+	checker.Assert(healingAmount, Equals, suite.teros.Defense.MaxHitPoints-1)
 }

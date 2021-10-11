@@ -16,4 +16,3 @@ type Identification struct {
 	LevelUpBenefitType Size   `json:"level_up_benefit_type" yaml:"level_up_benefit_type"`
 	ID                 string `json:"id" yaml:"id"`
 }
-

@@ -1,15 +1,15 @@
 package actionviewer_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/actionviewer"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerattackforecast"
-	"github.com/cserrant/terosBattleServer/usecase/powercommit"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility/testutility"
+	"github.com/cserrant/terosbattleserver/entity/actionviewer"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerattackforecast"
+	"github.com/cserrant/terosbattleserver/usecase/powercommit"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -17,27 +17,27 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type ConsoleViewerSuite struct {
-	teros			*squaddie.Squaddie
-	bandit			*squaddie.Squaddie
-	bandit2			*squaddie.Squaddie
-	lini *squaddie.Squaddie
+	teros   *squaddie.Squaddie
+	bandit  *squaddie.Squaddie
+	bandit2 *squaddie.Squaddie
+	lini    *squaddie.Squaddie
 
-	blot    *power.Power
-	axe      *power.Power
+	blot         *power.Power
+	axe          *power.Power
 	healingStaff *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
-	repos			*repositories.RepositoryCollection
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
 
 	forecastBlotOnBandit *powerattackforecast.Forecast
-	resultBlotOnBandit *powercommit.Result
+	resultBlotOnBandit   *powercommit.Result
 
 	forecastBlotOnMultipleBandits *powerattackforecast.Forecast
-	resultBlotOnMultipleBandits *powercommit.Result
+	resultBlotOnMultipleBandits   *powercommit.Result
 
 	forecastHealingStaffOnTeros *powerattackforecast.Forecast
-	resultHealingStaffOnTeros *powercommit.Result
+	resultHealingStaffOnTeros   *powercommit.Result
 
 	viewer *actionviewer.ConsoleActionViewer
 }
@@ -68,8 +68,8 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 	suite.axe.ID = "axe"
 	suite.axe.PowerType = power.Physical
 	suite.axe.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-		DamageBonus: 1,
+		ToHitBonus:    1,
+		DamageBonus:   1,
 		CanBeEquipped: true,
 	}
 
@@ -131,8 +131,8 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultBlotOnBandit = &powercommit.Result{
@@ -147,8 +147,8 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 	suite.resultBlotOnMultipleBandits = &powercommit.Result{
@@ -163,8 +163,8 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo:    suite.squaddieRepo,
-			PowerRepo:       suite.powerRepo,
+			SquaddieRepo: suite.squaddieRepo,
+			PowerRepo:    suite.powerRepo,
 		},
 	}
 
@@ -212,8 +212,9 @@ func (suite *ConsoleViewerSuite) TestShowPowerHitTargetAndDamage(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 1)
+	checker.Assert(suite.viewer.Messages, HasLen, 2)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) hits Bandit, for 3 damage")
+	checker.Assert(suite.viewer.Messages[1], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowWhenPowerMisses(checker *C) {
@@ -224,8 +225,9 @@ func (suite *ConsoleViewerSuite) TestShowWhenPowerMisses(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 1)
+	checker.Assert(suite.viewer.Messages, HasLen, 2)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) misses Bandit")
+	checker.Assert(suite.viewer.Messages[1], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
@@ -242,8 +244,9 @@ func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 1)
+	checker.Assert(suite.viewer.Messages, HasLen, 2)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) CRITICALLY hits Bandit, for 4 damage")
+	checker.Assert(suite.viewer.Messages[1], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
@@ -259,8 +262,9 @@ func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 2)
+	checker.Assert(suite.viewer.Messages, HasLen, 3)
 	checker.Assert(suite.viewer.Messages[1], Equals, "Bandit (axe) counters Teros, for 2 damage")
+	checker.Assert(suite.viewer.Messages[2], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
@@ -273,8 +277,9 @@ func (suite *ConsoleViewerSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 1)
+	checker.Assert(suite.viewer.Messages, HasLen, 2)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) hits Bandit, felling")
+	checker.Assert(suite.viewer.Messages[1], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowPowerBarrierBurn(checker *C) {
@@ -289,8 +294,9 @@ func (suite *ConsoleViewerSuite) TestShowPowerBarrierBurn(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 1)
+	checker.Assert(suite.viewer.Messages, HasLen, 2)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn")
+	checker.Assert(suite.viewer.Messages[1], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
@@ -298,10 +304,11 @@ func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultBlotOnMultipleBandits, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 3)
+	checker.Assert(suite.viewer.Messages, HasLen, 4)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn")
 	checker.Assert(suite.viewer.Messages[1], Equals, "- also hits Bandit2, for 3 damage")
 	checker.Assert(suite.viewer.Messages[2], Equals, "Bandit2 (axe) counters Teros, for 3 damage")
+	checker.Assert(suite.viewer.Messages[3], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowPowerHealingEffects(checker *C) {
@@ -315,8 +322,9 @@ func (suite *ConsoleViewerSuite) TestShowPowerHealingEffects(checker *C) {
 
 	suite.viewer.PrintResult(suite.resultHealingStaffOnTeros, suite.repos, nil)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 1)
+	checker.Assert(suite.viewer.Messages, HasLen, 2)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Lini (Healing Staff) heals Teros, for 4 healing")
+	checker.Assert(suite.viewer.Messages[1], Equals, "---")
 }
 
 func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
@@ -330,13 +338,14 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 		},
 	)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 6)
+	checker.Assert(suite.viewer.Messages, HasLen, 7)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn")
 	checker.Assert(suite.viewer.Messages[1], Equals, "- also hits Bandit2, for 3 damage")
 	checker.Assert(suite.viewer.Messages[2], Equals, "   Bandit: 3/5 HP, 0 barrier")
 	checker.Assert(suite.viewer.Messages[3], Equals, "   Bandit2: 2/5 HP")
 	checker.Assert(suite.viewer.Messages[4], Equals, "Bandit2 (axe) counters Teros, for 3 damage")
 	checker.Assert(suite.viewer.Messages[5], Equals, "   Teros: 2/5 HP")
+	checker.Assert(suite.viewer.Messages[6], Equals, "---")
 
 	suite.SetUpLiniHealsTeros()
 
@@ -348,9 +357,9 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 		},
 	)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 8)
-	checker.Assert(suite.viewer.Messages[6], Equals, "Lini (Healing Staff) heals Teros, for 4 healing")
-	checker.Assert(suite.viewer.Messages[7], Equals, "   Teros: 5/5 HP")
+	checker.Assert(suite.viewer.Messages, HasLen, 10)
+	checker.Assert(suite.viewer.Messages[7], Equals, "Lini (Healing Staff) heals Teros, for 4 healing")
+	checker.Assert(suite.viewer.Messages[8], Equals, "   Teros: 5/5 HP")
 }
 
 func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
@@ -364,13 +373,14 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 		},
 	)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 6)
+	checker.Assert(suite.viewer.Messages, HasLen, 7)
 	checker.Assert(suite.viewer.Messages[0], Equals, "Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn")
 	checker.Assert(suite.viewer.Messages[1], Equals, "- also hits Bandit2, for 3 damage")
 	checker.Assert(suite.viewer.Messages[2], Equals, "   Teros rolls 999 + 0 = 999, Bandit rolls -999 + 0 = -999")
 	checker.Assert(suite.viewer.Messages[3], Equals, "   Teros rolls 999 + 0 = 999, Bandit2 rolls -999 + 0 = -999")
 	checker.Assert(suite.viewer.Messages[4], Equals, "Bandit2 (axe) counters Teros, for 3 damage")
 	checker.Assert(suite.viewer.Messages[5], Equals, "   Bandit2 rolls 999 + -1 = 998, Teros rolls -999 + 0 = -999")
+	checker.Assert(suite.viewer.Messages[6], Equals, "---")
 
 	suite.SetUpLiniHealsTeros()
 
@@ -382,9 +392,9 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 		},
 	)
 
-	checker.Assert(suite.viewer.Messages, HasLen, 8)
-	checker.Assert(suite.viewer.Messages[6], Equals, "Lini (Healing Staff) heals Teros, for 4 healing")
-	checker.Assert(suite.viewer.Messages[7], Equals, "   Auto-hit")
+	checker.Assert(suite.viewer.Messages, HasLen, 10)
+	checker.Assert(suite.viewer.Messages[7], Equals, "Lini (Healing Staff) heals Teros, for 4 healing")
+	checker.Assert(suite.viewer.Messages[8], Equals, "   Auto-hit")
 }
 
 func (suite *ConsoleViewerSuite) TestShowForecastChanceToHitAndHealing(checker *C) {

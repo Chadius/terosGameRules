@@ -2,8 +2,8 @@ package damagedistribution
 
 // ToHitComparison describes how much to hit bonus and penalty are involved in an attack.
 type ToHitComparison struct {
-	ToHitBonus int
-	AttackerToHitBonus int
+	ToHitBonus           int
+	AttackerToHitBonus   int
 	DefenderToHitPenalty int
 }
 

@@ -1,11 +1,11 @@
 package squaddiestats_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -13,13 +13,13 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type squaddieOffense struct {
-	teros			*squaddie.Squaddie
+	teros *squaddie.Squaddie
 
-	spear    *power.Power
-	blot    *power.Power
+	spear *power.Power
+	blot  *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
 
 	repos *repositories.RepositoryCollection
 }
@@ -46,7 +46,7 @@ func (suite *squaddieOffense) SetUpTest(checker *C) {
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
-		PowerRepo: suite.powerRepo,
+		PowerRepo:    suite.powerRepo,
 	}
 
 	powerequip.LoadAllOfSquaddieInnatePowers(
@@ -69,18 +69,18 @@ func (suite *squaddieOffense) TestSquaddieMeasuresAim(checker *C) {
 		CanBeEquipped:                 true,
 		CanCounterAttack:              true,
 		CounterAttackPenaltyReduction: -2,
-		CriticalEffect:            &power.CriticalEffect{
+		CriticalEffect: &power.CriticalEffect{
 			CriticalHitThresholdBonus: 3,
 			Damage:                    5,
 		},
 	}
 
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                2,
-		DamageBonus:               0,
-		ExtraBarrierBurn:          2,
-		CanBeEquipped:             true,
-		CanCounterAttack:          false,
+		ToHitBonus:       2,
+		DamageBonus:      0,
+		ExtraBarrierBurn: 2,
+		CanBeEquipped:    true,
+		CanCounterAttack: false,
 	}
 
 	spearAim, spearErr := squaddiestats.GetSquaddieAimWithPower(suite.teros.Identification.ID, suite.spear.ID, suite.repos)
@@ -133,7 +133,7 @@ func (suite *squaddieOffense) TestGetRawDamageOfPhysicalPower(checker *C) {
 		CanBeEquipped:                 true,
 		CanCounterAttack:              true,
 		CounterAttackPenaltyReduction: -2,
-		CriticalEffect:            &power.CriticalEffect{
+		CriticalEffect: &power.CriticalEffect{
 			CriticalHitThresholdBonus: 3,
 			Damage:                    5,
 		},
@@ -148,11 +148,11 @@ func (suite *squaddieOffense) TestGetRawDamageOfSpellPower(checker *C) {
 	suite.teros.Offense.Mind = 3
 
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                2,
-		DamageBonus:               0,
-		ExtraBarrierBurn:          2,
-		CanBeEquipped:             true,
-		CanCounterAttack:          false,
+		ToHitBonus:       2,
+		DamageBonus:      0,
+		ExtraBarrierBurn: 2,
+		CanBeEquipped:    true,
+		CanCounterAttack: false,
 	}
 
 	blotDamage, blotErr := squaddiestats.GetSquaddieRawDamageWithPower(suite.teros.Identification.ID, suite.blot.ID, suite.repos)
@@ -168,7 +168,7 @@ func (suite *squaddieOffense) TestGetCriticalThresholdOfPower(checker *C) {
 		CanBeEquipped:                 true,
 		CanCounterAttack:              true,
 		CounterAttackPenaltyReduction: -2,
-		CriticalEffect:            &power.CriticalEffect{
+		CriticalEffect: &power.CriticalEffect{
 			CriticalHitThresholdBonus: 2,
 			Damage:                    5,
 		},
@@ -203,7 +203,7 @@ func (suite *squaddieOffense) TestGetCriticalDamageOfPower(checker *C) {
 		CanBeEquipped:                 true,
 		CanCounterAttack:              true,
 		CounterAttackPenaltyReduction: -2,
-		CriticalEffect:            &power.CriticalEffect{
+		CriticalEffect: &power.CriticalEffect{
 			CriticalHitThresholdBonus: 2,
 			Damage:                    5,
 		},
@@ -216,11 +216,11 @@ func (suite *squaddieOffense) TestGetCriticalDamageOfPower(checker *C) {
 
 func (suite *squaddieOffense) TestSquaddieCanCounterAttackWithPower(checker *C) {
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		CanCounterAttack:          true,
+		CanCounterAttack: true,
 	}
 
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		CanCounterAttack:          false,
+		CanCounterAttack: false,
 	}
 
 	spearCanCounter, spearErr := squaddiestats.GetSquaddieCanCounterAttackWithPower(suite.teros.Identification.ID, suite.spear.ID, suite.repos)
@@ -250,11 +250,11 @@ func (suite *squaddieOffense) TestGetTotalBarrierBurnOfAttacks(checker *C) {
 	suite.teros.Offense.Mind = 3
 
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                2,
-		DamageBonus:               0,
-		ExtraBarrierBurn:          2,
-		CanBeEquipped:             true,
-		CanCounterAttack:          false,
+		ToHitBonus:       2,
+		DamageBonus:      0,
+		ExtraBarrierBurn: 2,
+		CanBeEquipped:    true,
+		CanCounterAttack: false,
 	}
 
 	blotDamage, blotErr := squaddiestats.GetSquaddieExtraBarrierBurnWithPower(suite.teros.Identification.ID, suite.blot.ID, suite.repos)
@@ -264,8 +264,8 @@ func (suite *squaddieOffense) TestGetTotalBarrierBurnOfAttacks(checker *C) {
 
 func (suite *squaddieOffense) TestCanCriticallyHitWithPower(checker *C) {
 	suite.spear.AttackEffect = &power.AttackingEffect{
-		CriticalEffect:            &power.CriticalEffect{
-			Damage:                    1,
+		CriticalEffect: &power.CriticalEffect{
+			Damage: 1,
 		},
 	}
 
@@ -281,11 +281,11 @@ func (suite *squaddieOffense) TestCanCriticallyHitWithPower(checker *C) {
 }
 
 type healingPower struct {
-	lini			*squaddie.Squaddie
+	lini         *squaddie.Squaddie
 	healingStaff *power.Power
 
-	powerRepo 		*power.Repository
-	squaddieRepo 	*squaddie.Repository
+	powerRepo    *power.Repository
+	squaddieRepo *squaddie.Repository
 
 	repos *repositories.RepositoryCollection
 }
@@ -307,7 +307,7 @@ func (suite *healingPower) SetUpTest(checker *C) {
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
-		PowerRepo: suite.powerRepo,
+		PowerRepo:    suite.powerRepo,
 	}
 
 	powerequip.LoadAllOfSquaddieInnatePowers(
@@ -323,7 +323,7 @@ func (suite *healingPower) TestSquaddieKnowsHealingPotential(checker *C) {
 	suite.lini.Defense.CurrentHitPoints = 1
 	suite.lini.Offense.Mind = 1
 	suite.healingStaff.HealingEffect = &power.HealingEffect{
-		HitPointsHealed: 3,
+		HitPointsHealed:                  3,
 		HealingAdjustmentBasedOnUserMind: power.Full,
 	}
 

@@ -1,10 +1,10 @@
 package powerattackforecast
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/powerusagescenario"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/usecase/squaddiestats"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/powerusagescenario"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/usecase/squaddiestats"
 )
 
 // AttackerContext lists the attacker's relevant information when attacking
@@ -12,14 +12,14 @@ type AttackerContext struct {
 	IsCounterAttack bool
 	TotalToHitBonus int
 
-	RawDamage       int
-	DamageType      power.Type
+	RawDamage  int
+	DamageType power.Type
 
 	ExtraBarrierBurn int
 
-	CanCritical bool
+	CanCritical          bool
 	CriticalHitThreshold int
-	CriticalHitDamage int
+	CriticalHitDamage    int
 }
 
 func (context *AttackerContext) calculate(setup powerusagescenario.Setup, repositories *repositories.RepositoryCollection) error {

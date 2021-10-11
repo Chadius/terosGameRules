@@ -1,7 +1,7 @@
 package levelupbenefit_test
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/levelupbenefit"
+	"github.com/cserrant/terosbattleserver/entity/levelupbenefit"
 	. "gopkg.in/check.v1"
 )
 
@@ -71,7 +71,6 @@ func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
 		return true
 	})
 	checker.Assert(allLevelsFound, HasLen, 3)
-
 
 	onlySmallLevels := levelupbenefit.FilterLevelUpBenefits(listToTest, func(benefit *levelupbenefit.LevelUpBenefit) bool {
 		return benefit.Identification.LevelUpBenefitType == levelupbenefit.Small

@@ -1,8 +1,8 @@
 package squaddiestats
 
 import (
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
 )
 
 // GetSquaddieToHitPenaltyAgainstPower returns how well the squaddie can evade the attack
@@ -47,7 +47,7 @@ func GetSquaddieBarrierAgainstPower(squaddieID, powerID string, repos *repositor
 }
 
 // GetSquaddieCurrentHitPoints returns the squaddie's current hit points.
-func GetSquaddieCurrentHitPoints (squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error) {
+func GetSquaddieCurrentHitPoints(squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error) {
 	squaddie, _, err := getSquaddieAndAttackPower(squaddieID, powerID, repos)
 	if err != nil {
 		return 0, err

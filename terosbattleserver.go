@@ -1,24 +1,23 @@
-package main
+package terosbattleserver
 
 import (
-	"flag"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/actioncontroller"
-	"github.com/cserrant/terosBattleServer/entity/actionviewer"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/replay"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/usecase/powerequip"
-	"github.com/cserrant/terosBattleServer/usecase/repositories"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/entity/actioncontroller"
+	"github.com/cserrant/terosbattleserver/entity/actionviewer"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/replay"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/usecase/powerequip"
+	"github.com/cserrant/terosbattleserver/usecase/repositories"
+	"github.com/cserrant/terosbattleserver/utility"
 	"io/ioutil"
 	"log"
 )
 
-func main() {
+func ReplayBattleScript(scriptFilename, squaddieRepositoryFilename, powerRepositoryFilename string) {
 	utility.Logger = &utility.FileLogger{}
-	squaddieRepo := loadSquaddieRepo()
-	powerRepo := loadPowerRepo()
+	squaddieRepo := loadSquaddieRepo(squaddieRepositoryFilename)
+	powerRepo := loadPowerRepo(powerRepositoryFilename)
 	repos := &repositories.RepositoryCollection{
 		PowerRepo:    powerRepo,
 		SquaddieRepo: squaddieRepo,
@@ -26,10 +25,6 @@ func main() {
 
 	controller := actioncontroller.WhiteRoomController{}
 	viewer := actionviewer.ConsoleActionViewer{}
-
-	scriptFilename := "scripts/battle.yml"
-	flag.StringVar(&scriptFilename, "f", "scripts/battle.yml", "The filename of the script file. Defaults to scripts/battle.yml")
-	flag.Parse()
 
 	scriptYAML, err := ioutil.ReadFile(scriptFilename)
 	if err != nil {
@@ -85,8 +80,8 @@ func processSquaddieAction(
 	return true
 }
 
-func loadSquaddieRepo() (repo *squaddie.Repository) {
-	squaddieYamlData, err := ioutil.ReadFile("data/squaddieDatabase.yml")
+func loadSquaddieRepo(squaddieRepositoryFilename string) (repo *squaddie.Repository) {
+	squaddieYamlData, err := ioutil.ReadFile(squaddieRepositoryFilename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,8 +91,8 @@ func loadSquaddieRepo() (repo *squaddie.Repository) {
 	return squaddieRepo
 }
 
-func loadPowerRepo() (repo *power.Repository) {
-	powerYamlData, err := ioutil.ReadFile("data/powerDatabase.yml")
+func loadPowerRepo(powerRepositoryFilename string) (repo *power.Repository) {
+	powerYamlData, err := ioutil.ReadFile(powerRepositoryFilename)
 	if err != nil {
 		log.Fatal(err)
 	}

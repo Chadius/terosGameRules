@@ -3,15 +3,15 @@ package squaddie_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/entity/power"
-	"github.com/cserrant/terosBattleServer/entity/squaddie"
-	"github.com/cserrant/terosBattleServer/entity/squaddieclass"
+	"github.com/cserrant/terosbattleserver/entity/power"
+	"github.com/cserrant/terosbattleserver/entity/squaddie"
+	"github.com/cserrant/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddieRepositorySuite struct {
 	squaddieFactory *squaddie.Repository
-	teros *squaddie.Squaddie
+	teros           *squaddie.Squaddie
 }
 
 var _ = Suite(&SquaddieRepositorySuite{})
@@ -396,12 +396,12 @@ func (suite *SquaddieRepositorySuite) TestAddSquaddieDirectly(checker *C) {
 }
 
 func (suite *SquaddieRepositorySuite) TestCloneSquaddie(checker *C) {
-	
+
 }
 
 type SquaddieCloneSuite struct {
 	squaddieFactory *squaddie.Repository
-	base *squaddie.Squaddie
+	base            *squaddie.Squaddie
 }
 
 var _ = Suite(&SquaddieCloneSuite{})
@@ -492,14 +492,14 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
 	initialClass := &squaddieclass.Class{
-		ID: "initial",
-		Name: "Initial Class",
+		ID:                "initial",
+		Name:              "Initial Class",
 		BaseClassRequired: false,
 		InitialBigLevelID: "",
 	}
 	advancedClass := &squaddieclass.Class{
-		ID: "advanced",
-		Name: "Advanced Class",
+		ID:                "advanced",
+		Name:              "Advanced Class",
 		BaseClassRequired: true,
 		InitialBigLevelID: "advanceLevel0",
 	}

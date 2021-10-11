@@ -6,8 +6,6 @@ help:
 .DEFAULT_GOAL=help
 .PHONY=help
 
-run: ## Run the script
-	go run .
 test: ## Test all files using ginkgo
 	go test -v ./...
 lint: ## Lint all the files using golint

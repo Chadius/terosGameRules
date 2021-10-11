@@ -3,7 +3,7 @@ package levelupbenefit
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cserrant/terosBattleServer/utility"
+	"github.com/cserrant/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
 
@@ -65,7 +65,7 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	return true, nil
 }
 
-func (repository *Repository)tryToAddLevelUpBenefitToSource(levelUpBenefit *LevelUpBenefit) (bool, error){
+func (repository *Repository) tryToAddLevelUpBenefitToSource(levelUpBenefit *LevelUpBenefit) (bool, error) {
 	err := levelUpBenefit.CheckForErrors()
 	if err != nil {
 		return false, err
@@ -88,7 +88,7 @@ func (repository *Repository) GetLevelUpBenefitsByClassID(classID string) ([]*Le
 	classBenefits, classExists := repository.levelUpBenefitsByClassID[classID]
 	if !classExists {
 		newError := fmt.Errorf(`no LevelUpBenefits for this class ID: "%s"`, classID)
-		utility.Log(newError.Error(),0, utility.Error)
+		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 
@@ -116,4 +116,3 @@ func NewLevelUpBenefitRepository() *Repository {
 	}
 	return &repository
 }
-
