@@ -38,7 +38,8 @@ func (suite *SquaddieIdentificationCreationTests) TestGetANewID(checker *C) {
 func (suite *SquaddieMovementTests) TestRaisesErrorIfSquaddieHasUnknownAffiliation(checker *C) {
 	newSquaddie := squaddie.NewSquaddie("teros")
 	newSquaddie.Identification.Affiliation = "Unknown Affiliation"
+	newSquaddie.Identification.ID = "squaddieTeros"
 	err := squaddie.CheckSquaddieForErrors(newSquaddie)
 	checker.Assert(err, NotNil)
-	checker.Assert(err, ErrorMatches, "squaddie has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err, ErrorMatches, "squaddie squaddieTeros has unknown affiliation: 'Unknown Affiliation'")
 }

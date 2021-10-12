@@ -67,7 +67,7 @@ func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
 		newSquaddie.Identification.Affiliation != Enemy &&
 		newSquaddie.Identification.Affiliation != Ally &&
 		newSquaddie.Identification.Affiliation != Neutral {
-		newError := fmt.Errorf("squaddie has unknown affiliation: '%s'", newSquaddie.Identification.Affiliation)
+		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.Identification.ID, newSquaddie.Identification.Affiliation)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}

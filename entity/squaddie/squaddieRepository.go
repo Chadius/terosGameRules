@@ -51,7 +51,6 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	if unmarshalError != nil {
 		return false, unmarshalError
 	}
-
 	for index := range listOfSquaddies {
 		newSquaddie := listOfSquaddies[index]
 		success, err := repository.tryToAddSquaddie(&newSquaddie)

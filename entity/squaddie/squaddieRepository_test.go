@@ -148,7 +148,7 @@ func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesWhenInvalid(checke
 			}]`)
 	success, err := suite.squaddieFactory.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, false)
-	checker.Assert(err, ErrorMatches, "squaddie has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err, ErrorMatches, "squaddie  has unknown affiliation: 'Unknown Affiliation'")
 }
 
 func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C) {
@@ -319,7 +319,7 @@ func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesUponFirstInvalid(c
 	success, err := suite.squaddieFactory.AddYAMLSource(yamlByteStream)
 	checker.Assert(success, Equals, false)
 	checker.Assert(err, NotNil)
-	checker.Assert(err.Error(), Equals, "squaddie has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err.Error(), Equals, "squaddie  has unknown affiliation: 'Unknown Affiliation'")
 }
 
 func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML(checker *C) {

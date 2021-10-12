@@ -1,6 +1,7 @@
 package terosbattleserver
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/actioncontroller"
 	"github.com/chadius/terosbattleserver/entity/actionviewer"
@@ -10,14 +11,29 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility"
-	"io/ioutil"
 	"log"
+	"os"
 )
 
-func ReplayBattleScript(scriptFilename, squaddieRepositoryFilename, powerRepositoryFilename string) {
+func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle *os.File) error {
 	utility.Logger = &utility.FileLogger{}
-	squaddieRepo := loadSquaddieRepo(squaddieRepositoryFilename)
-	powerRepo := loadPowerRepo(powerRepositoryFilename)
+
+	var squaddieData = []byte{}
+	squaddieScanner := bufio.NewScanner(squaddieFileHandle)
+	squaddieScanner.Split(bufio.ScanBytes)
+	for squaddieScanner.Scan() {
+		squaddieData = append(squaddieData, squaddieScanner.Bytes()...)
+	}
+	squaddieRepo := loadSquaddieRepo(squaddieData)
+
+	var powerData = []byte{}
+	powerScanner := bufio.NewScanner(powerFileHandle)
+	powerScanner.Split(bufio.ScanBytes)
+	for powerScanner.Scan() {
+		powerData = append(powerData, powerScanner.Bytes()...)
+	}
+	powerRepo := loadPowerRepo(powerData)
+
 	repos := &repositories.RepositoryCollection{
 		PowerRepo:    powerRepo,
 		SquaddieRepo: squaddieRepo,
@@ -26,13 +42,15 @@ func ReplayBattleScript(scriptFilename, squaddieRepositoryFilename, powerReposit
 	controller := actioncontroller.WhiteRoomController{}
 	viewer := actionviewer.ConsoleActionViewer{}
 
-	scriptYAML, err := ioutil.ReadFile(scriptFilename)
-	if err != nil {
-		log.Fatal(err)
+	var scriptData = []byte{}
+	scriptScanner := bufio.NewScanner(scriptFileHandle)
+	scriptScanner.Split(bufio.ScanBytes)
+	for scriptScanner.Scan() {
+		scriptData = append(scriptData, scriptScanner.Bytes()...)
 	}
-	chapterReplay, replayErr := replay.NewCreateMapReplayFromYAML(scriptYAML)
+	chapterReplay, replayErr := replay.NewCreateMapReplayFromYAML(scriptData)
 	if replayErr != nil {
-		log.Fatal(replayErr)
+		return replayErr
 	}
 
 	initializeAllSquaddies(chapterReplay, repos)
@@ -48,6 +66,7 @@ func ReplayBattleScript(scriptFilename, squaddieRepositoryFilename, powerReposit
 			break
 		}
 	}
+	return nil
 }
 
 func processSquaddieAction(
@@ -80,22 +99,16 @@ func processSquaddieAction(
 	return true
 }
 
-func loadSquaddieRepo(squaddieRepositoryFilename string) (repo *squaddie.Repository) {
-	squaddieYamlData, err := ioutil.ReadFile(squaddieRepositoryFilename)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
 	squaddieRepo := squaddie.NewSquaddieRepository()
-	squaddieRepo.AddYAMLSource(squaddieYamlData)
+	_, err := squaddieRepo.AddYAMLSource(squaddieYamlData)
+	if err != nil {
+		println (err.Error())
+	}
 	return squaddieRepo
 }
 
-func loadPowerRepo(powerRepositoryFilename string) (repo *power.Repository) {
-	powerYamlData, err := ioutil.ReadFile(powerRepositoryFilename)
-	if err != nil {
-		log.Fatal(err)
-	}
+func loadPowerRepo(powerYamlData []byte) (repo *power.Repository) {
 	powerRepo := power.NewPowerRepository()
 	powerRepo.AddYAMLSource(powerYamlData)
 	return powerRepo
