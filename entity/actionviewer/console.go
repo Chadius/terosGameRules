@@ -6,6 +6,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powercommit"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"io"
 )
 
 // ConsoleActionViewerVerbosity represents options you can use to show how verbose you want the output.
@@ -27,21 +28,28 @@ type messagesByPowerUsage struct {
 	powerResults              []*powercommit.ResultPerTarget
 }
 
+// TODO print to a generic output buffer
 // PrintMessages will print all the messages in the buffer, then clear the screen.
-func (viewer *ConsoleActionViewer) PrintMessages() {
+func (viewer *ConsoleActionViewer) PrintMessages(output io.Writer) {
 	if viewer.IgnorePrinting {
 		return
 	}
 
 	for _, message := range viewer.Messages {
-		println(message)
+		io.WriteString(output, message)
+		io.WriteString(output, "\n")
 	}
 
 	viewer.Messages = []string{}
 }
 
 // PrintForecast will generate messages for the given Result and clear the Messages.
-func (viewer *ConsoleActionViewer) PrintForecast(powerForecast *powerattackforecast.Forecast, repositories *repositories.RepositoryCollection) {
+func (viewer *ConsoleActionViewer) PrintForecast(powerForecast *powerattackforecast.Forecast, repositories *repositories.RepositoryCollection, output io.Writer) {
+	viewer.PrepareForecast(powerForecast, repositories)
+	viewer.PrintMessages(output)
+}
+
+func (viewer *ConsoleActionViewer) PrepareForecast(powerForecast *powerattackforecast.Forecast, repositories *repositories.RepositoryCollection) {
 	for resultIndex, forecast := range powerForecast.ForecastedResultPerTarget {
 		if forecast.Attack != nil {
 			viewer.createMessagesForAttackOrCounterAttack(forecast, repositories, resultIndex, false)
@@ -55,8 +63,6 @@ func (viewer *ConsoleActionViewer) PrintForecast(powerForecast *powerattackforec
 			viewer.createMessagesForHealing(repositories, forecast, resultIndex)
 		}
 	}
-
-	viewer.PrintMessages()
 }
 
 func (viewer *ConsoleActionViewer) createMessagesForHealing(repositories *repositories.RepositoryCollection, forecast powerattackforecast.Calculation, resultIndex int) {
@@ -185,7 +191,12 @@ func getChanceToHitMessageSnippet(toHitBonus int, includeParenthesis bool) strin
 }
 
 // PrintResult will generate messages for the given Result and clear the Messages.
-func (viewer *ConsoleActionViewer) PrintResult(powerResult *powercommit.Result, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity) {
+func (viewer *ConsoleActionViewer) PrintResult(powerResult *powercommit.Result, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity, output io.Writer) {
+	viewer.PrepareResult(powerResult, repositories, verbosity)
+	viewer.PrintMessages(output)
+}
+
+func (viewer *ConsoleActionViewer) PrepareResult(powerResult *powercommit.Result, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity) {
 	messagesPerPowerUsage := viewer.collatePowerResultPerTargetsByResult(powerResult)
 	viewer.addUserAffectTargetMessagesByResult(messagesPerPowerUsage, repositories, verbosity)
 	if verbosity != nil && verbosity.ShowRolls == true {
@@ -196,7 +207,6 @@ func (viewer *ConsoleActionViewer) PrintResult(powerResult *powercommit.Result, 
 	}
 	viewer.printResultMessagesInOrder(messagesPerPowerUsage)
 	viewer.Messages = append(viewer.Messages, "---")
-	viewer.PrintMessages()
 }
 
 func (viewer *ConsoleActionViewer) printResultMessagesInOrder(messagesPerPowerUsage []*messagesByPowerUsage) {

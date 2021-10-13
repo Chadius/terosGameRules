@@ -1,7 +1,6 @@
 package terosbattleserver
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/actioncontroller"
 	"github.com/chadius/terosbattleserver/entity/actionviewer"
@@ -11,28 +10,17 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility"
+	"io"
+	"io/ioutil"
 	"log"
-	"os"
 )
 
-func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle *os.File) error {
+func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io.Reader, output io.Writer) error {
 	utility.Logger = &utility.FileLogger{}
 
-	var squaddieData = []byte{}
-	squaddieScanner := bufio.NewScanner(squaddieFileHandle)
-	squaddieScanner.Split(bufio.ScanBytes)
-	for squaddieScanner.Scan() {
-		squaddieData = append(squaddieData, squaddieScanner.Bytes()...)
-	}
-	squaddieRepo := loadSquaddieRepo(squaddieData)
-
-	var powerData = []byte{}
-	powerScanner := bufio.NewScanner(powerFileHandle)
-	powerScanner.Split(bufio.ScanBytes)
-	for powerScanner.Scan() {
-		powerData = append(powerData, powerScanner.Bytes()...)
-	}
-	powerRepo := loadPowerRepo(powerData)
+	squaddieRepo := createSquaddieRepo(squaddieFileHandle)
+	powerRepo := createPowerRepo(powerFileHandle)
+	chapterReplay := createChapterReplay(scriptFileHandle)
 
 	repos := &repositories.RepositoryCollection{
 		PowerRepo:    powerRepo,
@@ -41,32 +29,30 @@ func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle *o
 
 	controller := actioncontroller.WhiteRoomController{}
 	viewer := actionviewer.ConsoleActionViewer{}
+	processSquaddieActions(chapterReplay, &viewer, &controller, repos)
 
-	var scriptData = []byte{}
-	scriptScanner := bufio.NewScanner(scriptFileHandle)
-	scriptScanner.Split(bufio.ScanBytes)
-	for scriptScanner.Scan() {
-		scriptData = append(scriptData, scriptScanner.Bytes()...)
-	}
-	chapterReplay, replayErr := replay.NewCreateMapReplayFromYAML(scriptData)
-	if replayErr != nil {
-		return replayErr
-	}
+	viewer.PrintMessages(output)
+	return nil
+}
 
-	initializeAllSquaddies(chapterReplay, repos)
+func processSquaddieActions(
+	chapterReplay *replay.ChapterReplay,
+	viewer *actionviewer.ConsoleActionViewer,
+	controller *actioncontroller.WhiteRoomController,
+	repositories *repositories.RepositoryCollection) {
+	initializeAllSquaddies(chapterReplay, repositories)
 	for _, action := range chapterReplay.Actions {
 		continueProcessing := processSquaddieAction(
 			action,
-			&viewer,
-			&controller,
-			repos,
+			viewer,
+			controller,
+			repositories,
 		)
 
 		if continueProcessing == false {
 			break
 		}
 	}
-	return nil
 }
 
 func processSquaddieAction(
@@ -81,21 +67,20 @@ func processSquaddieAction(
 	if len(reasonsForInvalidAction) > 0 {
 		for _, reason := range reasonsForInvalidAction {
 			for _, description := range reason.Description {
-				println(description)
+				// TODO Abstraction!
+				viewer.Messages = append(viewer.Messages, description)
 			}
 		}
 		return false
 	}
 
 	forecast := controller.GenerateForecast(powerSetup, repositories)
-	viewer.PrintForecast(forecast, repositories)
+	viewer.PrepareForecast(forecast, repositories)
 
-	println()
 	result := controller.GenerateResult(forecast, repositories, true, action.RandomSeed)
-	viewer.PrintResult(result, repositories, &actionviewer.ConsoleActionViewerVerbosity{
+	viewer.PrepareResult(result, repositories, &actionviewer.ConsoleActionViewerVerbosity{
 		ShowTargetStatus: true,
 	})
-
 	return true
 }
 
@@ -103,7 +88,7 @@ func loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
 	squaddieRepo := squaddie.NewSquaddieRepository()
 	_, err := squaddieRepo.AddYAMLSource(squaddieYamlData)
 	if err != nil {
-		println (err.Error())
+		panic(err.Error())
 	}
 	return squaddieRepo
 }
@@ -142,3 +127,43 @@ func loadAndInitializeSquaddie(squaddieID string, repositories *repositories.Rep
 	powerequip.LoadAllOfSquaddieInnatePowers(squaddie, squaddie.PowerCollection.PowerReferences, repositories)
 	powerequip.EquipDefaultPower(squaddie, repositories)
 }
+
+func createSquaddieRepo(input io.Reader) *squaddie.Repository {
+	squaddieData, squaddieErr := ioutil.ReadAll(input)
+	if squaddieErr != nil {
+		log.Fatal(squaddieErr)
+	}
+
+	repo := loadSquaddieRepo(squaddieData)
+	if repo == nil {
+		log.Fatal("Squaddie Repo is nil")
+	}
+	return repo
+}
+
+func createPowerRepo(input io.Reader) *power.Repository {
+	powerData, powerErr := ioutil.ReadAll(input)
+	if powerErr != nil {
+		log.Fatal(powerErr)
+	}
+
+	repo := loadPowerRepo(powerData)
+	if repo == nil {
+		log.Fatal("Power Repo is nil")
+	}
+	return repo
+}
+
+func createChapterReplay(input io.Reader) *replay.ChapterReplay {
+	scriptData, scriptErr := ioutil.ReadAll(input)
+	if scriptErr != nil {
+		log.Fatal(scriptErr)
+	}
+
+	chapterReplay, replayErr := replay.NewCreateMapReplayFromYAML(scriptData)
+	if replayErr != nil {
+		log.Fatal(replayErr)
+	}
+	return chapterReplay
+}
+
