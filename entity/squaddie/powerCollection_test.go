@@ -6,32 +6,34 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddiePowerCollectionTests struct {
 	teros *squaddie.Squaddie
+	attackA *power.Power
 }
 
 var _ = Suite(&SquaddiePowerCollectionTests{})
 
 func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
+	suite.attackA = powerFactory.PowerFactory().WithName("Attack Formation A").Build()
 }
 
 func (suite *SquaddiePowerCollectionTests) TestGainInnatePowers(checker *C) {
-	attackA := power.NewPower("Attack Formation A")
-	suite.teros.PowerCollection.AddInnatePower(attackA)
+	suite.teros.PowerCollection.AddInnatePower(suite.attackA)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "Attack Formation A")
-	checker.Assert(attackIDNamePairs[0].ID, Equals, attackA.ID)
+	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.attackA.ID)
 }
 
 func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
-	attackA := power.NewPower("Attack Formation A")
-	suite.teros.PowerCollection.AddInnatePower(attackA)
+	suite.teros.PowerCollection.AddInnatePower(suite.attackA)
 	suite.teros.PowerCollection.ClearInnatePowers()
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
@@ -45,25 +47,20 @@ func (suite *SquaddiePowerCollectionTests) TestClearPowerReferences(checker *C) 
 }
 
 func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(checker *C) {
-	attackA := power.NewPower("Attack Formation A")
-	err := suite.teros.PowerCollection.AddInnatePower(attackA)
+	err := suite.teros.PowerCollection.AddInnatePower(suite.attackA)
 	checker.Assert(err, IsNil)
-	err = suite.teros.PowerCollection.AddInnatePower(attackA)
-	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with ID "%s"`, attackA.ID)
+	err = suite.teros.PowerCollection.AddInnatePower(suite.attackA)
+	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with ID "%s"`, suite.attackA.ID)
 	checker.Assert(err, ErrorMatches, expectedErrorMessage)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
-	checker.Assert(attackIDNamePairs[0].Name, Equals, "Attack Formation A")
-	checker.Assert(attackIDNamePairs[0].ID, Equals, attackA.ID)
+	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name)
+	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.attackA.ID)
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
-	spear := power.NewPower("spear")
-	spear.PowerType = power.Physical
-	spear.AttackEffect = &power.AttackingEffect{
-		CanBeEquipped: true,
-	}
+	spear := powerFactory.PowerFactory().Spear().Build()
 
 	powerRepo := power.NewPowerRepository()
 	powerRepo.AddSlicePowerSource([]*power.Power{spear})

@@ -10,6 +10,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility/testutility"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 	"strings"
 	"testing"
@@ -46,39 +48,14 @@ type ConsoleViewerSuite struct {
 var _ = Suite(&ConsoleViewerSuite{})
 
 func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Identification.Name = "Teros"
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
+	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
+	suite.bandit2 = squaddieFactory.SquaddieFactory().Bandit().WithName("Bandit2").WithID("banditID2").Build()
+	suite.lini = squaddieFactory.SquaddieFactory().Lini().Build()
 
-	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Identification.Name = "Bandit"
-	suite.bandit.Identification.ID = "banditID"
-
-	suite.bandit2 = squaddie.NewSquaddie("bandit2")
-	suite.bandit2.Identification.Name = "Bandit2"
-	suite.bandit2.Identification.ID = "banditID2"
-
-	suite.lini = squaddie.NewSquaddie("Lini")
-	suite.lini.Identification.ID = "squaddie_lini"
-	suite.lini.Identification.Name = "Lini"
-
-	suite.blot = power.NewPower("Blot")
-	suite.blot.PowerType = power.Spell
-	suite.blot.AttackEffect = &power.AttackingEffect{}
-
-	suite.axe = power.NewPower("axe")
-	suite.axe.ID = "axe"
-	suite.axe.PowerType = power.Physical
-	suite.axe.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:    1,
-		DamageBonus:   1,
-		CanBeEquipped: true,
-	}
-
-	suite.healingStaff = power.NewPower("Healing Staff")
-	suite.healingStaff.PowerType = power.Spell
-	suite.healingStaff.HealingEffect = &power.HealingEffect{
-		HitPointsHealed: 3,
-	}
+	suite.blot = powerFactory.PowerFactory().Blot().WithName("Blot").DealsDamage(0).Build()
+	suite.axe = powerFactory.PowerFactory().Axe().Build()
+	suite.healingStaff = powerFactory.PowerFactory().HealingStaff().WithName("Healing Staff").Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{

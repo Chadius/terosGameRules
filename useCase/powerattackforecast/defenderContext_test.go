@@ -6,6 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -26,38 +28,14 @@ type DefenderContextTestSuite struct {
 var _ = Suite(&DefenderContextTestSuite{})
 
 func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Identification.Name = "teros"
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
 
-	suite.spear = power.NewPower("spear")
-	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:  1,
-		DamageBonus: 1,
-	}
-
-	suite.blot = power.NewPower("blot")
-	suite.blot.PowerType = power.Spell
-	suite.blot.AttackEffect = &power.AttackingEffect{
-		DamageBonus: 3,
-	}
-
-	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Identification.Name = "bandit"
-	suite.bandit.Defense.Dodge = 1
-	suite.bandit.Defense.Deflect = 2
-	suite.bandit.Defense.Armor = 1
-	suite.bandit.Defense.MaxBarrier = 3
+	suite.spear = powerFactory.PowerFactory().Spear().Build()
+	suite.blot = powerFactory.PowerFactory().Blot().Build()
+	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe = power.NewPower("axe")
-	suite.axe.PowerType = power.Physical
-	suite.axe.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:       1,
-		DamageBonus:      4,
-		CanCounterAttack: true,
-		CanBeEquipped:    true,
-	}
+	suite.axe = powerFactory.PowerFactory().Axe().Build()
 
 	suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 

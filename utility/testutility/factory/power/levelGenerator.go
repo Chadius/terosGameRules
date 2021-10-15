@@ -1,4 +1,4 @@
-package testutility
+package power
 
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"

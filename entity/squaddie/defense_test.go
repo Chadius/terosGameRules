@@ -3,6 +3,7 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -13,8 +14,7 @@ type SquaddieDefenseSuite struct {
 var _ = Suite(&SquaddieDefenseSuite{})
 
 func (suite *SquaddieDefenseSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Defense.MaxBarrier = 3
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Barrier(3).Build()
 }
 
 func (suite *SquaddieDefenseSuite) TestSetMaxHPAndMatchToCurrentHP(checker *C) {

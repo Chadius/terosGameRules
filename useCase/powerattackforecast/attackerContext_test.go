@@ -6,6 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -25,29 +27,12 @@ type AttackContextTestSuite struct {
 var _ = Suite(&AttackContextTestSuite{})
 
 func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Identification.Name = "teros"
-	suite.teros.Offense.Aim = 2
-	suite.teros.Offense.Strength = 2
-	suite.teros.Offense.Mind = 2
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Aim(2).Strength(2).Mind(2).Build()
 
-	suite.spear = power.NewPower("spear")
-	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                    1,
-		DamageBonus:                   1,
-		CanCounterAttack:              true,
-		CounterAttackPenaltyReduction: 0,
-	}
+	suite.spear = powerFactory.PowerFactory().Spear().Build()
+	suite.blot = powerFactory.PowerFactory().Blot().Build()
 
-	suite.blot = power.NewPower("blot")
-	suite.blot.PowerType = power.Spell
-	suite.blot.AttackEffect = &power.AttackingEffect{
-		DamageBonus: 3,
-	}
-
-	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Identification.Name = "bandit"
+	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})

@@ -5,6 +5,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -24,19 +26,10 @@ type SquaddieEquipPowersFromRepo struct {
 var _ = Suite(&SquaddieEquipPowersFromRepo{})
 
 func (suite *SquaddieEquipPowersFromRepo) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("Teros")
-	suite.spear = power.NewPower("Spear")
-	suite.spear.AttackEffect = &power.AttackingEffect{
-		CanBeEquipped:    true,
-		CanCounterAttack: true,
-	}
-
-	suite.scimitar = power.NewPower("scimitar the second")
-	suite.scimitar.AttackEffect = &power.AttackingEffect{
-		CanBeEquipped: true,
-	}
-
-	suite.blot = power.NewPower("Magic spell Blot")
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
+	suite.spear = powerFactory.PowerFactory().Spear().Build()
+	suite.scimitar = powerFactory.PowerFactory().WithName("scimitar the second").CanBeEquipped().Build()
+	suite.blot = powerFactory.PowerFactory().Blot().CannotBeEquipped().Build()
 
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
@@ -118,10 +111,8 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipNonexistentPowers(check
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C) {
-	notTerosPower := power.NewPower("Does not belong to Teros")
-	notTerosPower.AttackEffect = &power.AttackingEffect{
-		CanBeEquipped: true,
-	}
+	notTerosPower := powerFactory.PowerFactory().CanBeEquipped().Build()
+
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		notTerosPower,
 	})

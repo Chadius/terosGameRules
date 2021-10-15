@@ -6,7 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility/testutility"
+	"github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -47,8 +48,8 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 	suite.classRepo = squaddieclass.NewRepository()
 	suite.classRepo.AddListOfClasses([]*squaddieclass.Class{suite.mageClass, suite.onlySmallLevelsClass, suite.classWithInitialLevel})
 
-	suite.lotsOfSmallLevels = (&testutility.LevelGenerator{
-		Instructions: &testutility.LevelGeneratorInstruction{
+	suite.lotsOfSmallLevels = (&power.LevelGenerator{
+		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 10,
 			ClassID:        suite.mageClass.ID,
 			PrefixLevelID:  "lotsLevelsSmall",
@@ -56,8 +57,8 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		},
 	}).Build()
 
-	suite.lotsOfBigLevels = (&testutility.LevelGenerator{
-		Instructions: &testutility.LevelGeneratorInstruction{
+	suite.lotsOfBigLevels = (&power.LevelGenerator{
+		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 4,
 			ClassID:        suite.mageClass.ID,
 			PrefixLevelID:  "lotsLevelsBig",
@@ -68,8 +69,8 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
 	suite.levelRepo.AddLevels(suite.lotsOfSmallLevels)
 	suite.levelRepo.AddLevels(suite.lotsOfBigLevels)
-	suite.levelRepo.AddLevels((&testutility.LevelGenerator{
-		Instructions: &testutility.LevelGeneratorInstruction{
+	suite.levelRepo.AddLevels((&power.LevelGenerator{
+		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 2,
 			ClassID:        suite.onlySmallLevelsClass.ID,
 			PrefixLevelID:  "smallLevel",
@@ -120,8 +121,7 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		ClassRepo: suite.classRepo,
 	}
 
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.ClassProgress.AddClass(suite.mageClass)
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().AddClass(suite.mageClass).Build()
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestUseSmallLevelsForClassLevel(checker *C) {

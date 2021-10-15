@@ -6,6 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powercantarget"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -35,81 +37,19 @@ type TargetingCheck struct {
 var _ = Suite(&TargetingCheck{})
 
 func (suite *TargetingCheck) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Identification.Name = "teros"
-	suite.teros.Identification.ID = "teros"
-	suite.teros.Identification.Affiliation = squaddie.Player
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
+	suite.lini = squaddieFactory.SquaddieFactory().Lini().Build()
+	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
+	suite.bandit2 = squaddieFactory.SquaddieFactory().Bandit().WithID("bandit2").WithName("bandit2").Build()
+	suite.citizen = squaddieFactory.SquaddieFactory().WithName("citizen").AsAlly().Build()
+	suite.mayor = squaddieFactory.SquaddieFactory().WithName("mayor").AsAlly().Build()
+	suite.bomb = squaddieFactory.SquaddieFactory().WithName("bomb").AsNeutral().Build()
+	suite.bomb2 = squaddieFactory.SquaddieFactory().WithName("bomb2").AsNeutral().Build()
 
-	suite.lini = squaddie.NewSquaddie("lini")
-	suite.lini.Identification.Name = "lini"
-	suite.lini.Identification.ID = "lini"
-	suite.lini.Identification.Affiliation = squaddie.Player
-
-	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Identification.Name = "bandit"
-	suite.bandit.Identification.ID = "bandit"
-	suite.bandit.Identification.Affiliation = squaddie.Enemy
-
-	suite.bandit2 = squaddie.NewSquaddie("bandit2")
-	suite.bandit2.Identification.Name = "bandit2"
-	suite.bandit2.Identification.ID = "bandit2"
-	suite.bandit2.Identification.Affiliation = squaddie.Enemy
-
-	suite.citizen = squaddie.NewSquaddie("citizen")
-	suite.citizen.Identification.Name = "citizen"
-	suite.citizen.Identification.ID = "citizen"
-	suite.citizen.Identification.Affiliation = squaddie.Ally
-
-	suite.mayor = squaddie.NewSquaddie("mayor")
-	suite.mayor.Identification.Name = "mayor"
-	suite.mayor.Identification.ID = "mayor"
-	suite.mayor.Identification.Affiliation = squaddie.Ally
-
-	suite.bomb = squaddie.NewSquaddie("bomb")
-	suite.bomb.Identification.Name = "bomb"
-	suite.bomb.Identification.ID = "bomb"
-	suite.bomb.Identification.Affiliation = squaddie.Neutral
-
-	suite.bomb2 = squaddie.NewSquaddie("bomb2")
-	suite.bomb2.Identification.Name = "bomb2"
-	suite.bomb2.Identification.ID = "bomb2"
-	suite.bomb2.Identification.Affiliation = squaddie.Neutral
-
-	suite.axe = power.NewPower("axe")
-	suite.axe.ID = "axe"
-	suite.axe.PowerType = power.Physical
-	suite.axe.Targeting = power.Targeting{
-		TargetSelf:   false,
-		TargetFoe:    true,
-		TargetFriend: false,
-	}
-
-	suite.meditation = power.NewPower("meditation")
-	suite.meditation.ID = "meditation"
-	suite.meditation.PowerType = power.Physical
-	suite.meditation.Targeting = power.Targeting{
-		TargetSelf:   true,
-		TargetFoe:    false,
-		TargetFriend: false,
-	}
-
-	suite.healingStaff = power.NewPower("healingStaff")
-	suite.healingStaff.ID = "healingStaff"
-	suite.healingStaff.PowerType = power.Physical
-	suite.healingStaff.Targeting = power.Targeting{
-		TargetSelf:   false,
-		TargetFoe:    false,
-		TargetFriend: true,
-	}
-
-	suite.selfDestruct = power.NewPower("selfDestruct")
-	suite.selfDestruct.ID = "selfDestruct"
-	suite.selfDestruct.PowerType = power.Physical
-	suite.selfDestruct.Targeting = power.Targeting{
-		TargetSelf:   false,
-		TargetFoe:    true,
-		TargetFriend: false,
-	}
+	suite.axe = powerFactory.PowerFactory().Axe().Build()
+	suite.meditation = powerFactory.PowerFactory().TargetsSelf().Build()
+	suite.healingStaff = powerFactory.PowerFactory().HealingStaff().Build()
+	suite.selfDestruct = powerFactory.PowerFactory().TargetsFoe().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{

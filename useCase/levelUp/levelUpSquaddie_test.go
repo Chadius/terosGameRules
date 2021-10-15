@@ -7,6 +7,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -25,17 +27,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 		ID:   "ffffffff",
 		Name: "Mage",
 	}
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Defense.MaxHitPoints = 5
-	suite.teros.Offense.Aim = 0
-	suite.teros.Offense.Strength = 1
-	suite.teros.Offense.Mind = 2
-	suite.teros.Defense.Dodge = 3
-	suite.teros.Defense.Deflect = 4
-	suite.teros.Defense.MaxBarrier = 6
-	suite.teros.Defense.Armor = 7
-	suite.teros.ClassProgress.AddClass(suite.mageClass)
-	suite.teros.Defense.SetHPToMax()
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClass(suite.mageClass).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.statBooster = levelupbenefit.LevelUpBenefit{
@@ -62,11 +54,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 			ID:      "aaaaaaa0",
 			ClassID: suite.mageClass.ID,
 		},
-		Movement: &squaddie.Movement{
-			Distance:  1,
-			Type:      "fly",
-			HitAndRun: true,
-		},
+		Movement: squaddieFactory.MovementFactory().Fly().CanHitAndRun().Distance(1).Build(),
 	}
 
 	suite.upgradeToLightMovement = &levelupbenefit.LevelUpBenefit{
@@ -74,9 +62,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 			ID:      "aaaaaaa1",
 			ClassID: suite.mageClass.ID,
 		},
-		Movement: &squaddie.Movement{
-			Type: "light",
-		},
+		Movement: squaddieFactory.MovementFactory().Light().Build(),
 	}
 }
 
@@ -182,38 +168,19 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 		ID:   "ffffffff",
 		Name: "Mage",
 	}
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Defense.MaxHitPoints = 5
-	suite.teros.Offense.Aim = 0
-	suite.teros.Offense.Strength = 1
-	suite.teros.Offense.Mind = 2
-	suite.teros.Defense.Dodge = 3
-	suite.teros.Defense.Deflect = 4
-	suite.teros.Defense.MaxBarrier = 6
-	suite.teros.Defense.Armor = 7
-	suite.teros.ClassProgress.AddClass(&squaddieclass.Class{
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().AddClass(&squaddieclass.Class{
 		ID:   suite.mageClass.ID,
 		Name: "Mage",
-	})
-	suite.teros.Defense.SetHPToMax()
+	}).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.powerRepo = power.NewPowerRepository()
 
-	suite.spear = power.NewPower("spear")
-	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-	}
-	suite.spear.ID = "spearlvl1"
+	suite.spear = powerFactory.PowerFactory().Spear().WithID("spearlvl1").Build()
+
 	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "spear", ID: "spearlvl1"}}
 
-	suite.spearLevel2 = power.NewPower("spear")
-	suite.spearLevel2.PowerType = power.Physical
-	suite.spearLevel2.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-	}
-	suite.spearLevel2.ID = "spearlvl2"
+	suite.spearLevel2 = powerFactory.PowerFactory().Spear().WithID("spearlvl2").Build()
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 

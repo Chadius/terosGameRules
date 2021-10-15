@@ -3,7 +3,7 @@ package levelupbenefit_test
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/utility/testutility"
+	"github.com/chadius/terosbattleserver/utility/testutility/factory/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -63,8 +63,8 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
 		BaseClassRequired: false,
 	}
 
-	suite.lotsOfSmallLevels = (&testutility.LevelGenerator{
-		Instructions: &testutility.LevelGeneratorInstruction{
+	suite.lotsOfSmallLevels = (&power.LevelGenerator{
+		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 11,
 			ClassID:        suite.mageClass.ID,
 			PrefixLevelID:  "lotsLevelsSmall",
@@ -72,8 +72,8 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
 		},
 	}).Build()
 
-	suite.lotsOfBigLevels = (&testutility.LevelGenerator{
-		Instructions: &testutility.LevelGeneratorInstruction{
+	suite.lotsOfBigLevels = (&power.LevelGenerator{
+		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 4,
 			ClassID:        suite.mageClass.ID,
 			PrefixLevelID:  "lotsLevelsBig",

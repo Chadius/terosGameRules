@@ -26,7 +26,7 @@ func (progress *ClassLevelsConsumed) AnyLevelsConsumed(condition func(consumedLe
 }
 
 // AccumulateLevelsConsumed calls the calculate function on each Level consumed and adds it to a sum.
-//   The sum is returned after processing all of the levels.
+//   The sum is returned after processing all levels.
 func (progress *ClassLevelsConsumed) AccumulateLevelsConsumed(calculate func(consumedLevelID string) int) int {
 	count := 0
 	for _, levelID := range progress.LevelsConsumed {

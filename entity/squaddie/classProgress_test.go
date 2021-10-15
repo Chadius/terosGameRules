@@ -3,6 +3,7 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -15,7 +16,7 @@ type ClassProgressTests struct {
 var _ = Suite(&ClassProgressTests{})
 
 func (suite *ClassProgressTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
 	suite.mageClass = &squaddieclass.Class{ID: "1", Name: "Mage"}
 	suite.mushroomClass = &squaddieclass.Class{ID: "2", Name: "Mushroom"}
 }

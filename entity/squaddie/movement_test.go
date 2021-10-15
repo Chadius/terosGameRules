@@ -2,6 +2,7 @@ package squaddie_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -12,7 +13,7 @@ type SquaddieMovementTests struct {
 var _ = Suite(&SquaddieMovementTests{})
 
 func (suite *SquaddieMovementTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
 }
 
 func (suite *SquaddieMovementTests) TestDefaultMovement(checker *C) {

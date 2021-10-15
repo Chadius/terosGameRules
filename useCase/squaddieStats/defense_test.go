@@ -6,6 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -24,16 +26,10 @@ type squaddieDefense struct {
 var _ = Suite(&squaddieDefense{})
 
 func (suite *squaddieDefense) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Identification.Name = "teros"
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
 
-	suite.spear = power.NewPower("spear")
-	suite.spear.PowerType = power.Physical
-	suite.spear.ID = "powerSpear"
-
-	suite.blot = power.NewPower("blot")
-	suite.blot.PowerType = power.Spell
-	suite.blot.ID = "powerBlot"
+	suite.spear = powerFactory.PowerFactory().Spear().Build()
+	suite.blot = powerFactory.PowerFactory().Blot().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})

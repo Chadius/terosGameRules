@@ -2,6 +2,7 @@ package power_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
 	. "gopkg.in/check.v1"
 )
 
@@ -13,26 +14,9 @@ type PowerCreationSuite struct {
 
 var _ = Suite(&PowerCreationSuite{})
 
-func (suite *PowerCreationSuite) TestGenerateRandomIDForNewPowers(checker *C) {
-	powerWithoutID := power.NewPower("New Attack")
-	checker.Assert(powerWithoutID.ID, NotNil)
-	checker.Assert(powerWithoutID.ID, Not(Equals), "")
-}
-
 func (suite *PowerCreationSuite) SetUpTest(checker *C) {
-	suite.spear = power.NewPower("Spear")
-	suite.spear.PowerType = power.Physical
-	suite.spear.ID = "spearLevel1"
-	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 1,
-	}
-
-	suite.spear2 = power.NewPower("Spear")
-	suite.spear2.PowerType = power.Physical
-	suite.spear2.ID = "spearLevel2"
-	suite.spear2.AttackEffect = &power.AttackingEffect{
-		ToHitBonus: 2,
-	}
+	suite.spear = powerFactory.PowerFactory().Spear().WithName("Spear").WithID("spearLevel1").Build()
+	suite.spear2 = powerFactory.PowerFactory().Spear().WithName("Spear").WithID("spearLevel2").Build()
 
 	newPowers := []*power.Power{suite.spear, suite.spear2}
 
@@ -43,8 +27,7 @@ func (suite *PowerCreationSuite) SetUpTest(checker *C) {
 func (suite *PowerCreationSuite) TestAddPowersToNewRepository(checker *C) {
 	newRepo := power.NewPowerRepository()
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 0)
-	spear := power.NewPower("Spear")
-	spear.PowerType = power.Physical
+	spear := powerFactory.PowerFactory().Spear().Build()
 	newPowers := []*power.Power{spear}
 	success, _ := newRepo.AddSlicePowerSource(newPowers)
 	checker.Assert(success, Equals, true)

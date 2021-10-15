@@ -13,14 +13,14 @@ type MovementType string
 
 const (
 	// Foot Squaddies take full terrain penalties and cannot cross pits.
-	Foot = "foot"
+	Foot MovementType = "foot"
 	// Light Squaddies have no terrain penalties and cannot cross pits.
-	Light = "light"
+	Light MovementType = "light"
 	// Fly Squaddies have no terrain penalties and can cross pits.
-	Fly = "fly"
+	Fly MovementType = "fly"
 	// Teleport Squaddies have no terrain penalties and can cross pits.
 	//   They also ignore walls and other barriers.
-	Teleport = "teleport"
+	Teleport MovementType = "teleport"
 )
 
 // MovementValueByType orders movement types by priority (highest number is most desired)

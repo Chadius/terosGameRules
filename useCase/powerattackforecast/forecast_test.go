@@ -7,6 +7,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -33,44 +35,13 @@ type CounterAttackCalculate struct {
 var _ = Suite(&CounterAttackCalculate{})
 
 func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.Identification.Name = "teros"
-	suite.teros.Offense.Aim = 2
-	suite.teros.Offense.Strength = 2
-	suite.teros.Offense.Mind = 2
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
+	suite.mysticMage = squaddieFactory.SquaddieFactory().MysticMage().Build()
+	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
 
-	suite.mysticMage = squaddie.NewSquaddie("mysticMage")
-	suite.mysticMage.Identification.Name = "mysticMage"
-	suite.mysticMage.Offense.Mind = 2
-
-	suite.bandit = squaddie.NewSquaddie("bandit")
-	suite.bandit.Identification.Name = "bandit"
-
-	suite.spear = power.NewPower("spear")
-	suite.spear.PowerType = power.Physical
-	suite.spear.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:       1,
-		DamageBonus:      1,
-		CanBeEquipped:    true,
-		CanCounterAttack: true,
-	}
-
-	suite.axe = power.NewPower("axe")
-	suite.axe.PowerType = power.Physical
-	suite.axe.AttackEffect = &power.AttackingEffect{
-		ToHitBonus:                    1,
-		DamageBonus:                   1,
-		CanBeEquipped:                 true,
-		CanCounterAttack:              true,
-		CounterAttackPenaltyReduction: 0,
-	}
-
-	suite.fireball = power.NewPower("fireball")
-	suite.fireball.PowerType = power.Spell
-	suite.fireball.AttackEffect = &power.AttackingEffect{
-		DamageBonus:   3,
-		CanBeEquipped: true,
-	}
+	suite.spear = powerFactory.PowerFactory().Spear().Build()
+	suite.axe = powerFactory.PowerFactory().Axe().Build()
+	suite.fireball = powerFactory.PowerFactory().IsSpell().CanBeEquipped().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.mysticMage})
@@ -156,23 +127,11 @@ type HealingEffectForecast struct {
 var _ = Suite(&HealingEffectForecast{})
 
 func (suite *HealingEffectForecast) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("Teros")
-	suite.teros.Identification.ID = "squaddie_teros"
-	suite.teros.Identification.Name = "Teros"
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
+	suite.lini = squaddieFactory.SquaddieFactory().Lini().Build()
+	suite.vale = squaddieFactory.SquaddieFactory().WithName("Vale").AsPlayer().Build()
 
-	suite.lini = squaddie.NewSquaddie("Lini")
-	suite.lini.Identification.ID = "squaddie_lini"
-	suite.lini.Identification.Name = "Lini"
-
-	suite.vale = squaddie.NewSquaddie("Vale")
-	suite.vale.Identification.ID = "squaddie_vale"
-	suite.vale.Identification.Name = "Vale"
-
-	suite.healingStaff = power.NewPower("healing_staff")
-	suite.healingStaff.PowerType = power.Spell
-	suite.healingStaff.HealingEffect = &power.HealingEffect{
-		HitPointsHealed: 3,
-	}
+	suite.healingStaff = powerFactory.PowerFactory().HealingStaff().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.lini, suite.vale})

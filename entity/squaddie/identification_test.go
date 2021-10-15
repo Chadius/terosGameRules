@@ -3,6 +3,7 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -15,7 +16,7 @@ type SquaddieIdentificationCreationTests struct {
 var _ = Suite(&SquaddieIdentificationCreationTests{})
 
 func (suite *SquaddieIdentificationCreationTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddie("teros")
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().WithName("teros").Build()
 	suite.mageClass = &squaddieclass.Class{ID: "1", Name: "Mage"}
 	suite.mushroomClass = &squaddieclass.Class{ID: "2", Name: "Mushroom"}
 }

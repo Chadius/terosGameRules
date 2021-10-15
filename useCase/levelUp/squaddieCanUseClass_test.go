@@ -6,7 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility/testutility"
+	"github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -112,11 +113,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 			Gained: nil,
 			Lost:   nil,
 		},
-		Movement: &squaddie.Movement{
-			Distance:  1,
-			Type:      "",
-			HitAndRun: false,
-		},
+		Movement: squaddieFactory.MovementFactory().Distance(1).Build(),
 	}
 
 	suite.dimensionWalkerLevel0 = &levelupbenefit.LevelUpBenefit{
@@ -125,11 +122,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 			ClassID:            suite.dimensionWalkerClass.ID,
 			ID:                 "dwLevel0",
 		},
-		Movement: &squaddie.Movement{
-			Distance:  1,
-			Type:      "light",
-			HitAndRun: false,
-		},
+		Movement: squaddieFactory.MovementFactory().Light().Distance(1).Build(),
 	}
 
 	suite.dimensionWalkerLevel1 = &levelupbenefit.LevelUpBenefit{
@@ -169,16 +162,16 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	})
 
 	suite.lotsOfLevels = append(
-		(&testutility.LevelGenerator{
-			Instructions: &testutility.LevelGeneratorInstruction{
+		(&power.LevelGenerator{
+			Instructions: &power.LevelGeneratorInstruction{
 				NumberOfLevels: 11,
 				ClassID:        suite.atLeastTenLevelsBaseClass.ID,
 				PrefixLevelID:  "lotsLevelsSmall",
 				Type:           levelupbenefit.Small,
 			},
 		}).Build(),
-		(&testutility.LevelGenerator{
-			Instructions: &testutility.LevelGeneratorInstruction{
+		(&power.LevelGenerator{
+			Instructions: &power.LevelGeneratorInstruction{
 				NumberOfLevels: 11,
 				ClassID:        suite.atLeastTenLevelsBaseClass.ID,
 				PrefixLevelID:  "lotsLevelsBig",
@@ -193,11 +186,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		LevelRepo: suite.levelRepo,
 	}
 
-	suite.teros = squaddie.NewSquaddie("teros")
-	suite.teros.ClassProgress.AddClass(suite.mageClass)
-	suite.teros.ClassProgress.AddClass(suite.dimensionWalkerClass)
-	suite.teros.ClassProgress.AddClass(suite.ancientTomeClass)
-	suite.teros.ClassProgress.AddClass(suite.atLeastTenLevelsBaseClass)
+	suite.teros = squaddieFactory.SquaddieFactory().Teros().AddClass(suite.mageClass).AddClass(suite.dimensionWalkerClass).AddClass(suite.ancientTomeClass).AddClass(suite.atLeastTenLevelsBaseClass).Build()
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestNewSquaddieCanSwitchToBaseClass(checker *C) {
