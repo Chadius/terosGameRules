@@ -106,13 +106,13 @@ func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(che
 
 func (suite *AttackContextTestSuite) TestGetAttackerPhysicalRawDamage(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.Type(power.Physical))
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.DamageType(power.Physical))
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage, Equals, 3)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.Type(power.Spell))
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.DamageType(power.Spell))
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage, Equals, 5)
 }
 

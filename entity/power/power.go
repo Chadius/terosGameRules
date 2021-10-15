@@ -11,14 +11,14 @@ type Reference struct {
 	ID   string `json:"id" yaml:"id"`
 }
 
-// Type defines the expected sources the power could be conjured from.
-type Type string
+// DamageType defines the expected sources the power could be conjured from.
+type DamageType string
 
 const (
 	// Physical powers use martial training and cunning. Examples: Swords, Bows, Pushing
-	Physical = "Physical"
+	Physical DamageType = "Physical"
 	// Spell powers are magical in nature and conjured without tools. Examples: Fireball, Mindread
-	Spell = "Spell"
+	Spell DamageType = "Spell"
 )
 
 // Targeting notes how the power can be targeted.
@@ -30,9 +30,9 @@ type Targeting struct {
 
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
-	Reference     `yaml:",inline"`
-	PowerType     Type             `json:"power_type" yaml:"power_type"`
-	Targeting     Targeting        `json:"targeting" yaml:"targeting"`
+	Reference `yaml:",inline"`
+	PowerType DamageType `json:"power_type" yaml:"power_type"`
+	Targeting Targeting  `json:"targeting" yaml:"targeting"`
 	AttackEffect  *AttackingEffect `json:"attack_effect" yaml:"attack_effect"`
 	HealingEffect *HealingEffect   `json:"healing_effect" yaml:"healing_effect"`
 }

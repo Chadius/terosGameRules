@@ -13,7 +13,7 @@ type AttackerContext struct {
 	TotalToHitBonus int
 
 	RawDamage  int
-	DamageType power.Type
+	DamageType power.DamageType
 
 	ExtraBarrierBurn int
 
