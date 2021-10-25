@@ -6,8 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -121,7 +121,7 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		ClassRepo: suite.classRepo,
 	}
 
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().AddClass(suite.mageClass).Build()
+	suite.teros = squaddieBuilder.Builder().Teros().AddClass(suite.mageClass).Build()
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestUseSmallLevelsForClassLevel(checker *C) {
@@ -164,7 +164,7 @@ func (suite *SquaddieChoosesLevelsSuite) TestOddClassLevelEarnsBigAndSmallLevel(
 
 func (suite *SquaddieChoosesLevelsSuite) TestRaisesAnErrorIfClassIsNotFound(checker *C) {
 	err := levelup.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].Identification.ID, suite.repos)
-	checker.Assert(err, ErrorMatches, `class repository: No class found with ID: ""`)
+	checker.Assert(err, ErrorMatches, `class repository: No class found with SquaddieID: ""`)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseBigLevelIfNoneAvailable(checker *C) {

@@ -15,6 +15,8 @@ import (
 	"log"
 )
 
+// ReplayBattleScript uses the input streams to read and replay several rounds of combat,
+//  writing the results to a supplied output stream.
 func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io.Reader, output io.Writer) error {
 	utility.Logger = &utility.FileLogger{}
 
@@ -166,4 +168,3 @@ func createChapterReplay(input io.Reader) *replay.ChapterReplay {
 	}
 	return chapterReplay
 }
-

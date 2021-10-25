@@ -16,7 +16,7 @@ type PowerCollection struct {
 //  Raises an error if the squaddie already has the power.
 func (powerCollection *PowerCollection) AddInnatePower(newPower *power.Power) error {
 	if ContainsPowerID(powerCollection.PowerReferences, newPower.ID) {
-		newError := fmt.Errorf(`squaddie already has innate power with ID "%s"`, newPower.ID)
+		newError := fmt.Errorf(`squaddie already has innate power with SquaddieID "%s"`, newPower.ID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
@@ -56,7 +56,7 @@ func (powerCollection *PowerCollection) HasPowerWithID(powerID string) bool {
 	return false
 }
 
-// ContainsPowerID returns true if the squaddie has a reference to a power with the given ID.
+// ContainsPowerID returns true if the squaddie has a reference to a power with the given SquaddieID.
 func ContainsPowerID(references []*power.Reference, powerID string) bool {
 	for _, reference := range references {
 		if reference.ID == powerID {
@@ -82,12 +82,12 @@ func (powerCollection *PowerCollection) HasEquippedPower() bool {
 	return powerCollection.CurrentlyEquippedPowerID != ""
 }
 
-// EquipPower sets the currently equipped power ID to the one given.
+// EquipPower sets the currently equipped power SquaddieID to the one given.
 func (powerCollection *PowerCollection) EquipPower(powerID string) {
 	powerCollection.CurrentlyEquippedPowerID = powerID
 }
 
-// GetEquippedPowerID returns the ID of the Power this squaddie has equipped.
+// GetEquippedPowerID returns the SquaddieID of the Power this squaddie has equipped.
 //  returns an empty string if nothing is equipped.
 func (powerCollection *PowerCollection) GetEquippedPowerID() string {
 	return powerCollection.CurrentlyEquippedPowerID

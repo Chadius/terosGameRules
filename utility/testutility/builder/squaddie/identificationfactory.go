@@ -4,18 +4,18 @@ import "github.com/chadius/terosbattleserver/entity/squaddie"
 
 // IdentificationBuilderOptions is used to create healing effects.
 type IdentificationBuilderOptions struct {
-	name string
-	id string
+	name        string
+	id          string
 	affiliation squaddie.Affiliation
 }
 
-// IdentificationFactory creates a IdentificationBuilderOptions with default values.
+// IdentificationBuilder creates a IdentificationBuilderOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func IdentificationFactory() *IdentificationBuilderOptions {
+func IdentificationBuilder() *IdentificationBuilderOptions {
 	return &IdentificationBuilderOptions{
-		name: "squaddie with no name",
-		id: "",
+		name:        "squaddie with no name",
+		id:          "",
 		affiliation: squaddie.Neutral,
 	}
 }
@@ -59,9 +59,9 @@ func (i *IdentificationBuilderOptions) AsNeutral() *IdentificationBuilderOptions
 // Build uses the IdentificationBuilderOptions to create a Movement.
 func (i *IdentificationBuilderOptions) Build() *squaddie.Identification {
 	newIdentification := &squaddie.Identification{
-		Name: i.name,
-		ID: i.id,
-		Affiliation: i.affiliation,
+		SquaddieName:        i.name,
+		SquaddieID:          i.id,
+		SquaddieAffiliation: i.affiliation,
 	}
 	return newIdentification
 }

@@ -88,7 +88,7 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 					reasonForInvalidTarget,
 					[]string{
 						"User is dead, cannot use power",
-						fmt.Sprintf("  %s[%s] is dead", user.Identification.Name, user.Identification.ID),
+						fmt.Sprintf("  %s[%s] is dead", user.Name(), user.ID()),
 					},
 				},
 			)
@@ -102,7 +102,7 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 					reasonForInvalidTarget,
 					[]string{
 						"Target is dead, cannot use power",
-						fmt.Sprintf("  %s[%s] is dead", target.Identification.Name, target.Identification.ID),
+						fmt.Sprintf("  %s[%s] is dead", target.Name(), target.ID()),
 					},
 				},
 			)
@@ -127,9 +127,9 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 					reasonForInvalidTarget,
 					[]string{
 						"Target is not compatible with affiliation",
-						fmt.Sprintf("  %s[%s] is a %s", user.Identification.Name, user.Identification.ID, user.Identification.Affiliation),
+						fmt.Sprintf("  %s[%s] is a %s", user.Name(), user.ID(), user.Affiliation()),
 						fmt.Sprintf("    uses %s[%s] that targets %s", powerUsed.Name, powerUsed.ID, strings.Join(affiliationRelationsTargeted, ",")),
-						fmt.Sprintf("  %s[%s] is a %s", target.Identification.Name, target.Identification.ID, target.Identification.Affiliation),
+						fmt.Sprintf("  %s[%s] is a %s", target.Name(), target.ID(), target.Affiliation()),
 					},
 				},
 			)

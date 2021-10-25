@@ -6,8 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -27,12 +27,12 @@ type AttackContextTestSuite struct {
 var _ = Suite(&AttackContextTestSuite{})
 
 func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Aim(2).Strength(2).Mind(2).Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Aim(2).Strength(2).Mind(2).Build()
 
-	suite.spear = powerFactory.PowerFactory().Spear().Build()
-	suite.blot = powerFactory.PowerFactory().Blot().Build()
+	suite.spear = powerBuilder.Builder().Spear().Build()
+	suite.blot = powerBuilder.Builder().Blot().Build()
 
-	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
+	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})
@@ -42,9 +42,9 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.spear.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -55,9 +55,9 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.blot.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -75,9 +75,9 @@ func (suite *AttackContextTestSuite) TestGetAttackerHitBonus(checker *C) {
 func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(checker *C) {
 	forecastCounterSpearOnBandit := &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.spear.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: true,
 		},
 		Repositories: &repositories.RepositoryCollection{

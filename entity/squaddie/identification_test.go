@@ -3,7 +3,7 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -16,31 +16,31 @@ type SquaddieIdentificationCreationTests struct {
 var _ = Suite(&SquaddieIdentificationCreationTests{})
 
 func (suite *SquaddieIdentificationCreationTests) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().WithName("teros").Build()
+	suite.teros = squaddieBuilder.Builder().Teros().WithName("teros").Build()
 	suite.mageClass = &squaddieclass.Class{ID: "1", Name: "Mage"}
 	suite.mushroomClass = &squaddieclass.Class{ID: "2", Name: "Mushroom"}
 }
 
 func (suite *SquaddieIdentificationCreationTests) TestNameIsSet(checker *C) {
-	checker.Assert(suite.teros.Identification.Name, Equals, "teros")
+	checker.Assert(suite.teros.Name(), Equals, "teros")
 }
 
 func (suite *SquaddieIdentificationCreationTests) TestGetARandomIDUponCreation(checker *C) {
-	checker.Assert(suite.teros.Identification.ID, NotNil)
-	checker.Assert(suite.teros.Identification.ID, Not(Equals), "")
+	checker.Assert(suite.teros.ID(), NotNil)
+	checker.Assert(suite.teros.ID(), Not(Equals), "")
 }
 
 func (suite *SquaddieIdentificationCreationTests) TestGetANewID(checker *C) {
-	initialID := suite.teros.Identification.ID
+	initialID := suite.teros.ID()
 	suite.teros.Identification.SetNewIDToRandom()
-	checker.Assert(suite.teros.Identification.ID, Not(Equals), initialID)
+	checker.Assert(suite.teros.ID(), Not(Equals), initialID)
 }
 
 func (suite *SquaddieMovementTests) TestRaisesErrorIfSquaddieHasUnknownAffiliation(checker *C) {
 	newSquaddie := squaddie.NewSquaddie("teros")
-	newSquaddie.Identification.Affiliation = "Unknown Affiliation"
-	newSquaddie.Identification.ID = "squaddieTeros"
+	newSquaddie.Identification.SquaddieAffiliation = "Unknown SquaddieAffiliation"
+	newSquaddie.Identification.SquaddieID = "squaddieTeros"
 	err := squaddie.CheckSquaddieForErrors(newSquaddie)
 	checker.Assert(err, NotNil)
-	checker.Assert(err, ErrorMatches, "squaddie squaddieTeros has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err, ErrorMatches, "squaddie squaddieTeros has unknown affiliation: 'Unknown SquaddieAffiliation'")
 }

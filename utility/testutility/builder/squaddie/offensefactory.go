@@ -9,14 +9,14 @@ type OffenseBuilderOptions struct {
 	mind     int
 }
 
-// OffenseFactory creates a OffenseBuilderOptions with default values.
+// OffenseBuilder creates a OffenseBuilderOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func OffenseFactory() *OffenseBuilderOptions {
+func OffenseBuilder() *OffenseBuilderOptions {
 	return &OffenseBuilderOptions{
-		aim: 0,
+		aim:      0,
 		strength: 0,
-		mind: 0,
+		mind:     0,
 	}
 }
 
@@ -41,10 +41,9 @@ func (o *OffenseBuilderOptions) Mind(mind int) *OffenseBuilderOptions {
 // Build uses the OffenseBuilderOptions to create a Movement.
 func (o *OffenseBuilderOptions) Build() *squaddie.Offense {
 	newOffense := &squaddie.Offense{
-		Aim: o.aim,
-		Strength: o.strength,
-		Mind: o.mind,
+		SquaddieAim:      o.aim,
+		SquaddieStrength: o.strength,
+		SquaddieMind:     o.mind,
 	}
 	return newOffense
 }
-

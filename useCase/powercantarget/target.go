@@ -45,14 +45,14 @@ func CanTargetTargetAffiliationWithPower(userID string, powerID string, targetID
 		return true
 	}
 
-	areFriendsBecauseAffiliationsAreTheSame := user.Identification.Affiliation != squaddie.Neutral && user.Identification.Affiliation == target.Identification.Affiliation
-	areFriendsBecausePlayerAndAlly := (user.Identification.Affiliation == squaddie.Player && target.Identification.Affiliation == squaddie.Ally) || (user.Identification.Affiliation == squaddie.Ally && target.Identification.Affiliation == squaddie.Player)
+	areFriendsBecauseAffiliationsAreTheSame := user.Affiliation() != squaddie.Neutral && user.Affiliation() == target.Affiliation()
+	areFriendsBecausePlayerAndAlly := (user.Affiliation() == squaddie.Player && target.Affiliation() == squaddie.Ally) || (user.Affiliation() == squaddie.Ally && target.Affiliation() == squaddie.Player)
 	if powerUsed.Targeting.TargetFriend && (areFriendsBecauseAffiliationsAreTheSame || areFriendsBecausePlayerAndAlly) {
 		return true
 	}
 
-	areFoesBecauseNeutral := user.Identification.Affiliation == squaddie.Neutral || target.Identification.Affiliation == squaddie.Neutral
-	areFoesBecauseExactlyOneIsEnemy := (user.Identification.Affiliation == squaddie.Enemy && target.Identification.Affiliation != squaddie.Enemy) || (user.Identification.Affiliation != squaddie.Enemy && target.Identification.Affiliation == squaddie.Enemy)
+	areFoesBecauseNeutral := user.Affiliation() == squaddie.Neutral || target.Affiliation() == squaddie.Neutral
+	areFoesBecauseExactlyOneIsEnemy := (user.Affiliation() == squaddie.Enemy && target.Affiliation() != squaddie.Enemy) || (user.Affiliation() != squaddie.Enemy && target.Affiliation() == squaddie.Enemy)
 	if powerUsed.Targeting.TargetFoe && (areFoesBecauseNeutral || areFoesBecauseExactlyOneIsEnemy) {
 		return true
 	}

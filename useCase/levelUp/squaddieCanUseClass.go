@@ -5,7 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
-// SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given ID.
+// SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given SquaddieID.
 func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
 	classToTest, _ := repositories.ClassRepo.GetClassByID(testingClassID)
 

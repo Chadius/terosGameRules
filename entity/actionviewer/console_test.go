@@ -10,8 +10,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility/testutility"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"strings"
 	"testing"
@@ -48,14 +48,14 @@ type ConsoleViewerSuite struct {
 var _ = Suite(&ConsoleViewerSuite{})
 
 func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
-	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
-	suite.bandit2 = squaddieFactory.SquaddieFactory().Bandit().WithName("Bandit2").WithID("banditID2").Build()
-	suite.lini = squaddieFactory.SquaddieFactory().Lini().Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
+	suite.bandit2 = squaddieBuilder.Builder().Bandit().WithName("Bandit2").WithID("banditID2").Build()
+	suite.lini = squaddieBuilder.Builder().Lini().Build()
 
-	suite.blot = powerFactory.PowerFactory().Blot().WithName("Blot").DealsDamage(0).Build()
-	suite.axe = powerFactory.PowerFactory().Axe().Build()
-	suite.healingStaff = powerFactory.PowerFactory().HealingStaff().WithName("Healing Staff").Build()
+	suite.blot = powerBuilder.Builder().Blot().WithName("Blot").DealsDamage(0).Build()
+	suite.axe = powerBuilder.Builder().Axe().Build()
+	suite.healingStaff = powerBuilder.Builder().HealingStaff().WithName("Healing Staff").Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{
@@ -103,9 +103,9 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.blot.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -119,9 +119,9 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 
 	suite.forecastBlotOnMultipleBandits = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.blot.ID,
-			Targets:         []string{suite.bandit.Identification.ID, suite.bandit2.Identification.ID},
+			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -135,9 +135,9 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 
 	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.Identification.ID,
+			UserID:          suite.lini.ID(),
 			PowerID:         suite.healingStaff.ID,
-			Targets:         []string{suite.teros.Identification.ID},
+			Targets:         []string{suite.teros.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -156,14 +156,14 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 func (suite *ConsoleViewerSuite) SetUpTerosAttacksBanditsAndSuffersCounterAttack() {
 	suite.resultBlotOnMultipleBandits.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.teros.Offense.Mind = 3
+	suite.teros.Offense.SquaddieMind = 3
 
-	suite.bandit.Defense.MaxBarrier = 1
+	suite.bandit.Defense.SquaddieMaxBarrier = 1
 	suite.bandit.Defense.SetBarrierToMax()
 
 	suite.axe.AttackEffect.CanCounterAttack = true
 	suite.axe.AttackEffect.DamageBonus = 3
-	suite.bandit.Offense.Strength = 0
+	suite.bandit.Offense.SquaddieStrength = 0
 	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.ID, suite.repos)
 
 	suite.forecastBlotOnMultipleBandits.CalculateForecast()
@@ -173,8 +173,8 @@ func (suite *ConsoleViewerSuite) SetUpTerosAttacksBanditsAndSuffersCounterAttack
 func (suite *ConsoleViewerSuite) SetUpLiniHealsTeros() {
 	suite.resultHealingStaffOnTeros.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.teros.Defense.CurrentHitPoints = 1
-	suite.lini.Offense.Mind = 1
+	suite.teros.Defense.SquaddieCurrentHitPoints = 1
+	suite.lini.Offense.SquaddieMind = 1
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 	suite.resultHealingStaffOnTeros.Commit()
@@ -183,7 +183,7 @@ func (suite *ConsoleViewerSuite) SetUpLiniHealsTeros() {
 func (suite *ConsoleViewerSuite) TestShowPowerHitTargetAndDamage(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.teros.Offense.Mind = 3
+	suite.teros.Offense.SquaddieMind = 3
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
@@ -208,7 +208,7 @@ func (suite *ConsoleViewerSuite) TestShowWhenPowerMisses(checker *C) {
 
 func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
-	suite.teros.Offense.Mind = 3
+	suite.teros.Offense.SquaddieMind = 3
 	suite.blot.AttackEffect = &power.AttackingEffect{
 		CriticalEffect: &power.CriticalEffect{
 			CriticalHitThresholdBonus: 9000,
@@ -229,7 +229,7 @@ func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 
 	suite.axe.AttackEffect.CanCounterAttack = true
 	suite.axe.AttackEffect.DamageBonus = 2
-	suite.bandit.Offense.Strength = 0
+	suite.bandit.Offense.SquaddieStrength = 0
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
@@ -244,7 +244,7 @@ func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 func (suite *ConsoleViewerSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.teros.Offense.Mind = suite.bandit.Defense.MaxHitPoints * 2
+	suite.teros.Offense.SquaddieMind = suite.bandit.MaxHitPoints() * 2
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
@@ -258,8 +258,8 @@ func (suite *ConsoleViewerSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
 func (suite *ConsoleViewerSuite) TestShowPowerBarrierBurn(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.teros.Offense.Mind = 3
-	suite.bandit.Defense.MaxBarrier = 1
+	suite.teros.Offense.SquaddieMind = 3
+	suite.bandit.Defense.SquaddieMaxBarrier = 1
 	suite.bandit.Defense.SetBarrierToMax()
 
 	suite.forecastBlotOnBandit.CalculateForecast()
@@ -276,18 +276,18 @@ func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
 	suite.viewer.PrintResult(suite.resultBlotOnMultipleBandits, suite.repos, nil, &output)
 
 	checker.Assert(output.String(), Equals,
-		"Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn\n" +
-		"- also hits Bandit2, for 3 damage\n" +
-		"Bandit2 (axe) counters Teros, for 3 damage\n" +
-		"---\n",
+		"Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn\n"+
+			"- also hits Bandit2, for 3 damage\n"+
+			"Bandit2 (axe) counters Teros, for 3 damage\n"+
+			"---\n",
 	)
 }
 
 func (suite *ConsoleViewerSuite) TestShowPowerHealingEffects(checker *C) {
 	suite.resultHealingStaffOnTeros.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.teros.Defense.CurrentHitPoints = 1
-	suite.lini.Offense.Mind = 1
+	suite.teros.Defense.SquaddieCurrentHitPoints = 1
+	suite.lini.Offense.SquaddieMind = 1
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 	suite.resultHealingStaffOnTeros.Commit()
@@ -311,12 +311,12 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 
 	checker.Assert(counterAttackOutput.String(), Equals,
 		"Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn\n"+
-		"- also hits Bandit2, for 3 damage\n" +
-		"   Bandit: 3/5 HP, 0 barrier\n" +
-		"   Bandit2: 2/5 HP\n" +
-		"Bandit2 (axe) counters Teros, for 3 damage\n" +
-		"   Teros: 2/5 HP\n" +
-		"---\n",
+			"- also hits Bandit2, for 3 damage\n"+
+			"   Bandit: 3/5 HP, 0 barrier\n"+
+			"   Bandit2: 2/5 HP\n"+
+			"Bandit2 (axe) counters Teros, for 3 damage\n"+
+			"   Teros: 2/5 HP\n"+
+			"---\n",
 	)
 
 	suite.SetUpLiniHealsTeros()
@@ -347,12 +347,12 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 
 	checker.Assert(counterAttackOutput.String(), Equals,
 		"Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn\n"+
-	 	"- also hits Bandit2, for 3 damage\n" +
-	 	"   Teros rolls 999 + 0 = 999, Bandit rolls -999 + 0 = -999\n" +
-	 	"   Teros rolls 999 + 0 = 999, Bandit2 rolls -999 + 0 = -999\n" +
-	 	"Bandit2 (axe) counters Teros, for 3 damage\n" +
-	 	"   Bandit2 rolls 999 + -1 = 998, Teros rolls -999 + 0 = -999\n" +
-	 	"---\n",
+			"- also hits Bandit2, for 3 damage\n"+
+			"   Teros rolls 999 + 0 = 999, Bandit rolls -999 + 0 = -999\n"+
+			"   Teros rolls 999 + 0 = 999, Bandit2 rolls -999 + 0 = -999\n"+
+			"Bandit2 (axe) counters Teros, for 3 damage\n"+
+			"   Bandit2 rolls 999 + -1 = 998, Teros rolls -999 + 0 = -999\n"+
+			"---\n",
 	)
 
 	suite.SetUpLiniHealsTeros()
@@ -370,10 +370,10 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 }
 
 func (suite *ConsoleViewerSuite) TestShowForecastChanceToHitAndHealing(checker *C) {
-	suite.teros.Offense.Aim = 2
+	suite.teros.Offense.SquaddieAim = 2
 
-	suite.bandit2.Defense.Deflect = 2
-	suite.bandit2.Defense.MaxBarrier = 20
+	suite.bandit2.Defense.SquaddieDeflect = 2
+	suite.bandit2.Defense.SquaddieMaxBarrier = 20
 	suite.bandit2.Defense.SetBarrierToMax()
 
 	suite.SetUpTerosAttacksBanditsAndSuffersCounterAttack()
@@ -386,8 +386,8 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToHitAndHealing(checker *
 
 	checker.Assert(forecastOutput.String(), Equals,
 		"Teros (Blot) vs Bandit: +2 (30/36), for 2 damage + 1 barrier burn\n"+
-		"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
-		"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
+			"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
+			"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
 	)
 
 	suite.SetUpLiniHealsTeros()
@@ -402,7 +402,7 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToHitAndHealing(checker *
 }
 
 func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuaranteedMiss(checker *C) {
-	suite.teros.Offense.Aim = 2
+	suite.teros.Offense.SquaddieAim = 2
 
 	suite.blot.AttackEffect = &power.AttackingEffect{
 		CriticalEffect: &power.CriticalEffect{
@@ -411,10 +411,10 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuarant
 		},
 	}
 
-	suite.bandit.Defense.Deflect = -200
+	suite.bandit.Defense.SquaddieDeflect = -200
 
-	suite.bandit2.Defense.Deflect = 2
-	suite.bandit2.Defense.MaxBarrier = 20
+	suite.bandit2.Defense.SquaddieDeflect = 2
+	suite.bandit2.Defense.SquaddieMaxBarrier = 20
 	suite.bandit2.Defense.SetBarrierToMax()
 
 	suite.SetUpTerosAttacksBanditsAndSuffersCounterAttack()
@@ -426,9 +426,9 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuarant
 		&forecastOutput,
 	)
 
-	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +202 (36/36), for 2 damage + 1 barrier burn\n" +
-		" crit: 36/36, for 3 damage + 1 barrier burn\n" +
-		"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n" +
+	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +202 (36/36), for 2 damage + 1 barrier burn\n"+
+		" crit: 36/36, for 3 damage + 1 barrier burn\n"+
+		"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
 		" crit: 1/36 for NO DAMAGE + 4 barrier burn\n"+
 		"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
 	)
@@ -436,11 +436,11 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuarant
 
 func (suite *ConsoleViewerSuite) TestShowForecastAttackIsFatal(checker *C) {
 
-	suite.bandit.Defense.MaxHitPoints = 2
+	suite.bandit.Defense.SquaddieMaxHitPoints = 2
 	suite.bandit.Defense.SetHPToMax()
 
-	suite.bandit2.Defense.Deflect = 2
-	suite.bandit2.Defense.MaxHitPoints = 2
+	suite.bandit2.Defense.SquaddieDeflect = 2
+	suite.bandit2.Defense.SquaddieMaxHitPoints = 2
 	suite.bandit2.Defense.SetHPToMax()
 
 	suite.SetUpTerosAttacksBanditsAndSuffersCounterAttack()

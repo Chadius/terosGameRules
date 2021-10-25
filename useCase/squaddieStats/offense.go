@@ -11,7 +11,7 @@ import (
 func getSquaddie(squaddieID string, repos *repositories.RepositoryCollection) (*squaddie.Squaddie, error) {
 	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
 	if squaddie == nil {
-		newError := fmt.Errorf("squaddie could not be found, ID: %s", squaddieID)
+		newError := fmt.Errorf("squaddie could not be found, SquaddieID: %s", squaddieID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
@@ -21,12 +21,12 @@ func getSquaddie(squaddieID string, repos *repositories.RepositoryCollection) (*
 func getHealingPower(powerID string, repos *repositories.RepositoryCollection) (*power.Power, error) {
 	power := repos.PowerRepo.GetPowerByID(powerID)
 	if power == nil {
-		newError := fmt.Errorf("power could not be found, ID: %s", powerID)
+		newError := fmt.Errorf("power could not be found, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	if power.HealingEffect == nil {
-		newError := fmt.Errorf("cannot heal with power, ID: %s", powerID)
+		newError := fmt.Errorf("cannot heal with power, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
@@ -36,12 +36,12 @@ func getHealingPower(powerID string, repos *repositories.RepositoryCollection) (
 func getAttackPower(powerID string, repos *repositories.RepositoryCollection) (*power.Power, error) {
 	power := repos.PowerRepo.GetPowerByID(powerID)
 	if power == nil {
-		newError := fmt.Errorf("power could not be found, ID: %s", powerID)
+		newError := fmt.Errorf("power could not be found, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	if power.AttackEffect == nil {
-		newError := fmt.Errorf("cannot attack with power, ID: %s", powerID)
+		newError := fmt.Errorf("cannot attack with power, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
@@ -83,7 +83,7 @@ func GetSquaddieAimWithPower(squaddieID, powerID string, repos *repositories.Rep
 		return 0, err
 	}
 
-	return squaddie.Offense.Aim + powerToMeasure.AttackEffect.ToHitBonus, nil
+	return squaddie.Aim() + powerToMeasure.AttackEffect.ToHitBonus, nil
 }
 
 // GetSquaddieRawDamageWithPower returns the amount of damage that will be dealt to an unprotected target.
@@ -94,9 +94,9 @@ func GetSquaddieRawDamageWithPower(squaddieID, powerID string, repos *repositori
 	}
 
 	if powerToMeasure.PowerType == power.Physical {
-		return squaddie.Offense.Strength + powerToMeasure.AttackEffect.DamageBonus, nil
+		return squaddie.Strength() + powerToMeasure.AttackEffect.DamageBonus, nil
 	}
-	return squaddie.Offense.Mind + powerToMeasure.AttackEffect.DamageBonus, nil
+	return squaddie.Mind() + powerToMeasure.AttackEffect.DamageBonus, nil
 }
 
 // GetSquaddieCriticalThresholdWithPower returns the critical hit threshold the squaddie needs to beat in order to crit.
@@ -107,7 +107,7 @@ func GetSquaddieCriticalThresholdWithPower(squaddieID, powerID string, repos *re
 	}
 
 	if powerToMeasure.AttackEffect.CanCriticallyHit() != true {
-		newError := fmt.Errorf("cannot critical hit with power, ID: %s", powerID)
+		newError := fmt.Errorf("cannot critical hit with power, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
@@ -128,7 +128,7 @@ func GetSquaddieCriticalRawDamageWithPower(squaddieID, powerID string, repos *re
 	}
 
 	if powerToMeasure.AttackEffect.CanCriticallyHit() != true {
-		newError := fmt.Errorf("cannot critical hit with power, ID: %s", powerID)
+		newError := fmt.Errorf("cannot critical hit with power, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
@@ -158,7 +158,7 @@ func GetSquaddieCounterAttackAimWithPower(squaddieID, powerID string, repos *rep
 		return 0, counterAttackErr
 	}
 
-	return squaddie.Offense.Aim + powerToMeasure.AttackEffect.ToHitBonus + counterAttackPenalty, nil
+	return squaddie.Aim() + powerToMeasure.AttackEffect.ToHitBonus + counterAttackPenalty, nil
 }
 
 // GetSquaddieExtraBarrierBurnWithPower returns the amount of extra barrier burn that will be dealt to a target with a barrier.
@@ -190,7 +190,7 @@ func GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *re
 		return 0, nil
 	}
 
-	squaddieMindBonus := squaddieToHeal.Offense.Mind
+	squaddieMindBonus := squaddieToHeal.Mind()
 	if healingPower.HealingEffect.HealingAdjustmentBasedOnUserMind == power.Half {
 		squaddieMindBonus /= 2
 	}
@@ -199,7 +199,7 @@ func GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *re
 	}
 
 	maximumHealing := healingPower.HealingEffect.HitPointsHealed + squaddieMindBonus
-	missingHitPoints := target.Defense.MaxHitPoints - target.Defense.CurrentHitPoints
+	missingHitPoints := target.MaxHitPoints() - target.CurrentHitPoints()
 	if missingHitPoints < maximumHealing {
 		return missingHitPoints, nil
 	}

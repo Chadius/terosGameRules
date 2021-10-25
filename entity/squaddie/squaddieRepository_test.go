@@ -6,36 +6,36 @@ import (
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddieRepositorySuite struct {
-	squaddieFactory *squaddie.Repository
-	teros           *squaddie.Squaddie
-	attackA *power.Power
+	squaddieRepository *squaddie.Repository
+	teros              *squaddie.Squaddie
+	attackA         *power.Power
 }
 
 var _ = Suite(&SquaddieRepositorySuite{})
 
 func (suite *SquaddieRepositorySuite) SetUpTest(checker *C) {
-	suite.squaddieFactory = squaddie.NewSquaddieRepository()
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Armor(2).Dodge(3).Deflect(4).Barrier(1).Build()
-	suite.attackA = powerFactory.PowerFactory().WithName("Attack Formation A").Build()
+	suite.squaddieRepository = squaddie.NewSquaddieRepository()
+	suite.teros = squaddieBuilder.Builder().Teros().Armor(2).Dodge(3).Deflect(4).Barrier(1).Build()
+	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
 }
 
 func (suite *SquaddieRepositorySuite) TestUseJSONSource(checker *C) {
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 0)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 0)
 	jsonByteStream := []byte(`[{
 				"identification": {
 					"name": "teros",
 					"affiliation": "Player"
 				}
 			}]`)
-	success, _ := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 1)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
 }
 
 func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
@@ -49,22 +49,22 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
 					"aim": 5
 				}
 			}]`)
-	success, _ := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
 
-	suite.teros = suite.squaddieFactory.GetSquaddieByID("squaddieID")
+	suite.teros = suite.squaddieRepository.GetSquaddieByID("squaddieID")
 	checker.Assert(suite.teros, NotNil)
-	checker.Assert(suite.teros.Identification.Name, Equals, "teros")
-	checker.Assert(suite.teros.Offense.Aim, Equals, 5)
+	checker.Assert(suite.teros.Name(), Equals, "teros")
+	checker.Assert(suite.teros.Aim(), Equals, 5)
 
-	missingno := suite.squaddieFactory.GetSquaddieByID("Does not exist")
+	missingno := suite.squaddieRepository.GetSquaddieByID("Does not exist")
 	checker.Assert(missingno, IsNil)
 }
 
 func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C) {
 	jsonByteStream := []byte(`[{
 				"identification": {
-					"ID": "12345",
+					"id": "12345",
 					"name": "teros",
 					"affiliation": "Player"
 				},
@@ -72,22 +72,22 @@ func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C)
 					"aim": 5
 				}
 			}]`)
-	success, _ := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
 
-	suite.teros = suite.squaddieFactory.GetSquaddieByID("12345")
+	suite.teros = suite.squaddieRepository.GetSquaddieByID("12345")
 	checker.Assert(suite.teros, NotNil)
-	checker.Assert(suite.teros.Identification.Name, Equals, "teros")
-	checker.Assert(suite.teros.Offense.Aim, Equals, 5)
+	checker.Assert(suite.teros.Name(), Equals, "teros")
+	checker.Assert(suite.teros.Aim(), Equals, 5)
 
-	missingno := suite.squaddieFactory.GetSquaddieByID("Does not exist")
+	missingno := suite.squaddieRepository.GetSquaddieByID("Does not exist")
 	checker.Assert(missingno, IsNil)
 }
 
 func (suite *SquaddieRepositorySuite) TestClonedSquaddiesHaveDifferentID(checker *C) {
 	jsonByteStream := []byte(`[{
 				"identification": {
-					"ID": "terosID",
+					"id": "terosID",
 					"name": "teros",
 					"affiliation": "Player"
 				},
@@ -95,11 +95,11 @@ func (suite *SquaddieRepositorySuite) TestClonedSquaddiesHaveDifferentID(checker
 					"aim": 5
 				}
 			}]`)
-	success, _ := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
 
-	teros0 := suite.squaddieFactory.GetSquaddieByID("terosID")
-	teros1 := suite.squaddieFactory.GetSquaddieByID("terosID")
+	teros0 := suite.squaddieRepository.GetSquaddieByID("terosID")
+	teros1 := suite.squaddieRepository.GetSquaddieByID("terosID")
 	checker.Assert(teros0, Not(Equals), teros1)
 }
 
@@ -127,10 +127,10 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevels(checker *C) {
 				   }
 				}
 			}]`)
-	success, _ := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
 
-	suite.teros = suite.squaddieFactory.GetSquaddieByID("terosSquaddieID")
+	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
 	checker.Assert(suite.teros.ClassProgress.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
 }
 
@@ -146,7 +146,7 @@ func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesWhenInvalid(checke
 					"Affiliation": "Unknown Affiliation"
 				}
 			}]`)
-	success, err := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, err := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, false)
 	checker.Assert(err, ErrorMatches, "squaddie  has unknown affiliation: 'Unknown Affiliation'")
 }
@@ -187,47 +187,47 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 			}
 			]`)
 
-	success, _ := suite.squaddieFactory.AddJSONSource(jsonByteStream)
+	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 4)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 4)
 
-	soldier := suite.squaddieFactory.GetSquaddieByID("Soldier")
-	checker.Assert(soldier.Identification.Name, Equals, "Soldier")
+	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
+	checker.Assert(soldier.Name(), Equals, "Soldier")
 	checker.Assert(soldier.Movement.GetMovementDistancePerRound(), Equals, 5)
 	checker.Assert(soldier.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Foot))
 	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
 
-	scout := suite.squaddieFactory.GetSquaddieByID("Scout")
-	checker.Assert(scout.Identification.Name, Equals, "Scout")
+	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
+	checker.Assert(scout.Name(), Equals, "Scout")
 	checker.Assert(scout.Movement.GetMovementDistancePerRound(), Equals, 4)
 	checker.Assert(scout.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Light))
 	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
 
-	bird := suite.squaddieFactory.GetSquaddieByID("Bird")
-	checker.Assert(bird.Identification.Name, Equals, "Bird")
+	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
+	checker.Assert(bird.Name(), Equals, "Bird")
 	checker.Assert(bird.Movement.GetMovementDistancePerRound(), Equals, 3)
 	checker.Assert(bird.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
 
-	teleporter := suite.squaddieFactory.GetSquaddieByID("Teleporter")
-	checker.Assert(teleporter.Identification.Name, Equals, "Teleporter")
+	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
+	checker.Assert(teleporter.Name(), Equals, "Teleporter")
 	checker.Assert(teleporter.Movement.GetMovementDistancePerRound(), Equals, 2)
 	checker.Assert(teleporter.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
 	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
 func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
-	originalSquaddie := squaddieFactory.SquaddieFactory().WithName("Original").AsAlly().Build()
-	suite.squaddieFactory.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
-	referencedSquaddie := suite.squaddieFactory.GetOriginalSquaddieByID(originalSquaddie.Identification.ID)
+	originalSquaddie := squaddieBuilder.Builder().WithName("Original").AsAlly().Build()
+	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
+	referencedSquaddie := suite.squaddieRepository.GetOriginalSquaddieByID(originalSquaddie.ID())
 	checker.Assert(referencedSquaddie, Equals, originalSquaddie)
 }
 
 func (suite *SquaddieRepositorySuite) TestMarshallIntoJSON(checker *C) {
-	byteStream, err := suite.squaddieFactory.MarshalSquaddieIntoJSON(suite.teros)
+	byteStream, err := suite.squaddieRepository.MarshalSquaddieIntoJSON(suite.teros)
 	checker.Assert(err, IsNil)
 
-	hasIDNameAffiliationInJSON := bytes.Contains(byteStream, []byte(fmt.Sprintf(`"id":"%s","name":"Teros","affiliation":"Player"`, suite.teros.Identification.ID)))
+	hasIDNameAffiliationInJSON := bytes.Contains(byteStream, []byte(fmt.Sprintf(`"id":"%s","name":"Teros","affiliation":"Player"`, suite.teros.ID())))
 	checker.Assert(hasIDNameAffiliationInJSON, Equals, true)
 
 	hasDefaultHitPointsInJSON := bytes.Contains(byteStream, []byte(`"current_hit_points":5,"max_hit_points":5`))
@@ -254,7 +254,7 @@ func (suite *SquaddieRepositorySuite) TestMarshallSquaddieMovement(checker *C) {
 	suite.teros.Movement.Distance = 8
 	suite.teros.Movement.HitAndRun = true
 
-	byteStream, err := suite.squaddieFactory.MarshalSquaddieIntoJSON(suite.teros)
+	byteStream, err := suite.squaddieRepository.MarshalSquaddieIntoJSON(suite.teros)
 	checker.Assert(err, IsNil)
 	movementJSON := `"movement":{"distance":8,"type":"teleport","hit_and_run":true}`
 	containsPowersJSON := bytes.Contains(byteStream, []byte(movementJSON))
@@ -263,7 +263,7 @@ func (suite *SquaddieRepositorySuite) TestMarshallSquaddieMovement(checker *C) {
 
 func (suite *SquaddieRepositorySuite) TestMarshallSquaddiePowers(checker *C) {
 	suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	byteStream, err := suite.squaddieFactory.MarshalSquaddieIntoJSON(suite.teros)
+	byteStream, err := suite.squaddieRepository.MarshalSquaddieIntoJSON(suite.teros)
 	checker.Assert(err, IsNil)
 
 	powersJSON := fmt.Sprintf(`"powers":[{"name":"Attack Formation A","id":"%s"}]`, suite.attackA.ID)
@@ -272,14 +272,14 @@ func (suite *SquaddieRepositorySuite) TestMarshallSquaddiePowers(checker *C) {
 }
 
 func (suite *SquaddieRepositorySuite) TestLoadSquaddieByYAML(checker *C) {
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 0)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 0)
 	yamlByteStream := []byte(`-
   identification:
     name: teros
     affiliation: Player
 `)
-	suite.squaddieFactory.AddYAMLSource(yamlByteStream)
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 1)
+	suite.squaddieRepository.AddYAMLSource(yamlByteStream)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
 }
 
 func (suite *SquaddieRepositorySuite) TestLoadClassLevelsYAML(checker *C) {
@@ -299,10 +299,10 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevelsYAML(checker *C) {
         id: '2'
         name: Dimension Walker
 `)
-	success, _ := suite.squaddieFactory.AddYAMLSource(yamlByteStream)
+	success, _ := suite.squaddieRepository.AddYAMLSource(yamlByteStream)
 	checker.Assert(success, Equals, true)
 
-	suite.teros = suite.squaddieFactory.GetSquaddieByID("terosSquaddieID")
+	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
 	checker.Assert(suite.teros.ClassProgress.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
 }
 
@@ -314,11 +314,11 @@ func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesUponFirstInvalid(c
 -
   identification:
     name: teros2
-    affiliation: Unknown Affiliation`)
-	success, err := suite.squaddieFactory.AddYAMLSource(yamlByteStream)
+    affiliation: Unknown SquaddieAffiliation`)
+	success, err := suite.squaddieRepository.AddYAMLSource(yamlByteStream)
 	checker.Assert(success, Equals, false)
 	checker.Assert(err, NotNil)
-	checker.Assert(err.Error(), Equals, "squaddie  has unknown affiliation: 'Unknown Affiliation'")
+	checker.Assert(err.Error(), Equals, "squaddie  has unknown affiliation: 'Unknown SquaddieAffiliation'")
 }
 
 func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML(checker *C) {
@@ -358,42 +358,42 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML
     hit_and_run: false
 `)
 
-	success, _ := suite.squaddieFactory.AddYAMLSource(yamlByteStream)
+	success, _ := suite.squaddieRepository.AddYAMLSource(yamlByteStream)
 	checker.Assert(success, Equals, true)
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 4)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 4)
 
-	soldier := suite.squaddieFactory.GetSquaddieByID("Soldier")
-	checker.Assert(soldier.Identification.Name, Equals, "Soldier")
+	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
+	checker.Assert(soldier.Name(), Equals, "Soldier")
 	checker.Assert(soldier.Movement.GetMovementDistancePerRound(), Equals, 5)
 	checker.Assert(soldier.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Foot))
 	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
 
-	scout := suite.squaddieFactory.GetSquaddieByID("Scout")
-	checker.Assert(scout.Identification.Name, Equals, "Scout")
+	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
+	checker.Assert(scout.Name(), Equals, "Scout")
 	checker.Assert(scout.Movement.GetMovementDistancePerRound(), Equals, 4)
 	checker.Assert(scout.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Light))
 	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
 
-	bird := suite.squaddieFactory.GetSquaddieByID("Bird")
-	checker.Assert(bird.Identification.Name, Equals, "Bird")
+	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
+	checker.Assert(bird.Name(), Equals, "Bird")
 	checker.Assert(bird.Movement.GetMovementDistancePerRound(), Equals, 3)
 	checker.Assert(bird.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
 
-	teleporter := suite.squaddieFactory.GetSquaddieByID("Teleporter")
-	checker.Assert(teleporter.Identification.Name, Equals, "Teleporter")
+	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
+	checker.Assert(teleporter.Name(), Equals, "Teleporter")
 	checker.Assert(teleporter.Movement.GetMovementDistancePerRound(), Equals, 2)
 	checker.Assert(teleporter.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
 	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
 func (suite *SquaddieRepositorySuite) TestAddSquaddieDirectly(checker *C) {
-	success, err := suite.squaddieFactory.AddSquaddies([]*squaddie.Squaddie{
-		squaddieFactory.SquaddieFactory().Build(),
+	success, err := suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{
+		squaddieBuilder.Builder().Build(),
 	})
 	checker.Assert(success, Equals, true)
 	checker.Assert(err, IsNil)
-	checker.Assert(suite.squaddieFactory.GetNumberOfSquaddies(), Equals, 1)
+	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
 }
 
 func (suite *SquaddieRepositorySuite) TestCloneSquaddie(checker *C) {
@@ -401,73 +401,59 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddie(checker *C) {
 }
 
 type SquaddieCloneSuite struct {
-	squaddieFactory *squaddie.Repository
-	base            *squaddie.Squaddie
-	attackA *power.Power
+	squaddieRepository *squaddie.Repository
+	base               *squaddie.Squaddie
+	attackA         *power.Power
 }
 
 var _ = Suite(&SquaddieCloneSuite{})
 
 func (suite *SquaddieCloneSuite) SetUpTest(checker *C) {
-	suite.base = squaddieFactory.SquaddieFactory().WithName("Base").Build()
-	suite.squaddieFactory = squaddie.NewSquaddieRepository()
-	suite.squaddieFactory.AddSquaddies([]*squaddie.Squaddie{suite.base})
+	suite.base = squaddieBuilder.Builder().WithName("Base").Build()
+	suite.squaddieRepository = squaddie.NewSquaddieRepository()
+	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{suite.base})
 
-	suite.attackA = powerFactory.PowerFactory().WithName("Attack Formation A").Build()
+	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
 }
 
 func (suite *SquaddieCloneSuite) TestCloneHasAffiliationAndNameNotID(checker *C) {
-	suite.base.Identification.Affiliation = squaddie.Enemy
-	clone, err := suite.squaddieFactory.CloneSquaddieWithNewID(suite.base, "")
+	suite.base.Identification.SquaddieAffiliation = squaddie.Enemy
+	clone, err := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 	checker.Assert(err, IsNil)
-	checker.Assert(clone.Identification.Name, Equals, suite.base.Identification.Name)
-	checker.Assert(clone.Identification.Affiliation, Equals, suite.base.Identification.Affiliation)
-	checker.Assert(clone.Identification.ID, Not(Equals), suite.base.Identification.ID)
+	checker.Assert(clone.Name(), Equals, suite.base.Name())
+	checker.Assert(clone.Affiliation(), Equals, suite.base.Affiliation())
+	checker.Assert(clone.ID(), Not(Equals), suite.base.ID())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneUsesGivenID(checker *C) {
-	clone, _ := suite.squaddieFactory.CloneSquaddieWithNewID(suite.base, "12345")
-	checker.Assert(clone.Identification.ID, Equals, "12345")
-}
-
-func (suite *SquaddieCloneSuite) TestCloneUsesName(checker *C) {
-	clone, err := suite.squaddieFactory.CloneAndRenameSquaddie(suite.base, "ClonedSquaddie", "12345")
-	checker.Assert(err, IsNil)
-	checker.Assert(suite.base.Identification.Name, Equals, "Base")
-	checker.Assert(clone.Identification.Name, Equals, "ClonedSquaddie")
-	checker.Assert(clone.Identification.ID, Not(Equals), suite.base.Identification.ID)
-}
-
-func (suite *SquaddieCloneSuite) TestRenameCloneNeedsAName(checker *C) {
-	clone, err := suite.squaddieFactory.CloneAndRenameSquaddie(suite.base, "", "12345")
-	checker.Assert(err, ErrorMatches, `cannot clone squaddie "Base" without a name`)
-	checker.Assert(clone, IsNil)
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "12345")
+	checker.Assert(clone.ID(), Equals, "12345")
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesBasicStats(checker *C) {
-	suite.base.Defense.CurrentHitPoints = 1
-	suite.base.Defense.MaxHitPoints += 5
-	suite.base.Defense.CurrentBarrier = 2
-	suite.base.Defense.MaxBarrier += 5
+	suite.base.Defense.SquaddieCurrentHitPoints = 1
+	suite.base.Defense.SquaddieMaxHitPoints += 5
+	suite.base.Defense.SquaddieCurrentBarrier = 2
+	suite.base.Defense.SquaddieMaxBarrier += 5
 
-	suite.base.Offense.Aim = 2
-	suite.base.Offense.Strength = 3
-	suite.base.Offense.Mind = 4
-	suite.base.Defense.Dodge = 5
-	suite.base.Defense.Deflect = 6
-	suite.base.Defense.Armor = 7
+	suite.base.Offense.SquaddieAim = 2
+	suite.base.Offense.SquaddieStrength = 3
+	suite.base.Offense.SquaddieMind = 4
+	suite.base.Defense.SquaddieDodge = 5
+	suite.base.Defense.SquaddieDeflect = 6
+	suite.base.Defense.SquaddieArmor = 7
 
-	clone, _ := suite.squaddieFactory.CloneSquaddieWithNewID(suite.base, "")
-	checker.Assert(clone.Defense.CurrentHitPoints, Equals, suite.base.Defense.CurrentHitPoints)
-	checker.Assert(clone.Defense.MaxHitPoints, Equals, suite.base.Defense.MaxHitPoints)
-	checker.Assert(clone.Offense.Aim, Equals, suite.base.Offense.Aim)
-	checker.Assert(clone.Offense.Strength, Equals, suite.base.Offense.Strength)
-	checker.Assert(clone.Offense.Mind, Equals, suite.base.Offense.Mind)
-	checker.Assert(clone.Defense.Dodge, Equals, suite.base.Defense.Dodge)
-	checker.Assert(clone.Defense.Deflect, Equals, suite.base.Defense.Deflect)
-	checker.Assert(clone.Defense.CurrentBarrier, Equals, suite.base.Defense.CurrentBarrier)
-	checker.Assert(clone.Defense.MaxBarrier, Equals, suite.base.Defense.MaxBarrier)
-	checker.Assert(clone.Defense.Armor, Equals, suite.base.Defense.Armor)
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
+	checker.Assert(clone.CurrentHitPoints(), Equals, suite.base.CurrentHitPoints())
+	checker.Assert(clone.MaxHitPoints(), Equals, suite.base.MaxHitPoints())
+	checker.Assert(clone.Aim(), Equals, suite.base.Aim())
+	checker.Assert(clone.Strength(), Equals, suite.base.Strength())
+	checker.Assert(clone.Mind(), Equals, suite.base.Mind())
+	checker.Assert(clone.Dodge(), Equals, suite.base.Dodge())
+	checker.Assert(clone.Deflect(), Equals, suite.base.Deflect())
+	checker.Assert(clone.CurrentBarrier(), Equals, suite.base.CurrentBarrier())
+	checker.Assert(clone.MaxBarrier(), Equals, suite.base.MaxBarrier())
+	checker.Assert(clone.Armor(), Equals, suite.base.Armor())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
@@ -477,7 +463,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 		HitAndRun: true,
 	}
 
-	clone, _ := suite.squaddieFactory.CloneSquaddieWithNewID(suite.base, "")
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 	checker.Assert(clone.Movement.Distance, Equals, suite.base.Movement.Distance)
 	checker.Assert(clone.Movement.Type, Equals, suite.base.Movement.Type)
 	checker.Assert(clone.Movement.HitAndRun, Equals, suite.base.Movement.HitAndRun)
@@ -485,7 +471,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
 	suite.base.PowerCollection.AddInnatePower(suite.attackA)
-	clone, _ := suite.squaddieFactory.CloneSquaddieWithNewID(suite.base, "")
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 
 	attackIDNamePairs := clone.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
@@ -514,7 +500,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
 	suite.base.ClassProgress.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel1")
 	suite.base.ClassProgress.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel2")
 
-	clone, _ := suite.squaddieFactory.CloneSquaddieWithNewID(suite.base, "")
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 	checker.Assert(clone.ClassProgress.BaseClassID, Equals, suite.base.ClassProgress.BaseClassID)
 	checker.Assert(clone.ClassProgress.CurrentClass, Equals, suite.base.ClassProgress.CurrentClass)
 	for classID, levelsConsumed := range suite.base.ClassProgress.ClassLevelsConsumed {

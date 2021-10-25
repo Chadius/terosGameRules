@@ -18,7 +18,7 @@ var _ = Suite(&ClassRepositoryUnmarshalSuite{})
 func (suite *ClassRepositoryUnmarshalSuite) SetUpTest(checker *C) {
 	suite.repo = squaddieclass.NewRepository()
 	suite.jsonByteStream = []byte(`[{
-		"ID": "aaaaaaaa",
+		"id": "aaaaaaaa",
 		"name": "Mage"
 	}]`)
 }
@@ -80,6 +80,6 @@ func (suite *ClassRepositoryRetrieveSuite) TestGetClassByID(checker *C) {
 }
 
 func (suite *ClassRepositoryRetrieveSuite) TestRaiseErrorWhenClassDoesNotExist(checker *C) {
-	_, err := suite.repo.GetClassByID("bad ID")
-	checker.Assert(err, ErrorMatches, `class repository: No class found with ID: "bad ID"`)
+	_, err := suite.repo.GetClassByID("bad SquaddieID")
+	checker.Assert(err, ErrorMatches, `class repository: No class found with SquaddieID: "bad SquaddieID"`)
 }

@@ -10,19 +10,19 @@ type ClassBuilderOptions struct {
 	initialBigLevelID string
 }
 
-// ClassFactory creates a ClassBuilderOptions with default values.
+// ClassBuilder creates a ClassBuilderOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func ClassFactory() *ClassBuilderOptions {
+func ClassBuilder() *ClassBuilderOptions {
 	return &ClassBuilderOptions{
-		id: "",
-		name: "",
+		id:                "",
+		name:              "",
 		baseClassRequired: false,
 		initialBigLevelID: "",
 	}
 }
 
-// WithID sets the class ID.
+// WithID sets the class SquaddieID.
 func (c *ClassBuilderOptions) WithID(id string) *ClassBuilderOptions {
 	c.id = id
 	return c
@@ -46,13 +46,11 @@ func (c *ClassBuilderOptions) RequiresBaseClass() *ClassBuilderOptions {
 	return c
 }
 
-
-
 // Build uses the ClassBuilderOptions to create a Movement.
 func (c *ClassBuilderOptions) Build() *squaddieclass.Class {
 	newClass := &squaddieclass.Class{
-		ID: c.id,
-		Name: c.name,
+		ID:                c.id,
+		Name:              c.name,
 		BaseClassRequired: c.baseClassRequired,
 		InitialBigLevelID: c.initialBigLevelID,
 	}

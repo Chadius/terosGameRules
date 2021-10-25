@@ -30,26 +30,26 @@ type Squaddie struct {
 func NewSquaddie(name string) *Squaddie {
 	newSquaddie := Squaddie{
 		Identification: Identification{
-			ID:          "squaddie_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
-			Name:        name,
-			Affiliation: Player,
+			SquaddieID:          "squaddie_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
+			SquaddieName:        name,
+			SquaddieAffiliation: Player,
 		},
 		ClassProgress: ClassProgress{
 			ClassLevelsConsumed: map[string]*ClassLevelsConsumed{},
 		},
 		Defense: Defense{
-			CurrentHitPoints: 0,
-			MaxHitPoints:     5,
-			Dodge:            0,
-			Deflect:          0,
-			CurrentBarrier:   0,
-			MaxBarrier:       0,
-			Armor:            0,
+			SquaddieCurrentHitPoints: 0,
+			SquaddieMaxHitPoints:     5,
+			SquaddieDodge:            0,
+			SquaddieDeflect:          0,
+			SquaddieCurrentBarrier:   0,
+			SquaddieMaxBarrier:       0,
+			SquaddieArmor:            0,
 		},
 		Offense: Offense{
-			Aim:      0,
-			Strength: 0,
-			Mind:     0,
+			SquaddieAim:      0,
+			SquaddieStrength: 0,
+			SquaddieMind:     0,
 		},
 		Movement: Movement{
 			Distance:  3,
@@ -61,16 +61,83 @@ func NewSquaddie(name string) *Squaddie {
 	return &newSquaddie
 }
 
+// TODO Ask Identification if it has this error
+
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
 func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
-	if newSquaddie.Identification.Affiliation != Player &&
-		newSquaddie.Identification.Affiliation != Enemy &&
-		newSquaddie.Identification.Affiliation != Ally &&
-		newSquaddie.Identification.Affiliation != Neutral {
-		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.Identification.ID, newSquaddie.Identification.Affiliation)
+	if newSquaddie.Affiliation() != Player &&
+		newSquaddie.Affiliation() != Enemy &&
+		newSquaddie.Affiliation() != Ally &&
+		newSquaddie.Affiliation() != Neutral {
+		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.ID(), newSquaddie.Affiliation())
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
 	return nil
+}
+
+// ID delegates.
+func (s *Squaddie) ID() string {
+	return s.Identification.ID()
+}
+
+// Affiliation delegates.
+func (s *Squaddie) Affiliation() Affiliation {
+	return s.Identification.Affiliation()
+}
+
+// Name delegates.
+func (s *Squaddie) Name() string {
+	return s.Identification.Name()
+}
+
+// MaxHitPoints delegates.
+func (s *Squaddie) MaxHitPoints() int {
+	return s.Defense.MaxHitPoints()
+}
+
+// Dodge delegates.
+func (s *Squaddie) Dodge() int {
+	return s.Defense.Dodge()
+}
+
+// Deflect delegates.
+func (s *Squaddie) Deflect() int {
+	return s.Defense.Deflect()
+}
+
+// MaxBarrier delegates.
+func (s *Squaddie) MaxBarrier() int {
+	return s.Defense.MaxBarrier()
+}
+
+// Armor delegates.
+func (s *Squaddie) Armor() int {
+	return s.Defense.Armor()
+}
+
+// CurrentHitPoints delegates.
+func (s *Squaddie) CurrentHitPoints() int {
+	return s.Defense.CurrentHitPoints()
+}
+
+// CurrentBarrier delegates.
+func (s *Squaddie) CurrentBarrier() int {
+	return s.Defense.CurrentBarrier()
+}
+
+// Aim delegates.
+func (s *Squaddie) Aim() int {
+	return s.Offense.Aim()
+}
+
+// Strength delegates.
+func (s *Squaddie) Strength() int {
+	return s.Offense.Strength()
+}
+
+// Mind delegates.
+func (s *Squaddie) Mind() int {
+	return s.Offense.Mind()
 }

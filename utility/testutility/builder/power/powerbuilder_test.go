@@ -2,126 +2,123 @@ package power_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )
 
 func Test(t *testing.T) { TestingT(t) }
 
-type PowerBuilder struct {}
+type PowerBuilder struct{}
 
 var _ = Suite(&PowerBuilder{})
 
 func (suite *PowerBuilder) TestBuildPowerWithName(checker *C) {
-	sword := powerFactory.PowerFactory().WithName("Master Sword").Build()
+	sword := powerBuilder.Builder().WithName("Master Sword").Build()
 	checker.Assert("Master Sword", Equals, sword.Reference.Name)
 }
 
 func (suite *PowerBuilder) TestBuildPowerWithID(checker *C) {
-	sword := powerFactory.PowerFactory().WithID("power123").Build()
+	sword := powerBuilder.Builder().WithID("power123").Build()
 	checker.Assert("power123", Equals, sword.Reference.ID)
 }
 
 func (suite *PowerBuilder) TestBuildPowerTargetsSelf(checker *C) {
-	sword := powerFactory.PowerFactory().TargetsSelf().Build()
+	sword := powerBuilder.Builder().TargetsSelf().Build()
 	checker.Assert(true, Equals, sword.Targeting.TargetSelf)
 }
 
 func (suite *PowerBuilder) TestBuildPowerTargetsFriend(checker *C) {
-	sword := powerFactory.PowerFactory().TargetsFriend().Build()
+	sword := powerBuilder.Builder().TargetsFriend().Build()
 	checker.Assert(true, Equals, sword.Targeting.TargetFriend)
 }
 
 func (suite *PowerBuilder) TestBuildPowerTargetsFoe(checker *C) {
-	sword := powerFactory.PowerFactory().TargetsFoe().Build()
+	sword := powerBuilder.Builder().TargetsFoe().Build()
 	checker.Assert(true, Equals, sword.Targeting.TargetFoe)
 }
 
 func (suite *PowerBuilder) TestBuildPowerIsPhysical(checker *C) {
-	sword := powerFactory.PowerFactory().IsPhysical().Build()
+	sword := powerBuilder.Builder().IsPhysical().Build()
 	checker.Assert(power.Physical, Equals, sword.PowerType)
 }
 
 func (suite *PowerBuilder) TestBuildPowerIsSpell(checker *C) {
-	lightning := powerFactory.PowerFactory().IsSpell().Build()
+	lightning := powerBuilder.Builder().IsSpell().Build()
 	checker.Assert(power.Spell, Equals, lightning.PowerType)
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentFull(checker *C) {
-	bigHeals := powerFactory.PowerFactory().HealingAdjustmentBasedOnUserMindFull().Build()
+	bigHeals := powerBuilder.Builder().HealingAdjustmentBasedOnUserMindFull().Build()
 	checker.Assert(power.Full, Equals, bigHeals.HealingEffect.HealingAdjustmentBasedOnUserMind)
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentHalf(checker *C) {
-	someHeals := powerFactory.PowerFactory().HealingAdjustmentBasedOnUserMindHalf().Build()
+	someHeals := powerBuilder.Builder().HealingAdjustmentBasedOnUserMindHalf().Build()
 	checker.Assert(power.Half, Equals, someHeals.HealingEffect.HealingAdjustmentBasedOnUserMind)
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentZero(checker *C) {
-	someHeals := powerFactory.PowerFactory().HealingAdjustmentBasedOnUserMindZero().Build()
+	someHeals := powerBuilder.Builder().HealingAdjustmentBasedOnUserMindZero().Build()
 	checker.Assert(power.Zero, Equals, someHeals.HealingEffect.HealingAdjustmentBasedOnUserMind)
 }
 
 func (suite *PowerBuilder) TestHitPointsHealed(checker *C) {
-	bigHeals := powerFactory.PowerFactory().HitPointsHealed(5).Build()
+	bigHeals := powerBuilder.Builder().HitPointsHealed(5).Build()
 	checker.Assert(5, Equals, bigHeals.HealingEffect.HitPointsHealed)
 }
 
-
-
 func (suite *PowerBuilder) TestBuildAttackEffectToHitBonus(checker *C) {
-	damageEffect := powerFactory.PowerFactory().ToHitBonus(2).Build()
+	damageEffect := powerBuilder.Builder().ToHitBonus(2).Build()
 	checker.Assert(2, Equals, damageEffect.AttackEffect.ToHitBonus)
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectDamageBonus(checker *C) {
-	damageEffect := powerFactory.PowerFactory().DealsDamage(3).Build()
+	damageEffect := powerBuilder.Builder().DealsDamage(3).Build()
 	checker.Assert(3, Equals, damageEffect.AttackEffect.DamageBonus)
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectExtraBarrierBurn(checker *C) {
-	damageEffect := powerFactory.PowerFactory().ExtraBarrierBurn(1).Build()
+	damageEffect := powerBuilder.Builder().ExtraBarrierBurn(1).Build()
 	checker.Assert(1, Equals, damageEffect.AttackEffect.ExtraBarrierBurn)
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCounterAttackPenaltyReduction(checker *C) {
-	damageEffect := powerFactory.PowerFactory().CounterAttackPenaltyReduction(4).Build()
+	damageEffect := powerBuilder.Builder().CounterAttackPenaltyReduction(4).Build()
 	checker.Assert(4, Equals, damageEffect.AttackEffect.CounterAttackPenaltyReduction)
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCanBeEquipped(checker *C) {
-	sword := powerFactory.PowerFactory().CanBeEquipped().Build()
+	sword := powerBuilder.Builder().CanBeEquipped().Build()
 	checker.Assert(true, Equals, sword.AttackEffect.CanBeEquipped)
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCannotBeEquipped(checker *C) {
-	scroll := powerFactory.PowerFactory().CanBeEquipped().CannotBeEquipped().Build()
+	scroll := powerBuilder.Builder().CanBeEquipped().CannotBeEquipped().Build()
 	checker.Assert(false, Equals, scroll.AttackEffect.CanBeEquipped)
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCanCounterAttack(checker *C) {
-	sword := powerFactory.PowerFactory().CanCounterAttack().Build()
+	sword := powerBuilder.Builder().CanCounterAttack().Build()
 	checker.Assert(true, Equals, sword.AttackEffect.CanCounterAttack)
 }
 
-
 func (suite *PowerBuilder) TestBuildCriticalEffectDamage(checker *C) {
-	criticalDamageEffect := powerFactory.PowerFactory().CriticalDealsDamage(8).Build()
+	criticalDamageEffect := powerBuilder.Builder().CriticalDealsDamage(8).Build()
 	checker.Assert(8, Equals, criticalDamageEffect.AttackEffect.CriticalEffect.Damage)
 }
 
 func (suite *PowerBuilder) TestBuildCriticalEffectThresholdBonus(checker *C) {
-	criticalDamageEffect := powerFactory.PowerFactory().CriticalHitThresholdBonus(-2).Build()
+	criticalDamageEffect := powerBuilder.Builder().CriticalHitThresholdBonus(-2).Build()
 	checker.Assert(-2, Equals, criticalDamageEffect.AttackEffect.CriticalEffect.CriticalHitThresholdBonus)
 }
 
-type SpecificPowerBuilder struct {}
+type SpecificPowerBuilder struct{}
 
 var _ = Suite(&SpecificPowerBuilder{})
 
 func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
-	axe := powerFactory.PowerFactory().Axe().Build()
+	axe := powerBuilder.Builder().Axe().Build()
 
 	checker.Assert("axe", Equals, axe.Name)
 	checker.Assert("powerAxe", Equals, axe.ID)
@@ -134,7 +131,7 @@ func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
 }
 
 func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
-	spear := powerFactory.PowerFactory().Spear().Build()
+	spear := powerBuilder.Builder().Spear().Build()
 
 	checker.Assert("spear", Equals, spear.Name)
 	checker.Assert("powerSpear", Equals, spear.ID)
@@ -147,7 +144,7 @@ func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
 }
 
 func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
-	blot := powerFactory.PowerFactory().Blot().Build()
+	blot := powerBuilder.Builder().Blot().Build()
 
 	checker.Assert("blot", Equals, blot.Name)
 	checker.Assert("powerBlot", Equals, blot.ID)
@@ -160,7 +157,7 @@ func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
 }
 
 func (suite *SpecificPowerBuilder) TestHealingStaff(checker *C) {
-	healingStaff := powerFactory.PowerFactory().HealingStaff().Build()
+	healingStaff := powerBuilder.Builder().HealingStaff().Build()
 
 	checker.Assert("healingStaff", Equals, healingStaff.Name)
 	checker.Assert("powerHealingStaff", Equals, healingStaff.ID)

@@ -2,14 +2,29 @@ package squaddie
 
 import "github.com/chadius/terosbattleserver/utility"
 
-// Identification is akin to an ID card for each Squaddie. Each Squaddie carries a unique Identification.
+// Identification is akin to an SquaddieID card for each Squaddie. Each Squaddie carries a unique Identification.
 type Identification struct {
-	ID          string      `json:"id" yaml:"id"`
-	Name        string      `json:"name" yaml:"name"`
-	Affiliation Affiliation `json:"affiliation" yaml:"affiliation"`
+	SquaddieID   string      `json:"id" yaml:"id"`
+	SquaddieName        string      `json:"name" yaml:"name"`
+	SquaddieAffiliation Affiliation `json:"affiliation" yaml:"affiliation"`
 }
 
-// SetNewIDToRandom changes the ID to a random value.
+// SetNewIDToRandom changes the SquaddieID to a random value.
 func (identification *Identification) SetNewIDToRandom() {
-	identification.ID = utility.StringWithCharset(8, "abcdefgh0123456789")
+	identification.SquaddieID = utility.StringWithCharset(8, "abcdefgh0123456789")
+}
+
+// ID returns the squaddieID.
+func (identification *Identification) ID() string{
+	return identification.SquaddieID
+}
+
+// Name returns the squaddie's name.
+func (identification *Identification) Name() string{
+	return identification.SquaddieName
+}
+
+// Affiliation shows what affiliation the squaddie is a part of.
+func (identification *Identification) Affiliation() Affiliation {
+	return identification.SquaddieAffiliation
 }

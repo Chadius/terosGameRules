@@ -6,17 +6,17 @@ import (
 
 // MovementBuilderOptions is used to create healing effects.
 type MovementBuilderOptions struct {
-	distance int
+	distance     int
 	canHitAndRun bool
 	movementType squaddie.MovementType
 }
 
-// MovementFactory creates a MovementBuilderOptions with default values.
+// MovementBuilder creates a MovementBuilderOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func MovementFactory() *MovementBuilderOptions {
+func MovementBuilder() *MovementBuilderOptions {
 	return &MovementBuilderOptions{
-		distance: 0,
+		distance:     0,
 		canHitAndRun: false,
 		movementType: squaddie.Foot,
 	}
@@ -61,10 +61,9 @@ func (m *MovementBuilderOptions) Teleport() *MovementBuilderOptions {
 // Build uses the MovementBuilderOptions to create a Movement.
 func (m *MovementBuilderOptions) Build() *squaddie.Movement {
 	newMovement := &squaddie.Movement{
-		Distance: m.distance,
+		Distance:  m.distance,
 		HitAndRun: m.canHitAndRun,
-		Type: m.movementType,
+		Type:      m.movementType,
 	}
 	return newMovement
 }
-

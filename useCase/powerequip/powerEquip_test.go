@@ -5,8 +5,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -26,10 +26,10 @@ type SquaddieEquipPowersFromRepo struct {
 var _ = Suite(&SquaddieEquipPowersFromRepo{})
 
 func (suite *SquaddieEquipPowersFromRepo) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
-	suite.spear = powerFactory.PowerFactory().Spear().Build()
-	suite.scimitar = powerFactory.PowerFactory().WithName("scimitar the second").CanBeEquipped().Build()
-	suite.blot = powerFactory.PowerFactory().Blot().CannotBeEquipped().Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.spear = powerBuilder.Builder().Spear().Build()
+	suite.scimitar = powerBuilder.Builder().WithName("scimitar the second").CanBeEquipped().Build()
+	suite.blot = powerBuilder.Builder().Blot().CannotBeEquipped().Build()
 
 	suite.powerRepo = power.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
@@ -111,7 +111,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipNonexistentPowers(check
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C) {
-	notTerosPower := powerFactory.PowerFactory().CanBeEquipped().Build()
+	notTerosPower := powerBuilder.Builder().CanBeEquipped().Build()
 
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		notTerosPower,
@@ -137,7 +137,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCanCounter(checker *C) {
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.Identification.ID, suite.repos)
+	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
 	checker.Assert(canCounter, Equals, true)
 }
 
@@ -149,7 +149,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCannotCounterWithUncounter
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.SquaddieEquipPower(suite.teros, suite.scimitar.ID, suite.repos)
-	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.Identification.ID, suite.repos)
+	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
 	checker.Assert(canCounter, Equals, false)
 }
 
@@ -159,6 +159,6 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCannotCounterWithUnequippa
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.Identification.ID, suite.repos)
+	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
 	checker.Assert(canCounter, Equals, false)
 }

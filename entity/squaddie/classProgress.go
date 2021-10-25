@@ -6,6 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
+// TODO Rename CurrentClass to CurrentClassID
+
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.
 type ClassProgress struct {
 	BaseClassID         string                          `json:"base_class" yaml:"base_class"`
@@ -62,7 +64,7 @@ func (classProgress *ClassProgress) SetBaseClassIfNoBaseClass(classID string) {
 	}
 }
 
-// IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given ID has already been used.
+// IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given SquaddieID has already been used.
 func (classProgress *ClassProgress) IsClassLevelAlreadyUsed(benefitID string) bool {
 	return classProgress.anyClassLevelsConsumed(func(classID string, progress *ClassLevelsConsumed) bool {
 		return progress.IsLevelAlreadyConsumed(benefitID)

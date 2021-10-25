@@ -10,21 +10,21 @@ type AttackEffectOptions struct {
 	counterAttackPenaltyReduction int
 	canBeEquipped                 bool
 	canCounterAttack              bool
-	criticalEffectOptions *CriticalEffectOptions
+	criticalEffectOptions         *CriticalEffectOptions
 }
 
-// AttackEffectFactory creates a AttackEffectOptions with default values.
+// AttackEffectBuilder creates a AttackEffectOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func AttackEffectFactory() *AttackEffectOptions {
+func AttackEffectBuilder() *AttackEffectOptions {
 	return &AttackEffectOptions{
-		damage : 0,
-		toHitBonus : 0,
-		extraBarrierBurn : 0,
-		counterAttackPenaltyReduction : 0,
-		canBeEquipped : false,
-		canCounterAttack : false,
-		criticalEffectOptions: nil,
+		damage:                        0,
+		toHitBonus:                    0,
+		extraBarrierBurn:              0,
+		counterAttackPenaltyReduction: 0,
+		canBeEquipped:                 false,
+		canCounterAttack:              false,
+		criticalEffectOptions:         nil,
 	}
 }
 
@@ -73,7 +73,7 @@ func (a *AttackEffectOptions) CanCounterAttack() *AttackEffectOptions {
 // CriticalDealsDamage delegates to the CriticalEffectOptions.
 func (a *AttackEffectOptions) CriticalDealsDamage(damage int) *AttackEffectOptions {
 	if a.criticalEffectOptions == nil {
-		a.criticalEffectOptions = CriticalEffectFactory()
+		a.criticalEffectOptions = CriticalEffectBuilder()
 	}
 	a.criticalEffectOptions.DealsDamage(damage)
 	return a
@@ -82,7 +82,7 @@ func (a *AttackEffectOptions) CriticalDealsDamage(damage int) *AttackEffectOptio
 // CriticalHitThresholdBonus delegates to the CriticalEffectOptions.
 func (a *AttackEffectOptions) CriticalHitThresholdBonus(thresholdBonus int) *AttackEffectOptions {
 	if a.criticalEffectOptions == nil {
-		a.criticalEffectOptions = CriticalEffectFactory()
+		a.criticalEffectOptions = CriticalEffectBuilder()
 	}
 	a.criticalEffectOptions.CriticalHitThresholdBonus(thresholdBonus)
 	return a
@@ -91,12 +91,12 @@ func (a *AttackEffectOptions) CriticalHitThresholdBonus(thresholdBonus int) *Att
 // Build uses the AttackEffectOptions to create an AttackingEffect.
 func (a *AttackEffectOptions) Build() *power.AttackingEffect {
 	newAttackingEffect := &power.AttackingEffect{
-		DamageBonus: a.damage,
-		ToHitBonus: a.toHitBonus,
-		ExtraBarrierBurn: a.extraBarrierBurn,
+		DamageBonus:                   a.damage,
+		ToHitBonus:                    a.toHitBonus,
+		ExtraBarrierBurn:              a.extraBarrierBurn,
 		CounterAttackPenaltyReduction: a.counterAttackPenaltyReduction,
-		CanBeEquipped: a.canBeEquipped,
-		CanCounterAttack: a.canCounterAttack,
+		CanBeEquipped:                 a.canBeEquipped,
+		CanCounterAttack:              a.canCounterAttack,
 	}
 
 	if a.criticalEffectOptions != nil {

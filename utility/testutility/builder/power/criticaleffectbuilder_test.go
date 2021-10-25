@@ -1,20 +1,20 @@
 package power_test
 
 import (
-	"github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 )
 
-type CriticalEffectBuilder struct {}
+type CriticalEffectBuilder struct{}
 
 var _ = Suite(&CriticalEffectBuilder{})
 
 func (suite *CriticalEffectBuilder) TestBuildCriticalEffectDamage(checker *C) {
-	criticalDamageEffect := power.CriticalEffectFactory().DealsDamage(8).Build()
+	criticalDamageEffect := power.CriticalEffectBuilder().DealsDamage(8).Build()
 	checker.Assert(8, Equals, criticalDamageEffect.Damage)
 }
 
 func (suite *CriticalEffectBuilder) TestBuildCriticalEffectThresholdBonus(checker *C) {
-	criticalDamageEffect := power.CriticalEffectFactory().CriticalHitThresholdBonus(-2).Build()
+	criticalDamageEffect := power.CriticalEffectBuilder().CriticalHitThresholdBonus(-2).Build()
 	checker.Assert(-2, Equals, criticalDamageEffect.CriticalHitThresholdBonus)
 }

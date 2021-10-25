@@ -8,7 +8,7 @@ type ClassLevelsConsumed struct {
 	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
 }
 
-// IsLevelAlreadyConsumed returns true if the level ID has already been used.
+// IsLevelAlreadyConsumed returns true if the level SquaddieID has already been used.
 func (progress *ClassLevelsConsumed) IsLevelAlreadyConsumed(levelUpBenefitLevelID string) bool {
 	return progress.AnyLevelsConsumed(func(consumedLevelID string) bool {
 		return consumedLevelID == levelUpBenefitLevelID

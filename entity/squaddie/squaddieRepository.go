@@ -2,7 +2,6 @@ package squaddie
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
@@ -68,10 +67,10 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 	}
 	squaddieToAdd.Defense.SetHPToMax()
 
-	if squaddieToAdd.Identification.ID == "" {
+	if squaddieToAdd.ID() == "" {
 		squaddieToAdd.Identification.SetNewIDToRandom()
 	}
-	repository.squaddiesByID[squaddieToAdd.Identification.ID] = squaddieToAdd
+	repository.squaddiesByID[squaddieToAdd.ID()] = squaddieToAdd
 	return true, nil
 }
 
@@ -94,26 +93,32 @@ func (repository *Repository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byt
 }
 
 //CloneSquaddieWithNewID uses the base Squaddie to create a new one.
-//  All fields will be the same except the ID.
-//  If newID isn't empty, the clone ID is set to that.
-//  Otherwise it is randomly generated.
+//  All fields will be the same except the SquaddieID.
+//  If newID isn't empty, the clone SquaddieID is set to that.
+//  Otherwise, it is randomly generated.
 func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
-	clone := NewSquaddie(base.Identification.Name)
-	clone.Identification.Affiliation = base.Identification.Affiliation
-	if newID != "" {
-		clone.Identification.ID = newID
+	clone := NewSquaddie(base.Name())
+	clone.Identification = Identification{
+		SquaddieID: newID,
+		SquaddieName: base.Name(),
+		SquaddieAffiliation: base.Affiliation(),
 	}
 
-	clone.Defense.CurrentHitPoints = base.Defense.CurrentHitPoints
-	clone.Defense.MaxHitPoints = base.Defense.MaxHitPoints
-	clone.Offense.Aim = base.Offense.Aim
-	clone.Offense.Strength = base.Offense.Strength
-	clone.Offense.Mind = base.Offense.Mind
-	clone.Defense.Dodge = base.Defense.Dodge
-	clone.Defense.Deflect = base.Defense.Deflect
-	clone.Defense.CurrentBarrier = base.Defense.CurrentBarrier
-	clone.Defense.MaxBarrier = base.Defense.MaxBarrier
-	clone.Defense.Armor = base.Defense.Armor
+	clone.Offense = Offense{
+		SquaddieAim: base.Aim(),
+		SquaddieStrength: base.Strength(),
+		SquaddieMind: base.Mind(),
+	}
+
+	clone.Defense = Defense{
+		SquaddieCurrentHitPoints: base.CurrentHitPoints(),
+		SquaddieMaxHitPoints: base.MaxHitPoints(),
+		SquaddieDodge: base.Dodge(),
+		SquaddieDeflect: base.Deflect(),
+		SquaddieCurrentBarrier: base.CurrentBarrier(),
+		SquaddieMaxBarrier: base.MaxBarrier(),
+		SquaddieArmor: base.Armor(),
+	}
 
 	clone.Movement.Distance = base.Movement.Distance
 	clone.Movement.Type = base.Movement.Type
@@ -136,26 +141,7 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 	return clone, nil
 }
 
-// CloneAndRenameSquaddie clones the base squaddie and renames them
-//  newName must be non-empty or raise an error.
-//  See CloneSquaddieWithNewID to see how newID is used.
-func (repository *Repository) CloneAndRenameSquaddie(base *Squaddie, newName string, newID string) (*Squaddie, error) {
-	clone, err := repository.CloneSquaddieWithNewID(base, newID)
-	if err != nil {
-		return nil, err
-	}
-
-	if newName == "" {
-		newError := fmt.Errorf(`cannot clone squaddie "%s" without a name`, base.Identification.Name)
-		utility.Log(newError.Error(), 0, utility.Error)
-		return nil, newError
-	}
-
-	clone.Identification.Name = newName
-	return clone, nil
-}
-
-// GetSquaddieByID returns the Squaddie based on the one with the given ID.
+// GetSquaddieByID returns the Squaddie based on the one with the given SquaddieID.
 func (repository *Repository) GetSquaddieByID(squaddieID string) *Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByID[squaddieID]
 	if !squaddieExists {
@@ -169,7 +155,7 @@ func (repository *Repository) GetSquaddieByID(squaddieID string) *Squaddie {
 	return clonedSquaddie
 }
 
-// GetOriginalSquaddieByID returns the stored Squaddie based on the ID.
+// GetOriginalSquaddieByID returns the stored Squaddie based on the SquaddieID.
 func (repository *Repository) GetOriginalSquaddieByID(squaddieID string) *Squaddie {
 	squaddie, _ := repository.squaddiesByID[squaddieID]
 	return squaddie

@@ -6,8 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -28,15 +28,15 @@ type VersusContextTestSuite struct {
 var _ = Suite(&VersusContextTestSuite{})
 
 func (suite *VersusContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Aim(2).Strength(2).Mind(2).Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Aim(2).Strength(2).Mind(2).Build()
 
-	suite.spear = powerFactory.PowerFactory().Spear().Build()
-	suite.blot = powerFactory.PowerFactory().Blot().Build()
+	suite.spear = powerBuilder.Builder().Spear().Build()
+	suite.blot = powerBuilder.Builder().Blot().Build()
 
-	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
+	suite.bandit = squaddieBuilder.Builder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe = powerFactory.PowerFactory().Axe().Build()
+	suite.axe = powerBuilder.Builder().Axe().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})
@@ -46,9 +46,9 @@ func (suite *VersusContextTestSuite) SetUpTest(checker *C) {
 
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.spear.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -59,9 +59,9 @@ func (suite *VersusContextTestSuite) SetUpTest(checker *C) {
 
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.blot.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -80,8 +80,8 @@ func (suite *VersusContextTestSuite) TestNetToHitReliesOnToHitMinusDodgeOrDeflec
 }
 
 func (suite *VersusContextTestSuite) TestTargetTakesFullDamageAgainstPhysicalWhenNoArmor(checker *C) {
-	suite.bandit.Defense.Armor = 0
-	suite.bandit.Defense.CurrentBarrier = 0
+	suite.bandit.Defense.SquaddieArmor = 0
+	suite.bandit.Defense.SquaddieCurrentBarrier = 0
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.RawDamageDealt, Equals, 3)
@@ -91,8 +91,8 @@ func (suite *VersusContextTestSuite) TestTargetTakesFullDamageAgainstPhysicalWhe
 }
 
 func (suite *VersusContextTestSuite) TestTargetUsesArmorResistAgainstPhysicalOnly(checker *C) {
-	suite.bandit.Defense.Armor = 1
-	suite.bandit.Defense.CurrentBarrier = 0
+	suite.bandit.Defense.SquaddieArmor = 1
+	suite.bandit.Defense.SquaddieCurrentBarrier = 0
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByArmor, Equals, 1)
@@ -104,8 +104,8 @@ func (suite *VersusContextTestSuite) TestTargetUsesArmorResistAgainstPhysicalOnl
 }
 
 func (suite *VersusContextTestSuite) TestTargetUsesBarrierToResistDamageFromAllAttacks(checker *C) {
-	suite.bandit.Defense.Armor = 1
-	suite.bandit.Defense.CurrentBarrier = 3
+	suite.bandit.Defense.SquaddieArmor = 1
+	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 3)
@@ -159,8 +159,8 @@ func (suite *VersusContextTestSuite) TestCriticalDamageDistributes(checker *C) {
 		CriticalHitThresholdBonus: 0,
 		Damage:                    3,
 	}
-	suite.bandit.Defense.Armor = 1
-	suite.bandit.Defense.CurrentBarrier = 3
+	suite.bandit.Defense.SquaddieArmor = 1
+	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.DamageAbsorbedByBarrier, Equals, 3)
@@ -177,15 +177,15 @@ func (suite *VersusContextTestSuite) TestNoCriticalDamageDistributionIfCannotCri
 }
 
 func (suite *VersusContextTestSuite) TestKnowsIfAttackIsFatalToTarget(checker *C) {
-	suite.bandit.Defense.Armor = 0
-	suite.bandit.Defense.CurrentBarrier = 0
+	suite.bandit.Defense.SquaddieArmor = 0
+	suite.bandit.Defense.SquaddieCurrentBarrier = 0
 
-	suite.teros.Offense.Mind = 0
+	suite.teros.Offense.SquaddieMind = 0
 	suite.blot.AttackEffect.DamageBonus = 0
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, false)
 
-	suite.spear.AttackEffect.DamageBonus = suite.bandit.Defense.MaxHitPoints
+	suite.spear.AttackEffect.DamageBonus = suite.bandit.MaxHitPoints()
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, true)
 }

@@ -10,7 +10,7 @@ import (
 
 func Test(t *testing.T) { TestingT(t) }
 
-type ReplayScriptSuite struct {}
+type ReplayScriptSuite struct{}
 
 var _ = Suite(&ReplayScriptSuite{})
 
@@ -84,7 +84,7 @@ func (suite *ReplayScriptSuite) Test(checker *C) {
 `)
 	powerByteStream := bytes.NewBuffer(powerData)
 
-	scriptData :=  []byte(`---
+	scriptData := []byte(`---
 version: 0.1F
 actions:
   -

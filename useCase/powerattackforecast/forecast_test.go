@@ -7,8 +7,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -35,13 +35,13 @@ type CounterAttackCalculate struct {
 var _ = Suite(&CounterAttackCalculate{})
 
 func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
-	suite.mysticMage = squaddieFactory.SquaddieFactory().MysticMage().Build()
-	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.mysticMage = squaddieBuilder.Builder().MysticMage().Build()
+	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
 
-	suite.spear = powerFactory.PowerFactory().Spear().Build()
-	suite.axe = powerFactory.PowerFactory().Axe().Build()
-	suite.fireball = powerFactory.PowerFactory().IsSpell().CanBeEquipped().Build()
+	suite.spear = powerBuilder.Builder().Spear().Build()
+	suite.axe = powerBuilder.Builder().Axe().Build()
+	suite.fireball = powerBuilder.Builder().IsSpell().CanBeEquipped().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.mysticMage})
@@ -53,9 +53,9 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.spear.ID,
-			Targets:         []string{suite.bandit.Identification.ID},
+			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -66,9 +66,9 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 
 	suite.forecastSpearOnMysticMage = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.Identification.ID,
+			UserID:          suite.teros.ID(),
 			PowerID:         suite.spear.ID,
-			Targets:         []string{suite.mysticMage.Identification.ID},
+			Targets:         []string{suite.mysticMage.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -127,11 +127,11 @@ type HealingEffectForecast struct {
 var _ = Suite(&HealingEffectForecast{})
 
 func (suite *HealingEffectForecast) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
-	suite.lini = squaddieFactory.SquaddieFactory().Lini().Build()
-	suite.vale = squaddieFactory.SquaddieFactory().WithName("Vale").AsPlayer().Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.lini = squaddieBuilder.Builder().Lini().Build()
+	suite.vale = squaddieBuilder.Builder().WithName("Vale").AsPlayer().Build()
 
-	suite.healingStaff = powerFactory.PowerFactory().HealingStaff().Build()
+	suite.healingStaff = powerBuilder.Builder().HealingStaff().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.lini, suite.vale})
@@ -143,9 +143,9 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 
 	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.Identification.ID,
+			UserID:          suite.lini.ID(),
 			PowerID:         suite.healingStaff.ID,
-			Targets:         []string{suite.teros.Identification.ID},
+			Targets:         []string{suite.teros.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -156,9 +156,9 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 
 	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.Identification.ID,
+			UserID:          suite.lini.ID(),
 			PowerID:         suite.healingStaff.ID,
-			Targets:         []string{suite.teros.Identification.ID, suite.vale.Identification.ID},
+			Targets:         []string{suite.teros.ID(), suite.vale.ID()},
 			IsCounterAttack: false,
 		},
 		Repositories: &repositories.RepositoryCollection{
@@ -169,7 +169,7 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(checker *C) {
-	suite.teros.Defense.CurrentHitPoints = 1
+	suite.teros.Defense.SquaddieCurrentHitPoints = 1
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast, NotNil)
@@ -177,26 +177,26 @@ func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(check
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker *C) {
-	suite.teros.Defense.MaxHitPoints = 10
-	suite.teros.Defense.CurrentHitPoints = 1
-	suite.lini.Offense.Mind = 3
+	suite.teros.Defense.SquaddieMaxHitPoints = 10
+	suite.teros.Defense.SquaddieCurrentHitPoints = 1
+	suite.lini.Offense.SquaddieMind = 3
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+suite.lini.Offense.Mind)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+suite.lini.Mind())
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C) {
-	suite.teros.Defense.CurrentHitPoints = 1
-	suite.lini.Offense.Mind = 3
+	suite.teros.Defense.SquaddieCurrentHitPoints = 1
+	suite.lini.Offense.SquaddieMind = 3
 	suite.healingStaff.HealingEffect.HealingAdjustmentBasedOnUserMind = power.Half
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+(suite.lini.Offense.Mind)/2)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+(suite.lini.Mind())/2)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C) {
-	suite.teros.Defense.CurrentHitPoints = 1
-	suite.lini.Offense.Mind = 3
+	suite.teros.Defense.SquaddieCurrentHitPoints = 1
+	suite.lini.Offense.SquaddieMind = 3
 	suite.healingStaff.HealingEffect.HealingAdjustmentBasedOnUserMind = power.Zero
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
@@ -216,7 +216,7 @@ func (suite *HealingEffectForecast) TestHealMultipleTargets(checker *C) {
 
 	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget, HasLen, 2)
 	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[0].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[0].HealingForecast.TargetID, Equals, suite.teros.Identification.ID)
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[0].HealingForecast.TargetID, Equals, suite.teros.ID())
 	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[1].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[1].HealingForecast.TargetID, Equals, suite.vale.Identification.ID)
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[1].HealingForecast.TargetID, Equals, suite.vale.ID())
 }

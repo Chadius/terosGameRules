@@ -3,7 +3,7 @@ package levelupbenefit_test
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/utility/testutility/factory/power"
+	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -337,7 +337,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaisesAnErrorWithNonexistentClas
 	suite.levelRepo.AddJSONSource(suite.jsonByteStream)
 
 	benefits, err := suite.levelRepo.GetLevelUpBenefitsByClassID("Class not found")
-	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class ID: "Class not found"`)
+	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class SquaddieID: "Class not found"`)
 	checker.Assert(benefits, HasLen, 0)
 }
 
@@ -382,8 +382,8 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaiseErrorIfClassDoesNotExist(ch
       }
 ]`)
 	suite.levelRepo.AddJSONSource(suite.jsonByteStream)
-	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType("bad ID")
-	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class ID: "bad ID"`)
+	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType("bad SquaddieID")
+	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class SquaddieID: "bad SquaddieID"`)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Small], HasLen, 0)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Big], HasLen, 0)
 }

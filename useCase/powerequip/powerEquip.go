@@ -52,7 +52,7 @@ func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesT
 	for _, powerIDName := range powerReferencesToLoad {
 		powerToAdd := repos.PowerRepo.GetPowerByID(powerIDName.ID)
 		if powerToAdd == nil {
-			newError := fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Identification.Name, powerIDName.Name)
+			newError := fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name(), powerIDName.Name)
 			utility.Log(newError.Error(), 0, utility.Error)
 			return numberOfPowersAdded, newError
 		}

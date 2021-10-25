@@ -6,21 +6,21 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddiePowerCollectionTests struct {
-	teros *squaddie.Squaddie
+	teros   *squaddie.Squaddie
 	attackA *power.Power
 }
 
 var _ = Suite(&SquaddiePowerCollectionTests{})
 
 func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
-	suite.attackA = powerFactory.PowerFactory().WithName("Attack Formation A").Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
 }
 
 func (suite *SquaddiePowerCollectionTests) TestGainInnatePowers(checker *C) {
@@ -50,7 +50,7 @@ func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(
 	err := suite.teros.PowerCollection.AddInnatePower(suite.attackA)
 	checker.Assert(err, IsNil)
 	err = suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with ID "%s"`, suite.attackA.ID)
+	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with SquaddieID "%s"`, suite.attackA.ID)
 	checker.Assert(err, ErrorMatches, expectedErrorMessage)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
@@ -60,7 +60,7 @@ func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
-	spear := powerFactory.PowerFactory().Spear().Build()
+	spear := powerBuilder.Builder().Spear().Build()
 
 	powerRepo := power.NewPowerRepository()
 	powerRepo.AddSlicePowerSource([]*power.Power{spear})

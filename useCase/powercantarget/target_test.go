@@ -6,8 +6,8 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powercantarget"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -37,19 +37,19 @@ type TargetingCheck struct {
 var _ = Suite(&TargetingCheck{})
 
 func (suite *TargetingCheck) SetUpTest(checker *C) {
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().Build()
-	suite.lini = squaddieFactory.SquaddieFactory().Lini().Build()
-	suite.bandit = squaddieFactory.SquaddieFactory().Bandit().Build()
-	suite.bandit2 = squaddieFactory.SquaddieFactory().Bandit().WithID("bandit2").WithName("bandit2").Build()
-	suite.citizen = squaddieFactory.SquaddieFactory().WithName("citizen").AsAlly().Build()
-	suite.mayor = squaddieFactory.SquaddieFactory().WithName("mayor").AsAlly().Build()
-	suite.bomb = squaddieFactory.SquaddieFactory().WithName("bomb").AsNeutral().Build()
-	suite.bomb2 = squaddieFactory.SquaddieFactory().WithName("bomb2").AsNeutral().Build()
+	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.lini = squaddieBuilder.Builder().Lini().Build()
+	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
+	suite.bandit2 = squaddieBuilder.Builder().Bandit().WithID("bandit2").WithName("bandit2").Build()
+	suite.citizen = squaddieBuilder.Builder().WithName("citizen").AsAlly().Build()
+	suite.mayor = squaddieBuilder.Builder().WithName("mayor").AsAlly().Build()
+	suite.bomb = squaddieBuilder.Builder().WithName("bomb").AsNeutral().Build()
+	suite.bomb2 = squaddieBuilder.Builder().WithName("bomb2").AsNeutral().Build()
 
-	suite.axe = powerFactory.PowerFactory().Axe().Build()
-	suite.meditation = powerFactory.PowerFactory().TargetsSelf().Build()
-	suite.healingStaff = powerFactory.PowerFactory().HealingStaff().Build()
-	suite.selfDestruct = powerFactory.PowerFactory().TargetsFoe().Build()
+	suite.axe = powerBuilder.Builder().Axe().Build()
+	suite.meditation = powerBuilder.Builder().TargetsSelf().Build()
+	suite.healingStaff = powerBuilder.Builder().HealingStaff().Build()
+	suite.selfDestruct = powerBuilder.Builder().TargetsFoe().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{
@@ -154,103 +154,103 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 }
 
 func (suite *TargetingCheck) TestTargetingSelfCanOnlyTargetUser(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.meditation.ID, suite.teros.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.meditation.ID, suite.bandit.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.meditation.ID, suite.citizen.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.meditation.ID, suite.bomb.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.meditation.ID, suite.lini.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.meditation.ID, suite.bandit.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.meditation.ID, suite.bomb.Identification.ID, suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.meditation.ID, suite.teros.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.meditation.ID, suite.bandit.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.meditation.ID, suite.citizen.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.meditation.ID, suite.bomb.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.meditation.ID, suite.lini.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.meditation.ID, suite.bandit.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.meditation.ID, suite.bomb.ID(), suite.repos), Equals, false)
 }
 
 func (suite *TargetingCheck) TestPlayerAffiliationValidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.Identification.ID, suite.healingStaff.ID, suite.teros.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.Identification.ID, suite.healingStaff.ID, suite.citizen.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.axe.ID, suite.bomb.Identification.ID, suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.ID(), suite.healingStaff.ID, suite.teros.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.ID(), suite.healingStaff.ID, suite.citizen.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.axe.ID, suite.bandit.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.axe.ID, suite.bomb.ID(), suite.repos), Equals, true)
 }
 
 func (suite *TargetingCheck) TestPlayerAffiliationInvalidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.Identification.ID, suite.healingStaff.ID, suite.bandit.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.Identification.ID, suite.healingStaff.ID, suite.bomb.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.axe.ID, suite.lini.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.Identification.ID, suite.axe.ID, suite.citizen.Identification.ID, suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.ID(), suite.healingStaff.ID, suite.bandit.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.lini.ID(), suite.healingStaff.ID, suite.bomb.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.axe.ID, suite.lini.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.teros.ID(), suite.axe.ID, suite.citizen.ID(), suite.repos), Equals, false)
 }
 
 func (suite *TargetingCheck) TestEnemyAffiliationValidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.healingStaff.ID, suite.bandit.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.axe.ID, suite.teros.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.axe.ID, suite.citizen.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.axe.ID, suite.bomb.Identification.ID, suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.healingStaff.ID, suite.bandit.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.axe.ID, suite.teros.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.axe.ID, suite.citizen.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.axe.ID, suite.bomb.ID(), suite.repos), Equals, true)
 }
 
 func (suite *TargetingCheck) TestEnemyAffiliationInvalidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.healingStaff.ID, suite.teros.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.healingStaff.ID, suite.citizen.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.healingStaff.ID, suite.bomb.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.Identification.ID, suite.axe.ID, suite.bandit2.Identification.ID, suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.healingStaff.ID, suite.teros.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.healingStaff.ID, suite.citizen.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.healingStaff.ID, suite.bomb.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bandit.ID(), suite.axe.ID, suite.bandit2.ID(), suite.repos), Equals, false)
 }
 
 func (suite *TargetingCheck) TestAllyAffiliationValidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.healingStaff.ID, suite.teros.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.healingStaff.ID, suite.mayor.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.axe.ID, suite.bomb.Identification.ID, suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.healingStaff.ID, suite.teros.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.healingStaff.ID, suite.mayor.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.axe.ID, suite.bandit.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.axe.ID, suite.bomb.ID(), suite.repos), Equals, true)
 }
 
 func (suite *TargetingCheck) TestAllyAffiliationInvalidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.healingStaff.ID, suite.bandit.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.healingStaff.ID, suite.bomb.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.axe.ID, suite.teros.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.Identification.ID, suite.axe.ID, suite.mayor.Identification.ID, suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.healingStaff.ID, suite.bandit.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.healingStaff.ID, suite.bomb.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.axe.ID, suite.teros.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.citizen.ID(), suite.axe.ID, suite.mayor.ID(), suite.repos), Equals, false)
 }
 
 func (suite *TargetingCheck) TestNeutralAffiliationValidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.selfDestruct.ID, suite.teros.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.selfDestruct.ID, suite.bandit.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.selfDestruct.ID, suite.citizen.Identification.ID, suite.repos), Equals, true)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.selfDestruct.ID, suite.bomb2.Identification.ID, suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.selfDestruct.ID, suite.teros.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.selfDestruct.ID, suite.bandit.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.selfDestruct.ID, suite.citizen.ID(), suite.repos), Equals, true)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.selfDestruct.ID, suite.bomb2.ID(), suite.repos), Equals, true)
 }
 
 func (suite *TargetingCheck) TestNeutralAffiliationInvalidAttacks(checker *C) {
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.healingStaff.ID, suite.teros.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.healingStaff.ID, suite.bandit.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.healingStaff.ID, suite.citizen.Identification.ID, suite.repos), Equals, false)
-	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.Identification.ID, suite.healingStaff.ID, suite.bomb2.Identification.ID, suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.healingStaff.ID, suite.teros.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.healingStaff.ID, suite.bandit.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.healingStaff.ID, suite.citizen.ID(), suite.repos), Equals, false)
+	checker.Assert(powercantarget.CanTargetTargetAffiliationWithPower(suite.bomb.ID(), suite.healingStaff.ID, suite.bomb2.ID(), suite.repos), Equals, false)
 }
 
 func (suite *TargetingCheck) TestTargetGivesAffiliationReasonForFailure(checker *C) {
-	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.meditation.ID, suite.teros.Identification.ID, suite.repos)
+	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.ID(), suite.meditation.ID, suite.teros.ID(), suite.repos)
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.meditation.ID, suite.lini.Identification.ID, suite.repos)
+	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.ID(), suite.meditation.ID, suite.lini.ID(), suite.repos)
 	checker.Assert(canTarget, Equals, false)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.PowerCannotTargetAffiliation)
 }
 
 func (suite *TargetingCheck) TestTargetGivesTargetIsDeadReasonForFailure(checker *C) {
-	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.ID(), suite.axe.ID, suite.bandit.ID(), suite.repos)
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	suite.bandit.Defense.ReduceHitPoints(suite.bandit.Defense.MaxHitPoints)
+	suite.bandit.Defense.ReduceHitPoints(suite.bandit.MaxHitPoints())
 	checker.Assert(suite.bandit.Defense.IsDead(), Equals, true)
 
-	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.ID(), suite.axe.ID, suite.bandit.ID(), suite.repos)
 	checker.Assert(canTarget, Equals, false)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsDead)
 }
 
 func (suite *TargetingCheck) TestTargetGivesUserIsDeadReasonForFailure(checker *C) {
-	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	canTarget, reasonForInvalidTarget := powercantarget.IsValidTarget(suite.teros.ID(), suite.axe.ID, suite.bandit.ID(), suite.repos)
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	suite.teros.Defense.ReduceHitPoints(suite.teros.Defense.MaxHitPoints)
+	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints())
 	checker.Assert(suite.teros.Defense.IsDead(), Equals, true)
 
-	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.Identification.ID, suite.axe.ID, suite.bandit.Identification.ID, suite.repos)
+	canTarget, reasonForInvalidTarget = powercantarget.IsValidTarget(suite.teros.ID(), suite.axe.ID, suite.bandit.ID(), suite.repos)
 	checker.Assert(canTarget, Equals, false)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.UserIsDead)
 }

@@ -13,11 +13,11 @@ func GetSquaddieToHitPenaltyAgainstPower(squaddieID, powerID string, repos *repo
 	}
 
 	if powerToMeasure.PowerType == power.Physical {
-		return squaddie.Defense.Dodge, nil
+		return squaddie.Dodge(), nil
 	}
 
 	if powerToMeasure.PowerType == power.Spell {
-		return squaddie.Defense.Deflect, nil
+		return squaddie.Deflect(), nil
 	}
 
 	return 0, nil
@@ -31,7 +31,7 @@ func GetSquaddieArmorAgainstPower(squaddieID, powerID string, repos *repositorie
 	}
 
 	if powerToMeasure.PowerType == power.Physical {
-		return squaddie.Defense.Armor, nil
+		return squaddie.Armor(), nil
 	}
 	return 0, nil
 }
@@ -43,7 +43,7 @@ func GetSquaddieBarrierAgainstPower(squaddieID, powerID string, repos *repositor
 		return 0, err
 	}
 
-	return squaddie.Defense.CurrentBarrier, nil
+	return squaddie.CurrentBarrier(), nil
 }
 
 // GetSquaddieCurrentHitPoints returns the squaddie's current hit points.
@@ -53,5 +53,5 @@ func GetSquaddieCurrentHitPoints(squaddieID, powerID string, repos *repositories
 		return 0, err
 	}
 
-	return squaddie.Defense.CurrentHitPoints, nil
+	return squaddie.CurrentHitPoints(), nil
 }

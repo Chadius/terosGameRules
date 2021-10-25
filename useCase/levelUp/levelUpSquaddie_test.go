@@ -7,8 +7,8 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/power"
-	squaddieFactory "github.com/chadius/terosbattleserver/utility/testutility/factory/squaddie"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -27,7 +27,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 		ID:   "ffffffff",
 		Name: "Mage",
 	}
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClass(suite.mageClass).Build()
+	suite.teros = squaddieBuilder.Builder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClass(suite.mageClass).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.statBooster = levelupbenefit.LevelUpBenefit{
@@ -54,7 +54,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 			ID:      "aaaaaaa0",
 			ClassID: suite.mageClass.ID,
 		},
-		Movement: squaddieFactory.MovementFactory().Fly().CanHitAndRun().Distance(1).Build(),
+		Movement: squaddieBuilder.MovementBuilder().Fly().CanHitAndRun().Distance(1).Build(),
 	}
 
 	suite.upgradeToLightMovement = &levelupbenefit.LevelUpBenefit{
@@ -62,21 +62,21 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 			ID:      "aaaaaaa1",
 			ClassID: suite.mageClass.ID,
 		},
-		Movement: squaddieFactory.MovementFactory().Light().Build(),
+		Movement: squaddieBuilder.MovementBuilder().Light().Build(),
 	}
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
 	err := levelup.ImproveSquaddie(&suite.statBooster, suite.teros, nil)
 	checker.Assert(err, IsNil)
-	checker.Assert(suite.teros.Defense.MaxHitPoints, Equals, 5)
-	checker.Assert(suite.teros.Offense.Aim, Equals, 7)
-	checker.Assert(suite.teros.Offense.Strength, Equals, 7)
-	checker.Assert(suite.teros.Offense.Mind, Equals, 7)
-	checker.Assert(suite.teros.Defense.Dodge, Equals, 7)
-	checker.Assert(suite.teros.Defense.Deflect, Equals, 7)
-	checker.Assert(suite.teros.Defense.MaxBarrier, Equals, 8)
-	checker.Assert(suite.teros.Defense.Armor, Equals, 8)
+	checker.Assert(suite.teros.MaxHitPoints(), Equals, 5)
+	checker.Assert(suite.teros.Aim(), Equals, 7)
+	checker.Assert(suite.teros.Strength(), Equals, 7)
+	checker.Assert(suite.teros.Mind(), Equals, 7)
+	checker.Assert(suite.teros.Dodge(), Equals, 7)
+	checker.Assert(suite.teros.Deflect(), Equals, 7)
+	checker.Assert(suite.teros.MaxBarrier(), Equals, 8)
+	checker.Assert(suite.teros.Armor(), Equals, 8)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *C) {
@@ -91,7 +91,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClas
 	mushroomClassLevel := levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
 			ID:      "deedbeeg",
-			ClassID: "bad ID",
+			ClassID: "bad SquaddieID",
 		},
 		Defense: &levelupbenefit.Defense{
 			MaxHitPoints: 0,
@@ -107,7 +107,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClas
 		},
 	}
 	err := levelup.ImproveSquaddie(&mushroomClassLevel, suite.teros, nil)
-	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad ID"`)
+	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(checker *C) {
@@ -168,7 +168,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 		ID:   "ffffffff",
 		Name: "Mage",
 	}
-	suite.teros = squaddieFactory.SquaddieFactory().Teros().AddClass(&squaddieclass.Class{
+	suite.teros = squaddieBuilder.Builder().Teros().AddClass(&squaddieclass.Class{
 		ID:   suite.mageClass.ID,
 		Name: "Mage",
 	}).Build()
@@ -176,11 +176,11 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 
 	suite.powerRepo = power.NewPowerRepository()
 
-	suite.spear = powerFactory.PowerFactory().Spear().WithID("spearlvl1").Build()
+	suite.spear = powerBuilder.Builder().Spear().WithID("spearlvl1").Build()
 
 	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "spear", ID: "spearlvl1"}}
 
-	suite.spearLevel2 = powerFactory.PowerFactory().Spear().WithID("spearlvl2").Build()
+	suite.spearLevel2 = powerBuilder.Builder().Spear().WithID("spearlvl2").Build()
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 

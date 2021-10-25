@@ -8,10 +8,10 @@ type CriticalEffectOptions struct {
 	criticalHitThresholdBonus int
 }
 
-// CriticalEffectFactory creates a CriticalEffectOptions with default values.
+// CriticalEffectBuilder creates a CriticalEffectOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func CriticalEffectFactory() *CriticalEffectOptions {
+func CriticalEffectBuilder() *CriticalEffectOptions {
 	return &CriticalEffectOptions{
 		damage:                    0,
 		criticalHitThresholdBonus: 0,
