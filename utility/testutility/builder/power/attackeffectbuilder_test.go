@@ -11,37 +11,37 @@ var _ = Suite(&AttackEffectBuilder{})
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectToHitBonus(checker *C) {
 	damageEffect := power.AttackEffectBuilder().ToHitBonus(2).Build()
-	checker.Assert(2, Equals, damageEffect.ToHitBonus)
+	checker.Assert(2, Equals, damageEffect.AttackToHitBonus)
 }
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectDamageBonus(checker *C) {
 	damageEffect := power.AttackEffectBuilder().DealsDamage(3).Build()
-	checker.Assert(3, Equals, damageEffect.DamageBonus)
+	checker.Assert(3, Equals, damageEffect.AttackDamageBonus)
 }
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectExtraBarrierBurn(checker *C) {
 	damageEffect := power.AttackEffectBuilder().ExtraBarrierBurn(1).Build()
-	checker.Assert(1, Equals, damageEffect.ExtraBarrierBurn)
+	checker.Assert(1, Equals, damageEffect.AttackExtraBarrierBurn)
 }
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectCounterAttackPenaltyReduction(checker *C) {
 	damageEffect := power.AttackEffectBuilder().CounterAttackPenaltyReduction(4).Build()
-	checker.Assert(4, Equals, damageEffect.CounterAttackPenaltyReduction)
+	checker.Assert(4, Equals, damageEffect.AttackCounterAttackPenaltyReduction)
 }
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectCanBeEquipped(checker *C) {
 	sword := power.AttackEffectBuilder().CanBeEquipped().Build()
-	checker.Assert(true, Equals, sword.CanBeEquipped)
+	checker.Assert(true, Equals, sword.AttackCanBeEquipped)
 }
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectCannotBeEquipped(checker *C) {
 	scroll := power.AttackEffectBuilder().CanBeEquipped().CannotBeEquipped().Build()
-	checker.Assert(false, Equals, scroll.CanBeEquipped)
+	checker.Assert(false, Equals, scroll.AttackCanBeEquipped)
 }
 
 func (suite *AttackEffectBuilder) TestBuildAttackEffectCanCounterAttack(checker *C) {
 	sword := power.AttackEffectBuilder().CanCounterAttack().Build()
-	checker.Assert(true, Equals, sword.CanCounterAttack)
+	checker.Assert(true, Equals, sword.AttackCanCounterAttack)
 }
 
 func (suite *AttackEffectBuilder) TestBuildCriticalEffectDamage(checker *C) {

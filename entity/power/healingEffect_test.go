@@ -17,7 +17,7 @@ func (suite *HealingEffectLoadedFromData) SetUpTest(checker *C) {
 	suite.healStaffJSON = []byte(`[{
 					"name": "Heal",
 					"id": "power_heal",
-					"power_type": "Spell",
+					"power_type": "spell",
 					"healing_effect": {
 						"hit_points_healed": 2
 					}
@@ -26,7 +26,7 @@ func (suite *HealingEffectLoadedFromData) SetUpTest(checker *C) {
 	suite.healStaffYAML = []byte(`-
   name: Heal
   id: power_heal
-  power_type: Spell
+  power_type: spell
   healing_effect:
     hit_points_healed: 2
 `)
@@ -40,7 +40,7 @@ func (suite *HealingEffectLoadedFromData) TestLoadFromJSON(checker *C) {
 	checker.Assert(success, Equals, true)
 
 	healStaff := suite.repo.GetPowerByID("power_heal")
-	checker.Assert(healStaff.HealingEffect.HitPointsHealed, Equals, 2)
+	checker.Assert(healStaff.HealingEffect.HealingHitPointsHealed, Equals, 2)
 }
 
 func (suite *HealingEffectLoadedFromData) TestLoadFromYAML(checker *C) {
@@ -49,5 +49,5 @@ func (suite *HealingEffectLoadedFromData) TestLoadFromYAML(checker *C) {
 	checker.Assert(success, Equals, true)
 
 	healStaff := suite.repo.GetPowerByID("power_heal")
-	checker.Assert(healStaff.HealingEffect.HitPointsHealed, Equals, 2)
+	checker.Assert(healStaff.HealingEffect.HealingHitPointsHealed, Equals, 2)
 }

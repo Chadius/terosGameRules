@@ -8,7 +8,7 @@ import (
 // Reference is used to identify a power and is used to quickly identify a power.
 type Reference struct {
 	Name string `json:"name" yaml:"name"`
-	ID   string `json:"id" yaml:"id"`
+	PowerID string `json:"id" yaml:"id"`
 }
 
 // DamageType defines the expected sources the power could be conjured from.
@@ -16,9 +16,9 @@ type DamageType string
 
 const (
 	// Physical powers use martial training and cunning. Examples: Swords, Bows, Pushing
-	Physical DamageType = "Physical"
+	Physical DamageType = "physical"
 	// Spell powers are magical in nature and conjured without tools. Examples: Fireball, Mindread
-	Spell DamageType = "Spell"
+	Spell DamageType = "spell"
 )
 
 // Targeting notes how the power can be targeted.
@@ -40,8 +40,8 @@ type Power struct {
 // GetReference returns a new PowerReference.
 func (p Power) GetReference() *Reference {
 	return &Reference{
-		Name: p.Name,
-		ID:   p.ID,
+		Name: p.Name(),
+		PowerID: p.ID(),
 	}
 }
 
@@ -50,7 +50,7 @@ func NewPower(name string) *Power {
 	newAttackingPower := Power{
 		Reference: Reference{
 			Name: name,
-			ID:   "power_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
+			PowerID: "power_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
 		PowerType: Physical,
 	}
@@ -61,10 +61,90 @@ func NewPower(name string) *Power {
 func CheckPowerForErrors(newPower *Power) (newError error) {
 	if newPower.PowerType != Physical &&
 		newPower.PowerType != Spell {
-		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name, newPower.PowerType)
+		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name(), newPower.PowerType)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
 	return nil
+}
+
+// ID returns the power's ID.
+func (p *Power) ID() string {
+	return p.Reference.PowerID
+}
+
+// Name returns the power's Name.
+func (p *Power) Name() string {
+	return p.Reference.Name
+}
+
+// Type returns the power's damage type.
+func (p *Power) Type() DamageType {
+	return p.PowerType
+}
+
+// CanPowerTargetSelf checks to see if the power can be used on the user.
+func (p *Power) CanPowerTargetSelf() bool {
+	return p.Targeting.TargetSelf
+}
+
+// CanPowerTargetFriend checks to see if the power can be used on allies and teammates.
+func (p *Power) CanPowerTargetFriend() bool {
+	return p.Targeting.TargetFriend
+}
+
+// CanPowerTargetFoe checks to see if the power can be used on enemies.
+func (p *Power) CanPowerTargetFoe() bool {
+	return p.Targeting.TargetFoe
+}
+
+// ToHitBonus delegates.
+func (p *Power) ToHitBonus() int {
+	return p.AttackEffect.AttackToHitBonus
+}
+
+// DamageBonus delegates.
+func (p *Power) DamageBonus() int {
+	return p.AttackEffect.AttackDamageBonus
+}
+
+// ExtraBarrierBurn delegates.
+func (p *Power) ExtraBarrierBurn() int {
+	return p.AttackEffect.AttackExtraBarrierBurn
+}
+
+// CanBeEquipped delegates.
+func (p *Power) CanBeEquipped() bool {
+	return p.AttackEffect.AttackCanBeEquipped
+}
+
+// CanCounterAttack delegates.
+func (p *Power) CanCounterAttack() bool {
+	return p.AttackEffect.AttackCanCounterAttack
+}
+
+// CounterAttackPenaltyReduction delegates.
+func (p *Power) CounterAttackPenaltyReduction() int {
+	return p.AttackEffect.AttackCounterAttackPenaltyReduction
+}
+
+// CriticalHitThreshold delegates.
+func (p *Power) CriticalHitThreshold() int {
+	return p.AttackEffect.CriticalHitThreshold()
+}
+
+// ExtraCriticalHitDamage delegates.
+func (p *Power) ExtraCriticalHitDamage() int {
+	return p.AttackEffect.ExtraCriticalHitDamage()
+}
+
+// HitPointsHealed delegates.
+func (p *Power) HitPointsHealed() int {
+	return p.HealingEffect.HitPointsHealed()
+}
+
+// HealingAdjustmentBasedOnUserMind delegates.
+func (p *Power) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
+	return p.HealingEffect.HealingAdjustmentBasedOnUserMind()
 }

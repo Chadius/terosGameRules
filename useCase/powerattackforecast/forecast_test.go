@@ -54,7 +54,7 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -67,7 +67,7 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 	suite.forecastSpearOnMysticMage = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.ID(),
 			Targets:         []string{suite.mysticMage.ID()},
 			IsCounterAttack: false,
 		},
@@ -88,7 +88,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 	powerAddedErrors := suite.mysticMage.PowerCollection.AddInnatePower(suite.fireball)
 	checker.Assert(powerAddedErrors, IsNil)
 
-	mysticMageEquipsFireball := powerequip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID, suite.repos)
+	mysticMageEquipsFireball := powerequip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID(), suite.repos)
 	checker.Assert(mysticMageEquipsFireball, Equals, true)
 
 	suite.forecastSpearOnMysticMage.CalculateForecast()
@@ -97,11 +97,11 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 }
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
-	suite.axe.AttackEffect.CanCounterAttack = true
+	suite.axe.AttackEffect.AttackCanCounterAttack = true
 	powerAddedErrors := suite.bandit.PowerCollection.AddInnatePower(suite.axe)
 	checker.Assert(powerAddedErrors, IsNil)
 
-	banditEquipsAxe := powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
+	banditEquipsAxe := powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
 	checker.Assert(banditEquipsAxe, Equals, true)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
@@ -144,7 +144,7 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID,
+			PowerID:         suite.healingStaff.ID(),
 			Targets:         []string{suite.teros.ID()},
 			IsCounterAttack: false,
 		},
@@ -157,7 +157,7 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID,
+			PowerID:         suite.healingStaff.ID(),
 			Targets:         []string{suite.teros.ID(), suite.vale.ID()},
 			IsCounterAttack: false,
 		},
@@ -173,7 +173,7 @@ func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(check
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HealingHitPointsHealed)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker *C) {
@@ -182,25 +182,25 @@ func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker
 	suite.lini.Offense.SquaddieMind = 3
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+suite.lini.Mind())
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HealingHitPointsHealed+suite.lini.Mind())
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C) {
 	suite.teros.Defense.SquaddieCurrentHitPoints = 1
 	suite.lini.Offense.SquaddieMind = 3
-	suite.healingStaff.HealingEffect.HealingAdjustmentBasedOnUserMind = power.Half
+	suite.healingStaff.HealingEffect.HealingHealingAdjustmentBasedOnUserMind = power.Half
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed+(suite.lini.Mind())/2)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HealingHitPointsHealed+(suite.lini.Mind())/2)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C) {
 	suite.teros.Defense.SquaddieCurrentHitPoints = 1
 	suite.lini.Offense.SquaddieMind = 3
-	suite.healingStaff.HealingEffect.HealingAdjustmentBasedOnUserMind = power.Zero
+	suite.healingStaff.HealingEffect.HealingHealingAdjustmentBasedOnUserMind = power.Zero
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HitPointsHealed)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HealingEffect.HealingHitPointsHealed)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCapsAtMaxHP(checker *C) {

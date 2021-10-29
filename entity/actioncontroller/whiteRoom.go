@@ -111,13 +111,13 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 
 		if reasonForInvalidTarget == powercantarget.PowerCannotTargetAffiliation {
 			affiliationRelationsTargeted := []string{}
-			if powerUsed.Targeting.TargetSelf {
+			if powerUsed.CanPowerTargetSelf() {
 				affiliationRelationsTargeted = append(affiliationRelationsTargeted, "self")
 			}
-			if powerUsed.Targeting.TargetFriend {
+			if powerUsed.CanPowerTargetFriend() {
 				affiliationRelationsTargeted = append(affiliationRelationsTargeted, "friend")
 			}
-			if powerUsed.Targeting.TargetFoe {
+			if powerUsed.CanPowerTargetFoe() {
 				affiliationRelationsTargeted = append(affiliationRelationsTargeted, "foe")
 			}
 
@@ -128,7 +128,7 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 					[]string{
 						"Target is not compatible with affiliation",
 						fmt.Sprintf("  %s[%s] is a %s", user.Name(), user.ID(), user.Affiliation()),
-						fmt.Sprintf("    uses %s[%s] that targets %s", powerUsed.Name, powerUsed.ID, strings.Join(affiliationRelationsTargeted, ",")),
+						fmt.Sprintf("    uses %s[%s] that targets %s", powerUsed.Name(), powerUsed.ID(), strings.Join(affiliationRelationsTargeted, ",")),
 						fmt.Sprintf("  %s[%s] is a %s", target.Name(), target.ID(), target.Affiliation()),
 					},
 				},

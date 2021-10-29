@@ -77,7 +77,7 @@ func (viewer *ConsoleActionViewer) createMessagesForHealing(repositories *reposi
 
 	effectMessage := fmt.Sprintf("%s", damageHealedDescription)
 
-	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", healer.Name(), powerToUse.Name)
+	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", healer.Name(), powerToUse.Name())
 	if resultIndex > 0 {
 		attackerAndPowerMessage = "- also"
 	}
@@ -108,7 +108,7 @@ func (viewer *ConsoleActionViewer) createMessagesForAttackOrCounterAttack(foreca
 	target := repositories.SquaddieRepo.GetSquaddieByID(attackForecast.DefenderContext.TargetID)
 	powerToUse := repositories.PowerRepo.GetPowerByID(attackSetup.PowerID)
 
-	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", attacker.Name(), powerToUse.Name)
+	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", attacker.Name(), powerToUse.Name())
 	if resultIndex > 0 && !isACounterAttack {
 		attackerAndPowerMessage = "- also"
 	}
@@ -394,7 +394,7 @@ func (viewer *ConsoleActionViewer) getMessagePrefix(result *powercommit.ResultPe
 	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
 	powerUsed := powerRepo.GetPowerByID(result.PowerID)
 
-	userPrefix := fmt.Sprintf("%s (%s)", user.Name(), powerUsed.Name)
+	userPrefix := fmt.Sprintf("%s (%s)", user.Name(), powerUsed.Name())
 	if userCausedThePreviousResult {
 		userPrefix = "- also"
 	}

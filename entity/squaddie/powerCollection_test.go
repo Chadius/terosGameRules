@@ -29,7 +29,7 @@ func (suite *SquaddiePowerCollectionTests) TestGainInnatePowers(checker *C) {
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "Attack Formation A")
-	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.attackA.ID)
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
 }
 
 func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
@@ -41,7 +41,7 @@ func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
 }
 
 func (suite *SquaddiePowerCollectionTests) TestClearPowerReferences(checker *C) {
-	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "Pow pow", ID: "Power Wheels"}}
+	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "Pow pow", PowerID: "Power Wheels"}}
 	suite.teros.PowerCollection.ClearTemporaryPowerReferences()
 	checker.Assert(suite.teros.PowerCollection.PowerReferences, DeepEquals, []*power.Reference{})
 }
@@ -50,13 +50,13 @@ func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(
 	err := suite.teros.PowerCollection.AddInnatePower(suite.attackA)
 	checker.Assert(err, IsNil)
 	err = suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with SquaddieID "%s"`, suite.attackA.ID)
+	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with SquaddieID "%s"`, suite.attackA.ID())
 	checker.Assert(err, ErrorMatches, expectedErrorMessage)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
-	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name)
-	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.attackA.ID)
+	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name())
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
@@ -75,11 +75,11 @@ func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker 
 
 	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)
 
-	equippedSpearPower := powerequip.SquaddieEquipPower(suite.teros, spear.ID, &repositories.RepositoryCollection{PowerRepo: powerRepo})
+	equippedSpearPower := powerequip.SquaddieEquipPower(suite.teros, spear.ID(), &repositories.RepositoryCollection{PowerRepo: powerRepo})
 	checker.Assert(equippedSpearPower, Equals, true)
 
 	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, true)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, spear.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, spear.ID())
 
 	suite.teros.PowerCollection.ClearInnatePowers()
 	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)

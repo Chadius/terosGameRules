@@ -104,7 +104,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -120,7 +120,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID,
+			PowerID:         suite.blot.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -136,7 +136,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	suite.forecastSpearOnMysticMage = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.ID(),
 			Targets:         []string{suite.mysticMage.ID()},
 			IsCounterAttack: false,
 		},
@@ -149,7 +149,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	suite.forecastFireballOnBandits = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.mysticMage.ID(),
-			PowerID:         suite.fireball.ID,
+			PowerID:         suite.fireball.ID(),
 			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
 			IsCounterAttack: false,
 		},
@@ -171,7 +171,7 @@ func (suite *resultOnAttack) TestAttackCanMiss(checker *C) {
 
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget, HasLen, 1)
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].UserID, Equals, suite.teros.ID())
-	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.ID)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.ID())
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].TargetID, Equals, suite.bandit.ID())
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].Attack.HitTarget, Equals, false)
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].Attack.CriticallyHitTarget, Equals, false)
@@ -185,7 +185,7 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 
 	suite.teros.Offense.SquaddieMind = 2
 
-	suite.blot.AttackEffect.DamageBonus = 3
+	suite.blot.AttackEffect.AttackDamageBonus = 3
 
 	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 	suite.bandit.Defense.SquaddieArmor = 1
@@ -193,7 +193,7 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
 
-	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].PowerID, Equals, suite.blot.ID)
+	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].PowerID, Equals, suite.blot.ID())
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.HitTarget, Equals, true)
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.CriticallyHitTarget, Equals, false)
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.DamageAbsorbedByBarrier, Equals, 3)
@@ -218,7 +218,7 @@ func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 
 	suite.teros.Offense.SquaddieMind = 2
 
-	suite.blot.AttackEffect.DamageBonus = 3
+	suite.blot.AttackEffect.AttackDamageBonus = 3
 
 	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 	suite.bandit.Defense.SquaddieArmor = 1
@@ -228,7 +228,7 @@ func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
 
-	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].PowerID, Equals, suite.blot.ID)
+	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].PowerID, Equals, suite.blot.ID())
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.HitTarget, Equals, true)
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.CriticallyHitTarget, Equals, true)
 	checker.Assert(suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.DamageAbsorbedByBarrier, Equals, 3)
@@ -249,22 +249,22 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 	suite.teros.Defense.SquaddieArmor = 0
 	suite.teros.Defense.SquaddieCurrentBarrier = 0
 
-	suite.spear.AttackEffect.DamageBonus = 3
+	suite.spear.AttackEffect.AttackDamageBonus = 3
 
-	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.DamageBonus = 3
+	suite.axe.AttackEffect.AttackCanCounterAttack = true
+	suite.axe.AttackEffect.AttackDamageBonus = 3
 	suite.bandit.Offense.SquaddieStrength = 0
 	suite.bandit.Defense.SquaddieArmor = 1
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	suite.resultSpearOnBandit.Commit()
 
-	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.ID)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.PowerID)
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].UserID, Equals, suite.teros.ID())
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].TargetID, Equals, suite.bandit.ID())
 
-	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[1].PowerID, Equals, suite.axe.ID)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[1].PowerID, Equals, suite.axe.PowerID)
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[1].UserID, Equals, suite.bandit.ID())
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[1].TargetID, Equals, suite.teros.ID())
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[1].Attack.HitTarget, Equals, true)
@@ -284,33 +284,33 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 	suite.resultFireballOnBandits.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.DamageBonus = 3
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
-	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.ID, suite.repos)
+	suite.axe.AttackEffect.AttackCanCounterAttack = true
+	suite.axe.AttackEffect.AttackDamageBonus = 3
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
 
-	suite.bandit.Defense.SquaddieMaxHitPoints = suite.fireball.AttackEffect.DamageBonus + suite.mysticMage.Mind() + 1
+	suite.bandit.Defense.SquaddieMaxHitPoints = suite.fireball.AttackEffect.AttackDamageBonus + suite.mysticMage.Mind() + 1
 	suite.bandit.Defense.SetHPToMax()
 
-	suite.bandit2.Defense.SquaddieMaxHitPoints = suite.fireball.AttackEffect.DamageBonus + suite.mysticMage.Mind() + 1
+	suite.bandit2.Defense.SquaddieMaxHitPoints = suite.fireball.AttackEffect.AttackDamageBonus + suite.mysticMage.Mind() + 1
 	suite.bandit2.Defense.SetHPToMax()
 
 	suite.forecastFireballOnBandits.CalculateForecast()
 	suite.resultFireballOnBandits.Commit()
 
-	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[0].PowerID, Equals, suite.fireball.ID)
+	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[0].PowerID, Equals, suite.fireball.PowerID)
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[0].UserID, Equals, suite.mysticMage.ID())
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[0].TargetID, Equals, suite.bandit.ID())
 
-	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[1].PowerID, Equals, suite.fireball.ID)
+	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[1].PowerID, Equals, suite.fireball.PowerID)
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[1].UserID, Equals, suite.mysticMage.ID())
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[1].TargetID, Equals, suite.bandit2.ID())
 
-	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[2].PowerID, Equals, suite.axe.ID)
+	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[2].PowerID, Equals, suite.axe.PowerID)
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[2].UserID, Equals, suite.bandit.ID())
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[2].TargetID, Equals, suite.mysticMage.ID())
 
-	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[3].PowerID, Equals, suite.axe.ID)
+	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[3].PowerID, Equals, suite.axe.PowerID)
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[3].UserID, Equals, suite.bandit2.ID())
 	checker.Assert(suite.resultFireballOnBandits.ResultPerTarget[3].TargetID, Equals, suite.mysticMage.ID())
 }
@@ -322,18 +322,18 @@ func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 	suite.teros.Defense.SquaddieArmor = 0
 	suite.teros.Defense.SquaddieCurrentBarrier = 0
 
-	suite.spear.AttackEffect.DamageBonus = 3
+	suite.spear.AttackEffect.AttackDamageBonus = 3
 
-	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.DamageBonus = 3
+	suite.axe.AttackEffect.AttackCanCounterAttack = true
+	suite.axe.AttackEffect.AttackDamageBonus = 3
 	suite.bandit.Offense.SquaddieStrength = 0
 	suite.bandit.Defense.SquaddieArmor = 0
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	suite.resultSpearOnBandit.Commit()
 
-	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.ID)
+	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].PowerID, Equals, suite.spear.PowerID)
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].UserID, Equals, suite.teros.ID())
 	checker.Assert(suite.resultSpearOnBandit.ResultPerTarget[0].TargetID, Equals, suite.bandit.ID())
 
@@ -406,7 +406,7 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.PowerID,
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -422,7 +422,7 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID,
+			PowerID:         suite.blot.PowerID,
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -438,7 +438,7 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 	suite.forecastFireballOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.mysticMage.ID(),
-			PowerID:         suite.fireball.ID,
+			PowerID:         suite.fireball.PowerID,
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -458,18 +458,18 @@ func (suite *EquipPowerWhenCommitting) TestCommitWillTryToEquipPower(checker *C)
 	suite.forecastSpearOnBandit.CalculateForecast()
 	suite.resultSpearOnBandit.Commit()
 
-	checker.Assert(suite.teros.PowerCollection.CurrentlyEquippedPowerID, Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.CurrentlyEquippedPowerID, Equals, suite.spear.PowerID)
 }
 
 func (suite *EquipPowerWhenCommitting) TestSquaddieWillKeepPreviousPowerIfCommitPowerCannotBeEquipped(checker *C) {
-	powerequip.SquaddieEquipPower(suite.teros, suite.spear.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.teros, suite.spear.PowerID, suite.repos)
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysMissDieRoller{}
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
 
 	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, true)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.PowerID)
 }
 
 func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistAfterCommitting(checker *C) {
@@ -518,7 +518,7 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID,
+			PowerID:         suite.healingStaff.PowerID,
 			Targets:         []string{suite.teros.ID()},
 			IsCounterAttack: false,
 		},
@@ -535,7 +535,7 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID,
+			PowerID:         suite.healingStaff.PowerID,
 			Targets:         []string{suite.teros.ID(), suite.vale.ID()},
 			IsCounterAttack: false,
 		},
@@ -557,7 +557,7 @@ func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 	suite.resultHealingStaffOnTeros.Commit()
 
-	checker.Assert(suite.resultHealingStaffOnTeros.ResultPerTarget[0].PowerID, Equals, suite.healingStaff.ID)
+	checker.Assert(suite.resultHealingStaffOnTeros.ResultPerTarget[0].PowerID, Equals, suite.healingStaff.PowerID)
 	checker.Assert(suite.resultHealingStaffOnTeros.ResultPerTarget[0].Healing.HitPointsRestored, Equals, 4)
 
 	checker.Assert(
@@ -576,9 +576,9 @@ func (suite *ResultOnHealing) TestHealResultShowsForEachTarget(checker *C) {
 	suite.resultHealingStaffOnTerosAndVale.Commit()
 
 	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget, HasLen, 2)
-	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].PowerID, Equals, suite.healingStaff.ID)
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].PowerID, Equals, suite.healingStaff.PowerID)
 	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[0].Healing.HitPointsRestored, Equals, 4)
-	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].PowerID, Equals, suite.healingStaff.ID)
+	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].PowerID, Equals, suite.healingStaff.PowerID)
 	checker.Assert(suite.resultHealingStaffOnTerosAndVale.ResultPerTarget[1].Healing.HitPointsRestored, Equals, 3)
 
 	checker.Assert(

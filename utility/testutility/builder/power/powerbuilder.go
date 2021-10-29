@@ -1,6 +1,11 @@
 package power
 
-import "github.com/chadius/terosbattleserver/entity/power"
+import (
+	"encoding/json"
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/utility"
+	"gopkg.in/yaml.v2"
+)
 
 // BuilderOptions covers options used to make Power objects.
 type BuilderOptions struct {
@@ -193,7 +198,7 @@ func (p *BuilderOptions) CriticalHitThresholdBonus(thresholdBonus int) *BuilderO
 func (p *BuilderOptions) Build() *power.Power {
 	newPower := power.NewPower(p.name)
 	if p.id != "" {
-		newPower.Reference.ID = p.id
+		newPower.Reference.PowerID = p.id
 	}
 
 	newPower.Targeting.TargetSelf = p.targetSelf
@@ -232,5 +237,100 @@ func (p *BuilderOptions) Blot() *BuilderOptions {
 //HealingStaff creates a Specific example of a spell healing power.
 func (p *BuilderOptions) HealingStaff() *BuilderOptions {
 	p.WithName("healingStaff").WithID("powerHealingStaff").TargetsFriend().IsSpell().HitPointsHealed(3)
+	return p
+}
+
+// BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
+type BuilderOptionMarshal struct {
+	ID   string `json:"id" yaml:"id"`
+	Name string `json:"name" yaml:"name"`
+	PowerType     power.DamageType       `json:"power_type" yaml:"power_type"`
+
+	TargetSelf   bool `json:"target_self" yaml:"target_self"`
+	TargetFoe    bool `json:"target_foe" yaml:"target_foe"`
+	TargetFriend bool `json:"target_friend" yaml:"target_friend"`
+
+	CanAttack bool `json:"can_attack" yaml:"can_attack"`
+	ToHitBonus                    int             `json:"to_hit_bonus" yaml:"to_hit_bonus"`
+	DamageBonus                   int             `json:"damage_bonus" yaml:"damage_bonus"`
+	ExtraBarrierBurn              int             `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
+	CanBeEquipped                 bool            `json:"can_be_equipped" yaml:"can_be_equipped"`
+	CanCounterAttack              bool            `json:"can_counter_attack" yaml:"can_counter_attack"`
+	CounterAttackPenaltyReduction int             `json:"counter_attack_penalty_reduction" yaml:"counter_attack_penalty_reduction"`
+
+	CanCritical bool `json:"can_critical" yaml:"can_critical"`
+	CriticalHitThresholdBonus int `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
+	CriticalDamage                    int `json:"critical_damage" yaml:"critical_damage"`
+
+	CanHeal bool `json:"can_heal" yaml:"can_heal"`
+	HealingAdjustmentBasedOnUserMind power.HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
+	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
+}
+
+// UsingYAML uses the yaml data to generate BuilderOptions.
+func (p *BuilderOptions) UsingYAML(yamlData []byte) *BuilderOptions {
+	return p.usingByteStream(yamlData, yaml.Unmarshal)
+}
+
+// UsingJSON uses the yaml data to generate BuilderOptions.
+func (p *BuilderOptions) UsingJSON(jsonData []byte) *BuilderOptions {
+	return p.usingByteStream(jsonData, json.Unmarshal)
+}
+
+func (p *BuilderOptions) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) *BuilderOptions {
+	var unmarshalError error
+	var marshaledOptions BuilderOptionMarshal
+
+	unmarshalError = unmarshal(data, &marshaledOptions)
+
+	if unmarshalError != nil {
+		return p
+	}
+
+	p.WithID(marshaledOptions.ID).WithName(marshaledOptions.Name)
+
+	if marshaledOptions.CanAttack {
+		p.ToHitBonus(marshaledOptions.ToHitBonus).DealsDamage(marshaledOptions.DamageBonus).
+			ExtraBarrierBurn(marshaledOptions.ExtraBarrierBurn).CounterAttackPenaltyReduction(marshaledOptions.CounterAttackPenaltyReduction)
+
+		if marshaledOptions.CanBeEquipped {
+			p.CanBeEquipped()
+		}
+
+		if marshaledOptions.CanCounterAttack {
+			p.CanCounterAttack()
+		}
+
+		if marshaledOptions.CanCritical {
+			p.CriticalHitThresholdBonus(marshaledOptions.CriticalHitThresholdBonus).CriticalDealsDamage(marshaledOptions.CriticalDamage)
+		}
+	}
+
+	if marshaledOptions.CanHeal {
+		p.HitPointsHealed(marshaledOptions.HitPointsHealed)
+
+		if marshaledOptions.HealingAdjustmentBasedOnUserMind == power.Full {
+			p.HealingAdjustmentBasedOnUserMindFull()
+		}
+		if marshaledOptions.HealingAdjustmentBasedOnUserMind == power.Half {
+			p.HealingAdjustmentBasedOnUserMindHalf()
+		}
+		if marshaledOptions.HealingAdjustmentBasedOnUserMind == power.Zero {
+			p.HealingAdjustmentBasedOnUserMindZero()
+		}
+	}
+
+	if marshaledOptions.PowerType == power.Physical {
+		p.IsPhysical()
+	}
+
+	if marshaledOptions.PowerType == power.Spell {
+		p.IsSpell()
+	}
+
+	if marshaledOptions.TargetSelf == true { p.TargetsSelf() }
+	if marshaledOptions.TargetFoe == true { p.TargetsFoe() }
+	if marshaledOptions.TargetFriend == true { p.TargetsFriend() }
+
 	return p
 }

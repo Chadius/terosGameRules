@@ -57,7 +57,7 @@ func (suite *squaddieDefense) TestToHitPenaltyAgainstPhysicalAttacks(checker *C)
 
 	suite.spear.AttackEffect = &power.AttackingEffect{}
 
-	spearDodge, spearErr := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(suite.teros.ID(), suite.spear.ID, suite.repos)
+	spearDodge, spearErr := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(suite.teros.ID(), suite.spear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearDodge, Equals, 1)
 }
@@ -67,7 +67,7 @@ func (suite *squaddieDefense) TestToHitPenaltyAgainstSpellAttacks(checker *C) {
 
 	suite.blot.AttackEffect = &power.AttackingEffect{}
 
-	blotDodge, blotErr := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(suite.teros.ID(), suite.blot.ID, suite.repos)
+	blotDodge, blotErr := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(suite.teros.ID(), suite.blot.ID(), suite.repos)
 	checker.Assert(blotErr, IsNil)
 	checker.Assert(blotDodge, Equals, 2)
 }
@@ -77,12 +77,12 @@ func (suite *squaddieDefense) TestGetDefenderArmorResistance(checker *C) {
 	suite.teros.Defense.SquaddieCurrentBarrier = 0
 
 	suite.spear.AttackEffect = &power.AttackingEffect{}
-	spearArmor, spearErr := squaddiestats.GetSquaddieArmorAgainstPower(suite.teros.ID(), suite.spear.ID, suite.repos)
+	spearArmor, spearErr := squaddiestats.GetSquaddieArmorAgainstPower(suite.teros.ID(), suite.spear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearArmor, Equals, 3)
 
 	suite.blot.AttackEffect = &power.AttackingEffect{}
-	blotArmor, blotErr := squaddiestats.GetSquaddieArmorAgainstPower(suite.teros.ID(), suite.blot.ID, suite.repos)
+	blotArmor, blotErr := squaddiestats.GetSquaddieArmorAgainstPower(suite.teros.ID(), suite.blot.ID(), suite.repos)
 	checker.Assert(blotErr, IsNil)
 	checker.Assert(blotArmor, Equals, 0)
 }
@@ -92,7 +92,7 @@ func (suite *squaddieDefense) TestGetDefenderBarrierResistance(checker *C) {
 	suite.teros.Defense.SquaddieCurrentBarrier = 1
 	suite.spear.AttackEffect = &power.AttackingEffect{}
 
-	spearBarrier, spearErr := squaddiestats.GetSquaddieBarrierAgainstPower(suite.teros.ID(), suite.spear.ID, suite.repos)
+	spearBarrier, spearErr := squaddiestats.GetSquaddieBarrierAgainstPower(suite.teros.ID(), suite.spear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearBarrier, Equals, 1)
 }
@@ -103,7 +103,7 @@ func (suite *squaddieDefense) TestGetDefenderCurrentHitPoints(checker *C) {
 
 	suite.spear.AttackEffect = &power.AttackingEffect{}
 
-	spearBarrier, spearErr := squaddiestats.GetSquaddieCurrentHitPoints(suite.teros.ID(), suite.spear.ID, suite.repos)
+	spearBarrier, spearErr := squaddiestats.GetSquaddieCurrentHitPoints(suite.teros.ID(), suite.spear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearBarrier, Equals, 2)
 }

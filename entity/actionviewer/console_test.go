@@ -104,7 +104,7 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID,
+			PowerID:         suite.blot.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -120,7 +120,7 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 	suite.forecastBlotOnMultipleBandits = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID,
+			PowerID:         suite.blot.ID(),
 			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
 			IsCounterAttack: false,
 		},
@@ -136,7 +136,7 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID,
+			PowerID:         suite.healingStaff.PowerID,
 			Targets:         []string{suite.teros.ID()},
 			IsCounterAttack: false,
 		},
@@ -161,10 +161,10 @@ func (suite *ConsoleViewerSuite) SetUpTerosAttacksBanditsAndSuffersCounterAttack
 	suite.bandit.Defense.SquaddieMaxBarrier = 1
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.DamageBonus = 3
+	suite.axe.AttackEffect.AttackCanCounterAttack = true
+	suite.axe.AttackEffect.AttackDamageBonus = 3
 	suite.bandit.Offense.SquaddieStrength = 0
-	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
 
 	suite.forecastBlotOnMultipleBandits.CalculateForecast()
 	suite.resultBlotOnMultipleBandits.Commit()
@@ -227,10 +227,10 @@ func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
 func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.axe.AttackEffect.CanCounterAttack = true
-	suite.axe.AttackEffect.DamageBonus = 2
+	suite.axe.AttackEffect.AttackCanCounterAttack = true
+	suite.axe.AttackEffect.AttackDamageBonus = 2
 	suite.bandit.Offense.SquaddieStrength = 0
-	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()

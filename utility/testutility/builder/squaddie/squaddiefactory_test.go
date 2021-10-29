@@ -132,7 +132,7 @@ var _ = Suite(&SquaddiePowerBuilder{})
 func (suite *SquaddiePowerBuilder) TestBuildAddPower(checker *C) {
 	spear := power.Builder().Spear().Build()
 	teros := squaddie.Builder().AddPower(spear).Build()
-	checker.Assert(spear.ID, Equals, teros.PowerCollection.PowerReferences[0].ID)
+	checker.Assert(spear.ID(), Equals, teros.PowerCollection.PowerReferences[0].PowerID)
 }
 
 type SquaddieClassBuilder struct{}

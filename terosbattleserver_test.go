@@ -61,7 +61,7 @@ func (suite *ReplayScriptSuite) Test(checker *C) {
 -
   name: Spear
   id: powerSpear
-  power_type: Physical
+  power_type: physical
   targeting:
     target_foe: true
   attack_effect:
@@ -74,7 +74,7 @@ func (suite *ReplayScriptSuite) Test(checker *C) {
 -
   name: Axe
   id: powerAxe
-  power_type: Physical
+  power_type: physical
   targeting:
     target_foe: true
   attack_effect:

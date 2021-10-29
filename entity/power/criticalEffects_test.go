@@ -36,7 +36,7 @@ func (suite *CriticalEffectActivation) TestCriticalEffectsWithJSON(checker *C) {
 					"name": "Scimitar",
 					"id": "deadbeef",
 					"damage_bonus": 2,
-					"power_type": "Physical",
+					"power_type": "physical",
 					"attack_effect": {
 						"can_counter_attack": true,
 						"counter_attack_penalty": -2,
@@ -60,7 +60,7 @@ func (suite *CriticalEffectActivation) TestCriticalEffectsWithYAML(checker *C) {
 	yamlByteStream := []byte(`-
   name: Scimitar
   id: deadbeef
-  power_type: Physical
+  power_type: physical
   attack_effect:
     damage_bonus: 2
     can_counter_attack: true

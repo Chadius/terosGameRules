@@ -12,20 +12,20 @@ var _ = Suite(&HealingEffectBuilder{})
 
 func (suite *HealingEffectBuilder) TestHealingAdjustmentFull(checker *C) {
 	bigHeals := powerBuilder.HealingEffectBuilder().HealingAdjustmentBasedOnUserMindFull().Build()
-	checker.Assert(power.Full, Equals, bigHeals.HealingAdjustmentBasedOnUserMind)
+	checker.Assert(power.Full, Equals, bigHeals.HealingHealingAdjustmentBasedOnUserMind)
 }
 
 func (suite *HealingEffectBuilder) TestHealingAdjustmentHalf(checker *C) {
 	someHeals := powerBuilder.HealingEffectBuilder().HealingAdjustmentBasedOnUserMindHalf().Build()
-	checker.Assert(power.Half, Equals, someHeals.HealingAdjustmentBasedOnUserMind)
+	checker.Assert(power.Half, Equals, someHeals.HealingHealingAdjustmentBasedOnUserMind)
 }
 
 func (suite *HealingEffectBuilder) TestHealingAdjustmentZero(checker *C) {
 	someHeals := powerBuilder.HealingEffectBuilder().HealingAdjustmentBasedOnUserMindZero().Build()
-	checker.Assert(power.Zero, Equals, someHeals.HealingAdjustmentBasedOnUserMind)
+	checker.Assert(power.Zero, Equals, someHeals.HealingHealingAdjustmentBasedOnUserMind)
 }
 
 func (suite *HealingEffectBuilder) TestHitPointsHealed(checker *C) {
 	bigHeals := powerBuilder.HealingEffectBuilder().HitPointsHealed(5).Build()
-	checker.Assert(5, Equals, bigHeals.HitPointsHealed)
+	checker.Assert(5, Equals, bigHeals.HealingHitPointsHealed)
 }

@@ -37,15 +37,15 @@ func (suite *PowerCreationSuite) TestAddPowersToNewRepository(checker *C) {
 func (suite *PowerCreationSuite) TestUsesIDToRetrievePowers(checker *C) {
 	checker.Assert(suite.repo.GetNumberOfPowers(), Equals, 2)
 
-	spearLevel1FromRepo := suite.repo.GetPowerByID(suite.spear.ID)
-	checker.Assert(spearLevel1FromRepo.Name, Equals, "Spear")
-	checker.Assert(spearLevel1FromRepo.ID, Equals, suite.spear.ID)
-	checker.Assert(spearLevel1FromRepo.AttackEffect.ToHitBonus, Equals, suite.spear.AttackEffect.ToHitBonus)
+	spearLevel1FromRepo := suite.repo.GetPowerByID(suite.spear.ID())
+	checker.Assert(spearLevel1FromRepo.Name(), Equals, "Spear")
+	checker.Assert(spearLevel1FromRepo.ID(), Equals, suite.spear.PowerID)
+	checker.Assert(spearLevel1FromRepo.AttackEffect.AttackToHitBonus, Equals, suite.spear.AttackEffect.AttackToHitBonus)
 
-	spearLevel2FromRepo := suite.repo.GetPowerByID(suite.spear2.ID)
-	checker.Assert(spearLevel2FromRepo.Name, Equals, "Spear")
-	checker.Assert(spearLevel2FromRepo.ID, Equals, suite.spear2.ID)
-	checker.Assert(spearLevel2FromRepo.AttackEffect.ToHitBonus, Equals, suite.spear2.AttackEffect.ToHitBonus)
+	spearLevel2FromRepo := suite.repo.GetPowerByID(suite.spear2.PowerID)
+	checker.Assert(spearLevel2FromRepo.Name(), Equals, "Spear")
+	checker.Assert(spearLevel2FromRepo.PowerID, Equals, suite.spear2.PowerID)
+	checker.Assert(spearLevel2FromRepo.AttackEffect.AttackToHitBonus, Equals, suite.spear2.AttackEffect.AttackToHitBonus)
 }
 
 func (suite *PowerCreationSuite) TestReturnNilIfIDDoesNotExist(checker *C) {
@@ -60,10 +60,10 @@ func (suite *PowerCreationSuite) TestSearchForPowerByName(checker *C) {
 	hasSpearPower := false
 	hasSpear2Power := false
 	for _, power := range allSpearPowers {
-		if power.ID == suite.spear.ID {
+		if power.PowerID == suite.spear.PowerID {
 			hasSpearPower = true
 		}
-		if power.ID == suite.spear2.ID {
+		if power.PowerID == suite.spear2.PowerID {
 			hasSpear2Power = true
 		}
 	}
@@ -77,7 +77,7 @@ func (suite *PowerCreationSuite) TestLoadPowersWithJSON(checker *C) {
 					"name": "Scimitar",
 					"id": "deadbeef",
 					"damage_bonus": 2,
-					"power_type": "Physical",
+					"power_type": "physical",
 					"targeting": {
 						"target_foe": true
 					},
@@ -95,7 +95,7 @@ func (suite *PowerCreationSuite) TestStopsLoadingUponFirstInvalidPower(checker *
 	jsonByteStream := []byte(`[{
 				"name": "Scimitar",
 				"id": "deadbeef",
-				"power_type": "Physical"
+				"power_type": "physical"
 			},{
 				"name": "Scimitar2",
 				"id": "deadbeee",
@@ -109,7 +109,7 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
 	yamlByteStream := []byte(`-
   name: Scimitar
   id: deadbeef
-  power_type: Physical
+  power_type: physical
   targeting:
     target_foe: true
   attack_effect:
@@ -123,10 +123,10 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
 
 	scimitar := newRepo.GetPowerByID("deadbeef")
-	checker.Assert(scimitar.Name, Equals, "Scimitar")
-	checker.Assert(scimitar.ID, Equals, "deadbeef")
-	checker.Assert(scimitar.AttackEffect.DamageBonus, Equals, 2)
-	checker.Assert(scimitar.AttackEffect.CanCounterAttack, Equals, true)
-	checker.Assert(scimitar.AttackEffect.CounterAttackPenaltyReduction, Equals, -2)
-	checker.Assert(scimitar.Targeting.TargetFoe, Equals, true)
+	checker.Assert(scimitar.Name(), Equals, "Scimitar")
+	checker.Assert(scimitar.PowerID, Equals, "deadbeef")
+	checker.Assert(scimitar.AttackEffect.AttackDamageBonus, Equals, 2)
+	checker.Assert(scimitar.AttackEffect.AttackCanCounterAttack, Equals, true)
+	checker.Assert(scimitar.AttackEffect.AttackCounterAttackPenaltyReduction, Equals, -2)
+	checker.Assert(scimitar.CanPowerTargetFoe(), Equals, true)
 }

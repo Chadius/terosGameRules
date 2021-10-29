@@ -28,7 +28,7 @@ func (context *AttackerContext) calculate(setup powerusagescenario.Setup, reposi
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
 
 	context.DamageType = power.PowerType
-	context.ExtraBarrierBurn = power.AttackEffect.ExtraBarrierBurn
+	context.ExtraBarrierBurn = power.AttackEffect.AttackExtraBarrierBurn
 
 	context.RawDamage, err = context.calculateRawDamage(setup, repositories)
 	if err != nil {

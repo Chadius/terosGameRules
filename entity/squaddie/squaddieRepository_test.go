@@ -425,8 +425,8 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
 
 	attackIDNamePairs := clone.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
-	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name)
-	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.attackA.ID)
+	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name())
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {

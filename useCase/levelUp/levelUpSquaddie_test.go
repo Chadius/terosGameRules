@@ -178,7 +178,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 
 	suite.spear = powerBuilder.Builder().Spear().WithID("spearlvl1").Build()
 
-	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "spear", ID: "spearlvl1"}}
+	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "spear", PowerID: "spearlvl1"}}
 
 	suite.spearLevel2 = powerBuilder.Builder().Spear().WithID("spearlvl2").Build()
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
@@ -191,7 +191,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 			ClassID:            suite.mageClass.ID,
 		},
 		PowerChanges: &levelupbenefit.PowerChanges{
-			Gained: []*power.Reference{{Name: "spear", ID: suite.spear.ID}},
+			Gained: []*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}},
 		},
 	}
 
@@ -202,8 +202,8 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 			ClassID:            suite.mageClass.ID,
 		},
 		PowerChanges: &levelupbenefit.PowerChanges{
-			Lost:   []*power.Reference{{Name: "spear", ID: suite.spear.ID}},
-			Gained: []*power.Reference{{Name: "spear", ID: suite.spearLevel2.ID}},
+			Lost:   []*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}},
+			Gained: []*power.Reference{{Name: "spear", PowerID: suite.spearLevel2.PowerID}},
 		},
 	}
 
@@ -223,7 +223,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
-	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.spear.ID)
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spear.PowerID)
 }
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePowers(checker *C) {
@@ -236,5 +236,5 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePower
 	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
-	checker.Assert(attackIDNamePairs[0].ID, Equals, suite.spearLevel2.ID)
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spearLevel2.PowerID)
 }

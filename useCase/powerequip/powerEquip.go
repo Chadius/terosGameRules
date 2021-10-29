@@ -13,9 +13,9 @@ import (
 //  Returns the power and a boolean.
 func EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool) {
 	for _, powerReference := range squaddie.PowerCollection.PowerReferences {
-		powerToCheck := repos.PowerRepo.GetPowerByID(powerReference.ID)
-		if powerToCheck.AttackEffect != nil && powerToCheck.AttackEffect.CanBeEquipped == true {
-			equippingPowerWasSuccessful := SquaddieEquipPower(squaddie, powerToCheck.ID, repos)
+		powerToCheck := repos.PowerRepo.GetPowerByID(powerReference.PowerID)
+		if powerToCheck.AttackEffect != nil && powerToCheck.AttackEffect.AttackCanBeEquipped == true {
+			equippingPowerWasSuccessful := SquaddieEquipPower(squaddie, powerToCheck.ID(), repos)
 			return powerToCheck, equippingPowerWasSuccessful
 		}
 	}
@@ -33,7 +33,7 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 	if powerToEquip == nil {
 		return false
 	}
-	if powerToEquip.AttackEffect == nil || powerToEquip.AttackEffect.CanBeEquipped == false {
+	if powerToEquip.AttackEffect == nil || powerToEquip.AttackEffect.AttackCanBeEquipped == false {
 		return false
 	}
 
@@ -50,7 +50,7 @@ func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesT
 	squaddie.PowerCollection.ClearTemporaryPowerReferences()
 
 	for _, powerIDName := range powerReferencesToLoad {
-		powerToAdd := repos.PowerRepo.GetPowerByID(powerIDName.ID)
+		powerToAdd := repos.PowerRepo.GetPowerByID(powerIDName.PowerID)
 		if powerToAdd == nil {
 			newError := fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name(), powerIDName.Name)
 			utility.Log(newError.Error(), 0, utility.Error)

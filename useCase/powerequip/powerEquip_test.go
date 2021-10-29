@@ -55,7 +55,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieEquipsFirstPowerByDefault(
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID())
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieSkipsUnequippablePowersWhenDefaultEquipping(checker *C) {
@@ -66,7 +66,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieSkipsUnequippablePowersWhe
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID())
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieWillNotEquipIfNoEquippablePowers(checker *C) {
@@ -86,9 +86,9 @@ func (suite *SquaddieEquipPowersFromRepo) TestCanChangeEquippedPower(checker *C)
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	success := powerequip.SquaddieEquipPower(suite.teros, suite.scimitar.ID, suite.repos)
+	success := powerequip.SquaddieEquipPower(suite.teros, suite.scimitar.ID(), suite.repos)
 	checker.Assert(success, Equals, true)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.scimitar.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.scimitar.ID())
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnequibbablePower(checker *C) {
@@ -99,13 +99,13 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnequibbablePower(check
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	success := powerequip.SquaddieEquipPower(suite.teros, suite.blot.ID, suite.repos)
+	success := powerequip.SquaddieEquipPower(suite.teros, suite.blot.ID(), suite.repos)
 	checker.Assert(success, Equals, false)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID())
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipNonexistentPowers(checker *C) {
-	success := powerequip.SquaddieEquipPower(suite.teros, "kwyjibo", suite.repos)
+	success := powerequip.SquaddieEquipPower(suite.teros, "Name", suite.repos)
 	checker.Assert(success, Equals, false)
 	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)
 }
@@ -124,9 +124,9 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
 	powerequip.EquipDefaultPower(suite.teros, suite.repos)
-	success := powerequip.SquaddieEquipPower(suite.teros, notTerosPower.ID, suite.repos)
+	success := powerequip.SquaddieEquipPower(suite.teros, notTerosPower.ID(), suite.repos)
 	checker.Assert(success, Equals, false)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID)
+	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.ID())
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCanCounter(checker *C) {
@@ -148,7 +148,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCannotCounterWithUncounter
 		suite.blot.GetReference(),
 	}
 	powerequip.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
-	powerequip.SquaddieEquipPower(suite.teros, suite.scimitar.ID, suite.repos)
+	powerequip.SquaddieEquipPower(suite.teros, suite.scimitar.ID(), suite.repos)
 	canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
 	checker.Assert(canCounter, Equals, false)
 }

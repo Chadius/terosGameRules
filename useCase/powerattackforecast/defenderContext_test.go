@@ -48,7 +48,7 @@ func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -61,7 +61,7 @@ func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID,
+			PowerID:         suite.blot.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},

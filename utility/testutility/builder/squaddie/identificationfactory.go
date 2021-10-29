@@ -26,7 +26,7 @@ func (i *IdentificationBuilderOptions) WithName(name string) *IdentificationBuil
 	return i
 }
 
-// WithID applies the given ID to the Identification.
+// WithID applies the given PowerID to the Identification.
 func (i *IdentificationBuilderOptions) WithID(id string) *IdentificationBuilderOptions {
 	i.id = id
 	return i

@@ -15,13 +15,13 @@ type PowerCollection struct {
 // AddInnatePower gives the Squaddie access to the power.
 //  Raises an error if the squaddie already has the power.
 func (powerCollection *PowerCollection) AddInnatePower(newPower *power.Power) error {
-	if ContainsPowerID(powerCollection.PowerReferences, newPower.ID) {
-		newError := fmt.Errorf(`squaddie already has innate power with SquaddieID "%s"`, newPower.ID)
+	if ContainsPowerID(powerCollection.PowerReferences, newPower.ID()) {
+		newError := fmt.Errorf(`squaddie already has innate power with SquaddieID "%s"`, newPower.ID())
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
-	powerCollection.PowerReferences = append(powerCollection.PowerReferences, &power.Reference{Name: newPower.Name, ID: newPower.ID})
+	powerCollection.PowerReferences = append(powerCollection.PowerReferences, &power.Reference{Name: newPower.Name(), PowerID: newPower.ID()})
 	return nil
 }
 
@@ -29,7 +29,7 @@ func (powerCollection *PowerCollection) AddInnatePower(newPower *power.Power) er
 func (powerCollection *PowerCollection) GetInnatePowerIDNames() []*power.Reference {
 	powerIDNames := []*power.Reference{}
 	for _, reference := range powerCollection.PowerReferences {
-		powerIDNames = append(powerIDNames, &power.Reference{Name: reference.Name, ID: reference.ID})
+		powerIDNames = append(powerIDNames, &power.Reference{Name: reference.Name, PowerID: reference.PowerID})
 	}
 	return powerIDNames
 }
@@ -48,7 +48,7 @@ func (powerCollection *PowerCollection) ClearTemporaryPowerReferences() {
 // HasPowerWithID returns a bool indicating if the squaddie has this power.
 func (powerCollection *PowerCollection) HasPowerWithID(powerID string) bool {
 	for _, powerReference := range powerCollection.GetInnatePowerIDNames() {
-		if powerReference.ID == powerID {
+		if powerReference.PowerID == powerID {
 			return true
 		}
 	}
@@ -59,7 +59,7 @@ func (powerCollection *PowerCollection) HasPowerWithID(powerID string) bool {
 // ContainsPowerID returns true if the squaddie has a reference to a power with the given SquaddieID.
 func ContainsPowerID(references []*power.Reference, powerID string) bool {
 	for _, reference := range references {
-		if reference.ID == powerID {
+		if reference.PowerID == powerID {
 			return true
 		}
 	}

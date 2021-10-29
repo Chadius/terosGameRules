@@ -65,7 +65,7 @@ func (repository *Repository) tryToAddPower(powerToAdd *Power) (bool, error) {
 	if PowerErr != nil {
 		return false, PowerErr
 	}
-	repository.powersByID[powerToAdd.ID] = powerToAdd
+	repository.powersByID[powerToAdd.ID()] = powerToAdd
 	return true, nil
 }
 
@@ -83,7 +83,7 @@ func (repository *Repository) GetPowerByID(powerID string) *Power {
 func (repository *Repository) GetAllPowersByName(powerNameToFind string) []*Power {
 	powersFound := []*Power{}
 	for _, power := range repository.powersByID {
-		if power.Name == powerNameToFind {
+		if power.Name() == powerNameToFind {
 			powersFound = append(powersFound, power)
 		}
 	}

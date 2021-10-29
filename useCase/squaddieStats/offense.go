@@ -83,7 +83,7 @@ func GetSquaddieAimWithPower(squaddieID, powerID string, repos *repositories.Rep
 		return 0, err
 	}
 
-	return squaddie.Aim() + powerToMeasure.AttackEffect.ToHitBonus, nil
+	return squaddie.Aim() + powerToMeasure.AttackEffect.AttackToHitBonus, nil
 }
 
 // GetSquaddieRawDamageWithPower returns the amount of damage that will be dealt to an unprotected target.
@@ -94,9 +94,9 @@ func GetSquaddieRawDamageWithPower(squaddieID, powerID string, repos *repositori
 	}
 
 	if powerToMeasure.PowerType == power.Physical {
-		return squaddie.Strength() + powerToMeasure.AttackEffect.DamageBonus, nil
+		return squaddie.Strength() + powerToMeasure.AttackEffect.AttackDamageBonus, nil
 	}
-	return squaddie.Mind() + powerToMeasure.AttackEffect.DamageBonus, nil
+	return squaddie.Mind() + powerToMeasure.AttackEffect.AttackDamageBonus, nil
 }
 
 // GetSquaddieCriticalThresholdWithPower returns the critical hit threshold the squaddie needs to beat in order to crit.
@@ -143,7 +143,7 @@ func GetSquaddieCanCounterAttackWithPower(squaddieID, powerID string, repos *rep
 		return false, err
 	}
 
-	return powerToMeasure.AttackEffect.CanCounterAttack, nil
+	return powerToMeasure.AttackEffect.AttackCanCounterAttack, nil
 }
 
 // GetSquaddieCounterAttackAimWithPower returns the to critical hit bonus against a target without dodge.
@@ -158,7 +158,7 @@ func GetSquaddieCounterAttackAimWithPower(squaddieID, powerID string, repos *rep
 		return 0, counterAttackErr
 	}
 
-	return squaddie.Aim() + powerToMeasure.AttackEffect.ToHitBonus + counterAttackPenalty, nil
+	return squaddie.Aim() + powerToMeasure.AttackEffect.AttackToHitBonus + counterAttackPenalty, nil
 }
 
 // GetSquaddieExtraBarrierBurnWithPower returns the amount of extra barrier burn that will be dealt to a target with a barrier.
@@ -168,7 +168,7 @@ func GetSquaddieExtraBarrierBurnWithPower(squaddieID, powerID string, repos *rep
 		return 0, err
 	}
 
-	return powerToMeasure.AttackEffect.ExtraBarrierBurn, nil
+	return powerToMeasure.AttackEffect.AttackExtraBarrierBurn, nil
 }
 
 // GetSquaddieCanCriticallyHitWithPower returns true if the squaddie can crit with this power.
@@ -191,14 +191,14 @@ func GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *re
 	}
 
 	squaddieMindBonus := squaddieToHeal.Mind()
-	if healingPower.HealingEffect.HealingAdjustmentBasedOnUserMind == power.Half {
+	if healingPower.HealingEffect.HealingHealingAdjustmentBasedOnUserMind == power.Half {
 		squaddieMindBonus /= 2
 	}
-	if healingPower.HealingEffect.HealingAdjustmentBasedOnUserMind == power.Zero {
+	if healingPower.HealingEffect.HealingHealingAdjustmentBasedOnUserMind == power.Zero {
 		squaddieMindBonus = 0
 	}
 
-	maximumHealing := healingPower.HealingEffect.HitPointsHealed + squaddieMindBonus
+	maximumHealing := healingPower.HealingEffect.HealingHitPointsHealed + squaddieMindBonus
 	missingHitPoints := target.MaxHitPoints() - target.CurrentHitPoints()
 	if missingHitPoints < maximumHealing {
 		return missingHitPoints, nil

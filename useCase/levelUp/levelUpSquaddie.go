@@ -64,7 +64,7 @@ func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImp
 	var powerReferencesToLoad []*power.Reference
 	if benefit.PowerChanges != nil {
 		powerReferencesToKeep := squaddie.FilterPowerID(initialSquaddiePowerReferences, func(existingPower *power.Reference) bool {
-			return squaddie.ContainsPowerID(benefit.PowerChanges.Lost, existingPower.ID) == false
+			return squaddie.ContainsPowerID(benefit.PowerChanges.Lost, existingPower.PowerID) == false
 		})
 		powerReferencesToLoad = append(powerReferencesToKeep, benefit.PowerChanges.Gained...)
 	}

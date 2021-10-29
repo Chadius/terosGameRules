@@ -47,7 +47,7 @@ func (suite *VersusContextTestSuite) SetUpTest(checker *C) {
 	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID,
+			PowerID:         suite.spear.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -60,7 +60,7 @@ func (suite *VersusContextTestSuite) SetUpTest(checker *C) {
 	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID,
+			PowerID:         suite.blot.ID(),
 			Targets:         []string{suite.bandit.ID()},
 			IsCounterAttack: false,
 		},
@@ -117,8 +117,8 @@ func (suite *VersusContextTestSuite) TestTargetUsesBarrierToResistDamageFromAllA
 }
 
 func (suite *VersusContextTestSuite) TestBarrierBurnCanSpillOverDamage(checker *C) {
-	suite.blot.AttackEffect.DamageBonus = 1
-	suite.blot.AttackEffect.ExtraBarrierBurn = 2
+	suite.blot.AttackEffect.AttackDamageBonus = 1
+	suite.blot.AttackEffect.AttackExtraBarrierBurn = 2
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 1)
 
@@ -129,8 +129,8 @@ func (suite *VersusContextTestSuite) TestBarrierBurnCanSpillOverDamage(checker *
 }
 
 func (suite *VersusContextTestSuite) TestBarrierBurnCanBeTolerated(checker *C) {
-	suite.blot.AttackEffect.DamageBonus = 0
-	suite.blot.AttackEffect.ExtraBarrierBurn = 1
+	suite.blot.AttackEffect.AttackDamageBonus = 0
+	suite.blot.AttackEffect.AttackExtraBarrierBurn = 1
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 2)
 
@@ -181,11 +181,11 @@ func (suite *VersusContextTestSuite) TestKnowsIfAttackIsFatalToTarget(checker *C
 	suite.bandit.Defense.SquaddieCurrentBarrier = 0
 
 	suite.teros.Offense.SquaddieMind = 0
-	suite.blot.AttackEffect.DamageBonus = 0
+	suite.blot.AttackEffect.AttackDamageBonus = 0
 	suite.forecastBlotOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, false)
 
-	suite.spear.AttackEffect.DamageBonus = suite.bandit.MaxHitPoints()
+	suite.spear.AttackEffect.AttackDamageBonus = suite.bandit.MaxHitPoints()
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, true)
 }

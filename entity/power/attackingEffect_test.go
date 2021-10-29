@@ -15,15 +15,15 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker
 	counterAttackingPower := &power.Power{
 		Reference: power.Reference{
 			Name: "Static",
-			ID:   "power0",
+			PowerID: "power0",
 		},
 		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
-			ToHitBonus:                    0,
-			DamageBonus:                   0,
-			CanCounterAttack:              true,
-			CounterAttackPenaltyReduction: 0,
-			CriticalEffect:                nil,
+			AttackToHitBonus:                    0,
+			AttackDamageBonus:                   0,
+			AttackCanCounterAttack:              true,
+			AttackCounterAttackPenaltyReduction: 0,
+			CriticalEffect:                      nil,
 		},
 	}
 
@@ -36,15 +36,15 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestRaisesErrorIfPowerCann
 	cannotCounterWithThisPower := &power.Power{
 		Reference: power.Reference{
 			Name: "Static",
-			ID:   "power0",
+			PowerID: "power0",
 		},
 		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
-			ToHitBonus:                    0,
-			DamageBonus:                   0,
-			CanCounterAttack:              false,
-			CounterAttackPenaltyReduction: 0,
-			CriticalEffect:                nil,
+			AttackToHitBonus:                    0,
+			AttackDamageBonus:                   0,
+			AttackCanCounterAttack:              false,
+			AttackCounterAttackPenaltyReduction: 0,
+			CriticalEffect:                      nil,
 		},
 	}
 
@@ -56,15 +56,15 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestAppliesPenaltyReductio
 	counterAttackingPower := &power.Power{
 		Reference: power.Reference{
 			Name: "Static",
-			ID:   "power0",
+			PowerID: "power0",
 		},
 		PowerType: power.Physical,
 		AttackEffect: &power.AttackingEffect{
-			ToHitBonus:                    0,
-			DamageBonus:                   0,
-			CanCounterAttack:              true,
-			CounterAttackPenaltyReduction: 2,
-			CriticalEffect:                nil,
+			AttackToHitBonus:                    0,
+			AttackDamageBonus:                   0,
+			AttackCanCounterAttack:              true,
+			AttackCounterAttackPenaltyReduction: 2,
+			CriticalEffect:                      nil,
 		},
 	}
 

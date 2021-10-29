@@ -2,8 +2,8 @@ package power
 
 // HealingEffect is a power designed to restore hit points and cure ailments.
 type HealingEffect struct {
-	HealingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
-	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
+	HealingHealingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
+	HealingHitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
 
 // HealingAdjustmentBasedOnUserMind indicates how much the user's SquaddieMind should be adjusted.
@@ -15,3 +15,13 @@ const (
 	Half HealingAdjustmentBasedOnUserMind = "half"
 	Zero HealingAdjustmentBasedOnUserMind = "zero"
 )
+
+// HitPointsHealed returns the value.
+func (h *HealingEffect) HitPointsHealed() int {
+	return h.HealingHitPointsHealed
+}
+
+// HealingAdjustmentBasedOnUserMind returns the value.
+func (h *HealingEffect) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
+	return h.HealingHealingAdjustmentBasedOnUserMind
+}
