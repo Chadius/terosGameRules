@@ -69,7 +69,6 @@ func processSquaddieAction(
 	if len(reasonsForInvalidAction) > 0 {
 		for _, reason := range reasonsForInvalidAction {
 			for _, description := range reason.Description {
-				// TODO Abstraction!
 				viewer.Messages = append(viewer.Messages, description)
 			}
 		}

@@ -34,7 +34,7 @@ func ImproveSquaddieBasedOnLevel(
 	bigLevelID string,
 	repos *repositories.RepositoryCollection,
 ) error {
-	classToUse, err := repos.ClassRepo.GetClassByID(squaddieToLevelUp.ClassProgress.CurrentClass)
+	classToUse, err := repos.ClassRepo.GetClassByID(squaddieToLevelUp.ClassProgress.CurrentClassID)
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func selectSmallLevelUpForSquaddie(
 ) *levelupbenefit.LevelUpBenefit {
 	smallLevelsToChooseFrom := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Small],
 		func(level *levelupbenefit.LevelUpBenefit) bool {
-			if squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[squaddieToLevelUp.ClassProgress.CurrentClass].IsLevelAlreadyConsumed(level.Identification.ID) {
+			if squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[squaddieToLevelUp.ClassProgress.CurrentClassID].IsLevelAlreadyConsumed(level.Identification.ID) {
 				return false
 			}
 			return true

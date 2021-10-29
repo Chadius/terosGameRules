@@ -1,10 +1,10 @@
 package squaddie
 
-// Movement contains all of the information needed to describe a Squaddie's movement.
+// Movement contains all information needed to describe a Squaddie's movement.
 type Movement struct {
-	Distance  int          `json:"distance" yaml:"distance"`
-	Type      MovementType `json:"type" yaml:"type"`
-	HitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
+	SquaddieMovementDistance int          `json:"distance" yaml:"distance"`
+	SquaddieMovementType         MovementType `json:"type" yaml:"type"`
+	SquaddieMovementCanHitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
 }
 
 // MovementType describes how Squaddies traverse terrain. This affects
@@ -31,17 +31,17 @@ var MovementValueByType = map[MovementType]int{
 	Teleport: 3,
 }
 
-// GetMovementDistancePerRound Returns the distance the Squaddie can travel.
-func (movement *Movement) GetMovementDistancePerRound() int {
-	return movement.Distance
+// MovementDistance Returns the distance the Squaddie can travel.
+func (movement *Movement) MovementDistance() int {
+	return movement.SquaddieMovementDistance
 }
 
-// GetMovementType returns the Squaddie's movement type
-func (movement *Movement) GetMovementType() MovementType {
-	return movement.Type
+// MovementType returns the Squaddie's movement type
+func (movement *Movement) MovementType() MovementType {
+	return movement.SquaddieMovementType
 }
 
 // CanHitAndRun indicates if the Squaddie can move after attacking.
 func (movement *Movement) CanHitAndRun() bool {
-	return movement.HitAndRun
+	return movement.SquaddieMovementCanHitAndRun
 }

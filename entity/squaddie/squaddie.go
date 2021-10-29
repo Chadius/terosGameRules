@@ -52,23 +52,18 @@ func NewSquaddie(name string) *Squaddie {
 			SquaddieMind:     0,
 		},
 		Movement: Movement{
-			Distance:  3,
-			Type:      Foot,
-			HitAndRun: false,
+			SquaddieMovementDistance:     3,
+			SquaddieMovementType:         Foot,
+			SquaddieMovementCanHitAndRun: false,
 		},
 	}
 	newSquaddie.Defense.SetHPToMax()
 	return &newSquaddie
 }
 
-// TODO Ask Identification if it has this error
-
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
 func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
-	if newSquaddie.Affiliation() != Player &&
-		newSquaddie.Affiliation() != Enemy &&
-		newSquaddie.Affiliation() != Ally &&
-		newSquaddie.Affiliation() != Neutral {
+	if !newSquaddie.Identification.HasValidAffiliation() {
 		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.ID(), newSquaddie.Affiliation())
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
@@ -140,4 +135,19 @@ func (s *Squaddie) Strength() int {
 // Mind delegates.
 func (s *Squaddie) Mind() int {
 	return s.Offense.Mind()
+}
+
+//MovementDistance delegates.
+func (s *Squaddie) MovementDistance() int {
+	return s.Movement.MovementDistance()
+}
+
+// MovementType delegates.
+func (s *Squaddie) MovementType() MovementType {
+	return s.Movement.MovementType()
+}
+
+// MovementCanHitAndRun delegates.
+func (s *Squaddie) MovementCanHitAndRun() bool {
+	return s.Movement.CanHitAndRun()
 }

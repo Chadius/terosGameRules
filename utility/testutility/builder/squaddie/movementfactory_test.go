@@ -15,30 +15,30 @@ var _ = Suite(&MovementBuilder{})
 
 func (suite *MovementBuilder) TestBuildWithDistance(checker *C) {
 	movement := squaddie.MovementBuilder().Distance(3).Build()
-	checker.Assert(3, Equals, movement.Distance)
+	checker.Assert(3, Equals, movement.SquaddieMovementDistance)
 }
 
 func (suite *MovementBuilder) TestBuildMovementCanHitAndRun(checker *C) {
 	movement := squaddie.MovementBuilder().CanHitAndRun().Build()
-	checker.Assert(true, Equals, movement.HitAndRun)
+	checker.Assert(true, Equals, movement.SquaddieMovementCanHitAndRun)
 }
 
 func (suite *MovementBuilder) TestChangeMovementFoot(checker *C) {
 	movement := squaddie.MovementBuilder().Foot().Build()
-	checker.Assert(squaddieEntity.Foot, Equals, movement.Type)
+	checker.Assert(squaddieEntity.Foot, Equals, movement.SquaddieMovementType)
 }
 
 func (suite *MovementBuilder) TestChangeMovementLight(checker *C) {
 	movement := squaddie.MovementBuilder().Light().Build()
-	checker.Assert(squaddieEntity.Light, Equals, movement.Type)
+	checker.Assert(squaddieEntity.Light, Equals, movement.SquaddieMovementType)
 }
 
 func (suite *MovementBuilder) TestChangeMovementFly(checker *C) {
 	movement := squaddie.MovementBuilder().Fly().Build()
-	checker.Assert(squaddieEntity.Fly, Equals, movement.Type)
+	checker.Assert(squaddieEntity.Fly, Equals, movement.SquaddieMovementType)
 }
 
 func (suite *MovementBuilder) TestChangeMovementTeleport(checker *C) {
 	movement := squaddie.MovementBuilder().Teleport().Build()
-	checker.Assert(squaddieEntity.Teleport, Equals, movement.Type)
+	checker.Assert(squaddieEntity.Teleport, Equals, movement.SquaddieMovementType)
 }

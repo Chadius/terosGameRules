@@ -6,12 +6,10 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
-// TODO Rename CurrentClass to CurrentClassID
-
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.
 type ClassProgress struct {
 	BaseClassID         string                          `json:"base_class" yaml:"base_class"`
-	CurrentClass        string                          `json:"current_class" yaml:"current_class"`
+	CurrentClassID      string                          `json:"current_class" yaml:"current_class"`
 	ClassLevelsConsumed map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
 }
 
@@ -39,7 +37,7 @@ func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID,
 	classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed = append(classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
 }
 
-// SetClass changes the ClassProgress's CurrentClass to the given classID.
+// SetClass changes the ClassProgress's CurrentClassID to the given classID.
 //   It also sets the BaseClass if it hasn't been already.
 //   Raises an error if classID has not been added to the squaddie yet.
 func (classProgress *ClassProgress) SetClass(classID string) error {
@@ -53,7 +51,7 @@ func (classProgress *ClassProgress) SetClass(classID string) error {
 		classProgress.BaseClassID = classID
 	}
 
-	classProgress.CurrentClass = classID
+	classProgress.CurrentClassID = classID
 	return nil
 }
 

@@ -12,7 +12,6 @@ import (
 
 // improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.
 func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
-	// TODO Tell the squaddie to improve its stats.
 	if benefit.Defense != nil {
 		squaddieToImprove.Defense.SquaddieMaxHitPoints = squaddieToImprove.MaxHitPoints() + benefit.Defense.MaxHitPoints
 		squaddieToImprove.Defense.SquaddieDodge = squaddieToImprove.Dodge() + benefit.Defense.Dodge
@@ -79,13 +78,13 @@ func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToI
 		return
 	}
 
-	squaddieToImprove.Movement.Distance = squaddieToImprove.Movement.Distance + benefit.Movement.Distance
+	squaddieToImprove.Movement.SquaddieMovementDistance = squaddieToImprove.Movement.SquaddieMovementDistance + benefit.Movement.SquaddieMovementDistance
 
-	if squaddie.MovementValueByType[squaddieToImprove.Movement.Type] < squaddie.MovementValueByType[benefit.Movement.Type] {
-		squaddieToImprove.Movement.Type = benefit.Movement.Type
+	if squaddie.MovementValueByType[squaddieToImprove.Movement.SquaddieMovementType] < squaddie.MovementValueByType[benefit.Movement.SquaddieMovementType] {
+		squaddieToImprove.Movement.SquaddieMovementType = benefit.Movement.SquaddieMovementType
 	}
 
-	if benefit.Movement.HitAndRun {
-		squaddieToImprove.Movement.HitAndRun = benefit.Movement.HitAndRun
+	if benefit.Movement.SquaddieMovementCanHitAndRun {
+		squaddieToImprove.Movement.SquaddieMovementCanHitAndRun = benefit.Movement.SquaddieMovementCanHitAndRun
 	}
 }

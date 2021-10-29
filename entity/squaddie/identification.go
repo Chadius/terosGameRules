@@ -1,6 +1,8 @@
 package squaddie
 
-import "github.com/chadius/terosbattleserver/utility"
+import (
+	"github.com/chadius/terosbattleserver/utility"
+)
 
 // Identification is akin to an SquaddieID card for each Squaddie. Each Squaddie carries a unique Identification.
 type Identification struct {
@@ -27,4 +29,16 @@ func (identification *Identification) Name() string{
 // Affiliation shows what affiliation the squaddie is a part of.
 func (identification *Identification) Affiliation() Affiliation {
 	return identification.SquaddieAffiliation
+}
+
+// HasValidAffiliation makes sure the created squaddie doesn't have an error.
+func (identification *Identification) HasValidAffiliation() bool {
+	if identification.Affiliation() != Player &&
+		identification.Affiliation() != Enemy &&
+		identification.Affiliation() != Ally &&
+		identification.Affiliation() != Neutral {
+		return false
+	}
+
+	return true
 }

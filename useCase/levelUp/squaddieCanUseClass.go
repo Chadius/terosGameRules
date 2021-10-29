@@ -16,11 +16,11 @@ func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID 
 		return false
 	}
 
-	if squaddieToTest.ClassProgress.CurrentClass == testingClassID {
+	if squaddieToTest.ClassProgress.CurrentClassID == testingClassID {
 		return false
 	}
 
-	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.ClassProgress.CurrentClass, repositories) == false {
+	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.ClassProgress.CurrentClassID, repositories) == false {
 		return false
 	}
 

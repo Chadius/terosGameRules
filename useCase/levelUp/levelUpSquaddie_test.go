@@ -127,25 +127,25 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestUsingLevelSetsBaseClassIfBaseC
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker *C) {
-	startingMovement := suite.teros.Movement.GetMovementDistancePerRound()
+	startingMovement := suite.teros.Movement.MovementDistance()
 
 	err := levelup.ImproveSquaddie(suite.improveAllMovement, suite.teros, nil)
 	checker.Assert(err, IsNil)
 
-	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, startingMovement+1)
-	checker.Assert(suite.teros.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
+	checker.Assert(suite.teros.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovement(checker *C) {
-	startingMovement := suite.teros.Movement.GetMovementDistancePerRound()
+	startingMovement := suite.teros.Movement.MovementDistance()
 	levelup.ImproveSquaddie(suite.improveAllMovement, suite.teros, nil)
 
 	err := levelup.ImproveSquaddie(suite.upgradeToLightMovement, suite.teros, nil)
 	checker.Assert(err, IsNil)
 
-	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, startingMovement+1)
-	checker.Assert(suite.teros.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
+	checker.Assert(suite.teros.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
 }
 

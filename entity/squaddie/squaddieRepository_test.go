@@ -1,8 +1,6 @@
 package squaddie_test
 
 import (
-	"bytes"
-	"fmt"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
@@ -193,26 +191,26 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 
 	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
 	checker.Assert(soldier.Name(), Equals, "Soldier")
-	checker.Assert(soldier.Movement.GetMovementDistancePerRound(), Equals, 5)
-	checker.Assert(soldier.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Foot))
+	checker.Assert(soldier.Movement.MovementDistance(), Equals, 5)
+	checker.Assert(soldier.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Foot))
 	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
 
 	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
 	checker.Assert(scout.Name(), Equals, "Scout")
-	checker.Assert(scout.Movement.GetMovementDistancePerRound(), Equals, 4)
-	checker.Assert(scout.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Light))
+	checker.Assert(scout.Movement.MovementDistance(), Equals, 4)
+	checker.Assert(scout.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Light))
 	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
 
 	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
 	checker.Assert(bird.Name(), Equals, "Bird")
-	checker.Assert(bird.Movement.GetMovementDistancePerRound(), Equals, 3)
-	checker.Assert(bird.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(bird.Movement.MovementDistance(), Equals, 3)
+	checker.Assert(bird.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
 
 	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
 	checker.Assert(teleporter.Name(), Equals, "Teleporter")
-	checker.Assert(teleporter.Movement.GetMovementDistancePerRound(), Equals, 2)
-	checker.Assert(teleporter.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
+	checker.Assert(teleporter.Movement.MovementDistance(), Equals, 2)
+	checker.Assert(teleporter.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
 	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
@@ -221,54 +219,6 @@ func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
 	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
 	referencedSquaddie := suite.squaddieRepository.GetOriginalSquaddieByID(originalSquaddie.ID())
 	checker.Assert(referencedSquaddie, Equals, originalSquaddie)
-}
-
-func (suite *SquaddieRepositorySuite) TestMarshallIntoJSON(checker *C) {
-	byteStream, err := suite.squaddieRepository.MarshalSquaddieIntoJSON(suite.teros)
-	checker.Assert(err, IsNil)
-
-	hasIDNameAffiliationInJSON := bytes.Contains(byteStream, []byte(fmt.Sprintf(`"id":"%s","name":"Teros","affiliation":"Player"`, suite.teros.ID())))
-	checker.Assert(hasIDNameAffiliationInJSON, Equals, true)
-
-	hasDefaultHitPointsInJSON := bytes.Contains(byteStream, []byte(`"current_hit_points":5,"max_hit_points":5`))
-	checker.Assert(hasDefaultHitPointsInJSON, Equals, true)
-
-	hasOffensiveStatsInJSON := bytes.Contains(byteStream, []byte(`"aim":0,"strength":0,"mind":0`))
-	checker.Assert(hasOffensiveStatsInJSON, Equals, true)
-
-	hasDefensiveStatsInJSON := bytes.Contains(byteStream, []byte(`"dodge":3,"deflect":4,"current_barrier":0,"max_barrier":1,"armor":2`))
-	checker.Assert(hasDefensiveStatsInJSON, Equals, true)
-
-	hasDefaultMovementInJSON := bytes.Contains(byteStream, []byte(`"movement":{"distance":3,"type":"foot","hit_and_run":false}`))
-	checker.Assert(hasDefaultMovementInJSON, Equals, true)
-
-	hasNoPowersInJSON := bytes.Contains(byteStream, []byte(`"powers":[]`))
-	checker.Assert(hasNoPowersInJSON, Equals, true)
-
-	hasNoClassesInJSON := bytes.Contains(byteStream, []byte(`"base_class":"","current_class":"","class_levels":{}`))
-	checker.Assert(hasNoClassesInJSON, Equals, true)
-}
-
-func (suite *SquaddieRepositorySuite) TestMarshallSquaddieMovement(checker *C) {
-	suite.teros.Movement.Type = squaddie.Teleport
-	suite.teros.Movement.Distance = 8
-	suite.teros.Movement.HitAndRun = true
-
-	byteStream, err := suite.squaddieRepository.MarshalSquaddieIntoJSON(suite.teros)
-	checker.Assert(err, IsNil)
-	movementJSON := `"movement":{"distance":8,"type":"teleport","hit_and_run":true}`
-	containsPowersJSON := bytes.Contains(byteStream, []byte(movementJSON))
-	checker.Assert(containsPowersJSON, Equals, true)
-}
-
-func (suite *SquaddieRepositorySuite) TestMarshallSquaddiePowers(checker *C) {
-	suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	byteStream, err := suite.squaddieRepository.MarshalSquaddieIntoJSON(suite.teros)
-	checker.Assert(err, IsNil)
-
-	powersJSON := fmt.Sprintf(`"powers":[{"name":"Attack Formation A","id":"%s"}]`, suite.attackA.ID)
-	containsPowersJSON := bytes.Contains(byteStream, []byte(powersJSON))
-	checker.Assert(containsPowersJSON, Equals, true)
 }
 
 func (suite *SquaddieRepositorySuite) TestLoadSquaddieByYAML(checker *C) {
@@ -364,26 +314,26 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML
 
 	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
 	checker.Assert(soldier.Name(), Equals, "Soldier")
-	checker.Assert(soldier.Movement.GetMovementDistancePerRound(), Equals, 5)
-	checker.Assert(soldier.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Foot))
+	checker.Assert(soldier.Movement.MovementDistance(), Equals, 5)
+	checker.Assert(soldier.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Foot))
 	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
 
 	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
 	checker.Assert(scout.Name(), Equals, "Scout")
-	checker.Assert(scout.Movement.GetMovementDistancePerRound(), Equals, 4)
-	checker.Assert(scout.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Light))
+	checker.Assert(scout.Movement.MovementDistance(), Equals, 4)
+	checker.Assert(scout.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Light))
 	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
 
 	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
 	checker.Assert(bird.Name(), Equals, "Bird")
-	checker.Assert(bird.Movement.GetMovementDistancePerRound(), Equals, 3)
-	checker.Assert(bird.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(bird.Movement.MovementDistance(), Equals, 3)
+	checker.Assert(bird.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
 	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
 
 	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
 	checker.Assert(teleporter.Name(), Equals, "Teleporter")
-	checker.Assert(teleporter.Movement.GetMovementDistancePerRound(), Equals, 2)
-	checker.Assert(teleporter.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
+	checker.Assert(teleporter.Movement.MovementDistance(), Equals, 2)
+	checker.Assert(teleporter.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
 	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
@@ -458,15 +408,15 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesBasicStats(checker *C) {
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 	suite.base.Movement = squaddie.Movement{
-		Distance:  suite.base.Movement.Distance + 2,
-		Type:      squaddie.Fly,
-		HitAndRun: true,
+		SquaddieMovementDistance:     suite.base.Movement.SquaddieMovementDistance + 2,
+		SquaddieMovementType:         squaddie.Fly,
+		SquaddieMovementCanHitAndRun: true,
 	}
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
-	checker.Assert(clone.Movement.Distance, Equals, suite.base.Movement.Distance)
-	checker.Assert(clone.Movement.Type, Equals, suite.base.Movement.Type)
-	checker.Assert(clone.Movement.HitAndRun, Equals, suite.base.Movement.HitAndRun)
+	checker.Assert(clone.Movement.SquaddieMovementDistance, Equals, suite.base.Movement.SquaddieMovementDistance)
+	checker.Assert(clone.Movement.SquaddieMovementType, Equals, suite.base.Movement.SquaddieMovementType)
+	checker.Assert(clone.Movement.SquaddieMovementCanHitAndRun, Equals, suite.base.Movement.SquaddieMovementCanHitAndRun)
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
@@ -502,7 +452,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 	checker.Assert(clone.ClassProgress.BaseClassID, Equals, suite.base.ClassProgress.BaseClassID)
-	checker.Assert(clone.ClassProgress.CurrentClass, Equals, suite.base.ClassProgress.CurrentClass)
+	checker.Assert(clone.ClassProgress.CurrentClassID, Equals, suite.base.ClassProgress.CurrentClassID)
 	for classID, levelsConsumed := range suite.base.ClassProgress.ClassLevelsConsumed {
 		checker.Assert(clone.ClassProgress.ClassLevelsConsumed[classID], NotNil)
 

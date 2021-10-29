@@ -17,6 +17,6 @@ func (suite *SquaddieMovementTests) SetUpTest(checker *C) {
 }
 
 func (suite *SquaddieMovementTests) TestDefaultMovement(checker *C) {
-	checker.Assert(suite.teros.Movement.GetMovementDistancePerRound(), Equals, 3)
-	checker.Assert(suite.teros.Movement.GetMovementType(), Equals, squaddie.MovementType(squaddie.Foot))
+	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, 3)
+	checker.Assert(suite.teros.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Foot))
 }

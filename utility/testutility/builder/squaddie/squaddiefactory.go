@@ -1,6 +1,7 @@
 package squaddie
 
 import (
+	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
@@ -243,14 +244,20 @@ type BuilderOptionMarshal struct {
 	Aim int `json:"aim" yaml:"aim"`
 	Strength int `json:"strength" yaml:"strength"`
 	Mind int `json:"mind" yaml:"mind"`
-	//movement_distance: 19
-	//movement_type: Light
-	//hit_and_run: true
+
+	MovementDistance int `json:"movement_distance" yaml:"movement_distance"`
+	MovementType squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
+	MovementCanHitAndRun bool `json:"hit_and_run" yaml:"hit_and_run"`
 }
 
 // UsingYAML uses the yaml data to generate BuilderOptions.
 func (s *BuilderOptions) UsingYAML(yamlData []byte) *BuilderOptions {
 	return s.usingByteStream(yamlData, yaml.Unmarshal)
+}
+
+// UsingJSON uses the json data to generate BuilderOptions.
+func (s *BuilderOptions) UsingJSON(jsonData []byte) *BuilderOptions {
+	return s.usingByteStream(jsonData, json.Unmarshal)
 }
 
 func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) *BuilderOptions {
@@ -265,7 +272,8 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 
 	s.WithID(marshaledOptions.ID).WithName(marshaledOptions.Name).
 		HitPoints(marshaledOptions.MaxHitPoints).Dodge(marshaledOptions.Dodge).Deflect(marshaledOptions.Deflect).Barrier(marshaledOptions.MaxBarrier).Armor(marshaledOptions.Armor).
-		Aim(marshaledOptions.Aim).Strength(marshaledOptions.Strength).Mind(marshaledOptions.Mind)
+		Aim(marshaledOptions.Aim).Strength(marshaledOptions.Strength).Mind(marshaledOptions.Mind).
+		MoveDistance(marshaledOptions.MovementDistance)
 
 	if marshaledOptions.Affiliation == squaddie.Player {
 		s.AsPlayer()
@@ -278,6 +286,23 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 	}
 	if marshaledOptions.Affiliation == squaddie.Neutral {
 		s.AsNeutral()
+	}
+
+	if marshaledOptions.MovementType == squaddie.Foot {
+		s.MovementFoot()
+	}
+	if marshaledOptions.MovementType == squaddie.Light {
+		s.MovementLight()
+	}
+	if marshaledOptions.MovementType == squaddie.Fly {
+		s.MovementFly()
+	}
+	if marshaledOptions.MovementType == squaddie.Teleport {
+		s.MovementTeleport()
+	}
+
+	if marshaledOptions.MovementCanHitAndRun == true {
+		s.CanHitAndRun()
 	}
 	return s
 }

@@ -240,7 +240,7 @@ func (suite *SquaddieQualifiesForClassSuite) TestCannotSwitchToCompletedClass(ch
 	levelup.ImproveSquaddie(suite.dimensionWalkerLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.dimensionWalkerLevel1, suite.teros, nil)
 	suite.teros.ClassProgress.SetClass(suite.ancientTomeClass.ID)
-	checker.Assert(suite.teros.ClassProgress.CurrentClass, Equals, suite.ancientTomeClass.ID)
+	checker.Assert(suite.teros.ClassProgress.CurrentClassID, Equals, suite.ancientTomeClass.ID)
 	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
 	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, false)
 	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, false)

@@ -79,19 +79,6 @@ func (repository *Repository) GetNumberOfSquaddies() int {
 	return len(repository.squaddiesByID)
 }
 
-// MarshalSquaddieIntoJSON converts the given Squaddie into JSON.
-func (repository *Repository) MarshalSquaddieIntoJSON(squaddie *Squaddie) ([]byte, error) {
-	type Alias Squaddie
-
-	return json.Marshal(&struct {
-		*Alias
-		PowerIDNames []*power.Reference `json:"powers" yaml:"powers"`
-	}{
-		Alias:        (*Alias)(squaddie),
-		PowerIDNames: squaddie.PowerCollection.GetInnatePowerIDNames(),
-	})
-}
-
 //CloneSquaddieWithNewID uses the base Squaddie to create a new one.
 //  All fields will be the same except the SquaddieID.
 //  If newID isn't empty, the clone SquaddieID is set to that.
@@ -120,14 +107,16 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 		SquaddieArmor: base.Armor(),
 	}
 
-	clone.Movement.Distance = base.Movement.Distance
-	clone.Movement.Type = base.Movement.Type
-	clone.Movement.HitAndRun = base.Movement.HitAndRun
+	clone.Movement = Movement{
+		SquaddieMovementDistance: base.MovementDistance(),
+		SquaddieMovementType: base.MovementType(),
+		SquaddieMovementCanHitAndRun: base.MovementCanHitAndRun(),
+	}
 
 	clone.PowerCollection.PowerReferences = append([]*power.Reference{}, base.PowerCollection.PowerReferences...)
 
 	clone.ClassProgress.BaseClassID = base.ClassProgress.BaseClassID
-	clone.ClassProgress.CurrentClass = base.ClassProgress.CurrentClass
+	clone.ClassProgress.CurrentClassID = base.ClassProgress.CurrentClassID
 
 	for classID, progress := range base.ClassProgress.ClassLevelsConsumed {
 		newProgress := ClassLevelsConsumed{

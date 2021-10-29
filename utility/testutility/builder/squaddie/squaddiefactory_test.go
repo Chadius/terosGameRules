@@ -97,32 +97,32 @@ var _ = Suite(&SquaddieMovementBuilder{})
 
 func (suite *SquaddieMovementBuilder) TestBuildWithDistance(checker *C) {
 	soldier := squaddie.Builder().MoveDistance(3).Build()
-	checker.Assert(3, Equals, soldier.Movement.Distance)
+	checker.Assert(3, Equals, soldier.Movement.SquaddieMovementDistance)
 }
 
 func (suite *SquaddieMovementBuilder) TestBuildMovementCanHitAndRun(checker *C) {
 	runner := squaddie.Builder().CanHitAndRun().Build()
-	checker.Assert(true, Equals, runner.Movement.HitAndRun)
+	checker.Assert(true, Equals, runner.Movement.SquaddieMovementCanHitAndRun)
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFoot(checker *C) {
 	soldier := squaddie.Builder().MovementFoot().Build()
-	checker.Assert(squaddieEntity.Foot, Equals, soldier.Movement.Type)
+	checker.Assert(squaddieEntity.Foot, Equals, soldier.Movement.SquaddieMovementType)
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementLight(checker *C) {
 	ninja := squaddie.Builder().MovementLight().Build()
-	checker.Assert(squaddieEntity.Light, Equals, ninja.Movement.Type)
+	checker.Assert(squaddieEntity.Light, Equals, ninja.Movement.SquaddieMovementType)
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFly(checker *C) {
 	bird := squaddie.Builder().MovementFly().Build()
-	checker.Assert(squaddieEntity.Fly, Equals, bird.Movement.Type)
+	checker.Assert(squaddieEntity.Fly, Equals, bird.Movement.SquaddieMovementType)
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementTeleport(checker *C) {
 	wizard := squaddie.Builder().MovementTeleport().Build()
-	checker.Assert(squaddieEntity.Teleport, Equals, wizard.Movement.Type)
+	checker.Assert(squaddieEntity.Teleport, Equals, wizard.Movement.SquaddieMovementType)
 }
 
 type SquaddiePowerBuilder struct{}
@@ -148,7 +148,7 @@ func (suite *SquaddieClassBuilder) TestBuildAddClass(checker *C) {
 func (suite *SquaddieClassBuilder) TestBuildSetClass(checker *C) {
 	mageClass := squaddieclass.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
 	teros := squaddie.Builder().AddClass(mageClass).SetClass(mageClass).Build()
-	checker.Assert(mageClass.ID, Equals, teros.ClassProgress.CurrentClass)
+	checker.Assert(mageClass.ID, Equals, teros.ClassProgress.CurrentClassID)
 }
 
 type SpecificSquaddieBuilder struct{}
@@ -175,13 +175,15 @@ func (suite *SpecificSquaddieBuilder) TestBuildMysticMage(checker *C) {
 	checker.Assert("Mystic Mage", Equals, mysticMage.Name())
 }
 
-type YAMLBuilderSuite struct{}
+type YAMLBuilderSuite struct{
+	yamlData []byte
+}
 
 var _ = Suite(&YAMLBuilderSuite{})
 
-func (suite *YAMLBuilderSuite) TestBuildFromYAML(checker *C) {
-	yamlData := []byte(
-`
+func (suite *YAMLBuilderSuite) SetUpTest(checker *C) {
+	suite.yamlData = []byte(
+		`
 id: squaddie_yaml
 name: YAML squaddie
 affiliation: Enemy
@@ -194,31 +196,105 @@ aim: 11
 strength: 13
 mind: 17
 movement_distance: 19
-movement_type: Light
+movement_type: light
 hit_and_run: true
 `)
+}
 
-	// TODO how to handle adding Squaddie Classes?
-
-	// TODO TestBuildFromYAML could be its own test suite, divided by Squaddie subsection
-
-	yamlSquaddie := squaddie.Builder().UsingYAML(yamlData).Build()
+func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlSquaddie.ID(), Equals, "squaddie_yaml")
 	checker.Assert(yamlSquaddie.Name(), Equals, "YAML squaddie")
 	checker.Assert(yamlSquaddie.Affiliation(), Equals, squaddieEntity.Enemy)
+}
+
+func (suite *YAMLBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlSquaddie.MaxHitPoints(), Equals, 2)
 	checker.Assert(yamlSquaddie.Dodge(), Equals, 3)
 	checker.Assert(yamlSquaddie.Deflect(), Equals, 5)
 	checker.Assert(yamlSquaddie.MaxBarrier(), Equals, 7)
 	checker.Assert(yamlSquaddie.Armor(), Equals, 9)
+}
+
+func (suite *YAMLBuilderSuite) TestOffenseMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlSquaddie.Aim(), Equals, 11)
 	checker.Assert(yamlSquaddie.Strength(), Equals, 13)
 	checker.Assert(yamlSquaddie.Mind(), Equals, 17)
 
-	//checker.Assert(yamlSquaddie.MovementDistance(), Equals, 19)
-	//checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Light)
-	//checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
+}
+
+func (suite *YAMLBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
+
+	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 19)
+	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Light)
+	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
+}
+
+type JSONBuilderSuite struct{
+	jsonData []byte
+}
+
+var _ = Suite(&JSONBuilderSuite{})
+
+func (suite *JSONBuilderSuite) SetUpTest(checker *C) {
+	suite.jsonData = []byte(
+		`
+{
+   "id": "squaddie_json",
+   "name": "JSON squaddie",
+   "affiliation": "Ally",
+   "max_hit_points": 23,
+   "dodge": 19,
+   "deflect": 17,
+   "max_barrier": 13,
+   "armor": 11,
+   "aim": 7,
+   "strength": 5,
+   "mind": 3,
+   "movement_distance": 2,
+   "movement_type": "teleport",
+   "hit_and_run": true
+}
+`)
+}
+
+func (suite *JSONBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+
+	checker.Assert(yamlSquaddie.ID(), Equals, "squaddie_json")
+	checker.Assert(yamlSquaddie.Name(), Equals, "JSON squaddie")
+	checker.Assert(yamlSquaddie.Affiliation(), Equals, squaddieEntity.Ally)
+}
+
+func (suite *JSONBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+
+	checker.Assert(yamlSquaddie.MaxHitPoints(), Equals, 23)
+	checker.Assert(yamlSquaddie.Dodge(), Equals, 19)
+	checker.Assert(yamlSquaddie.Deflect(), Equals, 17)
+	checker.Assert(yamlSquaddie.MaxBarrier(), Equals, 13)
+	checker.Assert(yamlSquaddie.Armor(), Equals, 11)
+}
+
+func (suite *JSONBuilderSuite) TestOffenseMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+
+	checker.Assert(yamlSquaddie.Aim(), Equals, 7)
+	checker.Assert(yamlSquaddie.Strength(), Equals, 5)
+	checker.Assert(yamlSquaddie.Mind(), Equals, 3)
+
+}
+
+func (suite *JSONBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+
+	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 2)
+	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Teleport)
+	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
 }
