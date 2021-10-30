@@ -203,17 +203,14 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 	checker.Assert(
 		suite.bandit.CurrentHitPoints(),
 		Equals,
-		suite.bandit.MaxHitPoints() - suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.RawDamageDealt,
+		suite.bandit.MaxHitPoints()-suite.resultBlotOnBandit.ResultPerTarget[0].Attack.Damage.RawDamageDealt,
 	)
 }
 
 func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		CriticalEffect: &power.CriticalEffect{
-			CriticalHitThresholdBonus: 9000,
-			Damage:                    3,
-		},
+		CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(9000).DealsDamage(3).Build(),
 	}
 
 	suite.teros.Offense.SquaddieMind = 2
@@ -277,7 +274,7 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 	checker.Assert(
 		suite.teros.CurrentHitPoints(),
 		Equals,
-		suite.teros.MaxHitPoints() - suite.resultSpearOnBandit.ResultPerTarget[1].Attack.Damage.RawDamageDealt,
+		suite.teros.MaxHitPoints()-suite.resultSpearOnBandit.ResultPerTarget[1].Attack.Damage.RawDamageDealt,
 	)
 }
 
@@ -289,10 +286,10 @@ func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
 	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
 
-	suite.bandit.Defense.SquaddieMaxHitPoints = suite.fireball.AttackEffect.AttackDamageBonus + suite.mysticMage.Mind() + 1
+	suite.bandit.Defense.SquaddieMaxHitPoints = suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1
 	suite.bandit.Defense.SetHPToMax()
 
-	suite.bandit2.Defense.SquaddieMaxHitPoints = suite.fireball.AttackEffect.AttackDamageBonus + suite.mysticMage.Mind() + 1
+	suite.bandit2.Defense.SquaddieMaxHitPoints = suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1
 	suite.bandit2.Defense.SetHPToMax()
 
 	suite.forecastFireballOnBandits.CalculateForecast()

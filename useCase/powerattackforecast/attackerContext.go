@@ -28,7 +28,7 @@ func (context *AttackerContext) calculate(setup powerusagescenario.Setup, reposi
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
 
 	context.DamageType = power.PowerType
-	context.ExtraBarrierBurn = power.AttackEffect.AttackExtraBarrierBurn
+	context.ExtraBarrierBurn = power.ExtraBarrierBurn()
 
 	context.RawDamage, err = context.calculateRawDamage(setup, repositories)
 	if err != nil {
@@ -76,7 +76,7 @@ func (context *AttackerContext) calculateCriticalHit(setup powerusagescenario.Se
 	if power.AttackEffect == nil {
 		return nil
 	}
-	context.CanCritical = power.AttackEffect.CanCriticallyHit()
+	context.CanCritical = power.CanCriticallyHit()
 
 	canCounter, counterErr := squaddiestats.GetSquaddieCanCriticallyHitWithPower(setup.UserID, setup.PowerID, repositories)
 	if counterErr != nil {

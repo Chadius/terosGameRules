@@ -6,7 +6,7 @@ import (
 
 // Identification is akin to an SquaddieID card for each Squaddie. Each Squaddie carries a unique Identification.
 type Identification struct {
-	SquaddieID   string      `json:"id" yaml:"id"`
+	SquaddieID          string      `json:"id" yaml:"id"`
 	SquaddieName        string      `json:"name" yaml:"name"`
 	SquaddieAffiliation Affiliation `json:"affiliation" yaml:"affiliation"`
 }
@@ -17,12 +17,12 @@ func (identification *Identification) SetNewIDToRandom() {
 }
 
 // ID returns the squaddieID.
-func (identification *Identification) ID() string{
+func (identification *Identification) ID() string {
 	return identification.SquaddieID
 }
 
 // Name returns the squaddie's name.
-func (identification *Identification) Name() string{
+func (identification *Identification) Name() string {
 	return identification.SquaddieName
 }
 

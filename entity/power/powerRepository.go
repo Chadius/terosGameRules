@@ -40,6 +40,12 @@ func (repository *Repository) AddSlicePowerSource(powersToAdd []*Power) (bool, e
 	return true, nil
 }
 
+// AddPower tries to add a single power to the repository.
+func (repository *Repository) AddPower(powerToAdd *Power) (bool, error) {
+	success, err := repository.tryToAddPower(powerToAdd)
+	return success, err
+}
+
 // addSource consumes a given bytestream of the given sourceType and tries to analyze it.
 func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error

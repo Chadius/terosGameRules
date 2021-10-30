@@ -242,29 +242,29 @@ func (p *BuilderOptions) HealingStaff() *BuilderOptions {
 
 // BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
 type BuilderOptionMarshal struct {
-	ID   string `json:"id" yaml:"id"`
-	Name string `json:"name" yaml:"name"`
-	PowerType     power.DamageType       `json:"power_type" yaml:"power_type"`
+	ID        string           `json:"id" yaml:"id"`
+	Name      string           `json:"name" yaml:"name"`
+	PowerType power.DamageType `json:"power_type" yaml:"power_type"`
 
 	TargetSelf   bool `json:"target_self" yaml:"target_self"`
 	TargetFoe    bool `json:"target_foe" yaml:"target_foe"`
 	TargetFriend bool `json:"target_friend" yaml:"target_friend"`
 
-	CanAttack bool `json:"can_attack" yaml:"can_attack"`
-	ToHitBonus                    int             `json:"to_hit_bonus" yaml:"to_hit_bonus"`
-	DamageBonus                   int             `json:"damage_bonus" yaml:"damage_bonus"`
-	ExtraBarrierBurn              int             `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
-	CanBeEquipped                 bool            `json:"can_be_equipped" yaml:"can_be_equipped"`
-	CanCounterAttack              bool            `json:"can_counter_attack" yaml:"can_counter_attack"`
-	CounterAttackPenaltyReduction int             `json:"counter_attack_penalty_reduction" yaml:"counter_attack_penalty_reduction"`
+	CanAttack                     bool `json:"can_attack" yaml:"can_attack"`
+	ToHitBonus                    int  `json:"to_hit_bonus" yaml:"to_hit_bonus"`
+	DamageBonus                   int  `json:"damage_bonus" yaml:"damage_bonus"`
+	ExtraBarrierBurn              int  `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
+	CanBeEquipped                 bool `json:"can_be_equipped" yaml:"can_be_equipped"`
+	CanCounterAttack              bool `json:"can_counter_attack" yaml:"can_counter_attack"`
+	CounterAttackPenaltyReduction int  `json:"counter_attack_penalty_reduction" yaml:"counter_attack_penalty_reduction"`
 
-	CanCritical bool `json:"can_critical" yaml:"can_critical"`
-	CriticalHitThresholdBonus int `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
-	CriticalDamage                    int `json:"critical_damage" yaml:"critical_damage"`
+	CanCritical               bool `json:"can_critical" yaml:"can_critical"`
+	CriticalHitThresholdBonus int  `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
+	CriticalDamage            int  `json:"critical_damage" yaml:"critical_damage"`
 
-	CanHeal bool `json:"can_heal" yaml:"can_heal"`
+	CanHeal                          bool                                   `json:"can_heal" yaml:"can_heal"`
 	HealingAdjustmentBasedOnUserMind power.HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
-	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
+	HitPointsHealed                  int                                    `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
 
 // UsingYAML uses the yaml data to generate BuilderOptions.
@@ -328,9 +328,81 @@ func (p *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 		p.IsSpell()
 	}
 
-	if marshaledOptions.TargetSelf == true { p.TargetsSelf() }
-	if marshaledOptions.TargetFoe == true { p.TargetsFoe() }
-	if marshaledOptions.TargetFriend == true { p.TargetsFriend() }
+	if marshaledOptions.TargetSelf == true {
+		p.TargetsSelf()
+	}
+	if marshaledOptions.TargetFoe == true {
+		p.TargetsFoe()
+	}
+	if marshaledOptions.TargetFriend == true {
+		p.TargetsFriend()
+	}
+
+	return p
+}
+
+// CloneOf modifies the BuilderOptions based on the source, except for the ID.
+func (p *BuilderOptions) CloneOf(source *power.Power) *BuilderOptions {
+	p.WithName(source.Name())
+
+	if source.Type() == power.Physical {
+		p.IsPhysical()
+	}
+	if source.Type() == power.Spell {
+		p.IsSpell()
+	}
+
+	if source.CanPowerTargetFoe() {
+		p.TargetsFoe()
+	}
+
+	if source.CanPowerTargetFriend() {
+		p.TargetsFriend()
+	}
+
+	if source.CanPowerTargetSelf() {
+		p.TargetsSelf()
+	}
+
+	if source.CanAttack() {
+		p.ToHitBonus(source.ToHitBonus()).DealsDamage(source.DamageBonus()).ExtraBarrierBurn(source.ExtraBarrierBurn()).
+			CounterAttackPenaltyReduction(source.CounterAttackPenaltyReduction())
+
+		if source.CanCritical() {
+			p.CriticalHitThresholdBonus(source.CriticalHitThresholdBonus()).CriticalDealsDamage(source.ExtraCriticalHitDamage())
+		}
+
+		if source.CanBeEquipped() {
+			p.CanBeEquipped()
+		}
+		if source.CanCounterAttack() {
+			p.CanCounterAttack()
+		}
+
+		if source.CanPowerTargetFriend() {
+			p.TargetsFriend()
+		}
+		if source.CanPowerTargetFoe() {
+			p.TargetsFoe()
+		}
+		if source.CanPowerTargetSelf() {
+			p.TargetsSelf()
+		}
+	}
+
+	if source.CanHeal() {
+		p.HitPointsHealed(source.HitPointsHealed())
+
+		if source.HealingAdjustmentBasedOnUserMind() == power.Full {
+			p.HealingAdjustmentBasedOnUserMindFull()
+		}
+		if source.HealingAdjustmentBasedOnUserMind() == power.Half {
+			p.HealingAdjustmentBasedOnUserMindHalf()
+		}
+		if source.HealingAdjustmentBasedOnUserMind() == power.Zero {
+			p.HealingAdjustmentBasedOnUserMindZero()
+		}
+	}
 
 	return p
 }

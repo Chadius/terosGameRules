@@ -41,6 +41,15 @@ func (repository *Repository) AddSquaddies(squaddies []*Squaddie) (bool, error) 
 	return true, nil
 }
 
+// AddSquaddie adds a Squaddie to the repository.
+func (repository *Repository) AddSquaddie(squaddieToAdd *Squaddie) (bool, error) {
+	_, err := repository.tryToAddSquaddie(squaddieToAdd)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
 func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
@@ -52,6 +61,7 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	}
 	for index := range listOfSquaddies {
 		newSquaddie := listOfSquaddies[index]
+		newSquaddie.Defense.SetHPToMax()
 		success, err := repository.tryToAddSquaddie(&newSquaddie)
 		if success == false {
 			return false, err
@@ -65,7 +75,6 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 	if squaddieErr != nil {
 		return false, squaddieErr
 	}
-	squaddieToAdd.Defense.SetHPToMax()
 
 	if squaddieToAdd.ID() == "" {
 		squaddieToAdd.Identification.SetNewIDToRandom()
@@ -85,31 +94,37 @@ func (repository *Repository) GetNumberOfSquaddies() int {
 //  Otherwise, it is randomly generated.
 func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
 	clone := NewSquaddie(base.Name())
+
+	cloneSquaddieID := clone.ID()
+	if newID != "" {
+		cloneSquaddieID = newID
+	}
+
 	clone.Identification = Identification{
-		SquaddieID: newID,
-		SquaddieName: base.Name(),
+		SquaddieID:          cloneSquaddieID,
+		SquaddieName:        base.Name(),
 		SquaddieAffiliation: base.Affiliation(),
 	}
 
 	clone.Offense = Offense{
-		SquaddieAim: base.Aim(),
+		SquaddieAim:      base.Aim(),
 		SquaddieStrength: base.Strength(),
-		SquaddieMind: base.Mind(),
+		SquaddieMind:     base.Mind(),
 	}
 
 	clone.Defense = Defense{
 		SquaddieCurrentHitPoints: base.CurrentHitPoints(),
-		SquaddieMaxHitPoints: base.MaxHitPoints(),
-		SquaddieDodge: base.Dodge(),
-		SquaddieDeflect: base.Deflect(),
-		SquaddieCurrentBarrier: base.CurrentBarrier(),
-		SquaddieMaxBarrier: base.MaxBarrier(),
-		SquaddieArmor: base.Armor(),
+		SquaddieMaxHitPoints:     base.MaxHitPoints(),
+		SquaddieDodge:            base.Dodge(),
+		SquaddieDeflect:          base.Deflect(),
+		SquaddieCurrentBarrier:   base.CurrentBarrier(),
+		SquaddieMaxBarrier:       base.MaxBarrier(),
+		SquaddieArmor:            base.Armor(),
 	}
 
 	clone.Movement = Movement{
-		SquaddieMovementDistance: base.MovementDistance(),
-		SquaddieMovementType: base.MovementType(),
+		SquaddieMovementDistance:     base.MovementDistance(),
+		SquaddieMovementType:         base.MovementType(),
 		SquaddieMovementCanHitAndRun: base.MovementCanHitAndRun(),
 	}
 

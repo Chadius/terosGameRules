@@ -175,7 +175,7 @@ func (suite *SpecificSquaddieBuilder) TestBuildMysticMage(checker *C) {
 	checker.Assert("Mystic Mage", Equals, mysticMage.Name())
 }
 
-type YAMLBuilderSuite struct{
+type YAMLBuilderSuite struct {
 	yamlData []byte
 }
 
@@ -236,7 +236,7 @@ func (suite *YAMLBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
 }
 
-type JSONBuilderSuite struct{
+type JSONBuilderSuite struct {
 	jsonData []byte
 }
 
@@ -297,4 +297,37 @@ func (suite *JSONBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 2)
 	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Teleport)
 	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
+}
+
+type BuildCopySuite struct {
+	teros *squaddieEntity.Squaddie
+}
+
+var _ = Suite(&BuildCopySuite{})
+
+func (suite *BuildCopySuite) SetUpTest(checker *C) {
+	suite.teros = squaddie.Builder().Teros().Build()
+}
+
+func (suite *BuildCopySuite) TestCopySquaddieIdentification(checker *C) {
+	cloneTeros := squaddie.Builder().CloneOf(suite.teros).Build()
+	checker.Assert(cloneTeros.HasSameStatsAs(suite.teros), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopySquaddieDefense(checker *C) {
+	defensiveTeros := squaddie.Builder().CloneOf(suite.teros).HitPoints(2).Dodge(3).Deflect(5).Barrier(7).Armor(11).Build()
+	cloneTeros := squaddie.Builder().CloneOf(defensiveTeros).Build()
+	checker.Assert(cloneTeros.HasSameStatsAs(defensiveTeros), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopySquaddieOffense(checker *C) {
+	offensiveTeros := squaddie.Builder().CloneOf(suite.teros).Aim(2).Strength(3).Mind(5).Build()
+	cloneTeros := squaddie.Builder().CloneOf(offensiveTeros).Build()
+	checker.Assert(cloneTeros.HasSameStatsAs(offensiveTeros), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopySquaddieMovement(checker *C) {
+	mobileTeros := squaddie.Builder().CloneOf(suite.teros).MovementTeleport().MoveDistance(5).CanHitAndRun().Build()
+	cloneTeros := squaddie.Builder().CloneOf(mobileTeros).Build()
+	checker.Assert(cloneTeros.HasSameStatsAs(mobileTeros), Equals, true)
 }

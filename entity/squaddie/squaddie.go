@@ -151,3 +151,57 @@ func (s *Squaddie) MovementType() MovementType {
 func (s *Squaddie) MovementCanHitAndRun() bool {
 	return s.Movement.CanHitAndRun()
 }
+
+// HasSameStatsAs returns true if other's stats matches this one.
+//   The comparison ignores the ID.
+func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
+	if s.Name() != other.Name() {
+		return false
+	}
+	if s.Affiliation() != other.Affiliation() {
+		return false
+	}
+
+	if s.MaxHitPoints() != other.MaxHitPoints() {
+		return false
+	}
+	if s.Dodge() != other.Dodge() {
+		return false
+	}
+	if s.Deflect() != other.Deflect() {
+		return false
+	}
+	if s.MaxBarrier() != other.MaxBarrier() {
+		return false
+	}
+	if s.Armor() != other.Armor() {
+		return false
+	}
+	if s.CurrentHitPoints() != other.CurrentHitPoints() {
+		return false
+	}
+	if s.CurrentBarrier() != other.CurrentBarrier() {
+		return false
+	}
+
+	if s.Aim() != other.Aim() {
+		return false
+	}
+	if s.Strength() != other.Strength() {
+		return false
+	}
+	if s.Mind() != other.Mind() {
+		return false
+	}
+
+	if s.MovementType() != other.MovementType() {
+		return false
+	}
+	if s.MovementDistance() != other.MovementDistance() {
+		return false
+	}
+	if s.MovementCanHitAndRun() != other.MovementCanHitAndRun() {
+		return false
+	}
+	return true
+}

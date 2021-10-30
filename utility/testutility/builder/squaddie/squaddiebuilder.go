@@ -228,26 +228,25 @@ func (s *BuilderOptions) MysticMage() *BuilderOptions {
 	return mysticMage
 }
 
-
 // BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
 type BuilderOptionMarshal struct {
-	ID string `json:"id" yaml:"id"`
-	Name string `json:"name" yaml:"name"`
+	ID          string               `json:"id" yaml:"id"`
+	Name        string               `json:"name" yaml:"name"`
 	Affiliation squaddie.Affiliation `json:"affiliation" yaml:"affiliation"`
 
 	MaxHitPoints int `json:"max_hit_points" yaml:"max_hit_points"`
-	Dodge int `json:"dodge" yaml:"dodge"`
-	Deflect int `json:"deflect" yaml:"deflect"`
-	MaxBarrier int `json:"max_barrier" yaml:"max_barrier"`
-	Armor int `json:"armor" yaml:"armor"`
+	Dodge        int `json:"dodge" yaml:"dodge"`
+	Deflect      int `json:"deflect" yaml:"deflect"`
+	MaxBarrier   int `json:"max_barrier" yaml:"max_barrier"`
+	Armor        int `json:"armor" yaml:"armor"`
 
-	Aim int `json:"aim" yaml:"aim"`
+	Aim      int `json:"aim" yaml:"aim"`
 	Strength int `json:"strength" yaml:"strength"`
-	Mind int `json:"mind" yaml:"mind"`
+	Mind     int `json:"mind" yaml:"mind"`
 
-	MovementDistance int `json:"movement_distance" yaml:"movement_distance"`
-	MovementType squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
-	MovementCanHitAndRun bool `json:"hit_and_run" yaml:"hit_and_run"`
+	MovementDistance     int                   `json:"movement_distance" yaml:"movement_distance"`
+	MovementType         squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
+	MovementCanHitAndRun bool                  `json:"hit_and_run" yaml:"hit_and_run"`
 }
 
 // UsingYAML uses the yaml data to generate BuilderOptions.
@@ -307,3 +306,40 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 	return s
 }
 
+// CloneOf modifies the BuilderOptions based on the source, except for the ID.
+func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
+	s.WithName(source.Name()).
+		HitPoints(source.MaxHitPoints()).Deflect(source.Deflect()).Barrier(source.MaxBarrier()).Armor(source.Armor()).Dodge(source.Dodge()).
+		Aim(source.Aim()).Strength(source.Strength()).Mind(source.Mind()).
+		MoveDistance(source.MovementDistance())
+
+	if source.Affiliation() == squaddie.Player {
+		s.AsPlayer()
+	}
+	if source.Affiliation() == squaddie.Enemy {
+		s.AsEnemy()
+	}
+	if source.Affiliation() == squaddie.Ally {
+		s.AsAlly()
+	}
+	if source.Affiliation() == squaddie.Neutral {
+		s.AsNeutral()
+	}
+
+	if source.MovementType() == squaddie.Foot {
+		s.MovementFoot()
+	}
+	if source.MovementType() == squaddie.Light {
+		s.MovementLight()
+	}
+	if source.MovementType() == squaddie.Fly {
+		s.MovementFly()
+	}
+	if source.MovementType() == squaddie.Teleport {
+		s.MovementTeleport()
+	}
+	if source.MovementCanHitAndRun() {
+		s.CanHitAndRun()
+	}
+	return s
+}

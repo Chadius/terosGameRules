@@ -70,47 +70,47 @@ func (suite *PowerBuilder) TestHitPointsHealed(checker *C) {
 
 func (suite *PowerBuilder) TestBuildAttackEffectToHitBonus(checker *C) {
 	damageEffect := powerBuilder.Builder().ToHitBonus(2).Build()
-	checker.Assert(2, Equals, damageEffect.AttackEffect.AttackToHitBonus)
+	checker.Assert(2, Equals, damageEffect.ToHitBonus())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectDamageBonus(checker *C) {
 	damageEffect := powerBuilder.Builder().DealsDamage(3).Build()
-	checker.Assert(3, Equals, damageEffect.AttackEffect.AttackDamageBonus)
+	checker.Assert(3, Equals, damageEffect.DamageBonus())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectExtraBarrierBurn(checker *C) {
 	damageEffect := powerBuilder.Builder().ExtraBarrierBurn(1).Build()
-	checker.Assert(1, Equals, damageEffect.AttackEffect.AttackExtraBarrierBurn)
+	checker.Assert(1, Equals, damageEffect.ExtraBarrierBurn())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCounterAttackPenaltyReduction(checker *C) {
 	damageEffect := powerBuilder.Builder().CounterAttackPenaltyReduction(4).Build()
-	checker.Assert(4, Equals, damageEffect.AttackEffect.AttackCounterAttackPenaltyReduction)
+	checker.Assert(4, Equals, damageEffect.CounterAttackPenaltyReduction())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCanBeEquipped(checker *C) {
 	sword := powerBuilder.Builder().CanBeEquipped().Build()
-	checker.Assert(true, Equals, sword.AttackEffect.AttackCanBeEquipped)
+	checker.Assert(true, Equals, sword.CanBeEquipped())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCannotBeEquipped(checker *C) {
 	scroll := powerBuilder.Builder().CanBeEquipped().CannotBeEquipped().Build()
-	checker.Assert(false, Equals, scroll.AttackEffect.AttackCanBeEquipped)
+	checker.Assert(false, Equals, scroll.CanBeEquipped())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCanCounterAttack(checker *C) {
 	sword := powerBuilder.Builder().CanCounterAttack().Build()
-	checker.Assert(true, Equals, sword.AttackEffect.AttackCanCounterAttack)
+	checker.Assert(true, Equals, sword.CanCounterAttack())
 }
 
 func (suite *PowerBuilder) TestBuildCriticalEffectDamage(checker *C) {
 	criticalDamageEffect := powerBuilder.Builder().CriticalDealsDamage(8).Build()
-	checker.Assert(8, Equals, criticalDamageEffect.AttackEffect.CriticalEffect.Damage)
+	checker.Assert(8, Equals, criticalDamageEffect.ExtraCriticalHitDamage())
 }
 
 func (suite *PowerBuilder) TestBuildCriticalEffectThresholdBonus(checker *C) {
 	criticalDamageEffect := powerBuilder.Builder().CriticalHitThresholdBonus(-2).Build()
-	checker.Assert(-2, Equals, criticalDamageEffect.AttackEffect.CriticalEffect.CriticalHitThresholdBonus)
+	checker.Assert(-2, Equals, criticalDamageEffect.CriticalHitThresholdBonus())
 }
 
 type SpecificPowerBuilder struct{}
@@ -124,10 +124,10 @@ func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
 	checker.Assert("powerAxe", Equals, axe.ID())
 	checker.Assert(true, Equals, axe.CanPowerTargetFoe())
 	checker.Assert(power.Physical, Equals, axe.PowerType)
-	checker.Assert(true, Equals, axe.AttackEffect.AttackCanBeEquipped)
-	checker.Assert(true, Equals, axe.AttackEffect.AttackCanCounterAttack)
-	checker.Assert(1, Equals, axe.AttackEffect.AttackDamageBonus)
-	checker.Assert(1, Equals, axe.AttackEffect.AttackToHitBonus)
+	checker.Assert(true, Equals, axe.CanBeEquipped())
+	checker.Assert(true, Equals, axe.CanCounterAttack())
+	checker.Assert(1, Equals, axe.DamageBonus())
+	checker.Assert(1, Equals, axe.ToHitBonus())
 }
 
 func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
@@ -137,10 +137,10 @@ func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
 	checker.Assert("powerSpear", Equals, spear.ID())
 	checker.Assert(true, Equals, spear.CanPowerTargetFoe())
 	checker.Assert(power.Physical, Equals, spear.PowerType)
-	checker.Assert(true, Equals, spear.AttackEffect.AttackCanBeEquipped)
-	checker.Assert(true, Equals, spear.AttackEffect.AttackCanCounterAttack)
-	checker.Assert(1, Equals, spear.AttackEffect.AttackDamageBonus)
-	checker.Assert(1, Equals, spear.AttackEffect.AttackToHitBonus)
+	checker.Assert(true, Equals, spear.CanBeEquipped())
+	checker.Assert(true, Equals, spear.CanCounterAttack())
+	checker.Assert(1, Equals, spear.DamageBonus())
+	checker.Assert(1, Equals, spear.ToHitBonus())
 }
 
 func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
@@ -150,10 +150,10 @@ func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
 	checker.Assert("powerBlot", Equals, blot.ID())
 	checker.Assert(true, Equals, blot.CanPowerTargetFoe())
 	checker.Assert(power.Spell, Equals, blot.PowerType)
-	checker.Assert(true, Equals, blot.AttackEffect.AttackCanBeEquipped)
-	checker.Assert(false, Equals, blot.AttackEffect.AttackCanCounterAttack)
-	checker.Assert(3, Equals, blot.AttackEffect.AttackDamageBonus)
-	checker.Assert(0, Equals, blot.AttackEffect.AttackToHitBonus)
+	checker.Assert(true, Equals, blot.CanBeEquipped())
+	checker.Assert(false, Equals, blot.CanCounterAttack())
+	checker.Assert(3, Equals, blot.DamageBonus())
+	checker.Assert(0, Equals, blot.ToHitBonus())
 }
 
 func (suite *SpecificPowerBuilder) TestHealingStaff(checker *C) {
@@ -166,7 +166,7 @@ func (suite *SpecificPowerBuilder) TestHealingStaff(checker *C) {
 	checker.Assert(3, Equals, healingStaff.HealingEffect.HealingHitPointsHealed)
 }
 
-type YAMLBuilderSuite struct{
+type YAMLBuilderSuite struct {
 	yamlData []byte
 }
 
@@ -223,11 +223,11 @@ func (suite *YAMLBuilderSuite) TestAttackEffectMatchesNewPower(checker *C) {
 func (suite *YAMLBuilderSuite) TestCriticalEffectMatchesNewPower(checker *C) {
 	yamlPower := powerBuilder.Builder().UsingYAML(suite.yamlData).Build()
 
-	checker.Assert(yamlPower.CriticalHitThreshold(), Equals, power.CriticalHitThresholdInitialValue - 9)
+	checker.Assert(yamlPower.CriticalHitThreshold(), Equals, power.CriticalHitThresholdInitialValue-9)
 	checker.Assert(yamlPower.ExtraCriticalHitDamage(), Equals, 11)
 }
 
-type JSONBuilderSuite struct{
+type JSONBuilderSuite struct {
 	jsonData []byte
 }
 
@@ -260,4 +260,32 @@ func (suite *JSONBuilderSuite) TestHealingMatchesNewPower(checker *C) {
 
 	checker.Assert(jsonPower.HealingAdjustmentBasedOnUserMind(), Equals, power.Half)
 	checker.Assert(jsonPower.HitPointsHealed(), Equals, 2)
+}
+
+type BuildCopySuite struct {
+	spear        *power.Power
+	healingStaff *power.Power
+}
+
+var _ = Suite(&BuildCopySuite{})
+
+func (suite *BuildCopySuite) SetUpTest(checker *C) {
+	suite.spear = powerBuilder.Builder().Spear().Build()
+	suite.healingStaff = powerBuilder.Builder().HealingStaff().Build()
+}
+
+func (suite *BuildCopySuite) TestCopyAttackPower(checker *C) {
+	copySpear := powerBuilder.Builder().CloneOf(suite.spear).Build()
+	checker.Assert(copySpear.HasSameStatsAs(suite.spear), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopyHealingPower(checker *C) {
+	copyHealingStaff := powerBuilder.Builder().CloneOf(suite.healingStaff).Build()
+	checker.Assert(copyHealingStaff.HasSameStatsAs(suite.healingStaff), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopyCriticalAttackPower(checker *C) {
+	criticalSpear := powerBuilder.Builder().CloneOf(suite.spear).CriticalDealsDamage(10).CriticalHitThresholdBonus(2).Build()
+	copyCriticalSpear := powerBuilder.Builder().CloneOf(criticalSpear).Build()
+	checker.Assert(copyCriticalSpear.HasSameStatsAs(criticalSpear), Equals, true)
 }

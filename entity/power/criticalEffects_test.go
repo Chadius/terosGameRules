@@ -2,6 +2,7 @@ package power_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 )
 
@@ -16,18 +17,13 @@ func (suite *CriticalEffectActivation) TestCanSetCriticalHitThreshold(checker *C
 
 	checker.Assert(defaultCriticalHitEffect.CriticalHitThreshold(), Equals, 6)
 
-	moreLikelyToCrit := &power.CriticalEffect{
-		CriticalHitThresholdBonus: 2,
-	}
+	moreLikelyToCrit := powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(2).Build()
 
 	checker.Assert(moreLikelyToCrit.CriticalHitThreshold(), Equals, 4)
 }
 
 func (suite *CriticalEffectActivation) TestExtraCriticalHitDamage(checker *C) {
-	extraCriticalDamage := &power.CriticalEffect{
-		Damage: 6,
-	}
-
+	extraCriticalDamage := powerBuilder.CriticalEffectBuilder().DealsDamage(6).Build()
 	checker.Assert(extraCriticalDamage.ExtraCriticalHitDamage(), Equals, 6)
 }
 
@@ -52,8 +48,8 @@ func (suite *CriticalEffectActivation) TestCriticalEffectsWithJSON(checker *C) {
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
 
 	scimitar := newRepo.GetPowerByID("deadbeef")
-	checker.Assert(scimitar.AttackEffect.CriticalEffect.CriticalHitThresholdBonus, Equals, 2)
-	checker.Assert(scimitar.AttackEffect.CriticalEffect.Damage, Equals, 3)
+	checker.Assert(scimitar.CriticalHitThresholdBonus(), Equals, 2)
+	checker.Assert(scimitar.ExtraCriticalHitDamage(), Equals, 3)
 }
 
 func (suite *CriticalEffectActivation) TestCriticalEffectsWithYAML(checker *C) {
@@ -75,6 +71,6 @@ func (suite *CriticalEffectActivation) TestCriticalEffectsWithYAML(checker *C) {
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
 
 	scimitar := newRepo.GetPowerByID("deadbeef")
-	checker.Assert(scimitar.AttackEffect.CriticalEffect.CriticalHitThresholdBonus, Equals, 2)
-	checker.Assert(scimitar.AttackEffect.CriticalEffect.Damage, Equals, 3)
+	checker.Assert(scimitar.CriticalHitThresholdBonus(), Equals, 2)
+	checker.Assert(scimitar.ExtraCriticalHitDamage(), Equals, 3)
 }

@@ -39,13 +39,13 @@ func (suite *PowerCreationSuite) TestUsesIDToRetrievePowers(checker *C) {
 
 	spearLevel1FromRepo := suite.repo.GetPowerByID(suite.spear.ID())
 	checker.Assert(spearLevel1FromRepo.Name(), Equals, "Spear")
-	checker.Assert(spearLevel1FromRepo.ID(), Equals, suite.spear.PowerID)
-	checker.Assert(spearLevel1FromRepo.AttackEffect.AttackToHitBonus, Equals, suite.spear.AttackEffect.AttackToHitBonus)
+	checker.Assert(spearLevel1FromRepo.ID(), Equals, suite.spear.ID())
+	checker.Assert(spearLevel1FromRepo.ToHitBonus(), Equals, suite.spear.ToHitBonus())
 
-	spearLevel2FromRepo := suite.repo.GetPowerByID(suite.spear2.PowerID)
+	spearLevel2FromRepo := suite.repo.GetPowerByID(suite.spear2.ID())
 	checker.Assert(spearLevel2FromRepo.Name(), Equals, "Spear")
-	checker.Assert(spearLevel2FromRepo.PowerID, Equals, suite.spear2.PowerID)
-	checker.Assert(spearLevel2FromRepo.AttackEffect.AttackToHitBonus, Equals, suite.spear2.AttackEffect.AttackToHitBonus)
+	checker.Assert(spearLevel2FromRepo.ID(), Equals, suite.spear2.ID())
+	checker.Assert(spearLevel2FromRepo.ToHitBonus(), Equals, suite.spear2.ToHitBonus())
 }
 
 func (suite *PowerCreationSuite) TestReturnNilIfIDDoesNotExist(checker *C) {
@@ -124,9 +124,9 @@ func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
 
 	scimitar := newRepo.GetPowerByID("deadbeef")
 	checker.Assert(scimitar.Name(), Equals, "Scimitar")
-	checker.Assert(scimitar.PowerID, Equals, "deadbeef")
-	checker.Assert(scimitar.AttackEffect.AttackDamageBonus, Equals, 2)
-	checker.Assert(scimitar.AttackEffect.AttackCanCounterAttack, Equals, true)
-	checker.Assert(scimitar.AttackEffect.AttackCounterAttackPenaltyReduction, Equals, -2)
+	checker.Assert(scimitar.ID(), Equals, "deadbeef")
+	checker.Assert(scimitar.DamageBonus(), Equals, 2)
+	checker.Assert(scimitar.CanCounterAttack(), Equals, true)
+	checker.Assert(scimitar.CounterAttackPenaltyReduction(), Equals, -2)
 	checker.Assert(scimitar.CanPowerTargetFoe(), Equals, true)
 }

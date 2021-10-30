@@ -10,10 +10,10 @@ const CounterAttackPenaltyInitialValue = -2
 
 // AttackingEffect is a power designed to deal damage.
 type AttackingEffect struct {
-	AttackToHitBonus  int `json:"to_hit_bonus" yaml:"to_hit_bonus"`
-	AttackDamageBonus      int  `json:"damage_bonus" yaml:"damage_bonus"`
-	AttackExtraBarrierBurn int  `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
-	AttackCanBeEquipped           bool `json:"can_be_equipped" yaml:"can_be_equipped"`
+	AttackToHitBonus                    int             `json:"to_hit_bonus" yaml:"to_hit_bonus"`
+	AttackDamageBonus                   int             `json:"damage_bonus" yaml:"damage_bonus"`
+	AttackExtraBarrierBurn              int             `json:"extra_barrier_damage" yaml:"extra_barrier_damage"`
+	AttackCanBeEquipped                 bool            `json:"can_be_equipped" yaml:"can_be_equipped"`
 	AttackCanCounterAttack              bool            `json:"can_counter_attack" yaml:"can_counter_attack"`
 	AttackCounterAttackPenaltyReduction int             `json:"counter_attack_penalty_reduction" yaml:"counter_attack_penalty_reduction"`
 	CriticalEffect                      *CriticalEffect `json:"critical_effect" yaml:"critical_effect"`
@@ -24,15 +24,15 @@ func (a *AttackingEffect) CanCriticallyHit() bool {
 	return a.CriticalEffect != nil
 }
 
-// CounterAttackPenalty returns the amount the counter attack to hit check suffers.
+// CounterAttackPenalty returns the amount the counterattack to hit check suffers.
 func (a *AttackingEffect) CounterAttackPenalty() (int, error) {
-	if a.AttackCanCounterAttack != true {
+	if a.CanCounterAttack() != true {
 		newError := errors.New("power cannot counter, cannot calculate penalty")
 		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
 
-	return CounterAttackPenaltyInitialValue + a.AttackCounterAttackPenaltyReduction, nil
+	return CounterAttackPenaltyInitialValue + a.CounterAttackPenaltyReduction(), nil
 }
 
 // ToHitBonus returns the value.
@@ -68,6 +68,11 @@ func (a *AttackingEffect) CounterAttackPenaltyReduction() int {
 // CriticalHitThreshold delegates.
 func (a *AttackingEffect) CriticalHitThreshold() int {
 	return a.CriticalEffect.CriticalHitThreshold()
+}
+
+// CriticalHitThresholdBonus delegates.
+func (a *AttackingEffect) CriticalHitThresholdBonus() int {
+	return a.CriticalEffect.CriticalHitThresholdBonus()
 }
 
 // ExtraCriticalHitDamage delegates.

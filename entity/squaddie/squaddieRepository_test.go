@@ -12,7 +12,7 @@ import (
 type SquaddieRepositorySuite struct {
 	squaddieRepository *squaddie.Repository
 	teros              *squaddie.Squaddie
-	attackA         *power.Power
+	attackA            *power.Power
 }
 
 var _ = Suite(&SquaddieRepositorySuite{})
@@ -353,7 +353,6 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddie(checker *C) {
 type SquaddieCloneSuite struct {
 	squaddieRepository *squaddie.Repository
 	base               *squaddie.Squaddie
-	attackA         *power.Power
 }
 
 var _ = Suite(&SquaddieCloneSuite{})
@@ -362,71 +361,63 @@ func (suite *SquaddieCloneSuite) SetUpTest(checker *C) {
 	suite.base = squaddieBuilder.Builder().WithName("Base").Build()
 	suite.squaddieRepository = squaddie.NewSquaddieRepository()
 	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{suite.base})
-
-	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
 }
 
 func (suite *SquaddieCloneSuite) TestCloneHasAffiliationAndNameNotID(checker *C) {
-	suite.base.Identification.SquaddieAffiliation = squaddie.Enemy
-	clone, err := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
+	originalSquaddie := squaddieBuilder.Builder().WithName("Base").AsEnemy().Build()
+	clone, err := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
 	checker.Assert(err, IsNil)
-	checker.Assert(clone.Name(), Equals, suite.base.Name())
-	checker.Assert(clone.Affiliation(), Equals, suite.base.Affiliation())
-	checker.Assert(clone.ID(), Not(Equals), suite.base.ID())
+	checker.Assert(clone.Name(), Equals, originalSquaddie.Name())
+	checker.Assert(clone.Affiliation(), Equals, originalSquaddie.Affiliation())
+	checker.Assert(clone.ID(), Not(Equals), originalSquaddie.ID())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneUsesGivenID(checker *C) {
-	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "12345")
+	originalSquaddie := squaddieBuilder.Builder().WithName("Base").AsEnemy().Build()
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "12345")
 	checker.Assert(clone.ID(), Equals, "12345")
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesBasicStats(checker *C) {
-	suite.base.Defense.SquaddieCurrentHitPoints = 1
-	suite.base.Defense.SquaddieMaxHitPoints += 5
-	suite.base.Defense.SquaddieCurrentBarrier = 2
-	suite.base.Defense.SquaddieMaxBarrier += 5
+	originalSquaddie := squaddieBuilder.Builder().WithName("Base").
+		HitPoints(9).Barrier(7).
+		Aim(2).Strength(3).Mind(5).Dodge(11).Deflect(13).Armor(17).
+		Build()
+	originalSquaddie.Defense.ReduceHitPoints(originalSquaddie.MaxHitPoints() - 1)
+	originalSquaddie.Defense.ReduceBarrier(originalSquaddie.MaxBarrier() - 2)
 
-	suite.base.Offense.SquaddieAim = 2
-	suite.base.Offense.SquaddieStrength = 3
-	suite.base.Offense.SquaddieMind = 4
-	suite.base.Defense.SquaddieDodge = 5
-	suite.base.Defense.SquaddieDeflect = 6
-	suite.base.Defense.SquaddieArmor = 7
-
-	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
-	checker.Assert(clone.CurrentHitPoints(), Equals, suite.base.CurrentHitPoints())
-	checker.Assert(clone.MaxHitPoints(), Equals, suite.base.MaxHitPoints())
-	checker.Assert(clone.Aim(), Equals, suite.base.Aim())
-	checker.Assert(clone.Strength(), Equals, suite.base.Strength())
-	checker.Assert(clone.Mind(), Equals, suite.base.Mind())
-	checker.Assert(clone.Dodge(), Equals, suite.base.Dodge())
-	checker.Assert(clone.Deflect(), Equals, suite.base.Deflect())
-	checker.Assert(clone.CurrentBarrier(), Equals, suite.base.CurrentBarrier())
-	checker.Assert(clone.MaxBarrier(), Equals, suite.base.MaxBarrier())
-	checker.Assert(clone.Armor(), Equals, suite.base.Armor())
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
+	checker.Assert(clone.CurrentHitPoints(), Equals, originalSquaddie.CurrentHitPoints())
+	checker.Assert(clone.MaxHitPoints(), Equals, originalSquaddie.MaxHitPoints())
+	checker.Assert(clone.Aim(), Equals, originalSquaddie.Aim())
+	checker.Assert(clone.Strength(), Equals, originalSquaddie.Strength())
+	checker.Assert(clone.Mind(), Equals, originalSquaddie.Mind())
+	checker.Assert(clone.Dodge(), Equals, originalSquaddie.Dodge())
+	checker.Assert(clone.Deflect(), Equals, originalSquaddie.Deflect())
+	checker.Assert(clone.CurrentBarrier(), Equals, originalSquaddie.CurrentBarrier())
+	checker.Assert(clone.MaxBarrier(), Equals, originalSquaddie.MaxBarrier())
+	checker.Assert(clone.Armor(), Equals, originalSquaddie.Armor())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
-	suite.base.Movement = squaddie.Movement{
-		SquaddieMovementDistance:     suite.base.Movement.SquaddieMovementDistance + 2,
-		SquaddieMovementType:         squaddie.Fly,
-		SquaddieMovementCanHitAndRun: true,
-	}
+	originalSquaddie := squaddieBuilder.Builder().WithName("Base").
+		MoveDistance(2).MovementFly().CanHitAndRun().Build()
 
-	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
-	checker.Assert(clone.Movement.SquaddieMovementDistance, Equals, suite.base.Movement.SquaddieMovementDistance)
-	checker.Assert(clone.Movement.SquaddieMovementType, Equals, suite.base.Movement.SquaddieMovementType)
-	checker.Assert(clone.Movement.SquaddieMovementCanHitAndRun, Equals, suite.base.Movement.SquaddieMovementCanHitAndRun)
+	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
+	checker.Assert(clone.Movement.SquaddieMovementDistance, Equals, originalSquaddie.Movement.SquaddieMovementDistance)
+	checker.Assert(clone.Movement.SquaddieMovementType, Equals, originalSquaddie.Movement.SquaddieMovementType)
+	checker.Assert(clone.Movement.SquaddieMovementCanHitAndRun, Equals, originalSquaddie.Movement.SquaddieMovementCanHitAndRun)
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
-	suite.base.PowerCollection.AddInnatePower(suite.attackA)
+	attackA := powerBuilder.Builder().WithName("Attack Formation A").Build()
+	suite.base.PowerCollection.AddInnatePower(attackA)
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 
 	attackIDNamePairs := clone.PowerCollection.GetInnatePowerIDNames()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
-	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name())
-	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
+	checker.Assert(attackIDNamePairs[0].Name, Equals, attackA.Name())
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, attackA.ID())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {

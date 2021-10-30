@@ -14,7 +14,7 @@ import (
 func EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool) {
 	for _, powerReference := range squaddie.PowerCollection.PowerReferences {
 		powerToCheck := repos.PowerRepo.GetPowerByID(powerReference.PowerID)
-		if powerToCheck.AttackEffect != nil && powerToCheck.AttackEffect.AttackCanBeEquipped == true {
+		if powerToCheck.AttackEffect != nil && powerToCheck.CanBeEquipped() == true {
 			equippingPowerWasSuccessful := SquaddieEquipPower(squaddie, powerToCheck.ID(), repos)
 			return powerToCheck, equippingPowerWasSuccessful
 		}
@@ -33,7 +33,7 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 	if powerToEquip == nil {
 		return false
 	}
-	if powerToEquip.AttackEffect == nil || powerToEquip.AttackEffect.AttackCanBeEquipped == false {
+	if powerToEquip.AttackEffect == nil || powerToEquip.CanBeEquipped() == false {
 		return false
 	}
 

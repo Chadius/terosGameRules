@@ -2,6 +2,7 @@ package power_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -15,7 +16,7 @@ var _ = Suite(&PowerChanceCheckSuite{})
 func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 	staticPower := &power.Power{
 		Reference: power.Reference{
-			Name: "Static",
+			Name:    "Static",
 			PowerID: "power0",
 		},
 		PowerType: power.Physical,
@@ -27,11 +28,11 @@ func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 			CriticalEffect:                      nil,
 		},
 	}
-	checker.Assert(staticPower.AttackEffect.CanCriticallyHit(), Equals, false)
+	checker.Assert(staticPower.CanCriticallyHit(), Equals, false)
 
 	criticalPower := &power.Power{
 		Reference: power.Reference{
-			Name: "Critical",
+			Name:    "Critical",
 			PowerID: "power1",
 		},
 		PowerType: power.Physical,
@@ -40,11 +41,8 @@ func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
 			AttackDamageBonus:                   0,
 			AttackCanCounterAttack:              false,
 			AttackCounterAttackPenaltyReduction: 0,
-			CriticalEffect: &power.CriticalEffect{
-				CriticalHitThresholdBonus: 0,
-				Damage:                    1,
-			},
+			CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(0).DealsDamage(1).Build(),
 		},
 	}
-	checker.Assert(criticalPower.AttackEffect.CanCriticallyHit(), Equals, true)
+	checker.Assert(criticalPower.CanCriticallyHit(), Equals, true)
 }

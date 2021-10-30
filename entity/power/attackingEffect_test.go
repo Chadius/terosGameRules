@@ -14,7 +14,7 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) SetUpTest(checker *C) {}
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker *C) {
 	counterAttackingPower := &power.Power{
 		Reference: power.Reference{
-			Name: "Static",
+			Name:    "Static",
 			PowerID: "power0",
 		},
 		PowerType: power.Physical,
@@ -27,7 +27,7 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker
 		},
 	}
 
-	counterAttackPenalty, err := counterAttackingPower.AttackEffect.CounterAttackPenalty()
+	counterAttackPenalty, err := counterAttackingPower.CounterAttackPenalty()
 	checker.Assert(err, IsNil)
 	checker.Assert(counterAttackPenalty, Equals, -2)
 }
@@ -35,7 +35,7 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestRaisesErrorIfPowerCannotCounterAttack(checker *C) {
 	cannotCounterWithThisPower := &power.Power{
 		Reference: power.Reference{
-			Name: "Static",
+			Name:    "Static",
 			PowerID: "power0",
 		},
 		PowerType: power.Physical,
@@ -48,14 +48,14 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestRaisesErrorIfPowerCann
 		},
 	}
 
-	_, err := cannotCounterWithThisPower.AttackEffect.CounterAttackPenalty()
+	_, err := cannotCounterWithThisPower.CounterAttackPenalty()
 	checker.Assert(err, ErrorMatches, "power cannot counter, cannot calculate penalty")
 }
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestAppliesPenaltyReduction(checker *C) {
 	counterAttackingPower := &power.Power{
 		Reference: power.Reference{
-			Name: "Static",
+			Name:    "Static",
 			PowerID: "power0",
 		},
 		PowerType: power.Physical,
@@ -68,7 +68,7 @@ func (suite *AttackingEffectCounterAttackPenaltyTest) TestAppliesPenaltyReductio
 		},
 	}
 
-	counterAttackPenalty, err := counterAttackingPower.AttackEffect.CounterAttackPenalty()
+	counterAttackPenalty, err := counterAttackingPower.CounterAttackPenalty()
 	checker.Assert(err, IsNil)
 	checker.Assert(counterAttackPenalty, Equals, 0)
 }

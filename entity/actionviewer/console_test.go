@@ -210,10 +210,7 @@ func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 	suite.teros.Offense.SquaddieMind = 3
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		CriticalEffect: &power.CriticalEffect{
-			CriticalHitThresholdBonus: 9000,
-			Damage:                    1,
-		},
+		CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(9000).DealsDamage(1).Build(),
 	}
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
@@ -405,10 +402,7 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuarant
 	suite.teros.Offense.SquaddieAim = 2
 
 	suite.blot.AttackEffect = &power.AttackingEffect{
-		CriticalEffect: &power.CriticalEffect{
-			CriticalHitThresholdBonus: 1,
-			Damage:                    1,
-		},
+		CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(1).DealsDamage(1).Build(),
 	}
 
 	suite.bandit.Defense.SquaddieDeflect = -200

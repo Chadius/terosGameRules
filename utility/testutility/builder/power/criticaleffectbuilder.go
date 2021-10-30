@@ -32,9 +32,6 @@ func (c *CriticalEffectOptions) CriticalHitThresholdBonus(thresholdBonus int) *C
 
 // Build uses the CriticalEffectOptions to create a CriticalEffect.
 func (c *CriticalEffectOptions) Build() *power.CriticalEffect {
-	newCriticalEffect := &power.CriticalEffect{
-		Damage:                    c.damage,
-		CriticalHitThresholdBonus: c.criticalHitThresholdBonus,
-	}
+	newCriticalEffect := power.NewCriticalEffect(c.criticalHitThresholdBonus, c.damage)
 	return newCriticalEffect
 }

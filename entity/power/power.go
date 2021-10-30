@@ -7,7 +7,7 @@ import (
 
 // Reference is used to identify a power and is used to quickly identify a power.
 type Reference struct {
-	Name string `json:"name" yaml:"name"`
+	Name    string `json:"name" yaml:"name"`
 	PowerID string `json:"id" yaml:"id"`
 }
 
@@ -40,7 +40,7 @@ type Power struct {
 // GetReference returns a new PowerReference.
 func (p Power) GetReference() *Reference {
 	return &Reference{
-		Name: p.Name(),
+		Name:    p.Name(),
 		PowerID: p.ID(),
 	}
 }
@@ -49,7 +49,7 @@ func (p Power) GetReference() *Reference {
 func NewPower(name string) *Power {
 	newAttackingPower := Power{
 		Reference: Reference{
-			Name: name,
+			Name:    name,
 			PowerID: "power_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
 		},
 		PowerType: Physical,
@@ -101,37 +101,42 @@ func (p *Power) CanPowerTargetFoe() bool {
 
 // ToHitBonus delegates.
 func (p *Power) ToHitBonus() int {
-	return p.AttackEffect.AttackToHitBonus
+	return p.AttackEffect.ToHitBonus()
 }
 
 // DamageBonus delegates.
 func (p *Power) DamageBonus() int {
-	return p.AttackEffect.AttackDamageBonus
+	return p.AttackEffect.DamageBonus()
 }
 
 // ExtraBarrierBurn delegates.
 func (p *Power) ExtraBarrierBurn() int {
-	return p.AttackEffect.AttackExtraBarrierBurn
+	return p.AttackEffect.ExtraBarrierBurn()
 }
 
 // CanBeEquipped delegates.
 func (p *Power) CanBeEquipped() bool {
-	return p.AttackEffect.AttackCanBeEquipped
+	return p.AttackEffect.CanBeEquipped()
 }
 
 // CanCounterAttack delegates.
 func (p *Power) CanCounterAttack() bool {
-	return p.AttackEffect.AttackCanCounterAttack
+	return p.AttackEffect.CanCounterAttack()
 }
 
 // CounterAttackPenaltyReduction delegates.
 func (p *Power) CounterAttackPenaltyReduction() int {
-	return p.AttackEffect.AttackCounterAttackPenaltyReduction
+	return p.AttackEffect.CounterAttackPenaltyReduction()
 }
 
 // CriticalHitThreshold delegates.
 func (p *Power) CriticalHitThreshold() int {
 	return p.AttackEffect.CriticalHitThreshold()
+}
+
+// CriticalHitThresholdBonus delegates.
+func (p *Power) CriticalHitThresholdBonus() int {
+	return p.AttackEffect.CriticalHitThresholdBonus()
 }
 
 // ExtraCriticalHitDamage delegates.
@@ -147,4 +152,94 @@ func (p *Power) HitPointsHealed() int {
 // HealingAdjustmentBasedOnUserMind delegates.
 func (p *Power) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
 	return p.HealingEffect.HealingAdjustmentBasedOnUserMind()
+}
+
+// HasSameStatsAs returns true if other's stats matches this one.
+//   The comparison ignores the ID.
+func (p *Power) HasSameStatsAs(other *Power) bool {
+	if p.Name() != other.Name() {
+		return false
+	}
+	if p.Type() != other.Type() {
+		return false
+	}
+
+	if p.CanPowerTargetFriend() != other.CanPowerTargetFriend() {
+		return false
+	}
+	if p.CanPowerTargetFoe() != other.CanPowerTargetFoe() {
+		return false
+	}
+	if p.CanPowerTargetSelf() != other.CanPowerTargetSelf() {
+		return false
+	}
+
+	if p.CanAttack() != other.CanAttack() {
+		return false
+	}
+	if p.CanAttack() {
+		if p.CanBeEquipped() != other.CanBeEquipped() {
+			return false
+		}
+		if p.CanCounterAttack() != other.CanCounterAttack() {
+			return false
+		}
+		if p.ToHitBonus() != other.ToHitBonus() {
+			return false
+		}
+		if p.DamageBonus() != other.DamageBonus() {
+			return false
+		}
+		if p.ExtraBarrierBurn() != other.ExtraBarrierBurn() {
+			return false
+		}
+		if p.CounterAttackPenaltyReduction() != other.CounterAttackPenaltyReduction() {
+			return false
+		}
+
+		if p.CanCritical() != other.CanCritical() {
+			return false
+		}
+		// TODO Add Critical stats
+	}
+
+	if p.CanHeal() != other.CanHeal() {
+		return false
+	}
+	if p.CanHeal() {
+		if p.HitPointsHealed() != other.HitPointsHealed() {
+			return false
+		}
+		if p.HealingAdjustmentBasedOnUserMind() != other.HealingAdjustmentBasedOnUserMind() {
+			return false
+		}
+	}
+
+	return true
+}
+
+// CanAttack returns true if this power can be used to attack.
+func (p *Power) CanAttack() bool {
+	return p.AttackEffect != nil
+}
+
+// CanCritical returns true if this power critically hit.
+func (p *Power) CanCritical() bool {
+	return p.AttackEffect.CanCriticallyHit()
+}
+
+// CanCriticallyHit is an alias of CanCritical.
+func (p *Power) CanCriticallyHit() bool {
+	return p.CanCritical()
+}
+
+// CanHeal returns true if this power can be used to heal.
+func (p *Power) CanHeal() bool {
+	return p.HealingEffect != nil
+}
+
+// CounterAttackPenalty delegates.
+func (p *Power) CounterAttackPenalty() (int, error) {
+	penalty, err := p.AttackEffect.CounterAttackPenalty()
+	return penalty, err
 }

@@ -102,10 +102,7 @@ func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 }
 
 func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
-	suite.spear.AttackEffect.CriticalEffect = &power.CriticalEffect{
-		CriticalHitThresholdBonus: 0,
-		Damage:                    3,
-	}
+	suite.spear.AttackEffect.CriticalEffect = powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(0).DealsDamage(3).Build()
 	suite.forecastSpearOnBandit.CalculateForecast()
 
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CanCritical, Equals, true)

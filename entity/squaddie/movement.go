@@ -2,7 +2,7 @@ package squaddie
 
 // Movement contains all information needed to describe a Squaddie's movement.
 type Movement struct {
-	SquaddieMovementDistance int          `json:"distance" yaml:"distance"`
+	SquaddieMovementDistance     int          `json:"distance" yaml:"distance"`
 	SquaddieMovementType         MovementType `json:"type" yaml:"type"`
 	SquaddieMovementCanHitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
 }

@@ -11,10 +11,10 @@ var _ = Suite(&CriticalEffectBuilder{})
 
 func (suite *CriticalEffectBuilder) TestBuildCriticalEffectDamage(checker *C) {
 	criticalDamageEffect := power.CriticalEffectBuilder().DealsDamage(8).Build()
-	checker.Assert(8, Equals, criticalDamageEffect.Damage)
+	checker.Assert(8, Equals, criticalDamageEffect.ExtraCriticalHitDamage())
 }
 
 func (suite *CriticalEffectBuilder) TestBuildCriticalEffectThresholdBonus(checker *C) {
 	criticalDamageEffect := power.CriticalEffectBuilder().CriticalHitThresholdBonus(-2).Build()
-	checker.Assert(-2, Equals, criticalDamageEffect.CriticalHitThresholdBonus)
+	checker.Assert(-2, Equals, criticalDamageEffect.CriticalHitThresholdBonus())
 }

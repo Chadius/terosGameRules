@@ -7,12 +7,12 @@ import (
 // Defense holds everything needed to prevent the squaddie from getting hindered.
 type Defense struct {
 	SquaddieCurrentHitPoints int `json:"current_hit_points" yaml:"current_hit_points"`
-	SquaddieMaxHitPoints int `json:"max_hit_points" yaml:"max_hit_points"`
-	SquaddieDodge   int `json:"dodge" yaml:"dodge"`
-	SquaddieDeflect        int `json:"deflect" yaml:"deflect"`
-	SquaddieCurrentBarrier int `json:"current_barrier" yaml:"current_barrier"`
-	SquaddieMaxBarrier int `json:"max_barrier" yaml:"max_barrier"`
-	SquaddieArmor      int `json:"armor" yaml:"armor"`
+	SquaddieMaxHitPoints     int `json:"max_hit_points" yaml:"max_hit_points"`
+	SquaddieDodge            int `json:"dodge" yaml:"dodge"`
+	SquaddieDeflect          int `json:"deflect" yaml:"deflect"`
+	SquaddieCurrentBarrier   int `json:"current_barrier" yaml:"current_barrier"`
+	SquaddieMaxBarrier       int `json:"max_barrier" yaml:"max_barrier"`
+	SquaddieArmor            int `json:"armor" yaml:"armor"`
 }
 
 // SetHPToMax restores the Squaddie's HitPoints.
