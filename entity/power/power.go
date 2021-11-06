@@ -30,11 +30,11 @@ type Targeting struct {
 
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
-	Reference     `yaml:",inline"`
-	PowerType     DamageType       `json:"power_type" yaml:"power_type"`
-	Targeting     Targeting        `json:"targeting" yaml:"targeting"`
-	AttackEffect  *AttackingEffect `json:"attack_effect" yaml:"attack_effect"`
-	HealingEffect *HealingEffect   `json:"healing_effect" yaml:"healing_effect"`
+	Reference
+	PowerType     DamageType
+	Targeting     Targeting
+	AttackEffect  *AttackingEffect
+	HealingEffect *HealingEffect
 }
 
 // GetReference returns a new PowerReference.

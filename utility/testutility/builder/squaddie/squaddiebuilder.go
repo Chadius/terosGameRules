@@ -16,8 +16,8 @@ type BuilderOptions struct {
 	defenseOptions        *DefenseBuilderOptions
 	movementOptions       *MovementBuilderOptions
 	powerReferencesToAdd  []*power.Reference
-	classReferencesToAdd          []*squaddieclass.ClassReference
-	classIDToUse string
+	classReferencesToAdd  []*squaddieclass.ClassReference
+	classIDToUse          string
 }
 
 // Builder creates a BuilderOptions with default values.
@@ -30,8 +30,8 @@ func Builder() *BuilderOptions {
 		defenseOptions:        DefenseBuilder(),
 		movementOptions:       MovementBuilder(),
 		powerReferencesToAdd:  []*power.Reference{},
-		classReferencesToAdd:          []*squaddieclass.ClassReference{},
-		classIDToUse: "",
+		classReferencesToAdd:  []*squaddieclass.ClassReference{},
+		classIDToUse:          "",
 	}
 }
 
