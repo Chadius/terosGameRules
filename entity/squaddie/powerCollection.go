@@ -53,7 +53,7 @@ func (powerCollection *PowerCollection) GetEquippedPowerID() string {
 }
 
 // AddPowerReference adds a power reference, assuming it doesn't exist
-func (powerCollection *PowerCollection) AddPowerReference (reference *power.Reference) {
+func (powerCollection *PowerCollection) AddPowerReference(reference *power.Reference) {
 	for _, ref := range powerCollection.PowerReferences {
 		if ref.PowerID == reference.PowerID {
 			return
@@ -68,7 +68,7 @@ func (powerCollection *PowerCollection) AddPowerReference (reference *power.Refe
 }
 
 // RemovePowerReferenceByPowerID removes a power reference.
-func (powerCollection *PowerCollection) RemovePowerReferenceByPowerID (powerID string) {
+func (powerCollection *PowerCollection) RemovePowerReferenceByPowerID(powerID string) {
 	foundPowerToRemove := false
 	indexToRemove := 0
 	for index, ref := range powerCollection.PowerReferences {
@@ -81,7 +81,7 @@ func (powerCollection *PowerCollection) RemovePowerReferenceByPowerID (powerID s
 	if foundPowerToRemove {
 		powerCollection.PowerReferences = append(
 			powerCollection.PowerReferences[:indexToRemove],
-			powerCollection.PowerReferences[indexToRemove+1:]...
+			powerCollection.PowerReferences[indexToRemove+1:]...,
 		)
 	}
 }

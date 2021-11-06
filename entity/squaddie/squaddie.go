@@ -163,6 +163,45 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 		return false
 	}
 
+	if !s.hasSameDefenseAs(other) {
+		return false
+	}
+	if !s.hasSameOffenseAs(other) {
+		return false
+	}
+	if !s.hasSameMovementAs(other) {
+		return false
+	}
+	return true
+}
+
+func (s *Squaddie) hasSameMovementAs(other *Squaddie) bool {
+	if s.MovementType() != other.MovementType() {
+		return false
+	}
+	if s.MovementDistance() != other.MovementDistance() {
+		return false
+	}
+	if s.MovementCanHitAndRun() != other.MovementCanHitAndRun() {
+		return false
+	}
+	return true
+}
+
+func (s *Squaddie) hasSameOffenseAs(other *Squaddie) bool {
+	if s.Aim() != other.Aim() {
+		return false
+	}
+	if s.Strength() != other.Strength() {
+		return false
+	}
+	if s.Mind() != other.Mind() {
+		return false
+	}
+	return true
+}
+
+func (s *Squaddie) hasSameDefenseAs(other *Squaddie) bool {
 	if s.MaxHitPoints() != other.MaxHitPoints() {
 		return false
 	}
@@ -182,26 +221,6 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 		return false
 	}
 	if s.CurrentBarrier() != other.CurrentBarrier() {
-		return false
-	}
-
-	if s.Aim() != other.Aim() {
-		return false
-	}
-	if s.Strength() != other.Strength() {
-		return false
-	}
-	if s.Mind() != other.Mind() {
-		return false
-	}
-
-	if s.MovementType() != other.MovementType() {
-		return false
-	}
-	if s.MovementDistance() != other.MovementDistance() {
-		return false
-	}
-	if s.MovementCanHitAndRun() != other.MovementCanHitAndRun() {
 		return false
 	}
 	return true

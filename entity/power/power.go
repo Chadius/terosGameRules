@@ -164,16 +164,37 @@ func (p *Power) HasSameStatsAs(other *Power) bool {
 		return false
 	}
 
-	if p.CanPowerTargetFriend() != other.CanPowerTargetFriend() {
-		return false
-	}
-	if p.CanPowerTargetFoe() != other.CanPowerTargetFoe() {
-		return false
-	}
-	if p.CanPowerTargetSelf() != other.CanPowerTargetSelf() {
+	if !p.hasSameTargetingAs(other) {
 		return false
 	}
 
+	if !p.hasSameAttackEffectAs(other) {
+		return false
+	}
+
+	if !p.hasSameHealingEffectAs(other) {
+		return false
+	}
+
+	return true
+}
+
+func (p *Power) hasSameHealingEffectAs(other *Power) bool {
+	if p.CanHeal() != other.CanHeal() {
+		return false
+	}
+	if p.CanHeal() {
+		if p.HitPointsHealed() != other.HitPointsHealed() {
+			return false
+		}
+		if p.HealingAdjustmentBasedOnUserMind() != other.HealingAdjustmentBasedOnUserMind() {
+			return false
+		}
+	}
+	return true
+}
+
+func (p *Power) hasSameAttackEffectAs(other *Power) bool {
 	if p.CanAttack() != other.CanAttack() {
 		return false
 	}
@@ -200,21 +221,28 @@ func (p *Power) HasSameStatsAs(other *Power) bool {
 		if p.CanCritical() != other.CanCritical() {
 			return false
 		}
-		// TODO Add Critical stats
+		if p.CanCritical() {
+			if p.CriticalHitThresholdBonus() != other.CriticalHitThresholdBonus() {
+				return false
+			}
+			if p.ExtraCriticalHitDamage() != other.ExtraCriticalHitDamage() {
+				return false
+			}
+		}
 	}
+	return true
+}
 
-	if p.CanHeal() != other.CanHeal() {
+func (p *Power) hasSameTargetingAs(other *Power) bool {
+	if p.CanPowerTargetFriend() != other.CanPowerTargetFriend() {
 		return false
 	}
-	if p.CanHeal() {
-		if p.HitPointsHealed() != other.HitPointsHealed() {
-			return false
-		}
-		if p.HealingAdjustmentBasedOnUserMind() != other.HealingAdjustmentBasedOnUserMind() {
-			return false
-		}
+	if p.CanPowerTargetFoe() != other.CanPowerTargetFoe() {
+		return false
 	}
-
+	if p.CanPowerTargetSelf() != other.CanPowerTargetSelf() {
+		return false
+	}
 	return true
 }
 

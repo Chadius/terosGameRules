@@ -15,7 +15,7 @@ type BuilderOptions struct {
 	offenseOptions        *OffenseBuilderOptions
 	defenseOptions        *DefenseBuilderOptions
 	movementOptions       *MovementBuilderOptions
-	powerReferencesToAdd           []*power.Reference
+	powerReferencesToAdd  []*power.Reference
 	classesToAdd          []*squaddieclass.Class
 	classToUse            *squaddieclass.Class
 }
@@ -29,7 +29,7 @@ func Builder() *BuilderOptions {
 		offenseOptions:        OffenseBuilder(),
 		defenseOptions:        DefenseBuilder(),
 		movementOptions:       MovementBuilder(),
-		powerReferencesToAdd:           []*power.Reference{},
+		powerReferencesToAdd:  []*power.Reference{},
 		classesToAdd:          []*squaddieclass.Class{},
 		classToUse:            nil,
 	}
@@ -312,20 +312,12 @@ func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
 		HitPoints(source.MaxHitPoints()).Deflect(source.Deflect()).Barrier(source.MaxBarrier()).Armor(source.Armor()).Dodge(source.Dodge()).
 		Aim(source.Aim()).Strength(source.Strength()).Mind(source.Mind()).
 		MoveDistance(source.MovementDistance())
+	s.cloneAffiliation(source)
+	s.cloneMovement(source)
+	return s
+}
 
-	if source.Affiliation() == squaddie.Player {
-		s.AsPlayer()
-	}
-	if source.Affiliation() == squaddie.Enemy {
-		s.AsEnemy()
-	}
-	if source.Affiliation() == squaddie.Ally {
-		s.AsAlly()
-	}
-	if source.Affiliation() == squaddie.Neutral {
-		s.AsNeutral()
-	}
-
+func (s *BuilderOptions) cloneMovement(source *squaddie.Squaddie) {
 	if source.MovementType() == squaddie.Foot {
 		s.MovementFoot()
 	}
@@ -341,5 +333,19 @@ func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
 	if source.MovementCanHitAndRun() {
 		s.CanHitAndRun()
 	}
-	return s
+}
+
+func (s *BuilderOptions) cloneAffiliation(source *squaddie.Squaddie) {
+	if source.Affiliation() == squaddie.Player {
+		s.AsPlayer()
+	}
+	if source.Affiliation() == squaddie.Enemy {
+		s.AsEnemy()
+	}
+	if source.Affiliation() == squaddie.Ally {
+		s.AsAlly()
+	}
+	if source.Affiliation() == squaddie.Neutral {
+		s.AsNeutral()
+	}
 }

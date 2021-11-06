@@ -376,25 +376,31 @@ func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMa
 func (p *BuilderOptions) CloneOf(source *power.Power) *BuilderOptions {
 	p.WithName(source.Name())
 
-	if source.Type() == power.Physical {
-		p.IsPhysical()
-	}
-	if source.Type() == power.Spell {
-		p.IsSpell()
-	}
+	p.clonePowerType(source)
+	p.cloneTargeting(source)
+	p.cloneAttackEffect(source)
+	p.cloneHealingEffect(source)
 
-	if source.CanPowerTargetFoe() {
-		p.TargetsFoe()
-	}
+	return p
+}
 
-	if source.CanPowerTargetFriend() {
-		p.TargetsFriend()
-	}
+func (p *BuilderOptions) cloneHealingEffect(source *power.Power) {
+	if source.CanHeal() {
+		p.HitPointsHealed(source.HitPointsHealed())
 
-	if source.CanPowerTargetSelf() {
-		p.TargetsSelf()
+		if source.HealingAdjustmentBasedOnUserMind() == power.Full {
+			p.HealingAdjustmentBasedOnUserMindFull()
+		}
+		if source.HealingAdjustmentBasedOnUserMind() == power.Half {
+			p.HealingAdjustmentBasedOnUserMindHalf()
+		}
+		if source.HealingAdjustmentBasedOnUserMind() == power.Zero {
+			p.HealingAdjustmentBasedOnUserMindZero()
+		}
 	}
+}
 
+func (p *BuilderOptions) cloneAttackEffect(source *power.Power) {
 	if source.CanAttack() {
 		p.ToHitBonus(source.ToHitBonus()).DealsDamage(source.DamageBonus()).ExtraBarrierBurn(source.ExtraBarrierBurn()).
 			CounterAttackPenaltyReduction(source.CounterAttackPenaltyReduction())
@@ -420,20 +426,27 @@ func (p *BuilderOptions) CloneOf(source *power.Power) *BuilderOptions {
 			p.TargetsSelf()
 		}
 	}
+}
 
-	if source.CanHeal() {
-		p.HitPointsHealed(source.HitPointsHealed())
-
-		if source.HealingAdjustmentBasedOnUserMind() == power.Full {
-			p.HealingAdjustmentBasedOnUserMindFull()
-		}
-		if source.HealingAdjustmentBasedOnUserMind() == power.Half {
-			p.HealingAdjustmentBasedOnUserMindHalf()
-		}
-		if source.HealingAdjustmentBasedOnUserMind() == power.Zero {
-			p.HealingAdjustmentBasedOnUserMindZero()
-		}
+func (p *BuilderOptions) cloneTargeting(source *power.Power) {
+	if source.CanPowerTargetFoe() {
+		p.TargetsFoe()
 	}
 
-	return p
+	if source.CanPowerTargetFriend() {
+		p.TargetsFriend()
+	}
+
+	if source.CanPowerTargetSelf() {
+		p.TargetsSelf()
+	}
+}
+
+func (p *BuilderOptions) clonePowerType(source *power.Power) {
+	if source.Type() == power.Physical {
+		p.IsPhysical()
+	}
+	if source.Type() == power.Spell {
+		p.IsSpell()
+	}
 }

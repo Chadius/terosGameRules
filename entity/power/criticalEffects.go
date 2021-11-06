@@ -7,7 +7,7 @@ type CriticalEffect struct {
 }
 
 // NewCriticalEffect returns a new CriticalEffect.
-func NewCriticalEffect (criticalHitThresholdBonus, damage int) *CriticalEffect {
+func NewCriticalEffect(criticalHitThresholdBonus, damage int) *CriticalEffect {
 	return &CriticalEffect{
 		CriticalCriticalHitThresholdBonus: criticalHitThresholdBonus,
 		Damage:                            damage,
