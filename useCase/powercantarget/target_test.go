@@ -2,6 +2,7 @@ package powercantarget_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powercantarget"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -29,7 +30,7 @@ type TargetingCheck struct {
 	healingStaff *power.Power
 	selfDestruct *power.Power
 
-	powerRepo    *power.Repository
+	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 	repos        *repositories.RepositoryCollection
 }
@@ -63,7 +64,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 		suite.bomb2,
 	})
 
-	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		suite.meditation,
 		suite.axe,

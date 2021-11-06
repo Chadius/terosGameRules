@@ -1,36 +1,59 @@
-package power
+package powerrepository
 
 import (
-	"encoding/json"
+	"errors"
+	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/utility"
-	"gopkg.in/yaml.v2"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 )
 
 // Repository will interact with external devices to manage Powers.
 type Repository struct {
-	powersByID map[string]*Power
+	powersByID map[string]*power.Power
 }
 
 // NewPowerRepository generates a pointer to a new Repository.
 func NewPowerRepository() *Repository {
 	repository := Repository{
-		map[string]*Power{},
+		map[string]*power.Power{},
 	}
 	return &repository
 }
 
 // AddJSONSource consumes a given bytestream and tries to analyze it.
 func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
-	return repository.addSource(data, json.Unmarshal)
+	builderOptions := powerBuilder.CreatePowerBuilderOptionsFromJSON(data)
+	if builderOptions == nil {
+		return false, errors.New("could not create BuilderOptions with given JSON")
+	}
+
+	powersToAdd := []*power.Power{}
+	for _, option := range builderOptions {
+		newPower := option.Build()
+		powersToAdd = append(powersToAdd, newPower)
+	}
+
+	return repository.AddSlicePowerSource(powersToAdd)
 }
 
 // AddYAMLSource consumes a given bytestream and tries to analyze it.
 func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
-	return repository.addSource(data, yaml.Unmarshal)
+	builderOptions := powerBuilder.CreatePowerBuilderOptionsFromYAML(data)
+	if builderOptions == nil {
+		return false, errors.New("could not create BuilderOptions with given YAML")
+	}
+
+	powersToAdd := []*power.Power{}
+	for _, option := range builderOptions {
+		newPower := option.Build()
+		powersToAdd = append(powersToAdd, newPower)
+	}
+
+	return repository.AddSlicePowerSource(powersToAdd)
 }
 
 // AddSlicePowerSource tries to add the slice of powers to the repo.
-func (repository *Repository) AddSlicePowerSource(powersToAdd []*Power) (bool, error) {
+func (repository *Repository) AddSlicePowerSource(powersToAdd []*power.Power) (bool, error) {
 	for _, powerToAdd := range powersToAdd {
 		success, err := repository.tryToAddPower(powerToAdd)
 		if success == false {
@@ -41,7 +64,7 @@ func (repository *Repository) AddSlicePowerSource(powersToAdd []*Power) (bool, e
 }
 
 // AddPower tries to add a single power to the repository.
-func (repository *Repository) AddPower(powerToAdd *Power) (bool, error) {
+func (repository *Repository) AddPower(powerToAdd *power.Power) (bool, error) {
 	success, err := repository.tryToAddPower(powerToAdd)
 	return success, err
 }
@@ -49,7 +72,7 @@ func (repository *Repository) AddPower(powerToAdd *Power) (bool, error) {
 // addSource consumes a given bytestream of the given sourceType and tries to analyze it.
 func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
-	var listOfPowers []Power
+	var listOfPowers []power.Power
 
 	unmarshalError = unmarshal(data, &listOfPowers)
 
@@ -66,8 +89,8 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	return true, nil
 }
 
-func (repository *Repository) tryToAddPower(powerToAdd *Power) (bool, error) {
-	PowerErr := CheckPowerForErrors(powerToAdd)
+func (repository *Repository) tryToAddPower(powerToAdd *power.Power) (bool, error) {
+	PowerErr := power.CheckPowerForErrors(powerToAdd)
 	if PowerErr != nil {
 		return false, PowerErr
 	}
@@ -81,13 +104,13 @@ func (repository *Repository) GetNumberOfPowers() int {
 }
 
 // GetPowerByID returns the Power stored by SquaddieID.
-func (repository *Repository) GetPowerByID(powerID string) *Power {
+func (repository *Repository) GetPowerByID(powerID string) *power.Power {
 	return repository.powersByID[powerID]
 }
 
 // GetAllPowersByName returns a slice of powers based on a given name
-func (repository *Repository) GetAllPowersByName(powerNameToFind string) []*Power {
-	powersFound := []*Power{}
+func (repository *Repository) GetAllPowersByName(powerNameToFind string) []*power.Power {
+	powersFound := []*power.Power{}
 	for _, power := range repository.powersByID {
 		if power.Name() == powerNameToFind {
 			powersFound = append(powersFound, power)

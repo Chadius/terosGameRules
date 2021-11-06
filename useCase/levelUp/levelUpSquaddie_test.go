@@ -3,6 +3,7 @@ package levelup_test
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
@@ -152,7 +153,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovemen
 type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
 	mageClass    *squaddieclass.Class
 	teros        *squaddie.Squaddie
-	powerRepo    *power.Repository
+	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 	repos        *repositories.RepositoryCollection
 	gainPower    levelupbenefit.LevelUpBenefit
@@ -174,7 +175,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 	}).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
-	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
 
 	suite.spear = powerBuilder.Builder().Spear().WithID("spearlvl1").Build()
 

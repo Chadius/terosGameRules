@@ -3,6 +3,7 @@ package squaddie_test
 import (
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
@@ -62,7 +63,7 @@ func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
 	spear := powerBuilder.Builder().Spear().Build()
 
-	powerRepo := power.NewPowerRepository()
+	powerRepo := powerrepository.NewPowerRepository()
 	powerRepo.AddSlicePowerSource([]*power.Power{spear})
 
 	powerequip.LoadAllOfSquaddieInnatePowers(

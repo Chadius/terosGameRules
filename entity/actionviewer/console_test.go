@@ -3,6 +3,7 @@ package actionviewer_test
 import (
 	"github.com/chadius/terosbattleserver/entity/actionviewer"
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
@@ -29,7 +30,7 @@ type ConsoleViewerSuite struct {
 	axe          *power.Power
 	healingStaff *power.Power
 
-	powerRepo    *power.Repository
+	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 	repos        *repositories.RepositoryCollection
 
@@ -65,7 +66,7 @@ func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
 		suite.lini,
 	})
 
-	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		suite.blot,
 		suite.axe,

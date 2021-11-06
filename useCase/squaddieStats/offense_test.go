@@ -2,6 +2,7 @@ package squaddiestats_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
@@ -20,7 +21,7 @@ type squaddieOffense struct {
 	spear *power.Power
 	blot  *power.Power
 
-	powerRepo    *power.Repository
+	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 
 	repos *repositories.RepositoryCollection
@@ -37,7 +38,7 @@ func (suite *squaddieOffense) SetUpTest(checker *C) {
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
 
-	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot})
 
 	suite.repos = &repositories.RepositoryCollection{
@@ -203,7 +204,7 @@ type healingPower struct {
 	lini         *squaddie.Squaddie
 	healingStaff *power.Power
 
-	powerRepo    *power.Repository
+	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 
 	repos *repositories.RepositoryCollection
@@ -219,7 +220,7 @@ func (suite *healingPower) SetUpTest(checker *C) {
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.lini})
 
-	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.healingStaff})
 
 	suite.repos = &repositories.RepositoryCollection{

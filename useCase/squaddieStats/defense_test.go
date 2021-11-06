@@ -2,6 +2,7 @@ package squaddiestats_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
@@ -17,7 +18,7 @@ type squaddieDefense struct {
 	weakerSpear *power.Power
 	weakerBlot  *power.Power
 
-	powerRepo    *power.Repository
+	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 
 	repos *repositories.RepositoryCollection
@@ -34,7 +35,7 @@ func (suite *squaddieDefense) SetUpTest(checker *C) {
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
 
-	suite.powerRepo = power.NewPowerRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.weakerSpear, suite.weakerBlot})
 
 	suite.repos = &repositories.RepositoryCollection{

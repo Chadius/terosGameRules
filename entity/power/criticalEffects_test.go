@@ -2,6 +2,7 @@ package power_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 )
@@ -33,23 +34,21 @@ func (suite *CriticalEffectActivation) TestCriticalEffectsWithJSON(checker *C) {
 					"id": "deadbeef",
 					"damage_bonus": 2,
 					"power_type": "physical",
-					"attack_effect": {
-						"can_counter_attack": true,
-						"counter_attack_penalty": -2,
-						"critical_effect": {
-							"critical_hit_threshold_bonus": 2,
-							"damage": 3
-						}
-					}
+					"can_attack": true,
+					"can_critical": true,
+					"can_counter_attack": true,
+					"counter_attack_penalty": -3,
+					"critical_hit_threshold_bonus": 5,
+					"critical_damage": 7
 				}]`)
-	newRepo := power.NewPowerRepository()
+	newRepo := powerrepository.NewPowerRepository()
 	success, _ := newRepo.AddJSONSource(jsonByteStream)
 	checker.Assert(success, Equals, true)
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
 
 	scimitar := newRepo.GetPowerByID("deadbeef")
-	checker.Assert(scimitar.CriticalHitThresholdBonus(), Equals, 2)
-	checker.Assert(scimitar.ExtraCriticalHitDamage(), Equals, 3)
+	checker.Assert(scimitar.CriticalHitThresholdBonus(), Equals, 5)
+	checker.Assert(scimitar.ExtraCriticalHitDamage(), Equals, 7)
 }
 
 func (suite *CriticalEffectActivation) TestCriticalEffectsWithYAML(checker *C) {
@@ -57,20 +56,20 @@ func (suite *CriticalEffectActivation) TestCriticalEffectsWithYAML(checker *C) {
   name: Scimitar
   id: deadbeef
   power_type: physical
-  attack_effect:
-    damage_bonus: 2
-    can_counter_attack: true
-    counter_attack_penalty: -2
-    critical_effect:
-      critical_hit_threshold_bonus: 2
-      damage: 3
+  can_attack: true
+  damage_bonus: 7
+  can_counter_attack: true
+  counter_attack_penalty: -5
+  can_critical: true
+  critical_hit_threshold_bonus: 3
+  critical_damage: 2
 `)
-	newRepo := power.NewPowerRepository()
+	newRepo := powerrepository.NewPowerRepository()
 	success, _ := newRepo.AddYAMLSource(yamlByteStream)
 	checker.Assert(success, Equals, true)
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
 
 	scimitar := newRepo.GetPowerByID("deadbeef")
-	checker.Assert(scimitar.CriticalHitThresholdBonus(), Equals, 2)
-	checker.Assert(scimitar.ExtraCriticalHitDamage(), Equals, 3)
+	checker.Assert(scimitar.CriticalHitThresholdBonus(), Equals, 3)
+	checker.Assert(scimitar.ExtraCriticalHitDamage(), Equals, 2)
 }

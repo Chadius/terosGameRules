@@ -62,25 +62,23 @@ func (suite *ReplayScriptSuite) Test(checker *C) {
   name: Spear
   id: powerSpear
   power_type: physical
-  targeting:
-    target_foe: true
-  attack_effect:
-    damage_bonus: 2
-    can_be_equipped: true
-    can_counter_attack: true
-    counter_attack_penalty_reduction: 0
-    critical_effect:
-      damage: 2
+  target_foe: true
+  can_attack: true
+  damage_bonus: 2
+  can_be_equipped: true
+  can_counter_attack: true
+  counter_attack_penalty_reduction: 0
+  can_critical: true
+  critical_damage: 2
 -
   name: Axe
   id: powerAxe
   power_type: physical
-  targeting:
-    target_foe: true
-  attack_effect:
-    damage_bonus: 1
-    can_be_equipped: true
-    can_counter_attack: true
+  target_foe: true
+  can_attack: true
+  damage_bonus: 1
+  can_be_equipped: true
+  can_counter_attack: true
 `)
 	powerByteStream := bytes.NewBuffer(powerData)
 

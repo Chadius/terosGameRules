@@ -187,7 +187,6 @@ extra_barrier_damage: 5
 can_be_equipped: true
 can_counter_attack: true
 counter_attack_penalty_reduction: 7
-
 can_critical: true
 critical_hit_threshold_bonus: 9
 critical_damage: 11

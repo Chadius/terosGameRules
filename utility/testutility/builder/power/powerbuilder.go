@@ -269,24 +269,55 @@ type BuilderOptionMarshal struct {
 
 // UsingYAML uses the yaml data to generate BuilderOptions.
 func (p *BuilderOptions) UsingYAML(yamlData []byte) *BuilderOptions {
-	return p.usingByteStream(yamlData, yaml.Unmarshal)
+	return p.usingByteStreamForOneOption(yamlData, yaml.Unmarshal)
 }
 
 // UsingJSON uses the yaml data to generate BuilderOptions.
 func (p *BuilderOptions) UsingJSON(jsonData []byte) *BuilderOptions {
-	return p.usingByteStream(jsonData, json.Unmarshal)
+	return p.usingByteStreamForOneOption(jsonData, json.Unmarshal)
 }
 
-func (p *BuilderOptions) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) *BuilderOptions {
+func (p *BuilderOptions) usingByteStreamForOneOption(data []byte, unmarshal utility.UnmarshalFunc) *BuilderOptions {
 	var unmarshalError error
 	var marshaledOptions BuilderOptionMarshal
-
 	unmarshalError = unmarshal(data, &marshaledOptions)
 
 	if unmarshalError != nil {
 		return p
 	}
 
+	return p.usingMarshaledOptions(&marshaledOptions)
+}
+
+// CreatePowerBuilderOptionsFromYAML takes a YAML stream and converts them to a list of BuilderOptions.
+func CreatePowerBuilderOptionsFromYAML(yamlData []byte) []*BuilderOptions {
+	return usingByteStreamForMultipleOptions(yamlData, yaml.Unmarshal)
+}
+
+// CreatePowerBuilderOptionsFromJSON takes a JSON stream and converts them to a list of BuilderOptions.
+func CreatePowerBuilderOptionsFromJSON(jsonData []byte) []*BuilderOptions {
+	return usingByteStreamForMultipleOptions(jsonData, json.Unmarshal)
+}
+
+func usingByteStreamForMultipleOptions(data []byte, unmarshal utility.UnmarshalFunc) []*BuilderOptions {
+	var unmarshalError error
+	var allMarshaledOptions []BuilderOptionMarshal
+	unmarshalError = unmarshal(data, &allMarshaledOptions)
+
+	if unmarshalError != nil {
+		return nil
+	}
+
+	builderOptions := []*BuilderOptions{}
+	for _, marshaledOptions := range allMarshaledOptions {
+		newOption := Builder().usingMarshaledOptions(&marshaledOptions)
+		builderOptions = append(builderOptions, newOption)
+	}
+
+	return builderOptions
+}
+
+func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) *BuilderOptions {
 	p.WithID(marshaledOptions.ID).WithName(marshaledOptions.Name)
 
 	if marshaledOptions.CanAttack {

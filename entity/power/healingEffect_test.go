@@ -1,14 +1,14 @@
 package power_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	. "gopkg.in/check.v1"
 )
 
 type HealingEffectLoadedFromData struct {
 	healStaffJSON []byte
 	healStaffYAML []byte
-	repo          *power.Repository
+	repo          *powerrepository.Repository
 }
 
 var _ = Suite(&HealingEffectLoadedFromData{})
@@ -18,20 +18,19 @@ func (suite *HealingEffectLoadedFromData) SetUpTest(checker *C) {
 					"name": "Heal",
 					"id": "power_heal",
 					"power_type": "spell",
-					"healing_effect": {
-						"hit_points_healed": 2
-					}
+					"can_heal": true,
+					"hit_points_healed": 2
 				}]`)
 
 	suite.healStaffYAML = []byte(`-
   name: Heal
   id: power_heal
   power_type: spell
-  healing_effect:
-    hit_points_healed: 2
+  can_heal: true
+  hit_points_healed: 2
 `)
 
-	suite.repo = power.NewPowerRepository()
+	suite.repo = powerrepository.NewPowerRepository()
 }
 
 func (suite *HealingEffectLoadedFromData) TestLoadFromJSON(checker *C) {

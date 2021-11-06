@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/actioncontroller"
 	"github.com/chadius/terosbattleserver/entity/actionviewer"
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/replay"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -94,8 +94,8 @@ func loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
 	return squaddieRepo
 }
 
-func loadPowerRepo(powerYamlData []byte) (repo *power.Repository) {
-	powerRepo := power.NewPowerRepository()
+func loadPowerRepo(powerYamlData []byte) (repo *powerrepository.Repository) {
+	powerRepo := powerrepository.NewPowerRepository()
 	powerRepo.AddYAMLSource(powerYamlData)
 	return powerRepo
 }
@@ -142,7 +142,7 @@ func createSquaddieRepo(input io.Reader) *squaddie.Repository {
 	return repo
 }
 
-func createPowerRepo(input io.Reader) *power.Repository {
+func createPowerRepo(input io.Reader) *powerrepository.Repository {
 	powerData, powerErr := ioutil.ReadAll(input)
 	if powerErr != nil {
 		log.Fatal(powerErr)

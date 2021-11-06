@@ -1,15 +1,19 @@
-package power_test
+package powerrepository_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
+	"testing"
 )
+
+func Test(t *testing.T) { TestingT(t) }
 
 type PowerCreationSuite struct {
 	spear  *power.Power
 	spear2 *power.Power
-	repo   *power.Repository
+	repo   *powerrepository.Repository
 }
 
 var _ = Suite(&PowerCreationSuite{})
@@ -20,12 +24,12 @@ func (suite *PowerCreationSuite) SetUpTest(checker *C) {
 
 	newPowers := []*power.Power{suite.spear, suite.spear2}
 
-	suite.repo = power.NewPowerRepository()
+	suite.repo = powerrepository.NewPowerRepository()
 	suite.repo.AddSlicePowerSource(newPowers)
 }
 
 func (suite *PowerCreationSuite) TestAddPowersToNewRepository(checker *C) {
-	newRepo := power.NewPowerRepository()
+	newRepo := powerrepository.NewPowerRepository()
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 0)
 	spear := powerBuilder.Builder().Spear().Build()
 	newPowers := []*power.Power{spear}
@@ -74,50 +78,39 @@ func (suite *PowerCreationSuite) TestSearchForPowerByName(checker *C) {
 
 func (suite *PowerCreationSuite) TestLoadPowersWithJSON(checker *C) {
 	jsonByteStream := []byte(`[{
-					"name": "Scimitar",
 					"id": "deadbeef",
+					"name": "Scimitar",
+					"can_attack": true,
 					"damage_bonus": 2,
 					"power_type": "physical",
-					"targeting": {
-						"target_foe": true
-					},
-					"attack_effect": {
-						"can_counter_attack": true,
-						"counter_attack_penalty_reduction": -2
-					}
+					"target_foe": true,
+					"can_counter_attack": true,
+					"counter_attack_penalty_reduction": -2
 				}]`)
-	newRepo := power.NewPowerRepository()
-	success, _ := newRepo.AddJSONSource(jsonByteStream)
+	newRepo := powerrepository.NewPowerRepository()
+	success, err := newRepo.AddJSONSource(jsonByteStream)
+	checker.Assert(err, IsNil)
 	checker.Assert(success, Equals, true)
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
+	scimitar := newRepo.GetPowerByID("deadbeef")
+	checker.Assert(scimitar.Name(), Equals, "Scimitar")
+	checker.Assert(scimitar.ID(), Equals, "deadbeef")
+	checker.Assert(scimitar.DamageBonus(), Equals, 2)
+	checker.Assert(scimitar.CanCounterAttack(), Equals, true)
 }
-func (suite *PowerCreationSuite) TestStopsLoadingUponFirstInvalidPower(checker *C) {
-	jsonByteStream := []byte(`[{
-				"name": "Scimitar",
-				"id": "deadbeef",
-				"power_type": "physical"
-			},{
-				"name": "Scimitar2",
-				"id": "deadbeee",
-				"power_type": "mystery"
-			}]`)
-	success, err := suite.repo.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, false)
-	checker.Assert(err, ErrorMatches, "AttackingPower 'Scimitar2' has unknown power_type: 'mystery'")
-}
+
 func (suite *PowerCreationSuite) TestLoadPowersWithYAML(checker *C) {
 	yamlByteStream := []byte(`-
-  name: Scimitar
   id: deadbeef
+  name: Scimitar
   power_type: physical
-  targeting:
-    target_foe: true
-  attack_effect:
-    damage_bonus: 2
-    can_counter_attack: true
-    counter_attack_penalty_reduction: -2
+  target_foe: true
+  can_attack: true
+  damage_bonus: 2
+  can_counter_attack: true
+  counter_attack_penalty_reduction: -2
 `)
-	newRepo := power.NewPowerRepository()
+	newRepo := powerrepository.NewPowerRepository()
 	success, _ := newRepo.AddYAMLSource(yamlByteStream)
 	checker.Assert(success, Equals, true)
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
