@@ -43,27 +43,21 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) (int, error) {
-	numberOfPowersAdded := 0
-
-	squaddie.PowerCollection.ClearInnatePowers()
-	squaddie.PowerCollection.ClearTemporaryPowerReferences()
+func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error {
+	squaddie.PowerCollection.ClearPowerReferences()
 
 	for _, powerIDName := range powerReferencesToLoad {
 		powerToAdd := repos.PowerRepo.GetPowerByID(powerIDName.PowerID)
 		if powerToAdd == nil {
 			newError := fmt.Errorf("squaddie '%s' tried to add Power '%s' but it does not exist", squaddie.Name(), powerIDName.Name)
 			utility.Log(newError.Error(), 0, utility.Error)
-			return numberOfPowersAdded, newError
+			return newError
 		}
 
-		err := squaddie.PowerCollection.AddInnatePower(powerToAdd)
-		if err == nil {
-			numberOfPowersAdded = numberOfPowersAdded + 1
-		}
+		squaddie.AddPowerReference(powerToAdd.GetReference())
 	}
 
-	return numberOfPowersAdded, nil
+	return nil
 }
 
 // CanSquaddieCounterWithEquippedWeapon returns true if the squaddie can use the currently equipped

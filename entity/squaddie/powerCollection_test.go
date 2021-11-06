@@ -1,7 +1,6 @@
 package squaddie_test
 
 import (
-	"fmt"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
@@ -24,40 +23,46 @@ func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
 	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
 }
 
-func (suite *SquaddiePowerCollectionTests) TestGainInnatePowers(checker *C) {
-	suite.teros.PowerCollection.AddInnatePower(suite.attackA)
+func (suite *SquaddiePowerCollectionTests) TestAddPowerReference(checker *C) {
+	suite.teros.AddPowerReference(suite.attackA.GetReference())
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "Attack Formation A")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
 }
 
-func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
-	suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	suite.teros.PowerCollection.ClearInnatePowers()
+func (suite *SquaddiePowerCollectionTests) TestAddPowerReferenceIsIdempotent(checker *C) {
+	suite.teros.AddPowerReference(suite.attackA.GetReference())
+	suite.teros.AddPowerReference(suite.attackA.GetReference())
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
-	checker.Assert(attackIDNamePairs, DeepEquals, []*power.Reference{})
-}
-
-func (suite *SquaddiePowerCollectionTests) TestClearPowerReferences(checker *C) {
-	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "Pow pow", PowerID: "Power Wheels"}}
-	suite.teros.PowerCollection.ClearTemporaryPowerReferences()
-	checker.Assert(suite.teros.PowerCollection.PowerReferences, DeepEquals, []*power.Reference{})
-}
-
-func (suite *SquaddiePowerCollectionTests) TestRaiseErrorIfTryToRegainSamePower(checker *C) {
-	err := suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	checker.Assert(err, IsNil)
-	err = suite.teros.PowerCollection.AddInnatePower(suite.attackA)
-	expectedErrorMessage := fmt.Sprintf(`squaddie already has innate power with SquaddieID "%s"`, suite.attackA.ID())
-	checker.Assert(err, ErrorMatches, expectedErrorMessage)
-
-	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
-	checker.Assert(attackIDNamePairs[0].Name, Equals, suite.attackA.Name())
-	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
+}
+
+func (suite *SquaddiePowerCollectionTests) TestRemovePowerReference(checker *C) {
+	suite.teros.AddPowerReference(suite.attackA.GetReference())
+	suite.teros.RemovePowerReferenceByPowerID(suite.attackA.ID())
+
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	checker.Assert(attackIDNamePairs, HasLen, 0)
+}
+
+func (suite *SquaddiePowerCollectionTests) TestRemovePowerReferenceIsIdempotent(checker *C) {
+	suite.teros.AddPowerReference(suite.attackA.GetReference())
+	suite.teros.RemovePowerReferenceByPowerID(suite.attackA.ID())
+	suite.teros.RemovePowerReferenceByPowerID(suite.attackA.ID())
+
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	checker.Assert(attackIDNamePairs, HasLen, 0)
+}
+
+func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
+	suite.teros.AddPowerReference(suite.attackA.GetReference())
+	suite.teros.ClearPowerReferences()
+
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	checker.Assert(attackIDNamePairs, DeepEquals, []*power.Reference{})
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
@@ -74,14 +79,14 @@ func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker 
 		&repositories.RepositoryCollection{PowerRepo: powerRepo},
 	)
 
-	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)
+	checker.Assert(suite.teros.HasEquippedPower(), Equals, false)
 
 	equippedSpearPower := powerequip.SquaddieEquipPower(suite.teros, spear.ID(), &repositories.RepositoryCollection{PowerRepo: powerRepo})
 	checker.Assert(equippedSpearPower, Equals, true)
 
-	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, true)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, spear.ID())
+	checker.Assert(suite.teros.HasEquippedPower(), Equals, true)
+	checker.Assert(suite.teros.GetEquippedPowerID(), Equals, spear.ID())
 
-	suite.teros.PowerCollection.ClearInnatePowers()
-	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, false)
+	suite.teros.ClearPowerReferences()
+	checker.Assert(suite.teros.HasEquippedPower(), Equals, false)
 }

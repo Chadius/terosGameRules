@@ -38,7 +38,7 @@ func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 
 	suite.axe = powerBuilder.Builder().Axe().Build()
 
-	suite.bandit.PowerCollection.AddInnatePower(suite.axe)
+	suite.bandit.AddPowerReference(suite.axe.GetReference())
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})

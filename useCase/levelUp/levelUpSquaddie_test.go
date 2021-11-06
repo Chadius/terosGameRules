@@ -221,7 +221,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 	err := levelup.ImproveSquaddie(&suite.gainPower, suite.teros, suite.repos)
 	checker.Assert(err, IsNil)
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spear.PowerID)
@@ -229,12 +229,12 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePowers(checker *C) {
 	levelup.ImproveSquaddie(&suite.gainPower, suite.teros, suite.repos)
-	suite.teros.PowerCollection.GetInnatePowerIDNames()
+	suite.teros.PowerCollection.GetCopyOfPowerReferences()
 
 	err := levelup.ImproveSquaddie(&suite.upgradePower, suite.teros, suite.repos)
 	checker.Assert(err, IsNil)
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetInnatePowerIDNames()
+	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spearLevel2.PowerID)

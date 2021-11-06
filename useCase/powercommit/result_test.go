@@ -449,7 +449,7 @@ func (suite *EquipPowerWhenCommitting) TestCommitWillTryToEquipPower(checker *C)
 	suite.forecastSpearOnBandit.CalculateForecast()
 	suite.resultSpearOnBandit.Commit()
 
-	checker.Assert(suite.teros.PowerCollection.CurrentlyEquippedPowerID, Equals, suite.spear.PowerID)
+	checker.Assert(suite.teros.GetEquippedPowerID(), Equals, suite.spear.PowerID)
 }
 
 func (suite *EquipPowerWhenCommitting) TestSquaddieWillKeepPreviousPowerIfCommitPowerCannotBeEquipped(checker *C) {
@@ -459,8 +459,8 @@ func (suite *EquipPowerWhenCommitting) TestSquaddieWillKeepPreviousPowerIfCommit
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
 
-	checker.Assert(suite.teros.PowerCollection.HasEquippedPower(), Equals, true)
-	checker.Assert(suite.teros.PowerCollection.GetEquippedPowerID(), Equals, suite.spear.PowerID)
+	checker.Assert(suite.teros.HasEquippedPower(), Equals, true)
+	checker.Assert(suite.teros.GetEquippedPowerID(), Equals, suite.spear.PowerID)
 }
 
 func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistAfterCommitting(checker *C) {
@@ -468,7 +468,7 @@ func (suite *EquipPowerWhenCommitting) TestSquaddieWillNotEquipPowerIfNoneExistA
 
 	suite.forecastFireballOnBandit.CalculateForecast()
 	suite.resultFireballOnBandit.Commit()
-	checker.Assert(suite.mysticMage.PowerCollection.HasEquippedPower(), Equals, false)
+	checker.Assert(suite.mysticMage.HasEquippedPower(), Equals, false)
 }
 
 type ResultOnHealing struct {

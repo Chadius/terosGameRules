@@ -411,10 +411,10 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
 	attackA := powerBuilder.Builder().WithName("Attack Formation A").Build()
-	suite.base.PowerCollection.AddInnatePower(attackA)
+	suite.base.AddPowerReference(attackA.GetReference())
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 
-	attackIDNamePairs := clone.PowerCollection.GetInnatePowerIDNames()
+	attackIDNamePairs := clone.PowerCollection.GetCopyOfPowerReferences()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, attackA.Name())
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, attackA.ID())

@@ -86,8 +86,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfNoEquippedPower
 }
 
 func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCannotCounter(checker *C) {
-	powerAddedErrors := suite.mysticMage.PowerCollection.AddInnatePower(suite.fireball)
-	checker.Assert(powerAddedErrors, IsNil)
+	suite.mysticMage.AddPowerReference(suite.fireball.GetReference())
 
 	mysticMageEquipsFireball := powerequip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID(), suite.repos)
 	checker.Assert(mysticMageEquipsFireball, Equals, true)
@@ -98,8 +97,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 }
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
-	powerAddedErrors := suite.bandit.PowerCollection.AddInnatePower(suite.axe)
-	checker.Assert(powerAddedErrors, IsNil)
+	suite.bandit.AddPowerReference(suite.axe.GetReference())
 
 	banditEquipsAxe := powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
 	checker.Assert(banditEquipsAxe, Equals, true)

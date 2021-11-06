@@ -3,9 +3,7 @@ package levelup
 import (
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility"
 )
@@ -43,11 +41,7 @@ func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *
 	}
 
 	improveSquaddieStats(benefit, squaddieToImprove)
-	err := refreshSquaddiePowers(benefit, squaddieToImprove, repos)
-	if err != nil {
-		return err
-	}
-
+	refreshSquaddiePowers(benefit, squaddieToImprove)
 	improveSquaddieMovement(benefit, squaddieToImprove)
 
 	squaddieToImprove.ClassProgress.SetBaseClassIfNoBaseClass(benefit.Identification.ClassID)
@@ -55,22 +49,21 @@ func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *
 	return nil
 }
 
-func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie, repos *repositories.RepositoryCollection) error {
+func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	initialSquaddiePowerReferences := squaddieToImprove.PowerCollection.PowerReferences
 	if initialSquaddiePowerReferences == nil || len(initialSquaddiePowerReferences) == 0 {
-		initialSquaddiePowerReferences = squaddieToImprove.PowerCollection.GetInnatePowerIDNames()
+		initialSquaddiePowerReferences = squaddieToImprove.PowerCollection.GetCopyOfPowerReferences()
 	}
 
-	var powerReferencesToLoad []*power.Reference
 	if benefit.PowerChanges != nil {
-		powerReferencesToKeep := squaddie.FilterPowerID(initialSquaddiePowerReferences, func(existingPower *power.Reference) bool {
-			return squaddie.ContainsPowerID(benefit.PowerChanges.Lost, existingPower.PowerID) == false
-		})
-		powerReferencesToLoad = append(powerReferencesToKeep, benefit.PowerChanges.Gained...)
-	}
+		for _, powerReferenceLost := range benefit.PowerChanges.Lost {
+			squaddieToImprove.RemovePowerReferenceByPowerID(powerReferenceLost.PowerID)
+		}
 
-	_, err := powerequip.LoadAllOfSquaddieInnatePowers(squaddieToImprove, powerReferencesToLoad, repos)
-	return err
+		for _, powerReferenceGained := range benefit.PowerChanges.Gained {
+			squaddieToImprove.AddPowerReference(powerReferenceGained)
+		}
+	}
 }
 
 func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {

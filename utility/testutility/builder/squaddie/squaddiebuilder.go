@@ -15,7 +15,7 @@ type BuilderOptions struct {
 	offenseOptions        *OffenseBuilderOptions
 	defenseOptions        *DefenseBuilderOptions
 	movementOptions       *MovementBuilderOptions
-	powersToAdd           []*power.Power
+	powerReferencesToAdd           []*power.Reference
 	classesToAdd          []*squaddieclass.Class
 	classToUse            *squaddieclass.Class
 }
@@ -29,7 +29,7 @@ func Builder() *BuilderOptions {
 		offenseOptions:        OffenseBuilder(),
 		defenseOptions:        DefenseBuilder(),
 		movementOptions:       MovementBuilder(),
-		powersToAdd:           []*power.Power{},
+		powerReferencesToAdd:           []*power.Reference{},
 		classesToAdd:          []*squaddieclass.Class{},
 		classToUse:            nil,
 	}
@@ -155,9 +155,9 @@ func (s *BuilderOptions) MovementTeleport() *BuilderOptions {
 	return s
 }
 
-// AddPower makes the squaddie able to use this power.
-func (s *BuilderOptions) AddPower(newPower *power.Power) *BuilderOptions {
-	s.powersToAdd = append(s.powersToAdd, newPower)
+// AddPowerByReference adds the power to the squaddie's collection.
+func (s *BuilderOptions) AddPowerByReference(newPowerReference *power.Reference) *BuilderOptions {
+	s.powerReferencesToAdd = append(s.powerReferencesToAdd, newPowerReference)
 	return s
 }
 
@@ -185,8 +185,8 @@ func (s *BuilderOptions) Build() *squaddie.Squaddie {
 		},
 	}
 
-	for _, newPower := range s.powersToAdd {
-		newSquaddie.PowerCollection.AddInnatePower(newPower)
+	for _, newPowerReference := range s.powerReferencesToAdd {
+		newSquaddie.AddPowerReference(newPowerReference)
 	}
 
 	for _, newClass := range s.classesToAdd {

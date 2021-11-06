@@ -2,6 +2,7 @@ package squaddie
 
 import (
 	"fmt"
+	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
@@ -204,4 +205,39 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 		return false
 	}
 	return true
+}
+
+// ClearPowerReferences delegates.
+func (s *Squaddie) ClearPowerReferences() {
+	s.PowerCollection.ClearPowerReferences()
+}
+
+// HasPowerWithID delegates.
+func (s *Squaddie) HasPowerWithID(powerID string) bool {
+	return s.PowerCollection.HasPowerWithID(powerID)
+}
+
+// HasEquippedPower delegates.
+func (s *Squaddie) HasEquippedPower() bool {
+	return s.PowerCollection.HasEquippedPower()
+}
+
+// EquipPower delegates.
+func (s *Squaddie) EquipPower(powerID string) {
+	s.PowerCollection.EquipPower(powerID)
+}
+
+// GetEquippedPowerID delegates.
+func (s *Squaddie) GetEquippedPowerID() string {
+	return s.PowerCollection.GetEquippedPowerID()
+}
+
+// AddPowerReference delegates.
+func (s *Squaddie) AddPowerReference(reference *power.Reference) {
+	s.PowerCollection.AddPowerReference(reference)
+}
+
+// RemovePowerReferenceByPowerID delegates.
+func (s *Squaddie) RemovePowerReferenceByPowerID(powerID string) {
+	s.PowerCollection.RemovePowerReferenceByPowerID(powerID)
 }

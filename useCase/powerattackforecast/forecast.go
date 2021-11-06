@@ -92,7 +92,7 @@ func (forecast *Forecast) isCounterattackPossible(targetID string) bool {
 
 func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID string) (*powerusagescenario.Setup, *AttackForecast) {
 	counterAttackingSquaddie := forecast.Repositories.SquaddieRepo.GetOriginalSquaddieByID(counterAttackingSquaddieID)
-	counterAttackingPowerID := counterAttackingSquaddie.PowerCollection.GetEquippedPowerID()
+	counterAttackingPowerID := counterAttackingSquaddie.GetEquippedPowerID()
 	counterAttackingTargetID := forecast.Setup.UserID
 
 	counterForecastSetup := powerusagescenario.Setup{

@@ -129,10 +129,12 @@ type SquaddiePowerBuilder struct{}
 
 var _ = Suite(&SquaddiePowerBuilder{})
 
-func (suite *SquaddiePowerBuilder) TestBuildAddPower(checker *C) {
+func (suite *SquaddiePowerBuilder) TestBuildAddPowerReference(checker *C) {
 	spear := power.Builder().Spear().Build()
-	teros := squaddie.Builder().AddPower(spear).Build()
-	checker.Assert(spear.ID(), Equals, teros.PowerCollection.PowerReferences[0].PowerID)
+
+	teros := squaddie.Builder().AddPowerByReference(spear.GetReference()).Build()
+
+	checker.Assert(teros.HasPowerWithID(spear.ID()), Equals, true)
 }
 
 type SquaddieClassBuilder struct{}
