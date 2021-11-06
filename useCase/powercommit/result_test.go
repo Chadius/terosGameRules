@@ -185,8 +185,6 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 
 	suite.teros.Offense.SquaddieMind = 2
 
-	suite.blot.AttackEffect.AttackDamageBonus = 3
-
 	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 	suite.bandit.Defense.SquaddieArmor = 1
 
@@ -209,13 +207,11 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 
 func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
-	suite.blot.AttackEffect = &power.AttackingEffect{
-		CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(9000).DealsDamage(3).Build(),
-	}
 
 	suite.teros.Offense.SquaddieMind = 2
 
-	suite.blot.AttackEffect.AttackDamageBonus = 3
+	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(3).CriticalDealsDamage(3).CriticalHitThresholdBonus(9000).Build()
+	suite.powerRepo.AddPower(suite.blot)
 
 	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 	suite.bandit.Defense.SquaddieArmor = 1
@@ -246,10 +242,10 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 	suite.teros.Defense.SquaddieArmor = 0
 	suite.teros.Defense.SquaddieCurrentBarrier = 0
 
-	suite.spear.AttackEffect.AttackDamageBonus = 3
+	suite.spear = powerBuilder.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(3).Build()
+	suite.axe = powerBuilder.Builder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(3).Build()
+	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.axe})
 
-	suite.axe.AttackEffect.AttackCanCounterAttack = true
-	suite.axe.AttackEffect.AttackDamageBonus = 3
 	suite.bandit.Offense.SquaddieStrength = 0
 	suite.bandit.Defense.SquaddieArmor = 1
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
@@ -281,8 +277,6 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 	suite.resultFireballOnBandits.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.axe.AttackEffect.AttackCanCounterAttack = true
-	suite.axe.AttackEffect.AttackDamageBonus = 3
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
 	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
 
@@ -319,10 +313,9 @@ func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 	suite.teros.Defense.SquaddieArmor = 0
 	suite.teros.Defense.SquaddieCurrentBarrier = 0
 
-	suite.spear.AttackEffect.AttackDamageBonus = 3
+	suite.axe = powerBuilder.Builder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().Build()
+	suite.powerRepo.AddPower(suite.axe)
 
-	suite.axe.AttackEffect.AttackCanCounterAttack = true
-	suite.axe.AttackEffect.AttackDamageBonus = 3
 	suite.bandit.Offense.SquaddieStrength = 0
 	suite.bandit.Defense.SquaddieArmor = 0
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)

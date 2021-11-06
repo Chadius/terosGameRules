@@ -117,42 +117,45 @@ func (suite *VersusContextTestSuite) TestTargetUsesBarrierToResistDamageFromAllA
 }
 
 func (suite *VersusContextTestSuite) TestBarrierBurnCanSpillOverDamage(checker *C) {
-	suite.blot.AttackEffect.AttackDamageBonus = 1
-	suite.blot.AttackEffect.AttackExtraBarrierBurn = 2
-	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 1)
+	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(1).ExtraBarrierBurn(2).Build()
+	suite.powerRepo.AddPower(suite.blot)
 
+	suite.forecastBlotOnBandit.CalculateForecast()
+
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 1)
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.ExtraBarrierBurnt, Equals, 2)
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.TotalRawBarrierBurnt, Equals, 3)
-
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.RawDamageDealt, Equals, 2)
 }
 
 func (suite *VersusContextTestSuite) TestBarrierBurnCanBeTolerated(checker *C) {
-	suite.blot.AttackEffect.AttackDamageBonus = 0
-	suite.blot.AttackEffect.AttackExtraBarrierBurn = 1
-	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 2)
+	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).ExtraBarrierBurn(1).Build()
+	suite.powerRepo.AddPower(suite.blot)
 
+	suite.forecastBlotOnBandit.CalculateForecast()
+
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 2)
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.ExtraBarrierBurnt, Equals, 1)
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.TotalRawBarrierBurnt, Equals, 3)
-
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.RawDamageDealt, Equals, 0)
 }
 
 func (suite *VersusContextTestSuite) TestCriticalHitChanceIsShown(checker *C) {
-	suite.spear.AttackEffect.CriticalEffect = powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(0).DealsDamage(3).Build()
+	suite.spear = powerBuilder.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
+	suite.powerRepo.AddPower(suite.spear)
+
 	suite.forecastSpearOnBandit.CalculateForecast()
 
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CanCritical, Equals, true)
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitThreshold, Equals, 6)
-
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CanCritical, Equals, true)
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitThreshold, Equals, 6)
 }
 
 func (suite *VersusContextTestSuite) TestCriticalDamageDistributes(checker *C) {
-	suite.spear.AttackEffect.CriticalEffect = powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(0).DealsDamage(3).Build()
+	suite.spear = powerBuilder.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
+	suite.powerRepo.AddPower(suite.spear)
+
 	suite.bandit.Defense.SquaddieArmor = 1
 	suite.bandit.Defense.SquaddieCurrentBarrier = 3
 
@@ -170,16 +173,27 @@ func (suite *VersusContextTestSuite) TestNoCriticalDamageDistributionIfCannotCri
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage, IsNil)
 }
 
-func (suite *VersusContextTestSuite) TestKnowsIfAttackIsFatalToTarget(checker *C) {
+func (suite *VersusContextTestSuite) TestKnowsIfAttackIsNotFatalToTarget(checker *C) {
 	suite.bandit.Defense.SquaddieArmor = 0
 	suite.bandit.Defense.SquaddieCurrentBarrier = 0
 
 	suite.teros.Offense.SquaddieMind = 0
-	suite.blot.AttackEffect.AttackDamageBonus = 0
-	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, false)
 
-	suite.spear.AttackEffect.AttackDamageBonus = suite.bandit.MaxHitPoints()
+	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).Build()
+	suite.powerRepo.AddPower(suite.blot)
+
+	suite.forecastBlotOnBandit.CalculateForecast()
+
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, false)
+}
+
+func (suite *VersusContextTestSuite) TestKnowsIfAttackIsFatalToTarget(checker *C) {
+	suite.spear = powerBuilder.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(
+		suite.bandit.MaxHitPoints() + suite.bandit.Armor() + suite.bandit.MaxBarrier(),
+	).Build()
+	suite.powerRepo.AddPower(suite.spear)
+
 	suite.forecastSpearOnBandit.CalculateForecast()
+
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.IsFatalToTarget, Equals, true)
 }

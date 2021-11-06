@@ -40,7 +40,7 @@ func (suite *HealingEffectLoadedFromData) TestLoadFromJSON(checker *C) {
 	checker.Assert(success, Equals, true)
 
 	healStaff := suite.repo.GetPowerByID("power_heal")
-	checker.Assert(healStaff.HealingEffect.HealingHitPointsHealed, Equals, 2)
+	checker.Assert(healStaff.HitPointsHealed(), Equals, 2)
 }
 
 func (suite *HealingEffectLoadedFromData) TestLoadFromYAML(checker *C) {
@@ -49,5 +49,5 @@ func (suite *HealingEffectLoadedFromData) TestLoadFromYAML(checker *C) {
 	checker.Assert(success, Equals, true)
 
 	healStaff := suite.repo.GetPowerByID("power_heal")
-	checker.Assert(healStaff.HealingEffect.HealingHitPointsHealed, Equals, 2)
+	checker.Assert(healStaff.HitPointsHealed(), Equals, 2)
 }

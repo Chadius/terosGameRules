@@ -40,32 +40,32 @@ func (suite *PowerBuilder) TestBuildPowerTargetsFoe(checker *C) {
 
 func (suite *PowerBuilder) TestBuildPowerIsPhysical(checker *C) {
 	sword := powerBuilder.Builder().IsPhysical().Build()
-	checker.Assert(power.Physical, Equals, sword.PowerType)
+	checker.Assert(power.Physical, Equals, sword.Type())
 }
 
 func (suite *PowerBuilder) TestBuildPowerIsSpell(checker *C) {
 	lightning := powerBuilder.Builder().IsSpell().Build()
-	checker.Assert(power.Spell, Equals, lightning.PowerType)
+	checker.Assert(power.Spell, Equals, lightning.Type())
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentFull(checker *C) {
 	bigHeals := powerBuilder.Builder().HealingAdjustmentBasedOnUserMindFull().Build()
-	checker.Assert(power.Full, Equals, bigHeals.HealingEffect.HealingHealingAdjustmentBasedOnUserMind)
+	checker.Assert(power.Full, Equals, bigHeals.HealingAdjustmentBasedOnUserMind())
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentHalf(checker *C) {
 	someHeals := powerBuilder.Builder().HealingAdjustmentBasedOnUserMindHalf().Build()
-	checker.Assert(power.Half, Equals, someHeals.HealingEffect.HealingHealingAdjustmentBasedOnUserMind)
+	checker.Assert(power.Half, Equals, someHeals.HealingAdjustmentBasedOnUserMind())
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentZero(checker *C) {
 	someHeals := powerBuilder.Builder().HealingAdjustmentBasedOnUserMindZero().Build()
-	checker.Assert(power.Zero, Equals, someHeals.HealingEffect.HealingHealingAdjustmentBasedOnUserMind)
+	checker.Assert(power.Zero, Equals, someHeals.HealingAdjustmentBasedOnUserMind())
 }
 
 func (suite *PowerBuilder) TestHitPointsHealed(checker *C) {
 	bigHeals := powerBuilder.Builder().HitPointsHealed(5).Build()
-	checker.Assert(5, Equals, bigHeals.HealingEffect.HealingHitPointsHealed)
+	checker.Assert(5, Equals, bigHeals.HitPointsHealed())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectToHitBonus(checker *C) {
@@ -123,7 +123,7 @@ func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
 	checker.Assert("axe", Equals, axe.Name())
 	checker.Assert("powerAxe", Equals, axe.ID())
 	checker.Assert(true, Equals, axe.CanPowerTargetFoe())
-	checker.Assert(power.Physical, Equals, axe.PowerType)
+	checker.Assert(power.Physical, Equals, axe.Type())
 	checker.Assert(true, Equals, axe.CanBeEquipped())
 	checker.Assert(true, Equals, axe.CanCounterAttack())
 	checker.Assert(1, Equals, axe.DamageBonus())
@@ -136,7 +136,7 @@ func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
 	checker.Assert("spear", Equals, spear.Name())
 	checker.Assert("powerSpear", Equals, spear.ID())
 	checker.Assert(true, Equals, spear.CanPowerTargetFoe())
-	checker.Assert(power.Physical, Equals, spear.PowerType)
+	checker.Assert(power.Physical, Equals, spear.Type())
 	checker.Assert(true, Equals, spear.CanBeEquipped())
 	checker.Assert(true, Equals, spear.CanCounterAttack())
 	checker.Assert(1, Equals, spear.DamageBonus())
@@ -149,7 +149,7 @@ func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
 	checker.Assert("blot", Equals, blot.Name())
 	checker.Assert("powerBlot", Equals, blot.ID())
 	checker.Assert(true, Equals, blot.CanPowerTargetFoe())
-	checker.Assert(power.Spell, Equals, blot.PowerType)
+	checker.Assert(power.Spell, Equals, blot.Type())
 	checker.Assert(true, Equals, blot.CanBeEquipped())
 	checker.Assert(false, Equals, blot.CanCounterAttack())
 	checker.Assert(3, Equals, blot.DamageBonus())
@@ -162,8 +162,8 @@ func (suite *SpecificPowerBuilder) TestHealingStaff(checker *C) {
 	checker.Assert("healingStaff", Equals, healingStaff.Name())
 	checker.Assert("powerHealingStaff", Equals, healingStaff.ID())
 	checker.Assert(true, Equals, healingStaff.CanPowerTargetFriend())
-	checker.Assert(power.Spell, Equals, healingStaff.PowerType)
-	checker.Assert(3, Equals, healingStaff.HealingEffect.HealingHitPointsHealed)
+	checker.Assert(power.Spell, Equals, healingStaff.Type())
+	checker.Assert(3, Equals, healingStaff.HitPointsHealed())
 }
 
 type YAMLBuilderSuite struct {

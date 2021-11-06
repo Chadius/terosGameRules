@@ -1,7 +1,7 @@
 package power_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
+	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 )
 
@@ -12,62 +12,20 @@ var _ = Suite(&AttackingEffectCounterAttackPenaltyTest{})
 func (suite *AttackingEffectCounterAttackPenaltyTest) SetUpTest(checker *C) {}
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestDefaultPenalty(checker *C) {
-	counterAttackingPower := &power.Power{
-		Reference: power.Reference{
-			Name:    "Static",
-			PowerID: "power0",
-		},
-		PowerType: power.Physical,
-		AttackEffect: &power.AttackingEffect{
-			AttackToHitBonus:                    0,
-			AttackDamageBonus:                   0,
-			AttackCanCounterAttack:              true,
-			AttackCounterAttackPenaltyReduction: 0,
-			CriticalEffect:                      nil,
-		},
-	}
-
+	counterAttackingPower := powerBuilder.Builder().DealsDamage(1).CanCounterAttack().Build()
 	counterAttackPenalty, err := counterAttackingPower.CounterAttackPenalty()
 	checker.Assert(err, IsNil)
 	checker.Assert(counterAttackPenalty, Equals, -2)
 }
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestRaisesErrorIfPowerCannotCounterAttack(checker *C) {
-	cannotCounterWithThisPower := &power.Power{
-		Reference: power.Reference{
-			Name:    "Static",
-			PowerID: "power0",
-		},
-		PowerType: power.Physical,
-		AttackEffect: &power.AttackingEffect{
-			AttackToHitBonus:                    0,
-			AttackDamageBonus:                   0,
-			AttackCanCounterAttack:              false,
-			AttackCounterAttackPenaltyReduction: 0,
-			CriticalEffect:                      nil,
-		},
-	}
-
+	cannotCounterWithThisPower := powerBuilder.Builder().DealsDamage(1).Build()
 	_, err := cannotCounterWithThisPower.CounterAttackPenalty()
 	checker.Assert(err, ErrorMatches, "power cannot counter, cannot calculate penalty")
 }
 
 func (suite *AttackingEffectCounterAttackPenaltyTest) TestAppliesPenaltyReduction(checker *C) {
-	counterAttackingPower := &power.Power{
-		Reference: power.Reference{
-			Name:    "Static",
-			PowerID: "power0",
-		},
-		PowerType: power.Physical,
-		AttackEffect: &power.AttackingEffect{
-			AttackToHitBonus:                    0,
-			AttackDamageBonus:                   0,
-			AttackCanCounterAttack:              true,
-			AttackCounterAttackPenaltyReduction: 2,
-			CriticalEffect:                      nil,
-		},
-	}
-
+	counterAttackingPower := powerBuilder.Builder().DealsDamage(1).CanCounterAttack().CounterAttackPenaltyReduction(2).Build()
 	counterAttackPenalty, err := counterAttackingPower.CounterAttackPenalty()
 	checker.Assert(err, IsNil)
 	checker.Assert(counterAttackPenalty, Equals, 0)

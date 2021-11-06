@@ -161,8 +161,9 @@ func (suite *ConsoleViewerSuite) SetUpTerosAttacksBanditsAndSuffersCounterAttack
 	suite.bandit.Defense.SquaddieMaxBarrier = 1
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe.AttackEffect.AttackCanCounterAttack = true
-	suite.axe.AttackEffect.AttackDamageBonus = 3
+	suite.axe = powerBuilder.Builder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(3).Build()
+	suite.powerRepo.AddPower(suite.axe)
+
 	suite.bandit.Offense.SquaddieStrength = 0
 	powerequip.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
 
@@ -209,23 +210,23 @@ func (suite *ConsoleViewerSuite) TestShowWhenPowerMisses(checker *C) {
 func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 	suite.teros.Offense.SquaddieMind = 3
-	suite.blot.AttackEffect = &power.AttackingEffect{
-		CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(9000).DealsDamage(1).Build(),
-	}
+	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).CriticalDealsDamage(1).CriticalHitThresholdBonus(9000).Build()
+	suite.powerRepo.AddPower(suite.blot)
+
 	suite.forecastBlotOnBandit.CalculateForecast()
 	suite.resultBlotOnBandit.Commit()
 
 	var output strings.Builder
 	suite.viewer.PrintResult(suite.resultBlotOnBandit, suite.repos, nil, &output)
-
 	checker.Assert(output.String(), Equals, "Teros (Blot) CRITICALLY hits Bandit, for 4 damage\n---\n")
 }
 
 func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 	suite.resultBlotOnBandit.DieRoller = &testutility.AlwaysHitDieRoller{}
 
-	suite.axe.AttackEffect.AttackCanCounterAttack = true
-	suite.axe.AttackEffect.AttackDamageBonus = 2
+	suite.axe = powerBuilder.Builder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(2).Build()
+	suite.powerRepo.AddPower(suite.axe)
+
 	suite.bandit.Offense.SquaddieStrength = 0
 	powerequip.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
 
@@ -401,9 +402,8 @@ func (suite *ConsoleViewerSuite) TestShowForecastChanceToHitAndHealing(checker *
 func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuaranteedMiss(checker *C) {
 	suite.teros.Offense.SquaddieAim = 2
 
-	suite.blot.AttackEffect = &power.AttackingEffect{
-		CriticalEffect: powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(1).DealsDamage(1).Build(),
-	}
+	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).CriticalDealsDamage(1).CriticalHitThresholdBonus(1).Build()
+	suite.powerRepo.AddPower(suite.blot)
 
 	suite.bandit.Defense.SquaddieDeflect = -200
 

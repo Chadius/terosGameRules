@@ -5,7 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
-// CounterAttackPenaltyInitialValue is the default penalty counter attacks suffer on to hit rolls.
+// CounterAttackPenaltyInitialValue is the default penalty counterattacks suffer on to hit rolls.
 const CounterAttackPenaltyInitialValue = -2
 
 // AttackingEffect is a power designed to deal damage.

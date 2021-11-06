@@ -191,14 +191,14 @@ func GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *re
 	}
 
 	squaddieMindBonus := squaddieToHeal.Mind()
-	if healingPower.HealingEffect.HealingHealingAdjustmentBasedOnUserMind == power.Half {
+	if healingPower.HealingAdjustmentBasedOnUserMind() == power.Half {
 		squaddieMindBonus /= 2
 	}
-	if healingPower.HealingEffect.HealingHealingAdjustmentBasedOnUserMind == power.Zero {
+	if healingPower.HealingAdjustmentBasedOnUserMind() == power.Zero {
 		squaddieMindBonus = 0
 	}
 
-	maximumHealing := healingPower.HealingEffect.HealingHitPointsHealed + squaddieMindBonus
+	maximumHealing := healingPower.HitPointsHealed() + squaddieMindBonus
 	missingHitPoints := target.MaxHitPoints() - target.CurrentHitPoints()
 	if missingHitPoints < maximumHealing {
 		return missingHitPoints, nil
