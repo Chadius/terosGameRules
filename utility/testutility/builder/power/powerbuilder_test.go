@@ -176,7 +176,7 @@ func (suite *YAMLBuilderSuite) SetUpTest(checker *C) {
 	suite.yamlData = []byte(
 		`
 id: power_id
-name: Power Name
+name: Power name
 power_type: spell
 target_self: true
 target_foe: true
@@ -197,7 +197,7 @@ func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 	yamlPower := powerBuilder.Builder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlPower.ID(), Equals, "power_id")
-	checker.Assert(yamlPower.Name(), Equals, "Power Name")
+	checker.Assert(yamlPower.Name(), Equals, "Power name")
 	checker.Assert(yamlPower.Type(), Equals, power.Spell)
 }
 
@@ -237,7 +237,7 @@ func (suite *JSONBuilderSuite) SetUpTest(checker *C) {
 		`
 {
    "id": "power_id",
-   "name": "Power Name",
+   "name": "Power name",
    "power_type": "physical",
    "can_heal": true,
    "healing_adjustment_based_on_user_mind": "half",
@@ -250,7 +250,7 @@ func (suite *JSONBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 	jsonPower := powerBuilder.Builder().UsingJSON(suite.jsonData).Build()
 
 	checker.Assert(jsonPower.ID(), Equals, "power_id")
-	checker.Assert(jsonPower.Name(), Equals, "Power Name")
+	checker.Assert(jsonPower.Name(), Equals, "Power name")
 	checker.Assert(jsonPower.Type(), Equals, power.Physical)
 }
 

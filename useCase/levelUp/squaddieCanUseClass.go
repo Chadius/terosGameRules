@@ -9,10 +9,10 @@ import (
 func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
 	classToTest, _ := repositories.ClassRepo.GetClassByID(testingClassID)
 
-	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired != true {
+	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired() != true {
 		return true
 	}
-	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired == true {
+	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired() == true {
 		return false
 	}
 
@@ -44,7 +44,7 @@ func areAllLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string,
 }
 
 func countLevelsInClassTaken(squaddieToTest *squaddie.Squaddie, classID string) int {
-	squaddieLevelsConsumedInClasses := squaddieToTest.ClassProgress.GetLevelCountsByClass()
+	squaddieLevelsConsumedInClasses := squaddieToTest.GetLevelCountsByClass()
 	levelsSquaddieConsumedInThisClass, squaddieConsumedAnyLevelsInClass := squaddieLevelsConsumedInClasses[classID]
 
 	if squaddieConsumedAnyLevelsInClass != true {

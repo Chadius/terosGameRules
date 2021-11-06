@@ -48,11 +48,6 @@ func (c *ClassBuilderOptions) RequiresBaseClass() *ClassBuilderOptions {
 
 // Build uses the ClassBuilderOptions to create a Movement.
 func (c *ClassBuilderOptions) Build() *squaddieclass.Class {
-	newClass := &squaddieclass.Class{
-		ID:                c.id,
-		Name:              c.name,
-		BaseClassRequired: c.baseClassRequired,
-		InitialBigLevelID: c.initialBigLevelID,
-	}
+	newClass := squaddieclass.NewClass(c.id, c.name, c.baseClassRequired, c.initialBigLevelID)
 	return newClass
 }

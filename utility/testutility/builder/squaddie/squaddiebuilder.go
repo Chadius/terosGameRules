@@ -16,8 +16,8 @@ type BuilderOptions struct {
 	defenseOptions        *DefenseBuilderOptions
 	movementOptions       *MovementBuilderOptions
 	powerReferencesToAdd  []*power.Reference
-	classesToAdd          []*squaddieclass.Class
-	classToUse            *squaddieclass.Class
+	classReferencesToAdd          []*squaddieclass.ClassReference
+	classIDToUse string
 }
 
 // Builder creates a BuilderOptions with default values.
@@ -30,8 +30,8 @@ func Builder() *BuilderOptions {
 		defenseOptions:        DefenseBuilder(),
 		movementOptions:       MovementBuilder(),
 		powerReferencesToAdd:  []*power.Reference{},
-		classesToAdd:          []*squaddieclass.Class{},
-		classToUse:            nil,
+		classReferencesToAdd:          []*squaddieclass.ClassReference{},
+		classIDToUse: "",
 	}
 }
 
@@ -161,15 +161,15 @@ func (s *BuilderOptions) AddPowerByReference(newPowerReference *power.Reference)
 	return s
 }
 
-// AddClass adds the class to the squaddie's list of possible classes.
-func (s *BuilderOptions) AddClass(newClass *squaddieclass.Class) *BuilderOptions {
-	s.classesToAdd = append(s.classesToAdd, newClass)
+// AddClassByReference adds the class to the squaddie's list of possible classes.
+func (s *BuilderOptions) AddClassByReference(newClassReference *squaddieclass.ClassReference) *BuilderOptions {
+	s.classReferencesToAdd = append(s.classReferencesToAdd, newClassReference)
 	return s
 }
 
-// SetClass sets the squaddie's class to the given class.
-func (s *BuilderOptions) SetClass(targetClass *squaddieclass.Class) *BuilderOptions {
-	s.classToUse = targetClass
+// SetClassByID sets the squaddie's class to the given class.
+func (s *BuilderOptions) SetClassByID(targetClassID string) *BuilderOptions {
+	s.classIDToUse = targetClassID
 	return s
 }
 
@@ -189,12 +189,12 @@ func (s *BuilderOptions) Build() *squaddie.Squaddie {
 		newSquaddie.AddPowerReference(newPowerReference)
 	}
 
-	for _, newClass := range s.classesToAdd {
-		newSquaddie.ClassProgress.AddClass(newClass)
+	for _, newClassReference := range s.classReferencesToAdd {
+		newSquaddie.ClassProgress.AddClass(newClassReference)
 	}
 
-	if s.classToUse != nil {
-		newSquaddie.ClassProgress.SetClass(s.classToUse.ID)
+	if s.classIDToUse != "" {
+		newSquaddie.SetClass(s.classIDToUse)
 	}
 
 	return newSquaddie
@@ -306,7 +306,7 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 	return s
 }
 
-// CloneOf modifies the BuilderOptions based on the source, except for the ID.
+// CloneOf modifies the BuilderOptions based on the source, except for the classID.
 func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
 	s.WithName(source.Name()).
 		HitPoints(source.MaxHitPoints()).Deflect(source.Deflect()).Barrier(source.MaxBarrier()).Armor(source.Armor()).Dodge(source.Dodge()).

@@ -39,7 +39,7 @@ func ImproveSquaddieBasedOnLevel(
 		return err
 	}
 
-	levelsFromClass, err := repos.LevelRepo.GetLevelUpBenefitsForClassByType(classToUse.ID)
+	levelsFromClass, err := repos.LevelRepo.GetLevelUpBenefitsForClassByType(classToUse.ID())
 	if err != nil {
 		return err
 	}
@@ -72,15 +72,15 @@ func selectBigLevelUpForSquaddie(
 	levelsFromClass map[levelupbenefit.Size][]*levelupbenefit.LevelUpBenefit,
 ) *levelupbenefit.LevelUpBenefit {
 
-	squaddieClassIsEven := squaddieLevels[classToUse.ID]%2 == 0
+	squaddieClassIsEven := squaddieLevels[classToUse.ID()]%2 == 0
 	if !squaddieClassIsEven {
 		return nil
 	}
 
 	bigLevelIDToRetrieve := bigLevelSelectedID
-	if classToUse.InitialBigLevelID != "" &&
-		squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[classToUse.ID].IsLevelAlreadyConsumed(classToUse.InitialBigLevelID) == false {
-		bigLevelIDToRetrieve = classToUse.InitialBigLevelID
+	if classToUse.InitialBigLevelID() != "" &&
+		squaddieToLevelUp.ClassProgress.ClassLevelsConsumed[classToUse.ID()].IsLevelAlreadyConsumed(classToUse.InitialBigLevelID()) == false {
+		bigLevelIDToRetrieve = classToUse.InitialBigLevelID()
 	}
 
 	bigLevelCandidates := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Big], func(level *levelupbenefit.LevelUpBenefit) bool {

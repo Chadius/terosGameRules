@@ -143,14 +143,14 @@ var _ = Suite(&SquaddieClassBuilder{})
 
 func (suite *SquaddieClassBuilder) TestBuildAddClass(checker *C) {
 	mageClass := squaddieclass.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
-	teros := squaddie.Builder().AddClass(mageClass).Build()
-	checker.Assert(true, Equals, teros.ClassProgress.HasAddedClass(mageClass.ID))
+	teros := squaddie.Builder().AddClassByReference(mageClass.GetReference()).Build()
+	checker.Assert(true, Equals, teros.HasAddedClass(mageClass.ID()))
 }
 
 func (suite *SquaddieClassBuilder) TestBuildSetClass(checker *C) {
 	mageClass := squaddieclass.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
-	teros := squaddie.Builder().AddClass(mageClass).SetClass(mageClass).Build()
-	checker.Assert(mageClass.ID, Equals, teros.ClassProgress.CurrentClassID)
+	teros := squaddie.Builder().AddClassByReference(mageClass.GetReference()).SetClassByID(mageClass.ID()).Build()
+	checker.Assert(mageClass.ID(), Equals, teros.ClassProgress.CurrentClassID)
 }
 
 type SpecificSquaddieBuilder struct{}

@@ -2,6 +2,7 @@ package squaddieclass_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -32,16 +33,8 @@ func (suite *ClassRepositoryUnmarshalSuite) TestLoadClassesWithJSON(checker *C) 
 
 func (suite *ClassRepositoryUnmarshalSuite) TestLoadClassesDirectly(checker *C) {
 	listOfClasses := []*squaddieclass.Class{
-		{
-			ID:                "class1",
-			Name:              "Mage",
-			BaseClassRequired: false,
-		},
-		{
-			ID:                "class2",
-			Name:              "Dimension Walker",
-			BaseClassRequired: true,
-		},
+		squaddieClassBuilder.ClassBuilder().WithID("class1").Build(),
+		squaddieClassBuilder.ClassBuilder().WithID("class2").Build(),
 	}
 	checker.Assert(suite.repo.GetNumberOfClasses(), Equals, 0)
 	success, _ := suite.repo.AddListOfClasses(listOfClasses)
@@ -59,24 +52,16 @@ var _ = Suite(&ClassRepositoryRetrieveSuite{})
 
 func (suite *ClassRepositoryRetrieveSuite) SetUpTest(checker *C) {
 	suite.repo = squaddieclass.NewRepository()
-	suite.mageClass = &squaddieclass.Class{
-		ID:                "class0",
-		Name:              "Mage",
-		BaseClassRequired: false,
-	}
-	suite.dimensionWalkerClass = &squaddieclass.Class{
-		ID:                "class1",
-		Name:              "Dimension Walker",
-		BaseClassRequired: true,
-	}
+	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("class1").WithName("Mage").Build()
+	suite.dimensionWalkerClass = squaddieClassBuilder.ClassBuilder().WithID("class2").WithName("Dimension Walker").RequiresBaseClass().Build()
 	suite.repo.AddListOfClasses([]*squaddieclass.Class{suite.mageClass, suite.dimensionWalkerClass})
 }
 
 func (suite *ClassRepositoryRetrieveSuite) TestGetClassByID(checker *C) {
-	foundClass, err := suite.repo.GetClassByID(suite.mageClass.ID)
+	foundClass, err := suite.repo.GetClassByID(suite.mageClass.ID())
 	checker.Assert(err, IsNil)
-	checker.Assert(foundClass.ID, Equals, suite.mageClass.ID)
-	checker.Assert(foundClass.Name, Equals, suite.mageClass.Name)
+	checker.Assert(foundClass.ID(), Equals, suite.mageClass.ID())
+	checker.Assert(foundClass.Name(), Equals, suite.mageClass.Name())
 }
 
 func (suite *ClassRepositoryRetrieveSuite) TestRaiseErrorWhenClassDoesNotExist(checker *C) {

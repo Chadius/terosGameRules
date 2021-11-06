@@ -27,7 +27,7 @@ func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
 // AddListOfClasses adds multiple classes directly.
 func (repository *Repository) AddListOfClasses(classes []*Class) (bool, error) {
 	for _, classToAdd := range classes {
-		repository.classesByID[classToAdd.ID] = classToAdd
+		repository.classesByID[classToAdd.ID()] = classToAdd
 	}
 
 	return true, nil
@@ -48,7 +48,7 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 		return false, unmarshalError
 	}
 	for _, classToAdd := range classes {
-		repository.classesByID[classToAdd.ID] = &classToAdd
+		repository.classesByID[classToAdd.ID()] = &classToAdd
 	}
 
 	return true, nil

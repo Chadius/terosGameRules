@@ -3,6 +3,7 @@ package squaddie
 import (
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
@@ -259,4 +260,39 @@ func (s *Squaddie) AddPowerReference(reference *power.Reference) {
 // RemovePowerReferenceByPowerID delegates.
 func (s *Squaddie) RemovePowerReferenceByPowerID(powerID string) {
 	s.PowerCollection.RemovePowerReferenceByPowerID(powerID)
+}
+
+// GetLevelCountsByClass delegates.
+func (s *Squaddie) GetLevelCountsByClass() map[string]int {
+	return s.ClassProgress.GetLevelCountsByClass()
+}
+
+// MarkLevelUpBenefitAsConsumed delegates.
+func (s *Squaddie) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string) {
+	s.ClassProgress.MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID)
+}
+
+// SetClass delegates.
+func (s *Squaddie) SetClass(classID string) error {
+	return s.ClassProgress.SetClass(classID)
+}
+
+// SetBaseClassIfNoBaseClass delegates.
+func (s *Squaddie) SetBaseClassIfNoBaseClass(classID string) {
+	s.ClassProgress.SetBaseClassIfNoBaseClass(classID)
+}
+
+// IsClassLevelAlreadyUsed delegates.
+func (s *Squaddie) IsClassLevelAlreadyUsed(benefitID string) bool {
+	return s.ClassProgress.IsClassLevelAlreadyUsed(benefitID)
+}
+
+// HasAddedClass delegates.
+func (s *Squaddie) HasAddedClass(classIDToFind string) bool {
+	return s.ClassProgress.HasAddedClass(classIDToFind)
+}
+
+// AddClass delegates.
+func (s *Squaddie) AddClass(classReference *squaddieclass.ClassReference) {
+	s.ClassProgress.AddClass(classReference)
 }

@@ -372,7 +372,7 @@ func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMa
 	return p
 }
 
-// CloneOf modifies the BuilderOptions based on the source, except for the ID.
+// CloneOf modifies the BuilderOptions based on the source, except for the classID.
 func (p *BuilderOptions) CloneOf(source *power.Power) *BuilderOptions {
 	p.WithName(source.Name())
 

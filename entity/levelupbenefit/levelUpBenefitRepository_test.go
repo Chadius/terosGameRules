@@ -4,6 +4,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -57,16 +58,11 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
       }
 ]`)
 
-	suite.mageClass = &squaddieclass.Class{
-		ID:                "class1",
-		Name:              "Mage",
-		BaseClassRequired: false,
-	}
-
+	suite.mageClass = squaddieBuilder.ClassBuilder().WithID("class1").Build()
 	suite.lotsOfSmallLevels = (&power.LevelGenerator{
 		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 11,
-			ClassID:        suite.mageClass.ID,
+			ClassID:        suite.mageClass.ID(),
 			PrefixLevelID:  "lotsLevelsSmall",
 			Type:           levelupbenefit.Small,
 		},
@@ -75,7 +71,7 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
 	suite.lotsOfBigLevels = (&power.LevelGenerator{
 		Instructions: &power.LevelGeneratorInstruction{
 			NumberOfLevels: 4,
-			ClassID:        suite.mageClass.ID,
+			ClassID:        suite.mageClass.ID(),
 			PrefixLevelID:  "lotsLevelsBig",
 			Type:           levelupbenefit.Big,
 		},
@@ -342,7 +338,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaisesAnErrorWithNonexistentClas
 }
 
 func (suite *LevelUpBenefitRepositorySuite) TestGetBigAndSmallLevelsForAGivenClass(checker *C) {
-	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType(suite.mageClass.ID)
+	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType(suite.mageClass.ID())
 	checker.Assert(err, IsNil)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Small], HasLen, 11)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Big], HasLen, 4)

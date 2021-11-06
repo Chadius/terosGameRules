@@ -106,7 +106,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnequibbablePower(check
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipNonexistentPowers(checker *C) {
-	success := powerequip.SquaddieEquipPower(suite.teros, "Name", suite.repos)
+	success := powerequip.SquaddieEquipPower(suite.teros, "name", suite.repos)
 	checker.Assert(success, Equals, false)
 	checker.Assert(suite.teros.HasEquippedPower(), Equals, false)
 }

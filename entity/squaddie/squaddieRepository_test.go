@@ -3,9 +3,9 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
+	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
@@ -129,18 +129,18 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevels(checker *C) {
 	checker.Assert(success, Equals, true)
 
 	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
-	checker.Assert(suite.teros.ClassProgress.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
+	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
 }
 
 func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesWhenInvalid(checker *C) {
 	jsonByteStream := []byte(`[{
 				"identification": {
-					"Name": "teros",
+					"name": "teros",
 					"Affiliation": "Player"
 				}
 			},{
 				"identification": {
-					"Name": "teros2",
+					"name": "teros2",
 					"Affiliation": "Unknown Affiliation"
 				}
 			}]`)
@@ -253,7 +253,7 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevelsYAML(checker *C) {
 	checker.Assert(success, Equals, true)
 
 	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
-	checker.Assert(suite.teros.ClassProgress.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
+	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
 }
 
 func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesUponFirstInvalid(checker *C) {
@@ -421,25 +421,15 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
-	initialClass := &squaddieclass.Class{
-		ID:                "initial",
-		Name:              "Initial Class",
-		BaseClassRequired: false,
-		InitialBigLevelID: "",
-	}
-	advancedClass := &squaddieclass.Class{
-		ID:                "advanced",
-		Name:              "Advanced Class",
-		BaseClassRequired: true,
-		InitialBigLevelID: "advanceLevel0",
-	}
+	initialClass := squaddieClassBuilder.ClassBuilder().WithID("initial").Build()
+	advancedClass := squaddieClassBuilder.ClassBuilder().WithID("advanced").RequiresBaseClass().Build()
 
-	suite.base.ClassProgress.AddClass(initialClass)
-	suite.base.ClassProgress.AddClass(advancedClass)
-	suite.base.ClassProgress.SetBaseClassIfNoBaseClass(initialClass.ID)
-	suite.base.ClassProgress.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel0")
-	suite.base.ClassProgress.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel1")
-	suite.base.ClassProgress.MarkLevelUpBenefitAsConsumed(initialClass.ID, "initialLevel2")
+	suite.base.ClassProgress.AddClass(initialClass.GetReference())
+	suite.base.ClassProgress.AddClass(advancedClass.GetReference())
+	suite.base.SetBaseClassIfNoBaseClass(initialClass.ID())
+	suite.base.MarkLevelUpBenefitAsConsumed(initialClass.ID(), "initialLevel0")
+	suite.base.MarkLevelUpBenefitAsConsumed(initialClass.ID(), "initialLevel1")
+	suite.base.MarkLevelUpBenefitAsConsumed(initialClass.ID(), "initialLevel2")
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 	checker.Assert(clone.ClassProgress.BaseClassID, Equals, suite.base.ClassProgress.BaseClassID)

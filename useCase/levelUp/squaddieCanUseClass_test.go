@@ -8,6 +8,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
+	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -39,29 +40,10 @@ type SquaddieQualifiesForClassSuite struct {
 var _ = Suite(&SquaddieQualifiesForClassSuite{})
 
 func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
-	suite.mageClass = &squaddieclass.Class{
-		ID:                "class1",
-		Name:              "Mage",
-		BaseClassRequired: false,
-	}
-
-	suite.dimensionWalkerClass = &squaddieclass.Class{
-		ID:                "class2",
-		Name:              "Dimension Walker",
-		BaseClassRequired: true,
-	}
-
-	suite.ancientTomeClass = &squaddieclass.Class{
-		ID:                "class3",
-		Name:              "Ancient Tome",
-		BaseClassRequired: true,
-	}
-
-	suite.atLeastTenLevelsBaseClass = &squaddieclass.Class{
-		ID:                "class4",
-		Name:              "Base with many levels",
-		BaseClassRequired: false,
-	}
+	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("class1").WithName("Mage").Build()
+	suite.dimensionWalkerClass = squaddieClassBuilder.ClassBuilder().WithID("class2").WithName("Dimension Walker").RequiresBaseClass().Build()
+	suite.ancientTomeClass = squaddieClassBuilder.ClassBuilder().WithID("class3").WithName("Ancient Tome").RequiresBaseClass().Build()
+	suite.atLeastTenLevelsBaseClass = squaddieClassBuilder.ClassBuilder().WithID("class4").WithName("Base with many levels").Build()
 
 	suite.classRepo = squaddieclass.NewRepository()
 	suite.classRepo.AddListOfClasses([]*squaddieclass.Class{suite.mageClass, suite.dimensionWalkerClass, suite.ancientTomeClass})
@@ -69,7 +51,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	suite.mageLevel0 = &levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
 			LevelUpBenefitType: levelupbenefit.Small,
-			ClassID:            suite.mageClass.ID,
+			ClassID:            suite.mageClass.ID(),
 			ID:                 "mageLevel0",
 		},
 		Defense: &levelupbenefit.Defense{
@@ -94,7 +76,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	suite.mageLevel1 = &levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
 			LevelUpBenefitType: levelupbenefit.Big,
-			ClassID:            suite.mageClass.ID,
+			ClassID:            suite.mageClass.ID(),
 			ID:                 "mageLevel1",
 		},
 		Defense: &levelupbenefit.Defense{
@@ -119,7 +101,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	suite.dimensionWalkerLevel0 = &levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
 			LevelUpBenefitType: levelupbenefit.Big,
-			ClassID:            suite.dimensionWalkerClass.ID,
+			ClassID:            suite.dimensionWalkerClass.ID(),
 			ID:                 "dwLevel0",
 		},
 		Movement: squaddieBuilder.MovementBuilder().Light().Distance(1).Build(),
@@ -128,7 +110,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	suite.dimensionWalkerLevel1 = &levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
 			LevelUpBenefitType: levelupbenefit.Big,
-			ClassID:            suite.dimensionWalkerClass.ID,
+			ClassID:            suite.dimensionWalkerClass.ID(),
 			ID:                 "dwLevel1",
 		},
 		Defense: &levelupbenefit.Defense{
@@ -144,7 +126,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	suite.ancientTomeClassLevel0 = &levelupbenefit.LevelUpBenefit{
 		Identification: &levelupbenefit.Identification{
 			LevelUpBenefitType: levelupbenefit.Small,
-			ClassID:            suite.ancientTomeClass.ID,
+			ClassID:            suite.ancientTomeClass.ID(),
 			ID:                 "ancientTomeLevel0",
 		},
 		Defense: &levelupbenefit.Defense{
@@ -165,7 +147,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		(&power.LevelGenerator{
 			Instructions: &power.LevelGeneratorInstruction{
 				NumberOfLevels: 11,
-				ClassID:        suite.atLeastTenLevelsBaseClass.ID,
+				ClassID:        suite.atLeastTenLevelsBaseClass.ID(),
 				PrefixLevelID:  "lotsLevelsSmall",
 				Type:           levelupbenefit.Small,
 			},
@@ -173,7 +155,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		(&power.LevelGenerator{
 			Instructions: &power.LevelGeneratorInstruction{
 				NumberOfLevels: 11,
-				ClassID:        suite.atLeastTenLevelsBaseClass.ID,
+				ClassID:        suite.atLeastTenLevelsBaseClass.ID(),
 				PrefixLevelID:  "lotsLevelsBig",
 				Type:           levelupbenefit.Big,
 			},
@@ -186,95 +168,95 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		LevelRepo: suite.levelRepo,
 	}
 
-	suite.teros = squaddieBuilder.Builder().Teros().AddClass(suite.mageClass).AddClass(suite.dimensionWalkerClass).AddClass(suite.ancientTomeClass).AddClass(suite.atLeastTenLevelsBaseClass).Build()
+	suite.teros = squaddieBuilder.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).AddClassByReference(suite.dimensionWalkerClass.GetReference()).AddClassByReference(suite.ancientTomeClass.GetReference()).AddClassByReference(suite.atLeastTenLevelsBaseClass.GetReference()).Build()
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestNewSquaddieCanSwitchToBaseClass(checker *C) {
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, true)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, true)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, false)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestSquaddieCannotSwitchToCurrentClass(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestSquaddieMustFinishBaseClassBeforeSwitching(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
 	levelup.ImproveSquaddie(suite.mageLevel0, suite.teros, nil)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, false)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestSquaddieCanSwitchFromFinishedBaseToAdvancedClass(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
 	levelup.ImproveSquaddie(suite.mageLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.mageLevel1, suite.teros, nil)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, true)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, true)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, true)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, true)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestSquaddieCanSwitchToNewAdvancedClassAtLevelTen(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
 	levelup.ImproveSquaddie(suite.mageLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.mageLevel1, suite.teros, nil)
-	suite.teros.ClassProgress.SetClass(suite.dimensionWalkerClass.ID)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, false)
+	suite.teros.SetClass(suite.dimensionWalkerClass.ID())
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, false)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestCannotSwitchToCompletedClass(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
 	levelup.ImproveSquaddie(suite.mageLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.mageLevel1, suite.teros, nil)
-	suite.teros.ClassProgress.SetClass(suite.dimensionWalkerClass.ID)
+	suite.teros.SetClass(suite.dimensionWalkerClass.ID())
 	levelup.ImproveSquaddie(suite.dimensionWalkerLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.dimensionWalkerLevel1, suite.teros, nil)
-	suite.teros.ClassProgress.SetClass(suite.ancientTomeClass.ID)
-	checker.Assert(suite.teros.ClassProgress.CurrentClassID, Equals, suite.ancientTomeClass.ID)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, false)
+	suite.teros.SetClass(suite.ancientTomeClass.ID())
+	checker.Assert(suite.teros.ClassProgress.CurrentClassID, Equals, suite.ancientTomeClass.ID())
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, false)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestQualifyForAdvancedClassesWhenBaseClassCompletes(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
 	levelup.ImproveSquaddie(suite.mageLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.mageLevel1, suite.teros, nil)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, true)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, true)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, true)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, true)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestSquaddieStaysInAdvancedClassUntilCompletion(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.mageClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.mageClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.mageClass.ID())
+	suite.teros.SetClass(suite.mageClass.ID())
 	levelup.ImproveSquaddie(suite.mageLevel0, suite.teros, nil)
 	levelup.ImproveSquaddie(suite.mageLevel1, suite.teros, nil)
-	suite.teros.ClassProgress.SetClass(suite.dimensionWalkerClass.ID)
+	suite.teros.SetClass(suite.dimensionWalkerClass.ID())
 	levelup.ImproveSquaddie(suite.dimensionWalkerLevel0, suite.teros, nil)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, false)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID, suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, false)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.ancientTomeClass.ID(), suite.repos), Equals, false)
 }
 
 func (suite *SquaddieQualifiesForClassSuite) TestCanSwitchClassAfterTenLevels(checker *C) {
-	suite.teros.ClassProgress.SetBaseClassIfNoBaseClass(suite.atLeastTenLevelsBaseClass.ID)
-	suite.teros.ClassProgress.SetClass(suite.atLeastTenLevelsBaseClass.ID)
+	suite.teros.SetBaseClassIfNoBaseClass(suite.atLeastTenLevelsBaseClass.ID())
+	suite.teros.SetClass(suite.atLeastTenLevelsBaseClass.ID())
 	for index, _ := range [10]int{} {
 		levelup.ImproveSquaddie(suite.lotsOfLevels[index], suite.teros, nil)
 	}
-	checker.Assert(suite.teros.ClassProgress.GetLevelCountsByClass()[suite.atLeastTenLevelsBaseClass.ID], Equals, 10)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID, suite.repos), Equals, true)
-	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID, suite.repos), Equals, true)
+	checker.Assert(suite.teros.GetLevelCountsByClass()[suite.atLeastTenLevelsBaseClass.ID()], Equals, 10)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.mageClass.ID(), suite.repos), Equals, true)
+	checker.Assert(levelup.SquaddieCanSwitchToClass(suite.teros, suite.dimensionWalkerClass.ID(), suite.repos), Equals, true)
 }

@@ -13,11 +13,15 @@ type ClassProgress struct {
 	ClassLevelsConsumed map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
 }
 
-// AddClass gives the ClassProgress a new class it can gain levels in.
-func (classProgress *ClassProgress) AddClass(class *squaddieclass.Class) {
-	classProgress.ClassLevelsConsumed[class.ID] = &ClassLevelsConsumed{
-		ClassID:        class.ID,
-		ClassName:      class.Name,
+// AddClass gives the ClassProgress a new class it can gain levels in, if it wasn't already added.
+func (classProgress *ClassProgress) AddClass(classReference *squaddieclass.ClassReference) {
+	if classProgress.ClassLevelsConsumed[classReference.ID] != nil {
+		return
+	}
+
+	classProgress.ClassLevelsConsumed[classReference.ID] = &ClassLevelsConsumed{
+		ClassID:        classReference.ID,
+		ClassName:      classReference.Name,
 		LevelsConsumed: []string{},
 	}
 }
