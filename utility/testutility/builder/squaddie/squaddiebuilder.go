@@ -11,15 +11,15 @@ import (
 
 // BuilderOptions is used to create healing effects.
 type BuilderOptions struct {
-	identificationOptions *IdentificationBuilderOptions
-	offenseOptions        *OffenseBuilderOptions
-	defenseOptions        *DefenseBuilderOptions
-	movementOptions       *MovementBuilderOptions
-	powerReferencesToAdd  []*power.Reference
-	classReferencesToAdd  []*squaddieclass.ClassReference
+	identificationOptions   *IdentificationBuilderOptions
+	offenseOptions          *OffenseBuilderOptions
+	defenseOptions          *DefenseBuilderOptions
+	movementOptions         *MovementBuilderOptions
+	powerReferencesToAdd    []*power.Reference
+	classReferencesToAdd    []*squaddieclass.ClassReference
 	levelsConsumedByClassID map[string]*[]string
-	classIDToUse          string
-	baseClassID string
+	classIDToUse            string
+	baseClassID             string
 }
 
 // Builder creates a BuilderOptions with default values.
@@ -27,14 +27,14 @@ type BuilderOptions struct {
 //   final object.
 func Builder() *BuilderOptions {
 	return &BuilderOptions{
-		identificationOptions: IdentificationBuilder(),
-		offenseOptions:        OffenseBuilder(),
-		defenseOptions:        DefenseBuilder(),
-		movementOptions:       MovementBuilder(),
-		powerReferencesToAdd:  []*power.Reference{},
-		classReferencesToAdd:  []*squaddieclass.ClassReference{},
-		classIDToUse:          "",
-		baseClassID:          "",
+		identificationOptions:   IdentificationBuilder(),
+		offenseOptions:          OffenseBuilder(),
+		defenseOptions:          DefenseBuilder(),
+		movementOptions:         MovementBuilder(),
+		powerReferencesToAdd:    []*power.Reference{},
+		classReferencesToAdd:    []*squaddieclass.ClassReference{},
+		classIDToUse:            "",
+		baseClassID:             "",
 		levelsConsumedByClassID: map[string]*[]string{},
 	}
 }
@@ -197,7 +197,7 @@ func (s *BuilderOptions) Build() *squaddie.Squaddie {
 		Defense:        *s.defenseOptions.Build(),
 		Movement:       *s.movementOptions.Build(),
 		ClassProgress: squaddie.ClassProgress{
-			ClassLevelsConsumed: map[string]*squaddie.ClassLevelsConsumed{},
+			ClassProgressClassLevelsConsumed: map[string]*squaddie.ClassLevelsConsumed{},
 		},
 	}
 
@@ -274,15 +274,15 @@ type BuilderOptionMarshal struct {
 	MovementType         squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
 	MovementCanHitAndRun bool                  `json:"hit_and_run" yaml:"hit_and_run"`
 
-	ClassProgress []*classProgressMarshal `json:"class_progress" yaml:"class_progress"`
-	PowerReferences []*power.Reference `json:"powers" yaml:"powers"`
+	ClassProgress   []*classProgressMarshal `json:"class_progress" yaml:"class_progress"`
+	PowerReferences []*power.Reference      `json:"powers" yaml:"powers"`
 }
 
 type classProgressMarshal struct {
-	BaseClass bool `json:"is_base_class" yaml:"is_base_class"`
-	CurrentClass bool `json:"is_current_class" yaml:"is_current_class"`
-	ClassID string  `json:"class_id" yaml:"class_id"`
-	ClassName string  `json:"class_name" yaml:"class_name"`
+	BaseClass      bool     `json:"is_base_class" yaml:"is_base_class"`
+	CurrentClass   bool     `json:"is_current_class" yaml:"is_current_class"`
+	ClassID        string   `json:"class_id" yaml:"class_id"`
+	ClassName      string   `json:"class_name" yaml:"class_name"`
 	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
 }
 

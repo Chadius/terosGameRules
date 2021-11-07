@@ -8,18 +8,18 @@ import (
 
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.
 type ClassProgress struct {
-	BaseClassID         string                          `json:"base_class" yaml:"base_class"`
-	CurrentClassID      string                          `json:"current_class" yaml:"current_class"`
-	ClassLevelsConsumed map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
+	ClassProgressBaseClassID         string                          `json:"base_class" yaml:"base_class"`
+	ClassProgressCurrentClassID      string                          `json:"current_class" yaml:"current_class"`
+	ClassProgressClassLevelsConsumed map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
 }
 
 // AddClass gives the ClassProgress a new class it can gain levels in, if it wasn't already added.
 func (classProgress *ClassProgress) AddClass(classReference *squaddieclass.ClassReference) {
-	if classProgress.ClassLevelsConsumed[classReference.ID] != nil {
+	if classProgress.ClassProgressClassLevelsConsumed[classReference.ID] != nil {
 		return
 	}
 
-	classProgress.ClassLevelsConsumed[classReference.ID] = &ClassLevelsConsumed{
+	classProgress.ClassProgressClassLevelsConsumed[classReference.ID] = &ClassLevelsConsumed{
 		ClassID:        classReference.ID,
 		ClassName:      classReference.Name,
 		LevelsConsumed: []string{},
@@ -29,7 +29,7 @@ func (classProgress *ClassProgress) AddClass(classReference *squaddieclass.Class
 // GetLevelCountsByClass returns a mapping of class names to levels gained.
 func (classProgress *ClassProgress) GetLevelCountsByClass() map[string]int {
 	count := map[string]int{}
-	for classID, progress := range classProgress.ClassLevelsConsumed {
+	for classID, progress := range classProgress.ClassProgressClassLevelsConsumed {
 		count[classID] = len(progress.LevelsConsumed)
 	}
 
@@ -38,31 +38,31 @@ func (classProgress *ClassProgress) GetLevelCountsByClass() map[string]int {
 
 // MarkLevelUpBenefitAsConsumed makes the ClassProgress remember it used this benefit to level up already.
 func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string) {
-	classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed = append(classProgress.ClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
+	classProgress.ClassProgressClassLevelsConsumed[benefitClassID].LevelsConsumed = append(classProgress.ClassProgressClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
 }
 
-// SetClass changes the ClassProgress's CurrentClassID to the given classID.
+// SetClass changes the ClassProgress's ClassProgressCurrentClassID to the given classID.
 //   It also sets the BaseClass if it hasn't been already.
 //   Raises an error if classID has not been added to the squaddie yet.
 func (classProgress *ClassProgress) SetClass(classID string) error {
-	if _, exists := classProgress.ClassLevelsConsumed[classID]; !exists {
+	if _, exists := classProgress.ClassProgressClassLevelsConsumed[classID]; !exists {
 		newError := fmt.Errorf(`cannot switch to unknown class "%s"`, classID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
-	if classProgress.BaseClassID == "" {
-		classProgress.BaseClassID = classID
+	if classProgress.ClassProgressBaseClassID == "" {
+		classProgress.ClassProgressBaseClassID = classID
 	}
 
-	classProgress.CurrentClassID = classID
+	classProgress.ClassProgressCurrentClassID = classID
 	return nil
 }
 
 // SetBaseClassIfNoBaseClass sets the BaseClass if it hasn't been already.
 func (classProgress *ClassProgress) SetBaseClassIfNoBaseClass(classID string) {
-	if classProgress.BaseClassID == "" {
-		classProgress.BaseClassID = classID
+	if classProgress.ClassProgressBaseClassID == "" {
+		classProgress.ClassProgressBaseClassID = classID
 	}
 }
 
@@ -82,7 +82,7 @@ func (classProgress *ClassProgress) HasAddedClass(classIDToFind string) bool {
 
 // anyClassLevelsConsumed returns true if any of the squaddie's class levels consumed satisfies a given condition.
 func (classProgress *ClassProgress) anyClassLevelsConsumed(condition func(classID string, progress *ClassLevelsConsumed) bool) bool {
-	for classID, progress := range classProgress.ClassLevelsConsumed {
+	for classID, progress := range classProgress.ClassProgressClassLevelsConsumed {
 		if condition(classID, progress) {
 			return true
 		}
@@ -90,43 +90,55 @@ func (classProgress *ClassProgress) anyClassLevelsConsumed(condition func(classI
 	return false
 }
 
-// GetBaseClassID returns the base class ID.
-func (classProgress *ClassProgress) GetBaseClassID() string {
-	return classProgress.BaseClassID
+// BaseClassID returns the base class ID.
+func (classProgress *ClassProgress) BaseClassID() string {
+	return classProgress.ClassProgressBaseClassID
 }
 
-// GetCurrentClassID returns the current class ID.
-func (classProgress *ClassProgress) GetCurrentClassID() string {
-	return classProgress.CurrentClassID
+// CurrentClassID returns the current class ID.
+func (classProgress *ClassProgress) CurrentClassID() string {
+	return classProgress.ClassProgressCurrentClassID
 }
 
-// GetClassLevelsConsumed returns the current class ID.
-func (classProgress *ClassProgress) GetClassLevelsConsumed() *map[string]*ClassLevelsConsumed  {
-	return &classProgress.ClassLevelsConsumed
+// ClassLevelsConsumed returns the current class ID.
+func (classProgress *ClassProgress) ClassLevelsConsumed() *map[string]*ClassLevelsConsumed {
+	return &classProgress.ClassProgressClassLevelsConsumed
 }
 
 // HasSameClassesAs sees if the other class progress has the same fields.
 func (classProgress *ClassProgress) HasSameClassesAs(other *ClassProgress) bool {
-	if classProgress.GetBaseClassID() != other.GetBaseClassID() { return false }
-	if classProgress.GetCurrentClassID() != other.GetCurrentClassID() { return false }
+	if classProgress.BaseClassID() != other.BaseClassID() {
+		return false
+	}
+	if classProgress.CurrentClassID() != other.CurrentClassID() {
+		return false
+	}
 
-	otherClassLevelsConsumed := *other.GetClassLevelsConsumed()
-	if len(*classProgress.GetClassLevelsConsumed()) != len(otherClassLevelsConsumed) { return false }
+	otherClassLevelsConsumed := *other.ClassLevelsConsumed()
+	if len(*classProgress.ClassLevelsConsumed()) != len(otherClassLevelsConsumed) {
+		return false
+	}
 
 	classLevelsConsumedByClassID := map[string]bool{}
-	for classLevelsConsumedClassID := range *classProgress.GetClassLevelsConsumed() {
+	for classLevelsConsumedClassID := range *classProgress.ClassLevelsConsumed() {
 		classLevelsConsumedByClassID[classLevelsConsumedClassID] = false
 	}
 
 	for classID, classLevelsConsumed := range otherClassLevelsConsumed {
 		_, exists := classLevelsConsumedByClassID[classID]
-		if !exists { return false }
-		if !classProgress.ClassLevelsConsumed[classID].HasSameConsumptionAs(classLevelsConsumed) { return false }
+		if !exists {
+			return false
+		}
+		if !classProgress.ClassProgressClassLevelsConsumed[classID].HasSameConsumptionAs(classLevelsConsumed) {
+			return false
+		}
 		classLevelsConsumedByClassID[classID] = true
 	}
 
 	for _, wasFound := range classLevelsConsumedByClassID {
-		if wasFound == false { return false }
+		if wasFound == false {
+			return false
+		}
 	}
 
 	return true

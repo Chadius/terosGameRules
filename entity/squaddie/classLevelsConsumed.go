@@ -37,10 +37,16 @@ func (progress *ClassLevelsConsumed) AccumulateLevelsConsumed(calculate func(con
 
 // HasSameConsumptionAs sees if the other class progress has the same fields.
 func (progress *ClassLevelsConsumed) HasSameConsumptionAs(other *ClassLevelsConsumed) bool {
-	if progress.ClassID != other.ClassID { return false }
-	if progress.ClassName != other.ClassName { return false }
+	if progress.ClassID != other.ClassID {
+		return false
+	}
+	if progress.ClassName != other.ClassName {
+		return false
+	}
 
-	if len(progress.LevelsConsumed) != len(other.LevelsConsumed) { return false }
+	if len(progress.LevelsConsumed) != len(other.LevelsConsumed) {
+		return false
+	}
 
 	levelsConsumedByID := map[string]bool{}
 	for _, levelID := range progress.LevelsConsumed {
@@ -49,13 +55,19 @@ func (progress *ClassLevelsConsumed) HasSameConsumptionAs(other *ClassLevelsCons
 
 	for _, levelID := range other.LevelsConsumed {
 		alreadyFound, exists := levelsConsumedByID[levelID]
-		if !exists { return false }
-		if alreadyFound { return false }
+		if !exists {
+			return false
+		}
+		if alreadyFound {
+			return false
+		}
 		levelsConsumedByID[levelID] = true
 	}
 
 	for _, wasFound := range levelsConsumedByID {
-		if wasFound == false { return false }
+		if wasFound == false {
+			return false
+		}
 	}
 
 	return true

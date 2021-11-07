@@ -104,13 +104,19 @@ func (powerCollection *PowerCollection) HasSamePowersAs(other *PowerCollection) 
 
 	for _, reference := range other.GetCopyOfPowerReferences() {
 		alreadyFound, exists := powersByID[reference.PowerID]
-		if !exists { return false }
-		if alreadyFound { return false }
+		if !exists {
+			return false
+		}
+		if alreadyFound {
+			return false
+		}
 		powersByID[reference.PowerID] = true
 	}
 
 	for _, wasFound := range powersByID {
-		if wasFound == false { return false }
+		if wasFound == false {
+			return false
+		}
 	}
 
 	return true

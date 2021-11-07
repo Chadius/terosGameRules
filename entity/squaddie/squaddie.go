@@ -37,7 +37,7 @@ func NewSquaddie(name string) *Squaddie {
 			SquaddieAffiliation: Player,
 		},
 		ClassProgress: ClassProgress{
-			ClassLevelsConsumed: map[string]*ClassLevelsConsumed{},
+			ClassProgressClassLevelsConsumed: map[string]*ClassLevelsConsumed{},
 		},
 		Defense: Defense{
 			SquaddieCurrentHitPoints: 0,
@@ -173,8 +173,12 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 	if !s.hasSameMovementAs(other) {
 		return false
 	}
-	if !s.hasSamePowersAs(other) {return false}
-	if !s.hasSameClassesAs(other) { return false }
+	if !s.hasSamePowersAs(other) {
+		return false
+	}
+	if !s.hasSameClassesAs(other) {
+		return false
+	}
 	return true
 }
 
@@ -314,15 +318,15 @@ func (s *Squaddie) GetCopyOfPowerReferences() []*power.Reference {
 
 // CurrentClassID delegates
 func (s *Squaddie) CurrentClassID() string {
-	return s.ClassProgress.GetCurrentClassID()
+	return s.ClassProgress.CurrentClassID()
 }
 
 // BaseClassID delegates
 func (s *Squaddie) BaseClassID() string {
-	return s.ClassProgress.GetBaseClassID()
+	return s.ClassProgress.BaseClassID()
 }
 
 // ClassLevelsConsumed delegates
-func (s *Squaddie) ClassLevelsConsumed() *map[string]*ClassLevelsConsumed  {
-	return s.ClassProgress.GetClassLevelsConsumed()
+func (s *Squaddie) ClassLevelsConsumed() *map[string]*ClassLevelsConsumed {
+	return s.ClassProgress.ClassLevelsConsumed()
 }

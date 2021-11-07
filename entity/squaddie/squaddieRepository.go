@@ -131,8 +131,8 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 		clone.AddPowerReference(reference)
 	}
 
-	clone.ClassProgress.BaseClassID = base.BaseClassID()
-	clone.ClassProgress.CurrentClassID = base.CurrentClassID()
+	clone.ClassProgress.ClassProgressBaseClassID = base.BaseClassID()
+	clone.ClassProgress.ClassProgressCurrentClassID = base.CurrentClassID()
 
 	for classID, progress := range *base.ClassLevelsConsumed() {
 		newProgress := ClassLevelsConsumed{
@@ -141,7 +141,7 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 			LevelsConsumed: append([]string{}, progress.LevelsConsumed...),
 		}
 
-		clone.ClassProgress.ClassLevelsConsumed[classID] = &newProgress
+		clone.ClassProgress.ClassProgressClassLevelsConsumed[classID] = &newProgress
 	}
 	return clone, nil
 }
