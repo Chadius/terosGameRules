@@ -1,7 +1,9 @@
 package squaddie_test
 
 import (
+	powerEntity "github.com/chadius/terosbattleserver/entity/power"
 	squaddieEntity "github.com/chadius/terosbattleserver/entity/squaddie"
+	classEntity "github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
@@ -150,7 +152,7 @@ func (suite *SquaddieClassBuilder) TestBuildAddClass(checker *C) {
 func (suite *SquaddieClassBuilder) TestBuildSetClass(checker *C) {
 	mageClass := squaddieclass.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
 	teros := squaddie.Builder().AddClassByReference(mageClass.GetReference()).SetClassByID(mageClass.ID()).Build()
-	checker.Assert(mageClass.ID(), Equals, teros.ClassProgress.CurrentClassID)
+	checker.Assert(mageClass.ID(), Equals, teros.CurrentClassID())
 }
 
 type SpecificSquaddieBuilder struct{}
@@ -200,6 +202,22 @@ mind: 17
 movement_distance: 19
 movement_type: light
 hit_and_run: true
+powers:
+- id: shove_id
+  name: Shove
+- id: bandage_id
+  name: Bandage
+class_progress:
+- class_id: baseClassID
+  class_name: Introductory Class
+  is_base_class: true
+  levels_gained: ["level0", "level1"]
+- class_id: currentClassID
+  class_name: Advanced Class
+  is_current_class: true
+  levels_gained: 
+  - advanced level0
+  - advanced level1
 `)
 }
 
@@ -227,7 +245,6 @@ func (suite *YAMLBuilderSuite) TestOffenseMatchesNewSquaddie(checker *C) {
 	checker.Assert(yamlSquaddie.Aim(), Equals, 11)
 	checker.Assert(yamlSquaddie.Strength(), Equals, 13)
 	checker.Assert(yamlSquaddie.Mind(), Equals, 17)
-
 }
 
 func (suite *YAMLBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
@@ -236,6 +253,35 @@ func (suite *YAMLBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 19)
 	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Light)
 	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
+}
+
+func (suite *YAMLBuilderSuite) TestPowersMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
+
+	powerReferences := yamlSquaddie.GetCopyOfPowerReferences()
+	checker.Assert(powerReferences, HasLen, 2)
+	checker.Assert(powerReferences[0].PowerID, Equals, "shove_id")
+	checker.Assert(powerReferences[0].Name, Equals, "Shove")
+	checker.Assert(powerReferences[1].PowerID, Equals, "bandage_id")
+	checker.Assert(powerReferences[1].Name, Equals, "Bandage")
+}
+
+func (suite *YAMLBuilderSuite) TestClassesMatchesNewSquaddie(checker *C) {
+	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
+
+	checker.Assert(yamlSquaddie.BaseClassID(), Equals, "baseClassID")
+	checker.Assert(yamlSquaddie.CurrentClassID(), Equals, "currentClassID")
+	classLevelsConsumed := *yamlSquaddie.ClassLevelsConsumed()
+	checker.Assert(classLevelsConsumed["baseClassID"].ClassID, Equals, "baseClassID")
+	checker.Assert(classLevelsConsumed["baseClassID"].ClassName, Equals, "Introductory Class")
+	checker.Assert(classLevelsConsumed["baseClassID"].LevelsConsumed, HasLen, 2)
+	checker.Assert(classLevelsConsumed["baseClassID"].LevelsConsumed[0], Equals, "level0")
+	checker.Assert(classLevelsConsumed["baseClassID"].LevelsConsumed[1], Equals, "level1")
+	checker.Assert(classLevelsConsumed["currentClassID"].ClassID, Equals, "currentClassID")
+	checker.Assert(classLevelsConsumed["currentClassID"].ClassName, Equals, "Advanced Class")
+	checker.Assert(classLevelsConsumed["currentClassID"].LevelsConsumed, HasLen, 2)
+	checker.Assert(classLevelsConsumed["currentClassID"].LevelsConsumed[0], Equals, "advanced level0")
+	checker.Assert(classLevelsConsumed["currentClassID"].LevelsConsumed[1], Equals, "advanced level1")
 }
 
 type JSONBuilderSuite struct {
@@ -248,57 +294,113 @@ func (suite *JSONBuilderSuite) SetUpTest(checker *C) {
 	suite.jsonData = []byte(
 		`
 {
-   "id": "squaddie_json",
-   "name": "JSON squaddie",
-   "affiliation": "Ally",
-   "max_hit_points": 23,
-   "dodge": 19,
-   "deflect": 17,
-   "max_barrier": 13,
-   "armor": 11,
-   "aim": 7,
-   "strength": 5,
-   "mind": 3,
-   "movement_distance": 2,
-   "movement_type": "teleport",
-   "hit_and_run": true
+	"id": "squaddie_json",
+	"name": "JSON squaddie",
+	"affiliation": "Ally",
+	"max_hit_points": 23,
+	"dodge": 19,
+	"deflect": 17,
+	"max_barrier": 13,
+	"armor": 11,
+	"aim": 7,
+	"strength": 5,
+	"mind": 3,
+	"movement_distance": 2,
+	"movement_type": "teleport",
+	"hit_and_run": true,
+	"powers": [
+		{
+			"id": "shove_id",
+		  	"name": "Shove"
+		},
+		{
+			"id": "bandage_id",
+		  	"name": "Bandage"
+		}
+	],
+	"class_progress": [
+		{
+			"class_id": "baseClassID",
+			"class_name": "Introductory Class",
+			"is_base_class": true,
+			"levels_gained": ["level0", "level1"]
+		},
+		{
+			"class_id": "currentClassID",
+			"class_name": "Advanced Class",
+			"is_current_class": true,
+			"levels_gained": [
+			  "advanced level0",
+			  "advanced level1"
+			]
+		}
+	]
 }
 `)
 }
 
 func (suite *JSONBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) {
-	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+	jsonSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
 
-	checker.Assert(yamlSquaddie.ID(), Equals, "squaddie_json")
-	checker.Assert(yamlSquaddie.Name(), Equals, "JSON squaddie")
-	checker.Assert(yamlSquaddie.Affiliation(), Equals, squaddieEntity.Ally)
+	checker.Assert(jsonSquaddie.ID(), Equals, "squaddie_json")
+	checker.Assert(jsonSquaddie.Name(), Equals, "JSON squaddie")
+	checker.Assert(jsonSquaddie.Affiliation(), Equals, squaddieEntity.Ally)
 }
 
 func (suite *JSONBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {
-	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+	jsonSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
 
-	checker.Assert(yamlSquaddie.MaxHitPoints(), Equals, 23)
-	checker.Assert(yamlSquaddie.Dodge(), Equals, 19)
-	checker.Assert(yamlSquaddie.Deflect(), Equals, 17)
-	checker.Assert(yamlSquaddie.MaxBarrier(), Equals, 13)
-	checker.Assert(yamlSquaddie.Armor(), Equals, 11)
+	checker.Assert(jsonSquaddie.MaxHitPoints(), Equals, 23)
+	checker.Assert(jsonSquaddie.Dodge(), Equals, 19)
+	checker.Assert(jsonSquaddie.Deflect(), Equals, 17)
+	checker.Assert(jsonSquaddie.MaxBarrier(), Equals, 13)
+	checker.Assert(jsonSquaddie.Armor(), Equals, 11)
 }
 
 func (suite *JSONBuilderSuite) TestOffenseMatchesNewSquaddie(checker *C) {
-	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+	jsonSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
 
-	checker.Assert(yamlSquaddie.Aim(), Equals, 7)
-	checker.Assert(yamlSquaddie.Strength(), Equals, 5)
-	checker.Assert(yamlSquaddie.Mind(), Equals, 3)
+	checker.Assert(jsonSquaddie.Aim(), Equals, 7)
+	checker.Assert(jsonSquaddie.Strength(), Equals, 5)
+	checker.Assert(jsonSquaddie.Mind(), Equals, 3)
 
 }
 
 func (suite *JSONBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
-	yamlSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+	jsonSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
 
-	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 2)
-	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Teleport)
-	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
+	checker.Assert(jsonSquaddie.MovementDistance(), Equals, 2)
+	checker.Assert(jsonSquaddie.MovementType(), Equals, squaddieEntity.Teleport)
+	checker.Assert(jsonSquaddie.MovementCanHitAndRun(), Equals, true)
+}
+
+func (suite *JSONBuilderSuite) TestPowersMatchesNewSquaddie(checker *C) {
+	jsonSquaddie := squaddie.Builder().UsingYAML(suite.jsonData).Build()
+
+	powerReferences := jsonSquaddie.GetCopyOfPowerReferences()
+	checker.Assert(powerReferences, HasLen, 2)
+	checker.Assert(powerReferences[0].PowerID, Equals, "shove_id")
+	checker.Assert(powerReferences[0].Name, Equals, "Shove")
+	checker.Assert(powerReferences[1].PowerID, Equals, "bandage_id")
+	checker.Assert(powerReferences[1].Name, Equals, "Bandage")
+}
+
+func (suite *JSONBuilderSuite) TestClassesMatchesNewSquaddie(checker *C) {
+	jsonSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
+
+	checker.Assert(jsonSquaddie.BaseClassID(), Equals, "baseClassID")
+	checker.Assert(jsonSquaddie.CurrentClassID(), Equals, "currentClassID")
+	classLevelsConsumed := *jsonSquaddie.ClassLevelsConsumed()
+	checker.Assert(classLevelsConsumed["baseClassID"].ClassID, Equals, "baseClassID")
+	checker.Assert(classLevelsConsumed["baseClassID"].ClassName, Equals, "Introductory Class")
+	checker.Assert(classLevelsConsumed["baseClassID"].LevelsConsumed, HasLen, 2)
+	checker.Assert(classLevelsConsumed["baseClassID"].LevelsConsumed[0], Equals, "level0")
+	checker.Assert(classLevelsConsumed["baseClassID"].LevelsConsumed[1], Equals, "level1")
+	checker.Assert(classLevelsConsumed["currentClassID"].ClassID, Equals, "currentClassID")
+	checker.Assert(classLevelsConsumed["currentClassID"].ClassName, Equals, "Advanced Class")
+	checker.Assert(classLevelsConsumed["currentClassID"].LevelsConsumed, HasLen, 2)
+	checker.Assert(classLevelsConsumed["currentClassID"].LevelsConsumed[0], Equals, "advanced level0")
+	checker.Assert(classLevelsConsumed["currentClassID"].LevelsConsumed[1], Equals, "advanced level1")
 }
 
 type BuildCopySuite struct {
@@ -332,4 +434,28 @@ func (suite *BuildCopySuite) TestCopySquaddieMovement(checker *C) {
 	mobileTeros := squaddie.Builder().CloneOf(suite.teros).MovementTeleport().MoveDistance(5).CanHitAndRun().Build()
 	cloneTeros := squaddie.Builder().CloneOf(mobileTeros).Build()
 	checker.Assert(cloneTeros.HasSameStatsAs(mobileTeros), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopySquaddiePowers(checker *C) {
+	armedTeros := squaddie.Builder().CloneOf(suite.teros).AddPowerByReference(&powerEntity.Reference{
+		Name:    "Spear",
+		PowerID: "powerIDForSpear",
+	}).AddPowerByReference(&powerEntity.Reference{
+		Name:    "Blot",
+		PowerID: "powerIDForBlot",
+	}).Build()
+	cloneTeros := squaddie.Builder().CloneOf(armedTeros).Build()
+	checker.Assert(cloneTeros.HasSameStatsAs(armedTeros), Equals, true)
+}
+
+func (suite *BuildCopySuite) TestCopyClasses(checker *C) {
+	experiencedTeros := squaddie.Builder().CloneOf(suite.teros).
+		AddClassByReference(&classEntity.ClassReference{ID: "scholarID", Name: "Scholar"}).
+		AddClassByReference(&classEntity.ClassReference{ID: "advancedScholarID", Name: "Advanced Scholar"}).
+		Build()
+	experiencedTeros.SetBaseClassIfNoBaseClass("scholarID")
+	experiencedTeros.SetClass("scholarID")
+	experiencedTeros.MarkLevelUpBenefitAsConsumed("scholarID", "scholarLevel1")
+	cloneTeros := squaddie.Builder().CloneOf(experiencedTeros).Build()
+	checker.Assert(cloneTeros.HasSameStatsAs(experiencedTeros), Equals, true)
 }

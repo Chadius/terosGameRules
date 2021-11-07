@@ -120,9 +120,9 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(che
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestUsingLevelSetsBaseClassIfBaseClassIsUnset(checker *C) {
-	checker.Assert(suite.teros.ClassProgress.BaseClassID, Equals, "")
+	checker.Assert(suite.teros.BaseClassID(), Equals, "")
 	levelup.ImproveSquaddie(&suite.statBooster, suite.teros, nil)
-	checker.Assert(suite.teros.ClassProgress.BaseClassID, Equals, suite.mageClass.ID())
+	checker.Assert(suite.teros.BaseClassID(), Equals, suite.mageClass.ID())
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker *C) {
@@ -171,7 +171,10 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 
 	suite.spear = powerBuilder.Builder().Spear().WithID("spearlvl1").Build()
 
-	suite.teros.PowerCollection.PowerReferences = []*power.Reference{{Name: "spear", PowerID: "spearlvl1"}}
+	suite.teros.AddPowerReference(&power.Reference{
+		Name:    "spear",
+		PowerID: "spearlvl1",
+	})
 
 	suite.spearLevel2 = powerBuilder.Builder().Spear().WithID("spearlvl2").Build()
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}

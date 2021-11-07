@@ -424,20 +424,20 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
 	initialClass := squaddieClassBuilder.ClassBuilder().WithID("initial").Build()
 	advancedClass := squaddieClassBuilder.ClassBuilder().WithID("advanced").RequiresBaseClass().Build()
 
-	suite.base.ClassProgress.AddClass(initialClass.GetReference())
-	suite.base.ClassProgress.AddClass(advancedClass.GetReference())
+	suite.base.AddClass(initialClass.GetReference())
+	suite.base.AddClass(advancedClass.GetReference())
 	suite.base.SetBaseClassIfNoBaseClass(initialClass.ID())
 	suite.base.MarkLevelUpBenefitAsConsumed(initialClass.ID(), "initialLevel0")
 	suite.base.MarkLevelUpBenefitAsConsumed(initialClass.ID(), "initialLevel1")
 	suite.base.MarkLevelUpBenefitAsConsumed(initialClass.ID(), "initialLevel2")
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
-	checker.Assert(clone.ClassProgress.BaseClassID, Equals, suite.base.ClassProgress.BaseClassID)
-	checker.Assert(clone.ClassProgress.CurrentClassID, Equals, suite.base.ClassProgress.CurrentClassID)
-	for classID, levelsConsumed := range suite.base.ClassProgress.ClassLevelsConsumed {
-		checker.Assert(clone.ClassProgress.ClassLevelsConsumed[classID], NotNil)
+	checker.Assert(clone.BaseClassID(), Equals, suite.base.BaseClassID())
+	checker.Assert(clone.CurrentClassID(), Equals, suite.base.CurrentClassID())
+	for classID, levelsConsumed := range *suite.base.ClassLevelsConsumed() {
+		checker.Assert((*clone.ClassLevelsConsumed())[classID], NotNil)
 
-		cloneLevelsConsumed := clone.ClassProgress.ClassLevelsConsumed[classID]
+		cloneLevelsConsumed := (*clone.ClassLevelsConsumed())[classID]
 		checker.Assert(cloneLevelsConsumed, Not(Equals), levelsConsumed)
 		checker.Assert(cloneLevelsConsumed, DeepEquals, levelsConsumed)
 	}

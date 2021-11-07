@@ -173,6 +173,8 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 	if !s.hasSameMovementAs(other) {
 		return false
 	}
+	if !s.hasSamePowersAs(other) {return false}
+	if !s.hasSameClassesAs(other) { return false }
 	return true
 }
 
@@ -225,6 +227,14 @@ func (s *Squaddie) hasSameDefenseAs(other *Squaddie) bool {
 		return false
 	}
 	return true
+}
+
+func (s *Squaddie) hasSamePowersAs(other *Squaddie) bool {
+	return s.PowerCollection.HasSamePowersAs(&other.PowerCollection)
+}
+
+func (s *Squaddie) hasSameClassesAs(other *Squaddie) bool {
+	return s.ClassProgress.HasSameClassesAs(&other.ClassProgress)
 }
 
 // ClearPowerReferences delegates.
@@ -295,4 +305,24 @@ func (s *Squaddie) HasAddedClass(classIDToFind string) bool {
 // AddClass delegates.
 func (s *Squaddie) AddClass(classReference *squaddieclass.ClassReference) {
 	s.ClassProgress.AddClass(classReference)
+}
+
+// GetCopyOfPowerReferences delegates.
+func (s *Squaddie) GetCopyOfPowerReferences() []*power.Reference {
+	return s.PowerCollection.GetCopyOfPowerReferences()
+}
+
+// CurrentClassID delegates
+func (s *Squaddie) CurrentClassID() string {
+	return s.ClassProgress.GetCurrentClassID()
+}
+
+// BaseClassID delegates
+func (s *Squaddie) BaseClassID() string {
+	return s.ClassProgress.GetBaseClassID()
+}
+
+// ClassLevelsConsumed delegates
+func (s *Squaddie) ClassLevelsConsumed() *map[string]*ClassLevelsConsumed  {
+	return s.ClassProgress.GetClassLevelsConsumed()
 }

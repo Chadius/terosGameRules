@@ -89,3 +89,45 @@ func (classProgress *ClassProgress) anyClassLevelsConsumed(condition func(classI
 	}
 	return false
 }
+
+// GetBaseClassID returns the base class ID.
+func (classProgress *ClassProgress) GetBaseClassID() string {
+	return classProgress.BaseClassID
+}
+
+// GetCurrentClassID returns the current class ID.
+func (classProgress *ClassProgress) GetCurrentClassID() string {
+	return classProgress.CurrentClassID
+}
+
+// GetClassLevelsConsumed returns the current class ID.
+func (classProgress *ClassProgress) GetClassLevelsConsumed() *map[string]*ClassLevelsConsumed  {
+	return &classProgress.ClassLevelsConsumed
+}
+
+// HasSameClassesAs sees if the other class progress has the same fields.
+func (classProgress *ClassProgress) HasSameClassesAs(other *ClassProgress) bool {
+	if classProgress.GetBaseClassID() != other.GetBaseClassID() { return false }
+	if classProgress.GetCurrentClassID() != other.GetCurrentClassID() { return false }
+
+	otherClassLevelsConsumed := *other.GetClassLevelsConsumed()
+	if len(*classProgress.GetClassLevelsConsumed()) != len(otherClassLevelsConsumed) { return false }
+
+	classLevelsConsumedByClassID := map[string]bool{}
+	for classLevelsConsumedClassID := range *classProgress.GetClassLevelsConsumed() {
+		classLevelsConsumedByClassID[classLevelsConsumedClassID] = false
+	}
+
+	for classID, classLevelsConsumed := range otherClassLevelsConsumed {
+		_, exists := classLevelsConsumedByClassID[classID]
+		if !exists { return false }
+		if !classProgress.ClassLevelsConsumed[classID].HasSameConsumptionAs(classLevelsConsumed) { return false }
+		classLevelsConsumedByClassID[classID] = true
+	}
+
+	for _, wasFound := range classLevelsConsumedByClassID {
+		if wasFound == false { return false }
+	}
+
+	return true
+}

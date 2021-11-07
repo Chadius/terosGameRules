@@ -2,7 +2,6 @@ package squaddie
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
@@ -128,12 +127,14 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 		SquaddieMovementCanHitAndRun: base.MovementCanHitAndRun(),
 	}
 
-	clone.PowerCollection.PowerReferences = append([]*power.Reference{}, base.PowerCollection.PowerReferences...)
+	for _, reference := range base.PowerCollection.GetCopyOfPowerReferences() {
+		clone.AddPowerReference(reference)
+	}
 
-	clone.ClassProgress.BaseClassID = base.ClassProgress.BaseClassID
-	clone.ClassProgress.CurrentClassID = base.ClassProgress.CurrentClassID
+	clone.ClassProgress.BaseClassID = base.BaseClassID()
+	clone.ClassProgress.CurrentClassID = base.CurrentClassID()
 
-	for classID, progress := range base.ClassProgress.ClassLevelsConsumed {
+	for classID, progress := range *base.ClassLevelsConsumed() {
 		newProgress := ClassLevelsConsumed{
 			ClassID:        classID,
 			ClassName:      progress.ClassName,

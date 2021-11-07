@@ -17,7 +17,9 @@ type BuilderOptions struct {
 	movementOptions       *MovementBuilderOptions
 	powerReferencesToAdd  []*power.Reference
 	classReferencesToAdd  []*squaddieclass.ClassReference
+	levelsConsumedByClassID map[string]*[]string
 	classIDToUse          string
+	baseClassID string
 }
 
 // Builder creates a BuilderOptions with default values.
@@ -32,6 +34,8 @@ func Builder() *BuilderOptions {
 		powerReferencesToAdd:  []*power.Reference{},
 		classReferencesToAdd:  []*squaddieclass.ClassReference{},
 		classIDToUse:          "",
+		baseClassID:          "",
+		levelsConsumedByClassID: map[string]*[]string{},
 	}
 }
 
@@ -167,9 +171,21 @@ func (s *BuilderOptions) AddClassByReference(newClassReference *squaddieclass.Cl
 	return s
 }
 
+// AddClassLevelsConsumed adds consumed class levels.
+func (s *BuilderOptions) AddClassLevelsConsumed(classID string, levelIDsConsumed *[]string) *BuilderOptions {
+	s.levelsConsumedByClassID[classID] = levelIDsConsumed
+	return s
+}
+
 // SetClassByID sets the squaddie's class to the given class.
 func (s *BuilderOptions) SetClassByID(targetClassID string) *BuilderOptions {
 	s.classIDToUse = targetClassID
+	return s
+}
+
+// SetBaseClassByID sets the squaddie's class to the given class.
+func (s *BuilderOptions) SetBaseClassByID(targetClassID string) *BuilderOptions {
+	s.baseClassID = targetClassID
 	return s
 }
 
@@ -190,11 +206,21 @@ func (s *BuilderOptions) Build() *squaddie.Squaddie {
 	}
 
 	for _, newClassReference := range s.classReferencesToAdd {
-		newSquaddie.ClassProgress.AddClass(newClassReference)
+		newSquaddie.AddClass(newClassReference)
+	}
+
+	if s.baseClassID != "" {
+		newSquaddie.SetBaseClassIfNoBaseClass(s.baseClassID)
 	}
 
 	if s.classIDToUse != "" {
 		newSquaddie.SetClass(s.classIDToUse)
+	}
+
+	for classID, levelsConsumed := range s.levelsConsumedByClassID {
+		for _, levelID := range *levelsConsumed {
+			newSquaddie.MarkLevelUpBenefitAsConsumed(classID, levelID)
+		}
 	}
 
 	return newSquaddie
@@ -247,6 +273,17 @@ type BuilderOptionMarshal struct {
 	MovementDistance     int                   `json:"movement_distance" yaml:"movement_distance"`
 	MovementType         squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
 	MovementCanHitAndRun bool                  `json:"hit_and_run" yaml:"hit_and_run"`
+
+	ClassProgress []*classProgressMarshal `json:"class_progress" yaml:"class_progress"`
+	PowerReferences []*power.Reference `json:"powers" yaml:"powers"`
+}
+
+type classProgressMarshal struct {
+	BaseClass bool `json:"is_base_class" yaml:"is_base_class"`
+	CurrentClass bool `json:"is_current_class" yaml:"is_current_class"`
+	ClassID string  `json:"class_id" yaml:"class_id"`
+	ClassName string  `json:"class_name" yaml:"class_name"`
+	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
 }
 
 // UsingYAML uses the yaml data to generate BuilderOptions.
@@ -303,6 +340,29 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 	if marshaledOptions.MovementCanHitAndRun == true {
 		s.CanHitAndRun()
 	}
+
+	if marshaledOptions.PowerReferences != nil {
+		for _, reference := range marshaledOptions.PowerReferences {
+			s.AddPowerByReference(reference)
+		}
+	}
+
+	if marshaledOptions.ClassProgress != nil {
+		for _, progress := range marshaledOptions.ClassProgress {
+			s.AddClassByReference(&squaddieclass.ClassReference{
+				ID:   progress.ClassID,
+				Name: progress.ClassName,
+			})
+			s.AddClassLevelsConsumed(progress.ClassID, &progress.LevelsConsumed)
+			if progress.BaseClass {
+				s.SetBaseClassByID(progress.ClassID)
+			}
+			if progress.CurrentClass {
+				s.SetClassByID(progress.ClassID)
+			}
+		}
+	}
+
 	return s
 }
 
@@ -314,6 +374,8 @@ func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
 		MoveDistance(source.MovementDistance())
 	s.cloneAffiliation(source)
 	s.cloneMovement(source)
+	s.clonePowerReferences(source)
+	s.cloneClassProgress(source)
 	return s
 }
 
@@ -348,4 +410,22 @@ func (s *BuilderOptions) cloneAffiliation(source *squaddie.Squaddie) {
 	if source.Affiliation() == squaddie.Neutral {
 		s.AsNeutral()
 	}
+}
+
+func (s *BuilderOptions) clonePowerReferences(source *squaddie.Squaddie) {
+	for _, reference := range source.GetCopyOfPowerReferences() {
+		s.AddPowerByReference(reference)
+	}
+}
+
+func (s *BuilderOptions) cloneClassProgress(source *squaddie.Squaddie) {
+	for classID, classLevelsConsumed := range *source.ClassLevelsConsumed() {
+		s.AddClassByReference(&squaddieclass.ClassReference{
+			ID:   classID,
+			Name: classLevelsConsumed.ClassName,
+		})
+		s.AddClassLevelsConsumed(classID, &classLevelsConsumed.LevelsConsumed)
+	}
+
+	s.SetClassByID(source.CurrentClassID())
 }

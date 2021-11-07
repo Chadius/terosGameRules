@@ -9,18 +9,18 @@ import (
 func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
 	classToTest, _ := repositories.ClassRepo.GetClassByID(testingClassID)
 
-	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired() != true {
+	if squaddieToTest.BaseClassID() == "" && classToTest.BaseClassRequired() != true {
 		return true
 	}
-	if squaddieToTest.ClassProgress.BaseClassID == "" && classToTest.BaseClassRequired() == true {
+	if squaddieToTest.BaseClassID() == "" && classToTest.BaseClassRequired() == true {
 		return false
 	}
 
-	if squaddieToTest.ClassProgress.CurrentClassID == testingClassID {
+	if squaddieToTest.CurrentClassID() == testingClassID {
 		return false
 	}
 
-	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.ClassProgress.CurrentClassID, repositories) == false {
+	if squaddieHasEnoughLevelsInClassToSwitch(squaddieToTest, squaddieToTest.CurrentClassID(), repositories) == false {
 		return false
 	}
 

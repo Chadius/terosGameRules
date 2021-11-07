@@ -85,3 +85,33 @@ func (powerCollection *PowerCollection) RemovePowerReferenceByPowerID(powerID st
 		)
 	}
 }
+
+// Len returns the number of powers in the collection
+func (powerCollection *PowerCollection) Len() int {
+	return len(powerCollection.PowerReferences)
+}
+
+// HasSamePowersAs sees if the other collection has the same power references
+func (powerCollection *PowerCollection) HasSamePowersAs(other *PowerCollection) bool {
+	if powerCollection.Len() != other.Len() {
+		return false
+	}
+
+	powersByID := map[string]bool{}
+	for _, reference := range powerCollection.PowerReferences {
+		powersByID[reference.PowerID] = false
+	}
+
+	for _, reference := range other.GetCopyOfPowerReferences() {
+		alreadyFound, exists := powersByID[reference.PowerID]
+		if !exists { return false }
+		if alreadyFound { return false }
+		powersByID[reference.PowerID] = true
+	}
+
+	for _, wasFound := range powersByID {
+		if wasFound == false { return false }
+	}
+
+	return true
+}

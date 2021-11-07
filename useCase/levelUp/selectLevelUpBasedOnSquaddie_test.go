@@ -113,7 +113,7 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestUseSmallLevelsForClassLevel(checker *C) {
-	suite.teros.ClassProgress.AddClass(suite.mageClass.GetReference())
+	suite.teros.AddClass(suite.mageClass.GetReference())
 	for index, _ := range [5]int{} {
 		levelup.ImproveSquaddie(suite.lotsOfSmallLevels[index], suite.teros, nil)
 	}
@@ -126,23 +126,23 @@ func (suite *SquaddieChoosesLevelsSuite) TestUseSmallLevelsForClassLevel(checker
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestOddClassLevelEarnsBigAndSmallLevel(checker *C) {
-	suite.teros.ClassProgress.AddClass(suite.mageClass.GetReference())
+	suite.teros.AddClass(suite.mageClass.GetReference())
 	suite.teros.SetClass(suite.mageClass.ID())
 	err := levelup.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].Identification.ID, suite.repos)
 	checker.Assert(err, IsNil)
 
 	classLevels := levelup.GetSquaddieClassLevels(suite.teros, suite.repos)
 	checker.Assert(classLevels[suite.mageClass.ID()], Equals, 1)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.mageClass.ID()].LevelsConsumed, HasLen, 2)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.mageClass.ID()].LevelsConsumed, HasLen, 2)
 
-	hasSmallLevel := suite.teros.ClassProgress.ClassLevelsConsumed[suite.mageClass.ID()].AnyLevelsConsumed(func(consumedLevelID string) bool {
+	hasSmallLevel := (*suite.teros.ClassLevelsConsumed())[suite.mageClass.ID()].AnyLevelsConsumed(func(consumedLevelID string) bool {
 		return levelupbenefit.AnyLevelUpBenefits(suite.lotsOfSmallLevels, func(level *levelupbenefit.LevelUpBenefit) bool {
 			return level.Identification.ID == consumedLevelID
 		})
 	})
 	checker.Assert(hasSmallLevel, Equals, true)
 
-	hasBigLevel := suite.teros.ClassProgress.ClassLevelsConsumed[suite.mageClass.ID()].AnyLevelsConsumed(func(consumedLevelID string) bool {
+	hasBigLevel := (*suite.teros.ClassLevelsConsumed())[suite.mageClass.ID()].AnyLevelsConsumed(func(consumedLevelID string) bool {
 		return levelupbenefit.AnyLevelUpBenefits(suite.lotsOfBigLevels, func(level *levelupbenefit.LevelUpBenefit) bool {
 			return level.Identification.ID == consumedLevelID
 		})
@@ -156,18 +156,18 @@ func (suite *SquaddieChoosesLevelsSuite) TestRaisesAnErrorIfClassIsNotFound(chec
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseBigLevelIfNoneAvailable(checker *C) {
-	suite.teros.ClassProgress.AddClass(suite.onlySmallLevelsClass.GetReference())
+	suite.teros.AddClass(suite.onlySmallLevelsClass.GetReference())
 	suite.teros.SetClass(suite.onlySmallLevelsClass.ID())
 	err := levelup.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].Identification.ID, suite.repos)
 	checker.Assert(err, IsNil)
 
 	classLevels := levelup.GetSquaddieClassLevels(suite.teros, suite.repos)
 	checker.Assert(classLevels[suite.onlySmallLevelsClass.ID()], Equals, 1)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.onlySmallLevelsClass.ID()].LevelsConsumed, HasLen, 1)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.onlySmallLevelsClass.ID()].LevelsConsumed, HasLen, 1)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestChooseSmallLevelAtMostOnce(checker *C) {
-	suite.teros.ClassProgress.AddClass(suite.onlySmallLevelsClass.GetReference())
+	suite.teros.AddClass(suite.onlySmallLevelsClass.GetReference())
 	suite.teros.SetClass(suite.onlySmallLevelsClass.ID())
 	levelup.ImproveSquaddieBasedOnLevel(suite.teros, "", suite.repos)
 
@@ -175,11 +175,11 @@ func (suite *SquaddieChoosesLevelsSuite) TestChooseSmallLevelAtMostOnce(checker 
 	checker.Assert(err, IsNil)
 	classLevels := levelup.GetSquaddieClassLevels(suite.teros, suite.repos)
 	checker.Assert(classLevels[suite.onlySmallLevelsClass.ID()], Equals, 2)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.onlySmallLevelsClass.ID()].LevelsConsumed, HasLen, 2)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.onlySmallLevelsClass.ID()].LevelsConsumed, HasLen, 2)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseSmallLevelIfNoneAvailable(checker *C) {
-	suite.teros.ClassProgress.AddClass(suite.onlySmallLevelsClass.GetReference())
+	suite.teros.AddClass(suite.onlySmallLevelsClass.GetReference())
 	suite.teros.SetClass(suite.onlySmallLevelsClass.ID())
 	levelup.ImproveSquaddieBasedOnLevel(suite.teros, "", suite.repos)
 	levelup.ImproveSquaddieBasedOnLevel(suite.teros, "", suite.repos)
@@ -188,25 +188,25 @@ func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseSmallLevelIfNoneAvaila
 
 	classLevels := levelup.GetSquaddieClassLevels(suite.teros, suite.repos)
 	checker.Assert(classLevels[suite.onlySmallLevelsClass.ID()], Equals, 2)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.onlySmallLevelsClass.ID()].LevelsConsumed, HasLen, 2)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.onlySmallLevelsClass.ID()].LevelsConsumed, HasLen, 2)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestSquaddieMustChooseInitialLevel(checker *C) {
-	suite.teros.ClassProgress.AddClass(suite.classWithInitialLevel.GetReference())
+	suite.teros.AddClass(suite.classWithInitialLevel.GetReference())
 	suite.teros.SetClass(suite.classWithInitialLevel.ID())
 	err := levelup.ImproveSquaddieBasedOnLevel(suite.teros, "classWithInitialLevelThisShouldNotBeTakenFirst", suite.repos)
 	checker.Assert(err, IsNil)
 
 	classLevels := levelup.GetSquaddieClassLevels(suite.teros, suite.repos)
 	checker.Assert(classLevels[suite.classWithInitialLevel.ID()], Equals, 1)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.classWithInitialLevel.ID()].LevelsConsumed, HasLen, 2)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.classWithInitialLevel.ID()].IsLevelAlreadyConsumed("classWithInitialLevelThisIsTakenFirst"), Equals, true)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.classWithInitialLevel.ID()].IsLevelAlreadyConsumed("classWithInitialLevelThisShouldNotBeTakenFirst"), Equals, false)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.classWithInitialLevel.ID()].LevelsConsumed, HasLen, 2)
+	checker.Assert(suite.teros.IsClassLevelAlreadyUsed("classWithInitialLevelThisIsTakenFirst"), Equals, true)
+	checker.Assert(suite.teros.IsClassLevelAlreadyUsed("classWithInitialLevelThisShouldNotBeTakenFirst"), Equals, false)
 
 	levelup.ImproveSquaddieBasedOnLevel(suite.teros, "classWithInitialLevelThisShouldNotBeTakenFirst", suite.repos)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.classWithInitialLevel.ID()].LevelsConsumed, HasLen, 3)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.classWithInitialLevel.ID()].LevelsConsumed, HasLen, 3)
 
 	levelup.ImproveSquaddieBasedOnLevel(suite.teros, "classWithInitialLevelThisShouldNotBeTakenFirst", suite.repos)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.classWithInitialLevel.ID()].LevelsConsumed, HasLen, 5)
-	checker.Assert(suite.teros.ClassProgress.ClassLevelsConsumed[suite.classWithInitialLevel.ID()].IsLevelAlreadyConsumed("classWithInitialLevelThisShouldNotBeTakenFirst"), Equals, true)
+	checker.Assert((*suite.teros.ClassLevelsConsumed())[suite.classWithInitialLevel.ID()].LevelsConsumed, HasLen, 5)
+	checker.Assert(suite.teros.IsClassLevelAlreadyUsed("classWithInitialLevelThisShouldNotBeTakenFirst"), Equals, true)
 }
