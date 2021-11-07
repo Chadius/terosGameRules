@@ -42,11 +42,11 @@ func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindZero() *HealingEf
 	return h
 }
 
-// Build uses the HealingEffectOptions to create a HealingEffect.
+// Build uses the HealingEffectOptions to create a healingEffect.
 func (h *HealingEffectOptions) Build() *power.HealingEffect {
-	newHealingEffect := &power.HealingEffect{
-		HealingHitPointsHealed:                  h.hitPointsHealed,
-		HealingHealingAdjustmentBasedOnUserMind: h.healingAdjustmentBasedOnUserMind,
-	}
+	newHealingEffect := power.NewHealingEffect(
+		h.hitPointsHealed,
+		h.healingAdjustmentBasedOnUserMind,
+	)
 	return newHealingEffect
 }

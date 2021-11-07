@@ -25,7 +25,7 @@ func getHealingPower(powerID string, repos *repositories.RepositoryCollection) (
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
-	if power.HealingEffect == nil {
+	if !power.CanHeal() {
 		newError := fmt.Errorf("cannot heal with power, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
@@ -40,7 +40,7 @@ func getAttackPower(powerID string, repos *repositories.RepositoryCollection) (*
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
-	if power.AttackEffect == nil {
+	if !power.CanAttack() {
 		newError := fmt.Errorf("cannot attack with power, SquaddieID: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
@@ -93,7 +93,7 @@ func GetSquaddieRawDamageWithPower(squaddieID, powerID string, repos *repositori
 		return 0, err
 	}
 
-	if powerToMeasure.PowerType == power.Physical {
+	if powerToMeasure.Type() == power.Physical {
 		return squaddie.Strength() + powerToMeasure.DamageBonus(), nil
 	}
 	return squaddie.Mind() + powerToMeasure.DamageBonus(), nil

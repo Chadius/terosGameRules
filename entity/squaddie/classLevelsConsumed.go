@@ -8,6 +8,37 @@ type ClassLevelsConsumed struct {
 	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
 }
 
+// NewClassLevelsConsumed creates a new object.
+func NewClassLevelsConsumed(id, name string, levelsConsumed []string) *ClassLevelsConsumed {
+	newClassLevelsConsumed := &ClassLevelsConsumed{
+		ClassID:        id,
+		ClassName:      name,
+		LevelsConsumed: []string{},
+	}
+	newClassLevelsConsumed.LevelsConsumed = append(newClassLevelsConsumed.LevelsConsumed, levelsConsumed...)
+	return newClassLevelsConsumed
+}
+
+// GetClassID gets the field
+func (progress *ClassLevelsConsumed) GetClassID() string {
+	return progress.ClassID
+}
+
+// GetClassName gets the field
+func (progress *ClassLevelsConsumed) GetClassName() string {
+	return progress.ClassName
+}
+
+// GetLevelsConsumed gets the field
+func (progress *ClassLevelsConsumed) GetLevelsConsumed() []string {
+	return progress.LevelsConsumed
+}
+
+// MarkLevelUpBenefitAsConsumed remembers it used this benefit to level up already.
+func (progress *ClassLevelsConsumed) MarkLevelUpBenefitAsConsumed(benefitID string) {
+	progress.LevelsConsumed = append(progress.LevelsConsumed, benefitID)
+}
+
 // IsLevelAlreadyConsumed returns true if the level SquaddieID has already been used.
 func (progress *ClassLevelsConsumed) IsLevelAlreadyConsumed(levelUpBenefitLevelID string) bool {
 	return progress.AnyLevelsConsumed(func(consumedLevelID string) bool {

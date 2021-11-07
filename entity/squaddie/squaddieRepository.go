@@ -99,33 +99,10 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 		cloneSquaddieID = newID
 	}
 
-	clone.Identification = Identification{
-		SquaddieID:          cloneSquaddieID,
-		SquaddieName:        base.Name(),
-		SquaddieAffiliation: base.Affiliation(),
-	}
-
-	clone.Offense = Offense{
-		SquaddieAim:      base.Aim(),
-		SquaddieStrength: base.Strength(),
-		SquaddieMind:     base.Mind(),
-	}
-
-	clone.Defense = Defense{
-		SquaddieCurrentHitPoints: base.CurrentHitPoints(),
-		SquaddieMaxHitPoints:     base.MaxHitPoints(),
-		SquaddieDodge:            base.Dodge(),
-		SquaddieDeflect:          base.Deflect(),
-		SquaddieCurrentBarrier:   base.CurrentBarrier(),
-		SquaddieMaxBarrier:       base.MaxBarrier(),
-		SquaddieArmor:            base.Armor(),
-	}
-
-	clone.Movement = Movement{
-		SquaddieMovementDistance:     base.MovementDistance(),
-		SquaddieMovementType:         base.MovementType(),
-		SquaddieMovementCanHitAndRun: base.MovementCanHitAndRun(),
-	}
+	clone.Identification = *NewIdentification(cloneSquaddieID, base.Name(), base.Affiliation())
+	clone.Offense = *NewOffense(base.Aim(), base.Strength(), base.Mind())
+	clone.Defense = *NewDefense(base.CurrentHitPoints(), base.MaxHitPoints(), base.Dodge(), base.Deflect(), base.CurrentBarrier(), base.MaxBarrier(), base.Armor())
+	clone.Movement = *NewMovement(base.MovementDistance(), base.MovementType(), base.MovementCanHitAndRun())
 
 	for _, reference := range base.PowerCollection.GetCopyOfPowerReferences() {
 		clone.AddPowerReference(reference)
@@ -135,13 +112,8 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 	clone.ClassProgress.ClassProgressCurrentClassID = base.CurrentClassID()
 
 	for classID, progress := range *base.ClassLevelsConsumed() {
-		newProgress := ClassLevelsConsumed{
-			ClassID:        classID,
-			ClassName:      progress.ClassName,
-			LevelsConsumed: append([]string{}, progress.LevelsConsumed...),
-		}
-
-		clone.ClassProgress.ClassProgressClassLevelsConsumed[classID] = &newProgress
+		newProgress := NewClassLevelsConsumed(classID, progress.GetClassName(), append([]string{}, progress.GetLevelsConsumed()...))
+		clone.ClassProgress.ClassProgressClassLevelsConsumed[classID] = newProgress
 	}
 	return clone, nil
 }

@@ -7,6 +7,15 @@ type Movement struct {
 	SquaddieMovementCanHitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
 }
 
+// NewMovement creates a new Movement object.
+func NewMovement(distance int, movementType MovementType, canHitAndRun bool) *Movement {
+	return &Movement{
+		SquaddieMovementDistance:     distance,
+		SquaddieMovementType:         movementType,
+		SquaddieMovementCanHitAndRun: canHitAndRun,
+	}
+}
+
 // MovementType describes how Squaddies traverse terrain. This affects
 //   movement costs and crossing pits
 type MovementType string

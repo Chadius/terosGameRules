@@ -60,10 +60,6 @@ func (m *MovementBuilderOptions) Teleport() *MovementBuilderOptions {
 
 // Build uses the MovementBuilderOptions to create a Movement.
 func (m *MovementBuilderOptions) Build() *squaddie.Movement {
-	newMovement := &squaddie.Movement{
-		SquaddieMovementDistance:     m.distance,
-		SquaddieMovementCanHitAndRun: m.canHitAndRun,
-		SquaddieMovementType:         m.movementType,
-	}
+	newMovement := squaddie.NewMovement(m.distance, m.movementType, m.canHitAndRun)
 	return newMovement
 }

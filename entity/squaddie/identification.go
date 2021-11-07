@@ -11,6 +11,15 @@ type Identification struct {
 	SquaddieAffiliation Affiliation `json:"affiliation" yaml:"affiliation"`
 }
 
+// NewIdentification creates a new Identification object.
+func NewIdentification(id, name string, affiliation Affiliation) *Identification {
+	return &Identification{
+		SquaddieID:          id,
+		SquaddieName:        name,
+		SquaddieAffiliation: affiliation,
+	}
+}
+
 // SetNewIDToRandom changes the SquaddieID to a random value.
 func (identification *Identification) SetNewIDToRandom() {
 	identification.SquaddieID = utility.StringWithCharset(8, "abcdefgh0123456789")

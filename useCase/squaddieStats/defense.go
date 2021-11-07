@@ -12,11 +12,11 @@ func GetSquaddieToHitPenaltyAgainstPower(squaddieID, powerID string, repos *repo
 		return 0, err
 	}
 
-	if powerToMeasure.PowerType == power.Physical {
+	if powerToMeasure.Type() == power.Physical {
 		return squaddie.Dodge(), nil
 	}
 
-	if powerToMeasure.PowerType == power.Spell {
+	if powerToMeasure.Type() == power.Spell {
 		return squaddie.Deflect(), nil
 	}
 
@@ -30,7 +30,7 @@ func GetSquaddieArmorAgainstPower(squaddieID, powerID string, repos *repositorie
 		return 0, err
 	}
 
-	if powerToMeasure.PowerType == power.Physical {
+	if powerToMeasure.Type() == power.Physical {
 		return squaddie.Armor(), nil
 	}
 	return 0, nil

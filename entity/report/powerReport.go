@@ -7,7 +7,7 @@ type PowerReport struct {
 	AttackingPowerReports []*AttackingPowerReport
 }
 
-// AttackingPowerReport shows what happened after using a power with an AttackEffect.
+// AttackingPowerReport shows what happened after using a power with an attackEffect.
 type AttackingPowerReport struct {
 	AttackerID      string
 	TargetID        string

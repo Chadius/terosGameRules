@@ -13,24 +13,40 @@ type ClassProgress struct {
 	ClassProgressClassLevelsConsumed map[string]*ClassLevelsConsumed `json:"class_levels" yaml:"class_levels"`
 }
 
+//NewClassProgress returns a new object.
+func NewClassProgress(baseClassID, currentClassID string, levelsConsumedByClassID map[string]*ClassLevelsConsumed) *ClassProgress {
+	newClassProgress := &ClassProgress{
+		ClassProgressBaseClassID:         baseClassID,
+		ClassProgressCurrentClassID:      currentClassID,
+		ClassProgressClassLevelsConsumed: map[string]*ClassLevelsConsumed{},
+	}
+
+	for classID, levelsConsumed := range levelsConsumedByClassID {
+		newClassProgress.AddClass(&squaddieclass.ClassReference{
+			ID:   levelsConsumed.GetClassID(),
+			Name: levelsConsumed.GetClassName(),
+		})
+		for _, levelID := range levelsConsumed.GetLevelsConsumed() {
+			newClassProgress.MarkLevelUpBenefitAsConsumed(classID, levelID)
+		}
+	}
+
+	return newClassProgress
+}
+
 // AddClass gives the ClassProgress a new class it can gain levels in, if it wasn't already added.
 func (classProgress *ClassProgress) AddClass(classReference *squaddieclass.ClassReference) {
 	if classProgress.ClassProgressClassLevelsConsumed[classReference.ID] != nil {
 		return
 	}
-
-	classProgress.ClassProgressClassLevelsConsumed[classReference.ID] = &ClassLevelsConsumed{
-		ClassID:        classReference.ID,
-		ClassName:      classReference.Name,
-		LevelsConsumed: []string{},
-	}
+	classProgress.ClassProgressClassLevelsConsumed[classReference.ID] = NewClassLevelsConsumed(classReference.ID, classReference.Name, []string{})
 }
 
 // GetLevelCountsByClass returns a mapping of class names to levels gained.
 func (classProgress *ClassProgress) GetLevelCountsByClass() map[string]int {
 	count := map[string]int{}
 	for classID, progress := range classProgress.ClassProgressClassLevelsConsumed {
-		count[classID] = len(progress.LevelsConsumed)
+		count[classID] = len(progress.GetLevelsConsumed())
 	}
 
 	return count
@@ -38,7 +54,7 @@ func (classProgress *ClassProgress) GetLevelCountsByClass() map[string]int {
 
 // MarkLevelUpBenefitAsConsumed makes the ClassProgress remember it used this benefit to level up already.
 func (classProgress *ClassProgress) MarkLevelUpBenefitAsConsumed(benefitClassID, benefitID string) {
-	classProgress.ClassProgressClassLevelsConsumed[benefitClassID].LevelsConsumed = append(classProgress.ClassProgressClassLevelsConsumed[benefitClassID].LevelsConsumed, benefitID)
+	classProgress.ClassProgressClassLevelsConsumed[benefitClassID].MarkLevelUpBenefitAsConsumed(benefitID)
 }
 
 // SetClass changes the ClassProgress's ClassProgressCurrentClassID to the given classID.

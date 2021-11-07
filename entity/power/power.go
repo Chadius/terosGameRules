@@ -1,6 +1,7 @@
 package power
 
 import (
+	"errors"
 	"fmt"
 	"github.com/chadius/terosbattleserver/utility"
 )
@@ -23,18 +24,18 @@ const (
 
 // Targeting notes how the power can be targeted.
 type Targeting struct {
-	TargetSelf   bool `json:"target_self" yaml:"target_self"`
-	TargetFoe    bool `json:"target_foe" yaml:"target_foe"`
-	TargetFriend bool `json:"target_friend" yaml:"target_friend"`
+	TargetSelf   bool
+	TargetFoe    bool
+	TargetFriend bool
 }
 
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
 	Reference
-	PowerType     DamageType
-	Targeting     Targeting
-	AttackEffect  *AttackingEffect
-	HealingEffect *HealingEffect
+	damageType    DamageType
+	targeting     Targeting
+	attackEffect  *AttackingEffect
+	healingEffect *HealingEffect
 }
 
 // GetReference returns a new PowerReference.
@@ -45,23 +46,30 @@ func (p Power) GetReference() *Reference {
 	}
 }
 
-// NewPower generates a Power with default values.
-func NewPower(name string) *Power {
+// NewPower generates a Power.
+func NewPower(name, id string, damageType *DamageType, targeting *Targeting, attackEffect *AttackingEffect, healingEffect *HealingEffect) *Power {
+	powerID := "power_" + utility.StringWithCharset(8, "abcdefgh0123456789")
+	if id != "" {
+		powerID = id
+	}
 	newAttackingPower := Power{
 		Reference: Reference{
 			Name:    name,
-			PowerID: "power_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
+			PowerID: powerID,
 		},
-		PowerType: Physical,
+		damageType:    *damageType,
+		targeting:     *targeting,
+		attackEffect:  attackEffect,
+		healingEffect: healingEffect,
 	}
 	return &newAttackingPower
 }
 
 // CheckPowerForErrors verifies the Power's fields and raises an error if it's invalid.
 func CheckPowerForErrors(newPower *Power) (newError error) {
-	if newPower.PowerType != Physical &&
-		newPower.PowerType != Spell {
-		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name(), newPower.PowerType)
+	if newPower.Type() != Physical &&
+		newPower.Type() != Spell {
+		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name(), newPower.Type())
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
@@ -81,77 +89,142 @@ func (p *Power) Name() string {
 
 // Type returns the power's damage type.
 func (p *Power) Type() DamageType {
-	return p.PowerType
+	return p.damageType
 }
 
 // CanPowerTargetSelf checks to see if the power can be used on the user.
 func (p *Power) CanPowerTargetSelf() bool {
-	return p.Targeting.TargetSelf
+	return p.targeting.TargetSelf
 }
 
 // CanPowerTargetFriend checks to see if the power can be used on allies and teammates.
 func (p *Power) CanPowerTargetFriend() bool {
-	return p.Targeting.TargetFriend
+	return p.targeting.TargetFriend
 }
 
 // CanPowerTargetFoe checks to see if the power can be used on enemies.
 func (p *Power) CanPowerTargetFoe() bool {
-	return p.Targeting.TargetFoe
+	return p.targeting.TargetFoe
+}
+
+// CanAttack returns true if this power can be used to attack.
+func (p *Power) CanAttack() bool {
+	return p.attackEffect != nil
 }
 
 // ToHitBonus delegates.
 func (p *Power) ToHitBonus() int {
-	return p.AttackEffect.ToHitBonus()
+	if !p.CanAttack() {
+		return 0
+	}
+	return p.attackEffect.ToHitBonus()
 }
 
 // DamageBonus delegates.
 func (p *Power) DamageBonus() int {
-	return p.AttackEffect.DamageBonus()
+	if !p.CanAttack() {
+		return 0
+	}
+	return p.attackEffect.DamageBonus()
 }
 
 // ExtraBarrierBurn delegates.
 func (p *Power) ExtraBarrierBurn() int {
-	return p.AttackEffect.ExtraBarrierBurn()
+	if !p.CanAttack() {
+		return 0
+	}
+	return p.attackEffect.ExtraBarrierBurn()
 }
 
 // CanBeEquipped delegates.
 func (p *Power) CanBeEquipped() bool {
-	return p.AttackEffect.CanBeEquipped()
+	if !p.CanAttack() {
+		return false
+	}
+	return p.attackEffect.CanBeEquipped()
 }
 
 // CanCounterAttack delegates.
 func (p *Power) CanCounterAttack() bool {
-	return p.AttackEffect.CanCounterAttack()
+	if !p.CanAttack() {
+		return false
+	}
+	return p.attackEffect.CanCounterAttack()
+}
+
+// CanCritical returns true if this power critically hit.
+func (p *Power) CanCritical() bool {
+	return p.attackEffect.CanCriticallyHit()
+}
+
+// CanCriticallyHit is an alias of CanCritical.
+func (p *Power) CanCriticallyHit() bool {
+	return p.CanCritical()
 }
 
 // CounterAttackPenaltyReduction delegates.
 func (p *Power) CounterAttackPenaltyReduction() int {
-	return p.AttackEffect.CounterAttackPenaltyReduction()
+	if !p.CanCounterAttack() {
+		return 0
+	}
+	return p.attackEffect.CounterAttackPenaltyReduction()
+}
+
+// CounterAttackPenalty delegates.
+func (p *Power) CounterAttackPenalty() (int, error) {
+	if !p.CanCounterAttack() {
+		newError := errors.New("power cannot counter, cannot calculate penalty")
+		utility.Log(newError.Error(), 0, utility.Error)
+		return 0, newError
+	}
+
+	penalty, err := p.attackEffect.CounterAttackPenalty()
+	return penalty, err
 }
 
 // CriticalHitThreshold delegates.
 func (p *Power) CriticalHitThreshold() int {
-	return p.AttackEffect.CriticalHitThreshold()
+	if !p.CanCritical() {
+		return 0
+	}
+	return p.attackEffect.CriticalHitThreshold()
 }
 
 // CriticalHitThresholdBonus delegates.
 func (p *Power) CriticalHitThresholdBonus() int {
-	return p.AttackEffect.CriticalHitThresholdBonus()
+	if !p.CanCritical() {
+		return 0
+	}
+	return p.attackEffect.CriticalHitThresholdBonus()
 }
 
 // ExtraCriticalHitDamage delegates.
 func (p *Power) ExtraCriticalHitDamage() int {
-	return p.AttackEffect.ExtraCriticalHitDamage()
+	if !p.CanCritical() {
+		return 0
+	}
+	return p.attackEffect.ExtraCriticalHitDamage()
+}
+
+// CanHeal returns true if this power can be used to heal.
+func (p *Power) CanHeal() bool {
+	return p.healingEffect != nil
 }
 
 // HitPointsHealed delegates.
 func (p *Power) HitPointsHealed() int {
-	return p.HealingEffect.HitPointsHealed()
+	if !p.CanHeal() {
+		return 0
+	}
+	return p.healingEffect.HitPointsHealed()
 }
 
 // HealingAdjustmentBasedOnUserMind delegates.
 func (p *Power) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
-	return p.HealingEffect.HealingAdjustmentBasedOnUserMind()
+	if !p.CanHeal() {
+		return Zero
+	}
+	return p.healingEffect.HealingAdjustmentBasedOnUserMind()
 }
 
 // HasSameStatsAs returns true if other's stats matches this one.
@@ -244,30 +317,4 @@ func (p *Power) hasSameTargetingAs(other *Power) bool {
 		return false
 	}
 	return true
-}
-
-// CanAttack returns true if this power can be used to attack.
-func (p *Power) CanAttack() bool {
-	return p.AttackEffect != nil
-}
-
-// CanCritical returns true if this power critically hit.
-func (p *Power) CanCritical() bool {
-	return p.AttackEffect.CanCriticallyHit()
-}
-
-// CanCriticallyHit is an alias of CanCritical.
-func (p *Power) CanCriticallyHit() bool {
-	return p.CanCritical()
-}
-
-// CanHeal returns true if this power can be used to heal.
-func (p *Power) CanHeal() bool {
-	return p.HealingEffect != nil
-}
-
-// CounterAttackPenalty delegates.
-func (p *Power) CounterAttackPenalty() (int, error) {
-	penalty, err := p.AttackEffect.CounterAttackPenalty()
-	return penalty, err
 }

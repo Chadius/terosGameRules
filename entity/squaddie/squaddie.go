@@ -31,33 +31,15 @@ type Squaddie struct {
 // NewSquaddie generates a squaddie with maxed out health.
 func NewSquaddie(name string) *Squaddie {
 	newSquaddie := Squaddie{
-		Identification: Identification{
-			SquaddieID:          "squaddie_" + utility.StringWithCharset(8, "abcdefgh0123456789"),
-			SquaddieName:        name,
-			SquaddieAffiliation: Player,
-		},
-		ClassProgress: ClassProgress{
-			ClassProgressClassLevelsConsumed: map[string]*ClassLevelsConsumed{},
-		},
-		Defense: Defense{
-			SquaddieCurrentHitPoints: 0,
-			SquaddieMaxHitPoints:     5,
-			SquaddieDodge:            0,
-			SquaddieDeflect:          0,
-			SquaddieCurrentBarrier:   0,
-			SquaddieMaxBarrier:       0,
-			SquaddieArmor:            0,
-		},
-		Offense: Offense{
-			SquaddieAim:      0,
-			SquaddieStrength: 0,
-			SquaddieMind:     0,
-		},
-		Movement: Movement{
-			SquaddieMovementDistance:     3,
-			SquaddieMovementType:         Foot,
-			SquaddieMovementCanHitAndRun: false,
-		},
+		Identification: *NewIdentification(
+			"squaddie_"+utility.StringWithCharset(8, "abcdefgh0123456789"),
+			name,
+			Player,
+		),
+		ClassProgress: *NewClassProgress("", "", map[string]*ClassLevelsConsumed{}),
+		Defense:       *NewDefense(0, 5, 0, 0, 0, 0, 0),
+		Offense:       *NewOffense(0, 0, 0),
+		Movement:      *NewMovement(3, Foot, false),
 	}
 	newSquaddie.Defense.SetHPToMax()
 	return &newSquaddie

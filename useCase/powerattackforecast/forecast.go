@@ -52,10 +52,10 @@ func (forecast *Forecast) CalculateForecast() {
 			},
 		}
 
-		if powerToUse.AttackEffect != nil {
+		if powerToUse.CanAttack() {
 			forecast.addAttackAndCounterAttackToCalculation(targetID, &calculation)
 		}
-		if powerToUse.HealingEffect != nil {
+		if powerToUse.CanHeal() {
 			forecast.addHealingEffectToCalculation(targetID, &calculation)
 		}
 

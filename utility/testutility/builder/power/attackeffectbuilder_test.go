@@ -46,10 +46,10 @@ func (suite *AttackEffectBuilder) TestBuildAttackEffectCanCounterAttack(checker 
 
 func (suite *AttackEffectBuilder) TestBuildCriticalEffectDamage(checker *C) {
 	criticalDamageEffect := power.AttackEffectBuilder().CriticalDealsDamage(8).Build()
-	checker.Assert(8, Equals, criticalDamageEffect.CriticalEffect.ExtraCriticalHitDamage())
+	checker.Assert(8, Equals, criticalDamageEffect.ExtraCriticalHitDamage())
 }
 
 func (suite *AttackEffectBuilder) TestBuildCriticalEffectThresholdBonus(checker *C) {
 	criticalDamageEffect := power.AttackEffectBuilder().CriticalHitThresholdBonus(-2).Build()
-	checker.Assert(-2, Equals, criticalDamageEffect.CriticalEffect.CriticalHitThresholdBonus())
+	checker.Assert(-2, Equals, criticalDamageEffect.CriticalHitThresholdBonus())
 }

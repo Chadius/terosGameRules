@@ -145,7 +145,7 @@ func (p *BuilderOptions) CounterAttackPenaltyReduction(penaltyReduction int) *Bu
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
-	p.attackEffectOptions.CounterAttackPenaltyReduction(penaltyReduction)
+	p.attackEffectOptions.CanCounterAttack().CounterAttackPenaltyReduction(penaltyReduction)
 	return p
 }
 
@@ -196,23 +196,27 @@ func (p *BuilderOptions) CriticalHitThresholdBonus(thresholdBonus int) *BuilderO
 
 // Build uses the BuilderOptions to create a power.
 func (p *BuilderOptions) Build() *power.Power {
-	newPower := power.NewPower(p.name)
-	if p.id != "" {
-		newPower.Reference.PowerID = p.id
-	}
-
-	newPower.Targeting.TargetSelf = p.targetSelf
-	newPower.Targeting.TargetFriend = p.targetFriend
-	newPower.Targeting.TargetFoe = p.targetFoe
-	newPower.PowerType = p.powerType
-
-	if p.healingEffectOptions != nil {
-		newPower.HealingEffect = p.healingEffectOptions.Build()
-	}
-
+	var attackEffect *power.AttackingEffect = nil
 	if p.attackEffectOptions != nil {
-		newPower.AttackEffect = p.attackEffectOptions.Build()
+		attackEffect = p.attackEffectOptions.Build()
 	}
+	var healingEffect *power.HealingEffect = nil
+	if p.healingEffectOptions != nil {
+		healingEffect = p.healingEffectOptions.Build()
+	}
+
+	newPower := power.NewPower(
+		p.name,
+		p.id,
+		&p.powerType,
+		&power.Targeting{
+			TargetSelf:   p.targetSelf,
+			TargetFoe:    p.targetFoe,
+			TargetFriend: p.targetFriend,
+		},
+		attackEffect,
+		healingEffect,
+	)
 	return newPower
 }
 

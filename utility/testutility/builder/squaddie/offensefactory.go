@@ -40,10 +40,6 @@ func (o *OffenseBuilderOptions) Mind(mind int) *OffenseBuilderOptions {
 
 // Build uses the OffenseBuilderOptions to create a Movement.
 func (o *OffenseBuilderOptions) Build() *squaddie.Offense {
-	newOffense := &squaddie.Offense{
-		SquaddieAim:      o.aim,
-		SquaddieStrength: o.strength,
-		SquaddieMind:     o.mind,
-	}
+	newOffense := squaddie.NewOffense(o.aim, o.strength, o.mind)
 	return newOffense
 }

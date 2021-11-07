@@ -196,9 +196,7 @@ func (s *BuilderOptions) Build() *squaddie.Squaddie {
 		Offense:        *s.offenseOptions.Build(),
 		Defense:        *s.defenseOptions.Build(),
 		Movement:       *s.movementOptions.Build(),
-		ClassProgress: squaddie.ClassProgress{
-			ClassProgressClassLevelsConsumed: map[string]*squaddie.ClassLevelsConsumed{},
-		},
+		ClassProgress:  *squaddie.NewClassProgress("", "", nil),
 	}
 
 	for _, newPowerReference := range s.powerReferencesToAdd {
@@ -422,9 +420,10 @@ func (s *BuilderOptions) cloneClassProgress(source *squaddie.Squaddie) {
 	for classID, classLevelsConsumed := range *source.ClassLevelsConsumed() {
 		s.AddClassByReference(&squaddieclass.ClassReference{
 			ID:   classID,
-			Name: classLevelsConsumed.ClassName,
+			Name: classLevelsConsumed.GetClassName(),
 		})
-		s.AddClassLevelsConsumed(classID, &classLevelsConsumed.LevelsConsumed)
+		levelsConsumed := classLevelsConsumed.GetLevelsConsumed()
+		s.AddClassLevelsConsumed(classID, &levelsConsumed)
 	}
 
 	s.SetClassByID(source.CurrentClassID())

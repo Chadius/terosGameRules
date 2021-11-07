@@ -15,6 +15,19 @@ type Defense struct {
 	SquaddieArmor            int `json:"armor" yaml:"armor"`
 }
 
+// NewDefense returns a new Defense object.
+func NewDefense(currentHitPoints, maxHitPoints, dodge, deflect, currentBarrier, maxBarrier, armor int) *Defense {
+	return &Defense{
+		SquaddieCurrentHitPoints: currentHitPoints,
+		SquaddieMaxHitPoints:     maxHitPoints,
+		SquaddieDodge:            dodge,
+		SquaddieDeflect:          deflect,
+		SquaddieCurrentBarrier:   currentBarrier,
+		SquaddieMaxBarrier:       maxBarrier,
+		SquaddieArmor:            armor,
+	}
+}
+
 // SetHPToMax restores the Squaddie's HitPoints.
 func (defense *Defense) SetHPToMax() {
 	defense.SquaddieCurrentHitPoints = defense.SquaddieMaxHitPoints

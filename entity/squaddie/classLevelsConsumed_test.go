@@ -13,11 +13,11 @@ type ClassProgressSuite struct{}
 var _ = Suite(&ClassProgressSuite{})
 
 func (suite *ClassProgressSuite) TestIfLevelIsConsumed(checker *C) {
-	progress := &squaddie.ClassLevelsConsumed{
-		ClassID:        "007",
-		ClassName:      "Superspy",
-		LevelsConsumed: []string{"1", "2", "3", "4", "5"},
-	}
+	progress := squaddie.NewClassLevelsConsumed(
+		"007",
+		"Superspy",
+		[]string{"1", "2", "3", "4", "5"},
+	)
 	checker.Assert(progress.IsLevelAlreadyConsumed("1"), Equals, true)
 	checker.Assert(progress.IsLevelAlreadyConsumed("10"), Equals, false)
 }

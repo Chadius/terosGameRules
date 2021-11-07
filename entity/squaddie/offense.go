@@ -7,6 +7,15 @@ type Offense struct {
 	SquaddieMind     int `json:"mind" yaml:"mind"`
 }
 
+// NewOffense returns a new Offense object.
+func NewOffense(aim, strength, mind int) *Offense {
+	return &Offense{
+		SquaddieAim:      aim,
+		SquaddieStrength: strength,
+		SquaddieMind:     mind,
+	}
+}
+
 // Aim returns the value.
 func (o *Offense) Aim() int {
 	return o.SquaddieAim
