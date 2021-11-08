@@ -54,3 +54,24 @@ func (movement *Movement) MovementType() MovementType {
 func (movement *Movement) CanHitAndRun() bool {
 	return movement.SquaddieMovementCanHitAndRun
 }
+
+// Improve improves the movement stats.
+func (movement *Movement) Improve(distance int, moveType MovementType, canHitAndRun bool) {
+	movement.SquaddieMovementDistance += distance
+
+	if canHitAndRun {
+		movement.SquaddieMovementCanHitAndRun = true
+	}
+
+	if moveType == Teleport {
+		movement.SquaddieMovementType = Teleport
+	} else if moveType == Fly {
+		if movement.SquaddieMovementType != Teleport {
+			movement.SquaddieMovementType = Fly
+		}
+	} else if moveType == Light {
+		if movement.SquaddieMovementType != Teleport && movement.SquaddieMovementType != Fly {
+			movement.SquaddieMovementType = Light
+		}
+	}
+}

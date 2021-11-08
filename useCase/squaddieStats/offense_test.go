@@ -244,3 +244,21 @@ func (suite *healingPower) TestSquaddieKnowsHealingPotential(checker *C) {
 	checker.Assert(staffErr, IsNil)
 	checker.Assert(staffHeal, Equals, 4)
 }
+
+type improveOffense struct {
+	initialOffense *squaddie.Offense
+}
+
+var _ = Suite(&improveOffense{})
+
+func (suite *improveOffense) SetUpTest(checker *C) {
+	suite.initialOffense = squaddie.NewOffense(2,3,5)
+}
+
+func (suite *improveOffense) TestWhenImproveIsCalled_ThenAimStrengthMindIncrease(checker *C) {
+	suite.initialOffense.Improve(7,11,13)
+
+	checker.Assert(suite.initialOffense.Aim(), Equals, 9)
+	checker.Assert(suite.initialOffense.Strength(), Equals, 14)
+	checker.Assert(suite.initialOffense.Mind(), Equals, 18)
+}

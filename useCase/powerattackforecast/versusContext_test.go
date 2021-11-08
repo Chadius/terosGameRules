@@ -81,8 +81,7 @@ func (suite *VersusContextTestSuite) TestNetToHitReliesOnToHitMinusDodgeOrDeflec
 }
 
 func (suite *VersusContextTestSuite) TestTargetTakesFullDamageAgainstPhysicalWhenNoArmor(checker *C) {
-	suite.bandit.Defense.SquaddieArmor = 0
-	suite.bandit.Defense.SquaddieCurrentBarrier = 0
+	suite.bandit.Defense = *squaddieBuilder.DefenseBuilder().Armor(0).Barrier(0).Build()
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.RawDamageDealt, Equals, 3)
@@ -92,8 +91,7 @@ func (suite *VersusContextTestSuite) TestTargetTakesFullDamageAgainstPhysicalWhe
 }
 
 func (suite *VersusContextTestSuite) TestTargetUsesArmorResistAgainstPhysicalOnly(checker *C) {
-	suite.bandit.Defense.SquaddieArmor = 1
-	suite.bandit.Defense.SquaddieCurrentBarrier = 0
+	suite.bandit.Defense = *squaddieBuilder.DefenseBuilder().Armor(1).Barrier(0).Build()
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByArmor, Equals, 1)
@@ -105,8 +103,8 @@ func (suite *VersusContextTestSuite) TestTargetUsesArmorResistAgainstPhysicalOnl
 }
 
 func (suite *VersusContextTestSuite) TestTargetUsesBarrierToResistDamageFromAllAttacks(checker *C) {
-	suite.bandit.Defense.SquaddieArmor = 1
-	suite.bandit.Defense.SquaddieCurrentBarrier = 3
+	suite.bandit.Defense = *squaddieBuilder.DefenseBuilder().Armor(1).Barrier(3).Build()
+	suite.bandit.Defense.SetBarrierToMax()
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.NormalDamage.DamageAbsorbedByBarrier, Equals, 3)
@@ -156,15 +154,14 @@ func (suite *VersusContextTestSuite) TestCriticalHitChanceIsShown(checker *C) {
 func (suite *VersusContextTestSuite) TestCriticalDamageDistributes(checker *C) {
 	suite.spear = powerBuilder.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
 	suite.powerRepo.AddPower(suite.spear)
-
-	suite.bandit.Defense.SquaddieArmor = 1
-	suite.bandit.Defense.SquaddieCurrentBarrier = 3
+	suite.bandit.Defense = *squaddieBuilder.DefenseBuilder().Armor(1).Barrier(3).Build()
+	suite.bandit.Defense.SetBarrierToMax()
 
 	suite.forecastSpearOnBandit.CalculateForecast()
+
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.DamageAbsorbedByBarrier, Equals, 3)
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.DamageAbsorbedByArmor, Equals, 1)
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.RawDamageDealt, Equals, 2)
-
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.ExtraBarrierBurnt, Equals, 0)
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.VersusContext.CriticalHitDamage.TotalRawBarrierBurnt, Equals, 3)
 }
@@ -175,10 +172,8 @@ func (suite *VersusContextTestSuite) TestNoCriticalDamageDistributionIfCannotCri
 }
 
 func (suite *VersusContextTestSuite) TestKnowsIfAttackIsNotFatalToTarget(checker *C) {
-	suite.bandit.Defense.SquaddieArmor = 0
-	suite.bandit.Defense.SquaddieCurrentBarrier = 0
-
-	suite.teros.Offense.SquaddieMind = 0
+	suite.bandit.Defense = *squaddieBuilder.DefenseBuilder().Armor(0).Barrier(0).Build()
+	suite.teros.Offense = *squaddieBuilder.OffenseBuilder().Mind(0).Build()
 
 	suite.blot = powerBuilder.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).Build()
 	suite.powerRepo.AddPower(suite.blot)

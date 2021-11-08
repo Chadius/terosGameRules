@@ -71,6 +71,11 @@ func (s *Squaddie) Name() string {
 	return s.Identification.Name()
 }
 
+// ImproveDefense delegates.
+func (s *Squaddie) ImproveDefense(maxHitPoints, dodge, deflect, maxBarrier, armor int) {
+	s.Defense.Improve(maxHitPoints, dodge, deflect, maxBarrier, armor)
+}
+
 // MaxHitPoints delegates.
 func (s *Squaddie) MaxHitPoints() int {
 	return s.Defense.MaxHitPoints()
@@ -106,6 +111,11 @@ func (s *Squaddie) CurrentBarrier() int {
 	return s.Defense.CurrentBarrier()
 }
 
+// ImproveOffense delegates.
+func (s *Squaddie) ImproveOffense(aim, strength, mind int) {
+	s.Offense.Improve(aim, strength, mind)
+}
+
 // Aim delegates.
 func (s *Squaddie) Aim() int {
 	return s.Offense.Aim()
@@ -119,6 +129,11 @@ func (s *Squaddie) Strength() int {
 // Mind delegates.
 func (s *Squaddie) Mind() int {
 	return s.Offense.Mind()
+}
+
+// ImproveMovement delegates.
+func (s *Squaddie) ImproveMovement(distance int, movementType MovementType, canHitAndRun bool) {
+	s.Movement.Improve(distance, movementType, canHitAndRun)
 }
 
 //MovementDistance delegates.
@@ -251,6 +266,20 @@ func (s *Squaddie) GetEquippedPowerID() string {
 // AddPowerReference delegates.
 func (s *Squaddie) AddPowerReference(reference *power.Reference) {
 	s.PowerCollection.AddPowerReference(reference)
+}
+
+// RemovePowerReferences removes multiple powers.
+func (s *Squaddie) RemovePowerReferences(powersToRemove []*power.Reference) {
+	for _, powerReferenceLost := range powersToRemove {
+		s.RemovePowerReferenceByPowerID(powerReferenceLost.PowerID)
+	}
+}
+
+// AddPowerReferences adds multiple powers.
+func (s *Squaddie) AddPowerReferences(powersToAdd []*power.Reference) {
+	for _, powerReferenceGained := range powersToAdd {
+		s.AddPowerReference(powerReferenceGained)
+	}
 }
 
 // RemovePowerReferenceByPowerID delegates.

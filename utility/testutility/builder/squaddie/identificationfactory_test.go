@@ -12,7 +12,7 @@ var _ = Suite(&IdentificationBuilder{})
 
 func (suite *IdentificationBuilder) TestBuildIdentificationWithName(checker *C) {
 	teros := squaddie.IdentificationBuilder().WithName("Teros").Build()
-	checker.Assert("Teros", Equals, teros.SquaddieName)
+	checker.Assert("Teros", Equals, teros.Name())
 }
 
 func (suite *IdentificationBuilder) TestBuildIdentificationWithID(checker *C) {

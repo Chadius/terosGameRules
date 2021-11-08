@@ -30,3 +30,10 @@ func (o *Offense) Strength() int {
 func (o *Offense) Mind() int {
 	return o.SquaddieMind
 }
+
+// Improve improves the offensive stats.
+func (o *Offense) Improve(aim, strength, mind int) {
+	o.SquaddieAim += aim
+	o.SquaddieStrength += strength
+	o.SquaddieMind += mind
+}

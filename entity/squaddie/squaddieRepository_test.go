@@ -404,9 +404,10 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 		MoveDistance(2).MovementFly().CanHitAndRun().Build()
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
-	checker.Assert(clone.Movement.SquaddieMovementDistance, Equals, originalSquaddie.Movement.SquaddieMovementDistance)
-	checker.Assert(clone.Movement.SquaddieMovementType, Equals, originalSquaddie.Movement.SquaddieMovementType)
-	checker.Assert(clone.Movement.SquaddieMovementCanHitAndRun, Equals, originalSquaddie.Movement.SquaddieMovementCanHitAndRun)
+
+	checker.Assert(clone.MovementDistance(), Equals, originalSquaddie.MovementDistance())
+	checker.Assert(clone.MovementType(), Equals, originalSquaddie.MovementType())
+	checker.Assert(clone.MovementCanHitAndRun(), Equals, originalSquaddie.MovementCanHitAndRun())
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {

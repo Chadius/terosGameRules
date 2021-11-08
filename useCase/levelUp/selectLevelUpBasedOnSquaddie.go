@@ -48,12 +48,12 @@ func ImproveSquaddieBasedOnLevel(
 
 	bigLevelToConsume := selectBigLevelUpForSquaddie(squaddieToLevelUp, bigLevelID, squaddieLevels, classToUse, levelsFromClass)
 	if bigLevelToConsume != nil {
-		ImproveSquaddie(bigLevelToConsume, squaddieToLevelUp, repos)
+		ImproveSquaddie(bigLevelToConsume, squaddieToLevelUp)
 	}
 
 	smallLevelToConsume := selectSmallLevelUpForSquaddie(squaddieToLevelUp, levelsFromClass)
 	if smallLevelToConsume != nil {
-		ImproveSquaddie(smallLevelToConsume, squaddieToLevelUp, repos)
+		ImproveSquaddie(smallLevelToConsume, squaddieToLevelUp)
 	}
 	return nil
 }

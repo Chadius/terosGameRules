@@ -58,10 +58,6 @@ func (i *IdentificationBuilderOptions) AsNeutral() *IdentificationBuilderOptions
 
 // Build uses the IdentificationBuilderOptions to create a Movement.
 func (i *IdentificationBuilderOptions) Build() *squaddie.Identification {
-	newIdentification := &squaddie.Identification{
-		SquaddieName:        i.name,
-		SquaddieID:          i.id,
-		SquaddieAffiliation: i.affiliation,
-	}
+	newIdentification := squaddie.NewIdentification(i.id, i.name, i.affiliation)
 	return newIdentification
 }

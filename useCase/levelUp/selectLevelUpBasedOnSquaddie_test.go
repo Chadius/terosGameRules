@@ -115,11 +115,11 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 func (suite *SquaddieChoosesLevelsSuite) TestUseSmallLevelsForClassLevel(checker *C) {
 	suite.teros.AddClass(suite.mageClass.GetReference())
 	for index, _ := range [5]int{} {
-		levelup.ImproveSquaddie(suite.lotsOfSmallLevels[index], suite.teros, nil)
+		levelup.ImproveSquaddie(suite.lotsOfSmallLevels[index], suite.teros)
 	}
 
-	levelup.ImproveSquaddie(suite.lotsOfBigLevels[0], suite.teros, nil)
-	levelup.ImproveSquaddie(suite.lotsOfBigLevels[1], suite.teros, nil)
+	levelup.ImproveSquaddie(suite.lotsOfBigLevels[0], suite.teros)
+	levelup.ImproveSquaddie(suite.lotsOfBigLevels[1], suite.teros)
 
 	classLevels := levelup.GetSquaddieClassLevels(suite.teros, suite.repos)
 	checker.Assert(classLevels[suite.mageClass.ID()], Equals, 5)

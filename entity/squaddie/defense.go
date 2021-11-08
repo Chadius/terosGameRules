@@ -129,3 +129,12 @@ func (defense *Defense) CurrentBarrier() int {
 func (defense *Defense) Armor() int {
 	return defense.SquaddieArmor
 }
+
+// Improve improves the defensive stats.
+func (defense *Defense) Improve(maxHitPoints, dodge, deflect, maxBarrier, armor int) {
+	defense.SquaddieMaxHitPoints += maxHitPoints
+	defense.SquaddieDodge += dodge
+	defense.SquaddieDeflect += deflect
+	defense.SquaddieMaxBarrier += maxBarrier
+	defense.SquaddieArmor += armor
+}
