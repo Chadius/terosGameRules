@@ -36,7 +36,7 @@ func (suite *SquaddieDefenseSuite) TestDefaultHitPoints(checker *C) {
 
 func (suite *SquaddieDefenseSuite) TestTakeDamageLowersHitPoints(checker *C) {
 	suite.teros.Defense.ReduceHitPoints(3)
-	checker.Assert(suite.teros.CurrentHitPoints(), Equals, suite.teros.MaxHitPoints() - 3)
+	checker.Assert(suite.teros.CurrentHitPoints(), Equals, suite.teros.MaxHitPoints()-3)
 }
 
 func (suite *SquaddieDefenseSuite) TestCannotReduceHitPointsBelowZero(checker *C) {
@@ -48,7 +48,7 @@ func (suite *SquaddieDefenseSuite) TestTakeBarrierBurnLowersBarrier(checker *C) 
 	suite.teros.Defense = *squaddieBuilder.DefenseBuilder().Barrier(3).Build()
 	suite.teros.Defense.SetBarrierToMax()
 	suite.teros.Defense.ReduceBarrier(2)
-	checker.Assert(suite.teros.CurrentBarrier(), Equals, suite.teros.MaxBarrier() - 2)
+	checker.Assert(suite.teros.CurrentBarrier(), Equals, suite.teros.MaxBarrier()-2)
 }
 
 func (suite *SquaddieDefenseSuite) TestCannotReduceBarrierBelowZero(checker *C) {
@@ -66,7 +66,7 @@ func (suite *SquaddieDefenseSuite) TestDamageDistributionLowersBarrierAndHealth(
 		},
 	)
 	checker.Assert(suite.teros.CurrentBarrier(), Equals, 0)
-	checker.Assert(suite.teros.CurrentHitPoints(), Equals, suite.teros.MaxHitPoints() - 1)
+	checker.Assert(suite.teros.CurrentHitPoints(), Equals, suite.teros.MaxHitPoints()-1)
 }
 
 func (suite *SquaddieDefenseSuite) TestDamageDistributionShowsCappedDamage(checker *C) {
@@ -101,7 +101,7 @@ type improveDefense struct {
 var _ = Suite(&improveDefense{})
 
 func (suite *improveDefense) SetUpTest(checker *C) {
-	suite.initialDefense = squaddie.NewDefense(0,2,3,5,0,7,11)
+	suite.initialDefense = squaddie.NewDefense(0, 2, 3, 5, 0, 7, 11)
 }
 
 func (suite *improveDefense) TestWhenImproveIsCalled_ThenAimStrengthMindIncrease(checker *C) {

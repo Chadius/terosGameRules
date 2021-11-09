@@ -20,6 +20,8 @@ type SquaddieUsesLevelUpBenefitSuite struct {
 	teros                  *squaddie.Squaddie
 	improveAllMovement     *levelupbenefit.LevelUpBenefit
 	upgradeToLightMovement *levelupbenefit.LevelUpBenefit
+
+	improveSquaddieStrategy levelup.ImproveSquaddieStrategy
 }
 
 var _ = Suite(&SquaddieUsesLevelUpBenefitSuite{})
@@ -63,10 +65,12 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 		},
 		Movement: squaddieBuilder.MovementBuilder().Light().Build(),
 	}
+
+	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
-	err := levelup.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.MaxHitPoints(), Equals, 5)
 	checker.Assert(suite.teros.Aim(), Equals, 7)
@@ -80,7 +84,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *C) {
 	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.Identification.ID), Equals, false)
-	err := levelup.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{suite.mageClass.ID(): 1})
 	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.Identification.ID), Equals, true)
@@ -105,30 +109,30 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClas
 			Mind:     5,
 		},
 	}
-	err := levelup.ImproveSquaddie(&mushroomClassLevel, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(&mushroomClassLevel, suite.teros)
 	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(checker *C) {
-	err := levelup.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"ffffffff": 1})
 	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.Identification.ID), Equals, true)
 
-	err = levelup.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err = suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
 	checker.Assert(err.Error(), Equals, `teros already consumed LevelUpBenefit - class:"ffffffff" id:"deadbeef"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestUsingLevelSetsBaseClassIfBaseClassIsUnset(checker *C) {
 	checker.Assert(suite.teros.BaseClassID(), Equals, "")
-	levelup.ImproveSquaddie(&suite.statBooster, suite.teros)
+	suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
 	checker.Assert(suite.teros.BaseClassID(), Equals, suite.mageClass.ID())
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker *C) {
 	startingMovement := suite.teros.Movement.MovementDistance()
 
-	err := levelup.ImproveSquaddie(suite.improveAllMovement, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.improveAllMovement, suite.teros)
 	checker.Assert(err, IsNil)
 
 	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
@@ -138,9 +142,9 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovement(checker *C) {
 	startingMovement := suite.teros.Movement.MovementDistance()
-	levelup.ImproveSquaddie(suite.improveAllMovement, suite.teros)
+	suite.improveSquaddieStrategy.ImproveSquaddie(suite.improveAllMovement, suite.teros)
 
-	err := levelup.ImproveSquaddie(suite.upgradeToLightMovement, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.upgradeToLightMovement, suite.teros)
 	checker.Assert(err, IsNil)
 
 	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
@@ -149,15 +153,16 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovemen
 }
 
 type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
-	mageClass    *squaddieclass.Class
-	teros        *squaddie.Squaddie
-	powerRepo    *powerrepository.Repository
-	squaddieRepo *squaddie.Repository
-	repos        *repositories.RepositoryCollection
-	gainPower    levelupbenefit.LevelUpBenefit
-	upgradePower levelupbenefit.LevelUpBenefit
-	spear        *power.Power
-	spearLevel2  *power.Power
+	mageClass               *squaddieclass.Class
+	teros                   *squaddie.Squaddie
+	powerRepo               *powerrepository.Repository
+	squaddieRepo            *squaddie.Repository
+	repos                   *repositories.RepositoryCollection
+	gainPower               levelupbenefit.LevelUpBenefit
+	upgradePower            levelupbenefit.LevelUpBenefit
+	spear                   *power.Power
+	spearLevel2             *power.Power
+	improveSquaddieStrategy levelup.ImproveSquaddieStrategy
 }
 
 var _ = Suite(&SquaddieChangePowersWithLevelUpBenefitsSuite{})
@@ -210,10 +215,11 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 		SquaddieRepo: suite.squaddieRepo,
 		PowerRepo:    suite.powerRepo,
 	}
+	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 }
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPowers(checker *C) {
-	err := levelup.ImproveSquaddie(&suite.gainPower, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.gainPower, suite.teros)
 	checker.Assert(err, IsNil)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
@@ -223,10 +229,10 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 }
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePowers(checker *C) {
-	levelup.ImproveSquaddie(&suite.gainPower, suite.teros)
+	suite.improveSquaddieStrategy.ImproveSquaddie(&suite.gainPower, suite.teros)
 	suite.teros.PowerCollection.GetCopyOfPowerReferences()
 
-	err := levelup.ImproveSquaddie(&suite.upgradePower, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.upgradePower, suite.teros)
 	checker.Assert(err, IsNil)
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()

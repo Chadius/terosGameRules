@@ -5,8 +5,16 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
+// SquaddieCanSwitchClassStrategy is the shape of all classes that can determine if a squaddie can switch their class.
+type SquaddieCanSwitchClassStrategy interface {
+	SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool
+}
+
+// LevelsConsumedChecker looks at the Squaddie's consumed levels to determine if they can switch.
+type LevelsConsumedChecker struct{}
+
 // SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given SquaddieID.
-func SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
+func (l *LevelsConsumedChecker) SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
 	classToTest, _ := repositories.ClassRepo.GetClassByID(testingClassID)
 
 	if squaddieToTest.BaseClassID() == "" && classToTest.BaseClassRequired() != true {

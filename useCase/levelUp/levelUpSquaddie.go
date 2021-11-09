@@ -7,27 +7,18 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
-// improveSquaddieStats improves the Squaddie by using the LevelUpBenefit.
-func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
-	if benefit.Defense != nil {
-		squaddieToImprove.ImproveDefense(
-			benefit.Defense.MaxHitPoints,
-			benefit.Defense.Dodge,
-			benefit.Defense.Deflect,
-			benefit.Defense.MaxBarrier,
-			benefit.Defense.Armor,
-		)
-	}
-
-	if benefit.Offense != nil {
-		squaddieToImprove.ImproveOffense(benefit.Offense.Aim, benefit.Offense.Strength, benefit.Offense.Mind)
-	}
+// ImproveSquaddieStrategy describes objects that can upgrade squaddie stats.
+type ImproveSquaddieStrategy interface {
+	ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) error
 }
+
+// ImproveSquaddieClass describes objects that can upgrade squaddie stats.
+type ImproveSquaddieClass struct{}
 
 // ImproveSquaddie uses the LevelUpBenefit to improve the squaddie.
 //   Raises an error if the Squaddie does not have that class.
 //   Raises an error if the Squaddie marked the LevelUpBenefit as consumed.
-func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) error {
+func (i *ImproveSquaddieClass) ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) error {
 	if squaddieToImprove.HasAddedClass(benefit.Identification.ClassID) == false {
 		newError := fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Name(), benefit.Identification.ClassID)
 		utility.Log(newError.Error(), 0, utility.Error)
@@ -47,13 +38,27 @@ func ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *
 	return nil
 }
 
+func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
+	if benefit.Defense != nil {
+		squaddieToImprove.ImproveDefense(
+			benefit.Defense.MaxHitPoints,
+			benefit.Defense.Dodge,
+			benefit.Defense.Deflect,
+			benefit.Defense.MaxBarrier,
+			benefit.Defense.Armor,
+		)
+	}
+
+	if benefit.Offense != nil {
+		squaddieToImprove.ImproveOffense(benefit.Offense.Aim, benefit.Offense.Strength, benefit.Offense.Mind)
+	}
+}
 func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	if benefit.PowerChanges != nil {
 		squaddieToImprove.RemovePowerReferences(benefit.PowerChanges.Lost)
 		squaddieToImprove.AddPowerReferences(benefit.PowerChanges.Gained)
 	}
 }
-
 func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	if benefit.Movement == nil {
 		return

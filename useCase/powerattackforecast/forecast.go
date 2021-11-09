@@ -13,6 +13,7 @@ type Forecast struct {
 	Setup                     powerusagescenario.Setup
 	Repositories              *repositories.RepositoryCollection
 	ForecastedResultPerTarget []Calculation
+	OffenseStrategy           squaddiestats.CalculateSquaddieOffenseStatsStrategy
 }
 
 // Calculation holds the results of the forecast.
@@ -82,7 +83,8 @@ func (forecast *Forecast) addHealingEffectToCalculation(targetID string, calcula
 
 func (forecast *Forecast) isCounterattackPossible(targetID string) bool {
 	if forecast.Setup.IsCounterAttack == false {
-		canCounter, _ := powerequip.CanSquaddieCounterWithEquippedWeapon(targetID, forecast.Repositories)
+		checkEquip := powerequip.CheckRepositories{}
+		canCounter, _ := checkEquip.CanSquaddieCounterWithEquippedWeapon(targetID, forecast.Repositories)
 		if canCounter {
 			return true
 		}
@@ -117,14 +119,14 @@ func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID
 
 // CalculateAttackForecast figures out what will happen when this attack power is used.
 func (forecast *Forecast) CalculateAttackForecast(targetID string) *AttackForecast {
-	attackerContext := AttackerContext{}
-	attackerContext.calculate(forecast.Setup, forecast.Repositories)
+	attackerContext := *NewAttackerContext(&squaddiestats.CalculateSquaddieOffenseStats{})
+	attackerContext.Calculate(forecast.Setup, forecast.Repositories)
 
-	defenderContext := DefenderContext{TargetID: targetID}
-	defenderContext.calculate(&forecast.Setup, forecast.Repositories)
+	defenderContext := *NewDefenderContext(targetID, &squaddiestats.CalculateSquaddieDefenseStats{})
+	defenderContext.Calculate(&forecast.Setup, forecast.Repositories)
 
 	versusContext := VersusContext{}
-	versusContext.calculate(attackerContext, defenderContext)
+	versusContext.Calculate(attackerContext, defenderContext)
 
 	return &AttackForecast{
 		AttackerContext: attackerContext,
@@ -141,7 +143,7 @@ type HealingForecast struct {
 
 // CalculateHealingForecast figures out what will happen when this attack power is used.
 func (forecast *Forecast) CalculateHealingForecast(targetID string) *HealingForecast {
-	maximumHealing, err := squaddiestats.GetHitPointsHealedWithPower(
+	maximumHealing, err := forecast.OffenseStrategy.GetHitPointsHealedWithPower(
 		forecast.Setup.UserID,
 		forecast.Setup.PowerID,
 		targetID,

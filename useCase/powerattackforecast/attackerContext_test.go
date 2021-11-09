@@ -70,7 +70,7 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 
 func (suite *AttackContextTestSuite) TestGetAttackerHitBonus(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus, Equals, 3)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus(), Equals, 3)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(checker *C) {
@@ -87,19 +87,19 @@ func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(che
 		},
 	}
 	forecastCounterSpearOnBandit.CalculateForecast()
-	checker.Assert(forecastCounterSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus, Equals, 1)
+	checker.Assert(forecastCounterSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus(), Equals, 1)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerPhysicalRawDamage(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.DamageType(power.Physical))
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage, Equals, 3)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType(), Equals, power.DamageType(power.Physical))
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage(), Equals, 3)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType, Equals, power.DamageType(power.Spell))
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage, Equals, 5)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType(), Equals, power.DamageType(power.Spell))
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage(), Equals, 5)
 }
 
 func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
@@ -108,7 +108,7 @@ func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CanCritical, Equals, true)
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitThreshold, Equals, 6)
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitDamage, Equals, 6)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CanCritical(), Equals, true)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitThreshold(), Equals, 6)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitDamage(), Equals, 6)
 }

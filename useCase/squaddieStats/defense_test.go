@@ -22,6 +22,8 @@ type squaddieDefense struct {
 	squaddieRepo *squaddie.Repository
 
 	repos *repositories.RepositoryCollection
+
+	defenseStrategy squaddiestats.CalculateSquaddieDefenseStatsStrategy
 }
 
 var _ = Suite(&squaddieDefense{})
@@ -43,7 +45,8 @@ func (suite *squaddieDefense) SetUpTest(checker *C) {
 		PowerRepo:    suite.powerRepo,
 	}
 
-	powerequip.LoadAllOfSquaddieInnatePowers(
+	checkEquip := powerequip.CheckRepositories{}
+	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
 		[]*power.Reference{
 			suite.weakerSpear.GetReference(),
@@ -51,13 +54,15 @@ func (suite *squaddieDefense) SetUpTest(checker *C) {
 		},
 		suite.repos,
 	)
+
+	suite.defenseStrategy = &squaddiestats.CalculateSquaddieDefenseStats{}
 }
 
 func (suite *squaddieDefense) TestToHitPenaltyAgainstPhysicalAttacks(checker *C) {
 	dodgyTeros := squaddieBuilder.Builder().Teros().Dodge(1).Build()
 	suite.squaddieRepo.AddSquaddie(dodgyTeros)
 
-	spearDodge, spearErr := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(dodgyTeros.ID(), suite.weakerSpear.ID(), suite.repos)
+	spearDodge, spearErr := suite.defenseStrategy.GetSquaddieToHitPenaltyAgainstPower(dodgyTeros.ID(), suite.weakerSpear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearDodge, Equals, 1)
 }
@@ -66,7 +71,7 @@ func (suite *squaddieDefense) TestToHitPenaltyAgainstSpellAttacks(checker *C) {
 	deflectingTeros := squaddieBuilder.Builder().Teros().Deflect(2).Build()
 	suite.squaddieRepo.AddSquaddie(deflectingTeros)
 
-	blotDodge, blotErr := squaddiestats.GetSquaddieToHitPenaltyAgainstPower(deflectingTeros.ID(), suite.weakerBlot.ID(), suite.repos)
+	blotDodge, blotErr := suite.defenseStrategy.GetSquaddieToHitPenaltyAgainstPower(deflectingTeros.ID(), suite.weakerBlot.ID(), suite.repos)
 	checker.Assert(blotErr, IsNil)
 	checker.Assert(blotDodge, Equals, 2)
 }
@@ -75,11 +80,11 @@ func (suite *squaddieDefense) TestGetDefenderArmorResistance(checker *C) {
 	armoredTeros := squaddieBuilder.Builder().Teros().Armor(3).Build()
 	suite.squaddieRepo.AddSquaddie(armoredTeros)
 
-	spearArmor, spearErr := squaddiestats.GetSquaddieArmorAgainstPower(armoredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
+	spearArmor, spearErr := suite.defenseStrategy.GetSquaddieArmorAgainstPower(armoredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearArmor, Equals, 3)
 
-	blotArmor, blotErr := squaddiestats.GetSquaddieArmorAgainstPower(armoredTeros.ID(), suite.weakerBlot.ID(), suite.repos)
+	blotArmor, blotErr := suite.defenseStrategy.GetSquaddieArmorAgainstPower(armoredTeros.ID(), suite.weakerBlot.ID(), suite.repos)
 	checker.Assert(blotErr, IsNil)
 	checker.Assert(blotArmor, Equals, 0)
 }
@@ -89,7 +94,7 @@ func (suite *squaddieDefense) TestGetDefenderBarrierResistance(checker *C) {
 	armoredTeros.Defense.SetBarrierToMax()
 	suite.squaddieRepo.AddSquaddie(armoredTeros)
 
-	spearBarrier, spearErr := squaddiestats.GetSquaddieBarrierAgainstPower(armoredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
+	spearBarrier, spearErr := suite.defenseStrategy.GetSquaddieBarrierAgainstPower(armoredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearBarrier, Equals, 1)
 }
@@ -99,7 +104,7 @@ func (suite *squaddieDefense) TestGetDefenderCurrentHitPoints(checker *C) {
 	injuredTeros.Defense.ReduceHitPoints(injuredTeros.MaxHitPoints() - 2)
 	suite.squaddieRepo.AddSquaddie(injuredTeros)
 
-	spearBarrier, spearErr := squaddiestats.GetSquaddieCurrentHitPoints(injuredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
+	spearBarrier, spearErr := suite.defenseStrategy.GetSquaddieCurrentHitPoints(injuredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearBarrier, Equals, 2)
 }

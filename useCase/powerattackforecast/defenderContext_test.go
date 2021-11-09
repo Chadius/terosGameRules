@@ -75,26 +75,26 @@ func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 
 func (suite *DefenderContextTestSuite) TestGetDefenderDodge(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty, Equals, 1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty(), Equals, 1)
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderArmorResistance(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance, Equals, 1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance(), Equals, 1)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance, Equals, 0)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance(), Equals, 0)
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderDeflect(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty, Equals, 2)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty(), Equals, 2)
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderBarrierAbsorb(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance, Equals, 3)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance(), Equals, 3)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance, Equals, 3)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance(), Equals, 3)
 }

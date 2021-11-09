@@ -9,13 +9,24 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
+// Strategy will equip squaddies with powers.
+type Strategy interface {
+	EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool)
+	SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repos *repositories.RepositoryCollection) bool
+	LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error
+	CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error)
+}
+
+// CheckRepositories uses the repositories to make sure powers and squaddies exist.
+type CheckRepositories struct{}
+
 // EquipDefaultPower will automatically equip the first power the squaddie has.
-//  Returns the power and a boolean.
-func EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool) {
+//  Returns the power and a boolean value.
+func (p *CheckRepositories) EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool) {
 	for _, powerReference := range squaddie.GetCopyOfPowerReferences() {
 		powerToCheck := repos.PowerRepo.GetPowerByID(powerReference.PowerID)
 		if powerToCheck.CanAttack() && powerToCheck.CanBeEquipped() == true {
-			equippingPowerWasSuccessful := SquaddieEquipPower(squaddie, powerToCheck.ID(), repos)
+			equippingPowerWasSuccessful := p.SquaddieEquipPower(squaddie, powerToCheck.ID(), repos)
 			return powerToCheck, equippingPowerWasSuccessful
 		}
 	}
@@ -24,7 +35,7 @@ func EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.Reposito
 
 // SquaddieEquipPower will make the Squaddie equip a different power.
 //   returns true upon success
-func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repos *repositories.RepositoryCollection) bool {
+func (p *CheckRepositories) SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repos *repositories.RepositoryCollection) bool {
 	if squaddie.PowerCollection.HasPowerWithID(powerToEquipID) == false {
 		return false
 	}
@@ -43,7 +54,7 @@ func SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repo
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error {
+func (p *CheckRepositories) LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error {
 	squaddie.PowerCollection.ClearPowerReferences()
 
 	for _, powerIDName := range powerReferencesToLoad {
@@ -61,8 +72,8 @@ func LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesT
 }
 
 // CanSquaddieCounterWithEquippedWeapon returns true if the squaddie can use the currently equipped
-//   weapon for counter attacks.
-func CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error) {
+//   weapon for counterattacks.
+func (p *CheckRepositories) CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error) {
 	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
 	equippedPowerID := squaddie.PowerCollection.GetEquippedPowerID()
 	if equippedPowerID == "" {
@@ -71,6 +82,7 @@ func CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories
 		return false, newError
 	}
 
-	canCounter, counterErr := squaddiestats.GetSquaddieCanCounterAttackWithPower(squaddieID, equippedPowerID, repos)
+	offenseStrategy := squaddiestats.CalculateSquaddieOffenseStats{}
+	canCounter, counterErr := offenseStrategy.GetSquaddieCanCounterAttackWithPower(squaddieID, equippedPowerID, repos)
 	return canCounter, counterErr
 }

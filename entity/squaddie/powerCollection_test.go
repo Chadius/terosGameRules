@@ -20,7 +20,7 @@ var _ = Suite(&SquaddiePowerCollectionTests{})
 
 func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
 	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
+	suite.attackA = powerBuilder.Builder().WithName("attack Formation A").Build()
 }
 
 func (suite *SquaddiePowerCollectionTests) TestAddPowerReference(checker *C) {
@@ -28,7 +28,7 @@ func (suite *SquaddiePowerCollectionTests) TestAddPowerReference(checker *C) {
 
 	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
-	checker.Assert(attackIDNamePairs[0].Name, Equals, "Attack Formation A")
+	checker.Assert(attackIDNamePairs[0].Name, Equals, "attack Formation A")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
 }
 
@@ -70,8 +70,8 @@ func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker 
 
 	powerRepo := powerrepository.NewPowerRepository()
 	powerRepo.AddSlicePowerSource([]*power.Power{spear})
-
-	powerequip.LoadAllOfSquaddieInnatePowers(
+	checkEquip := powerequip.CheckRepositories{}
+	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
 		[]*power.Reference{
 			spear.GetReference(),
@@ -81,7 +81,7 @@ func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker 
 
 	checker.Assert(suite.teros.HasEquippedPower(), Equals, false)
 
-	equippedSpearPower := powerequip.SquaddieEquipPower(suite.teros, spear.ID(), &repositories.RepositoryCollection{PowerRepo: powerRepo})
+	equippedSpearPower := checkEquip.SquaddieEquipPower(suite.teros, spear.ID(), &repositories.RepositoryCollection{PowerRepo: powerRepo})
 	checker.Assert(equippedSpearPower, Equals, true)
 
 	checker.Assert(suite.teros.HasEquippedPower(), Equals, true)

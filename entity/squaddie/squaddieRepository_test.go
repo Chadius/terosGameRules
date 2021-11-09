@@ -20,7 +20,7 @@ var _ = Suite(&SquaddieRepositorySuite{})
 func (suite *SquaddieRepositorySuite) SetUpTest(checker *C) {
 	suite.squaddieRepository = squaddie.NewSquaddieRepository()
 	suite.teros = squaddieBuilder.Builder().Teros().Armor(2).Dodge(3).Deflect(4).Barrier(1).Build()
-	suite.attackA = powerBuilder.Builder().WithName("Attack Formation A").Build()
+	suite.attackA = powerBuilder.Builder().WithName("attack Formation A").Build()
 }
 
 func (suite *SquaddieRepositorySuite) TestUseJSONSource(checker *C) {
@@ -411,7 +411,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
-	attackA := powerBuilder.Builder().WithName("Attack Formation A").Build()
+	attackA := powerBuilder.Builder().WithName("attack Formation A").Build()
 	suite.base.AddPowerReference(attackA.GetReference())
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 

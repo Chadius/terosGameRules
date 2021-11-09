@@ -100,12 +100,12 @@ func (viewer *ConsoleActionViewer) createMessagesForAttackOrCounterAttack(foreca
 		attackSetup = forecast.CounterAttackSetup
 	}
 
-	attackerHitBonus := attackForecast.VersusContext.ToHit
+	attackerHitBonus := attackForecast.VersusContext.ToHit()
 	chanceOutOf36 := getChanceToHitMessageSnippet(attackerHitBonus.ToHitBonus, true)
-	effectMessage := getDamageDistributionMessageSnippet(attackForecast.VersusContext.NormalDamage)
+	effectMessage := getDamageDistributionMessageSnippet(attackForecast.VersusContext.NormalDamage())
 
 	attacker := repositories.SquaddieRepo.GetSquaddieByID(attackSetup.UserID)
-	target := repositories.SquaddieRepo.GetSquaddieByID(attackForecast.DefenderContext.TargetID)
+	target := repositories.SquaddieRepo.GetSquaddieByID(attackForecast.DefenderContext.TargetID())
 	powerToUse := repositories.PowerRepo.GetPowerByID(attackSetup.PowerID)
 
 	attackerAndPowerMessage := fmt.Sprintf("%s (%s)", attacker.Name(), powerToUse.Name())
@@ -130,12 +130,12 @@ func (viewer *ConsoleActionViewer) createMessagesForAttackOrCounterAttack(foreca
 
 	viewer.Messages = append(viewer.Messages, attackMessage)
 
-	if attackForecast.VersusContext.CanCritical {
-		critThreshold := attackForecast.VersusContext.ToHit.ToHitBonus - attackForecast.VersusContext.CriticalHitThreshold
+	if attackForecast.VersusContext.CanCritical() {
+		critThreshold := attackForecast.VersusContext.ToHit().ToHitBonus - attackForecast.VersusContext.CriticalHitThreshold()
 
 		if critThreshold >= -5 {
 			critChanceOutOf36 := getChanceToHitMessageSnippet(critThreshold, false)
-			critEffectMessage := getDamageDistributionMessageSnippet(attackForecast.VersusContext.CriticalHitDamage)
+			critEffectMessage := getDamageDistributionMessageSnippet(attackForecast.VersusContext.CriticalHitDamage())
 
 			criticalHitAttackMessage := fmt.Sprintf(" crit: %s%s", critChanceOutOf36, critEffectMessage)
 			viewer.Messages = append(viewer.Messages, criticalHitAttackMessage)
@@ -191,13 +191,13 @@ func getChanceToHitMessageSnippet(toHitBonus int, includeParenthesis bool) strin
 }
 
 // PrintResult will generate messages for the given Result and clear the Messages.
-func (viewer *ConsoleActionViewer) PrintResult(powerResult *powercommit.Result, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity, output io.Writer) {
+func (viewer *ConsoleActionViewer) PrintResult(powerResult powercommit.ResultStrategy, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity, output io.Writer) {
 	viewer.PrepareResult(powerResult, repositories, verbosity)
 	viewer.PrintMessages(output)
 }
 
 // PrepareResult creates messages to show the attack result.
-func (viewer *ConsoleActionViewer) PrepareResult(powerResult *powercommit.Result, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity) {
+func (viewer *ConsoleActionViewer) PrepareResult(powerResult powercommit.ResultStrategy, repositories *repositories.RepositoryCollection, verbosity *ConsoleActionViewerVerbosity) {
 	messagesPerPowerUsage := viewer.collatePowerResultPerTargetsByResult(powerResult)
 	viewer.addUserAffectTargetMessagesByResult(messagesPerPowerUsage, repositories, verbosity)
 	if verbosity != nil && verbosity.ShowRolls == true {
@@ -267,19 +267,19 @@ func (viewer *ConsoleActionViewer) addUserAffectTargetMessagesByResult(messagesP
 	}
 }
 
-func (viewer *ConsoleActionViewer) collatePowerResultPerTargetsByResult(powerResult *powercommit.Result) []*messagesByPowerUsage {
+func (viewer *ConsoleActionViewer) collatePowerResultPerTargetsByResult(powerResult powercommit.ResultStrategy) []*messagesByPowerUsage {
 	messagesPerPowerUsage := []*messagesByPowerUsage{}
 	previousUserID := ""
 	perTargetResultsFromTheSameResult := []*powercommit.ResultPerTarget{}
-	for _, result := range powerResult.ResultPerTarget {
-		if result.UserID != previousUserID {
+	for _, result := range powerResult.ResultPerTarget() {
+		if result.UserID() != previousUserID {
 			if previousUserID != "" {
 				messagesPerPowerUsage = append(messagesPerPowerUsage, &messagesByPowerUsage{powerResults: perTargetResultsFromTheSameResult})
 				perTargetResultsFromTheSameResult = nil
 			}
 		}
 		perTargetResultsFromTheSameResult = append(perTargetResultsFromTheSameResult, result)
-		previousUserID = result.UserID
+		previousUserID = result.UserID()
 	}
 	messagesPerPowerUsage = append(messagesPerPowerUsage, &messagesByPowerUsage{powerResults: perTargetResultsFromTheSameResult})
 	return messagesPerPowerUsage
@@ -287,14 +287,20 @@ func (viewer *ConsoleActionViewer) collatePowerResultPerTargetsByResult(powerRes
 
 func (viewer *ConsoleActionViewer) createRollMessage(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) string {
 	squaddieRepo := repositories.SquaddieRepo
-	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID())
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID())
 
-	if result.Attack != nil {
+	if result.Attack() != nil {
 		return fmt.Sprintf(
 			"   %s rolls %d + %d = %d, %s rolls %d + %d = %d",
-			user.Name(), result.Attack.AttackRoll, result.Attack.AttackerToHitBonus, result.Attack.AttackerTotal,
-			target.Name(), result.Attack.DefendRoll, result.Attack.DefenderToHitPenalty, result.Attack.DefenderTotal,
+			user.Name(),
+			result.Attack().AttackRoll(),
+			result.Attack().AttackerToHitBonus(),
+			result.Attack().AttackerTotal(),
+			target.Name(),
+			result.Attack().DefendRoll(),
+			result.Attack().DefenderToHitPenalty(),
+			result.Attack().DefenderTotal(),
 		)
 	}
 	return "   Auto-hit"
@@ -302,7 +308,7 @@ func (viewer *ConsoleActionViewer) createRollMessage(result *powercommit.ResultP
 
 func (viewer *ConsoleActionViewer) createTargetStatusMessage(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection) string {
 	squaddieRepo := repositories.SquaddieRepo
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID())
 
 	barrierMessage := ""
 	if target.MaxBarrier() > 0 {
@@ -320,15 +326,15 @@ func (viewer *ConsoleActionViewer) createTargetStatusMessage(result *powercommit
 }
 
 func (viewer *ConsoleActionViewer) createMessageForResultPerTarget(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
-	if result.Attack == nil && result.Healing == nil {
+	if result.Attack() == nil && result.Healing() == nil {
 		return "Unknown"
 	}
 
-	if result.Attack != nil {
+	if result.Attack() != nil {
 		attackResultMessage := viewer.makeMessageForResultPerTargetAttackEffect(result, repositories, userCausedThePreviousResult, verbosity)
 		return attackResultMessage
 	}
-	if result.Healing != nil {
+	if result.Healing() != nil {
 		healingResultMessage := viewer.makeMessageForResultPerTargetHealingEffect(result, repositories, userCausedThePreviousResult, verbosity)
 		return healingResultMessage
 	}
@@ -338,31 +344,31 @@ func (viewer *ConsoleActionViewer) createMessageForResultPerTarget(result *power
 
 func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetAttackEffect(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
 	squaddieRepo := repositories.SquaddieRepo
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID())
 
 	hitMessage := "misses"
 	effectMessage := ""
 	criticalHit := ""
-	if result.Attack.CriticallyHitTarget {
+	if result.Attack().CriticallyHitTarget() {
 		criticalHit = "CRITICALLY "
 	}
 
-	if result.Attack.HitTarget {
-		if result.Attack.IsCounterAttack {
+	if result.Attack().HitTarget() {
+		if result.Attack().IsCounterAttack() {
 			hitMessage = "counters"
 		} else {
 			hitMessage = "hits"
 		}
 	}
 
-	if result.Attack.HitTarget || result.Attack.CriticallyHitTarget {
+	if result.Attack().HitTarget() || result.Attack().CriticallyHitTarget() {
 		if target.Defense.IsDead() {
 			effectMessage = ", felling"
 		} else {
-			damageTakenDescription := fmt.Sprintf(", for %d damage", result.Attack.Damage.ActualDamageTaken)
+			damageTakenDescription := fmt.Sprintf(", for %d damage", result.Attack().Damage().ActualDamageTaken)
 			barrierBurnDescription := ""
-			if result.Attack.Damage.TotalRawBarrierBurnt > 0 {
-				barrierBurnDescription = fmt.Sprintf(" + %d barrier burn", result.Attack.Damage.TotalRawBarrierBurnt)
+			if result.Attack().Damage().TotalRawBarrierBurnt > 0 {
+				barrierBurnDescription = fmt.Sprintf(" + %d barrier burn", result.Attack().Damage().TotalRawBarrierBurnt)
 			}
 
 			effectMessage = fmt.Sprintf("%s%s", damageTakenDescription, barrierBurnDescription)
@@ -376,11 +382,11 @@ func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetAttackEffect(res
 
 func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetHealingEffect(result *powercommit.ResultPerTarget, repositories *repositories.RepositoryCollection, userCausedThePreviousResult bool, verbosity *ConsoleActionViewerVerbosity) string {
 	squaddieRepo := repositories.SquaddieRepo
-	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID)
+	target := squaddieRepo.GetOriginalSquaddieByID(result.TargetID())
 
 	userPrefix := viewer.getMessagePrefix(result, repositories, userCausedThePreviousResult, verbosity)
-	hitPointsRestored := fmt.Sprintf(", for %d healing", result.Healing.HitPointsRestored)
-	if result.Healing.HitPointsRestored == 0 {
+	hitPointsRestored := fmt.Sprintf(", for %d healing", result.Healing().HitPointsRestored())
+	if result.Healing().HitPointsRestored() == 0 {
 		hitPointsRestored = " for NO HEALING"
 	}
 
@@ -391,8 +397,8 @@ func (viewer *ConsoleActionViewer) getMessagePrefix(result *powercommit.ResultPe
 	squaddieRepo := repositories.SquaddieRepo
 	powerRepo := repositories.PowerRepo
 
-	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID)
-	powerUsed := powerRepo.GetPowerByID(result.PowerID)
+	user := squaddieRepo.GetOriginalSquaddieByID(result.UserID())
+	powerUsed := powerRepo.GetPowerByID(result.PowerID())
 
 	userPrefix := fmt.Sprintf("%s (%s)", user.Name(), powerUsed.Name())
 	if userCausedThePreviousResult {

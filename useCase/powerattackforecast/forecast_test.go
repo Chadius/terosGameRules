@@ -8,6 +8,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
@@ -87,8 +88,9 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfNoEquippedPower
 
 func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCannotCounter(checker *C) {
 	suite.mysticMage.AddPowerReference(suite.fireball.GetReference())
+	checkEquip := powerequip.CheckRepositories{}
 
-	mysticMageEquipsFireball := powerequip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID(), suite.repos)
+	mysticMageEquipsFireball := checkEquip.SquaddieEquipPower(suite.mysticMage, suite.fireball.ID(), suite.repos)
 	checker.Assert(mysticMageEquipsFireball, Equals, true)
 
 	suite.forecastSpearOnMysticMage.CalculateForecast()
@@ -98,13 +100,14 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
 	suite.bandit.AddPowerReference(suite.axe.GetReference())
+	checkEquip := powerequip.CheckRepositories{}
 
-	banditEquipsAxe := powerequip.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
+	banditEquipsAxe := checkEquip.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
 	checker.Assert(banditEquipsAxe, Equals, true)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].CounterAttack.VersusContext.ToHit.ToHitBonus, Equals, -1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].CounterAttack.VersusContext.ToHit().ToHitBonus, Equals, -1)
 }
 
 type HealingEffectForecast struct {
@@ -150,6 +153,7 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 			SquaddieRepo: suite.squaddieRepo,
 			PowerRepo:    suite.powerRepo,
 		},
+		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
 	}
 
 	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
@@ -163,6 +167,7 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 			SquaddieRepo: suite.squaddieRepo,
 			PowerRepo:    suite.powerRepo,
 		},
+		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
 	}
 }
 

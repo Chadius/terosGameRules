@@ -32,7 +32,7 @@ func (suite *improveMovement) SetUpTest(checker *C) {
 }
 
 func (suite *improveMovement) TestWhenImproveIsCalled_ThenMovementImproves(checker *C) {
-	suite.initialMovement.Improve(3,squaddie.Fly,true)
+	suite.initialMovement.Improve(3, squaddie.Fly, true)
 
 	checker.Assert(suite.initialMovement.MovementDistance(), Equals, 5)
 	checker.Assert(suite.initialMovement.MovementType(), Equals, squaddie.Fly)

@@ -7,6 +7,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powercantarget"
 	"github.com/chadius/terosbattleserver/usecase/powercommit"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	"github.com/chadius/terosbattleserver/utility"
 	"math/rand"
 	"strings"
@@ -34,6 +35,7 @@ func (controller *WhiteRoomController) GenerateForecast(action *powerusagescenar
 			SquaddieRepo: repos.SquaddieRepo,
 			PowerRepo:    repos.PowerRepo,
 		},
+		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
 	}
 	powerForecast.CalculateForecast()
 	return powerForecast
@@ -46,10 +48,7 @@ func (controller *WhiteRoomController) GenerateResult(
 	useRandomSeed bool,
 	randomSeed int64) *powercommit.Result {
 
-	powerResult := &powercommit.Result{
-		Forecast:  forecast,
-		DieRoller: &utility.RandomDieRoller{},
-	}
+	powerResult := powercommit.NewResult(forecast, &utility.RandomDieRoller{}, nil)
 	if useRandomSeed == true {
 		rand.Seed(randomSeed)
 	}
@@ -67,10 +66,11 @@ type InvalidAttackDescription struct {
 // CheckForValidAction makes sure the action is valid. Otherwise, it returns an error.
 func (controller *WhiteRoomController) CheckForValidAction(action *powerusagescenario.Setup, repos *repositories.RepositoryCollection) []InvalidAttackDescription {
 	descriptions := []InvalidAttackDescription{}
+	targetingStrategy := powercantarget.ValidTargetChecker{}
 
 	for _, targetID := range action.Targets {
 
-		_, reasonForInvalidTarget := powercantarget.IsValidTarget(
+		_, reasonForInvalidTarget := targetingStrategy.IsValidTarget(
 			action.UserID,
 			action.PowerID,
 			targetID,
