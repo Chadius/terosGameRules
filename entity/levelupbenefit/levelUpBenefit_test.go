@@ -9,53 +9,22 @@ type LevelUpBenefitSuite struct{}
 
 var _ = Suite(&LevelUpBenefitSuite{})
 
-func (s *LevelUpBenefitSuite) TestRaisesAnErrorIfNoBenefitType(checker *C) {
-	badLevel := levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{ClassID: "class0"},
-	}
-	err := badLevel.CheckForErrors()
-	checker.Assert(err, ErrorMatches, `unknown level up benefit type: ""`)
-}
-
-func (s *LevelUpBenefitSuite) TestRaisesAnErrorIfNoClassID(checker *C) {
-	badLevel := levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			LevelUpBenefitType: levelupbenefit.Small,
-			ClassID:            "",
-		},
-	}
-	err := badLevel.CheckForErrors()
-	checker.Assert(err, ErrorMatches, `no classID found for LevelUpBenefit`)
-}
-
 func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
 	listToTest := []*levelupbenefit.LevelUpBenefit{
 		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            "class0",
-				ID:                 "level0",
-			},
+			Identification: levelupbenefit.NewIdentification("level0", "class0", levelupbenefit.Small),
 			Offense: &levelupbenefit.Offense{
 				Aim: 1,
 			},
 		},
 		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            "class0",
-				ID:                 "level1",
-			},
+			Identification: levelupbenefit.NewIdentification("level1", "class0", levelupbenefit.Small),
 			Defense: &levelupbenefit.Defense{
 				MaxHitPoints: 1,
 			},
 		},
 		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            "class0",
-				ID:                 "level2",
-			},
+			Identification: levelupbenefit.NewIdentification("level2", "class0", levelupbenefit.Big),
 			Offense: &levelupbenefit.Offense{
 				Aim: 1,
 			},
@@ -73,12 +42,12 @@ func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
 	checker.Assert(allLevelsFound, HasLen, 3)
 
 	onlySmallLevels := levelupbenefit.FilterLevelUpBenefits(listToTest, func(benefit *levelupbenefit.LevelUpBenefit) bool {
-		return benefit.Identification.LevelUpBenefitType == levelupbenefit.Small
+		return benefit.LevelUpBenefitType() == levelupbenefit.Small
 	})
 	checker.Assert(onlySmallLevels, HasLen, 2)
 
 	onlyBigLevels := levelupbenefit.FilterLevelUpBenefits(listToTest, func(benefit *levelupbenefit.LevelUpBenefit) bool {
-		return benefit.Identification.LevelUpBenefitType == levelupbenefit.Big
+		return benefit.LevelUpBenefitType() == levelupbenefit.Big
 	})
 	checker.Assert(onlyBigLevels, HasLen, 1)
 

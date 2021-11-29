@@ -65,10 +65,10 @@ type ConsoleViewerSuite struct {
 
 	viewer *actionviewer.ConsoleActionViewer
 
-	resultBlotOnBanditHit    powercommit.ResultStrategy
-	resultBlotOnBanditMissed powercommit.ResultStrategy
+	resultBlotOnBanditHit           powercommit.ResultStrategy
+	resultBlotOnBanditMissed        powercommit.ResultStrategy
 	resultBlotOnBanditCriticallyHit powercommit.ResultStrategy
-	resultBlotOnMultipleBanditsHit powercommit.ResultStrategy
+	resultBlotOnMultipleBanditsHit  powercommit.ResultStrategy
 }
 
 var _ = Suite(&ConsoleViewerSuite{})
@@ -359,8 +359,8 @@ func (suite *ConsoleViewerSuite) TestShowPowerBarrierBurn(checker *C) {
 				Target(suite.bandit).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    3,
-						ActualDamageTaken: 2,
+						RawDamageDealt:       3,
+						ActualDamageTaken:    2,
 						TotalRawBarrierBurnt: 1,
 					}).Build(),
 				).
@@ -383,8 +383,8 @@ func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
 				Target(suite.bandit).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    3,
-						ActualDamageTaken: 2,
+						RawDamageDealt:       3,
+						ActualDamageTaken:    2,
 						TotalRawBarrierBurnt: 1,
 					}).Build(),
 				).
@@ -405,7 +405,7 @@ func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
 				Target(suite.teros).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken:    3,
+						ActualDamageTaken: 3,
 					}).CounterAttack().Build(),
 				).
 				Build(),
@@ -454,7 +454,7 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 				Target(banditWithBarrier).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 2,
+						ActualDamageTaken:    2,
 						TotalRawBarrierBurnt: 1,
 					}).Build(),
 				).
@@ -475,7 +475,7 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 				Target(suite.teros).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken:    3,
+						ActualDamageTaken: 3,
 					}).CounterAttack().Build(),
 				).
 				Build(),
@@ -544,16 +544,16 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 				Target(banditWithBarrier).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 2,
+						ActualDamageTaken:    2,
 						TotalRawBarrierBurnt: 1,
 					}).
-					AttackRoll(999).
-					AttackerToHitBonus(0).
-					AttackerTotal(999).
-					DefendRoll(-999).
-					DefenderToHitPenalty(0).
-					DefenderTotal(-999).
-					Build(),
+						AttackRoll(999).
+						AttackerToHitBonus(0).
+						AttackerTotal(999).
+						DefendRoll(-999).
+						DefenderToHitPenalty(0).
+						DefenderTotal(-999).
+						Build(),
 				).
 				Build(),
 			powercommit.NewResultPerTargetBuilder().
@@ -564,13 +564,13 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
 						ActualDamageTaken: 3,
 					}).
-					AttackRoll(999).
-					AttackerToHitBonus(0).
-					AttackerTotal(999).
-					DefendRoll(-999).
-					DefenderToHitPenalty(0).
-					DefenderTotal(-999).
-					Build(),
+						AttackRoll(999).
+						AttackerToHitBonus(0).
+						AttackerTotal(999).
+						DefendRoll(-999).
+						DefenderToHitPenalty(0).
+						DefenderTotal(-999).
+						Build(),
 				).
 				Build(),
 			powercommit.NewResultPerTargetBuilder().
@@ -579,16 +579,16 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 				Target(suite.teros).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken:    3,
+						ActualDamageTaken: 3,
 					}).
-					CounterAttack().
-					AttackRoll(999).
-					AttackerToHitBonus(-1).
-					AttackerTotal(998).
-					DefendRoll(-999).
-					DefenderToHitPenalty(0).
-					DefenderTotal(-999).
-					Build(),
+						CounterAttack().
+						AttackRoll(999).
+						AttackerToHitBonus(-1).
+						AttackerTotal(998).
+						DefendRoll(-999).
+						DefenderToHitPenalty(0).
+						DefenderTotal(-999).
+						Build(),
 				).
 				Build(),
 		},

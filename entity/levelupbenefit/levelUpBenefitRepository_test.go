@@ -119,7 +119,8 @@ func (suite *LevelUpBenefitRepositorySuite) TestCreateLevelUpBenefitsFromJSON(ch
       }
 ]`)
 	checker.Assert(suite.levelRepo.GetNumberOfLevelUpBenefits(), Equals, 0)
-	success, _ := suite.levelRepo.AddJSONSource(suite.jsonByteStream)
+	success, err := suite.levelRepo.AddJSONSource(suite.jsonByteStream)
+	checker.Assert(err, IsNil)
 	checker.Assert(success, Equals, true)
 	checker.Assert(suite.levelRepo.GetNumberOfLevelUpBenefits(), Equals, 1)
 }
@@ -162,18 +163,10 @@ func (suite *LevelUpBenefitRepositorySuite) TestCreateLevelUpBenefitsFromASlice(
 	checker.Assert(suite.levelRepo.GetNumberOfLevelUpBenefits(), Equals, 0)
 	success, _ := suite.levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{
 		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            "class0",
-				ID:                 "level0",
-			},
+			Identification: levelupbenefit.NewIdentification("level0", "class0", levelupbenefit.Small),
 		},
 		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            "class0",
-				ID:                 "level1",
-			},
+			Identification: levelupbenefit.NewIdentification("level1", "class0", levelupbenefit.Small),
 		},
 	})
 	checker.Assert(success, Equals, true)
@@ -232,7 +225,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestStopLoadingOnFirstInvalidLevelUp
 ]`)
 	success, err := suite.levelRepo.AddJSONSource(byteStream)
 	checker.Assert(success, Equals, false)
-	checker.Assert(err.Error(), Equals, `unknown level up benefit type: "unknown"`)
+	checker.Assert(err.Error(), Equals, `unknown level up benefit type`)
 }
 
 func (suite *LevelUpBenefitRepositorySuite) TestCanSearchLevelUpBenefits(checker *C) {
@@ -277,8 +270,8 @@ func (suite *LevelUpBenefitRepositorySuite) TestCanSearchLevelUpBenefits(checker
 	checker.Assert(benefits, HasLen, 1)
 
 	firstBenefit := benefits[0]
-	checker.Assert(firstBenefit.Identification.LevelUpBenefitType, Equals, levelupbenefit.Small)
-	checker.Assert(firstBenefit.Identification.ClassID, Equals, "class0")
+	checker.Assert(firstBenefit.LevelUpBenefitType(), Equals, levelupbenefit.Small)
+	checker.Assert(firstBenefit.ClassID(), Equals, "class0")
 
 	checker.Assert(firstBenefit.Defense.MaxHitPoints, Equals, 1)
 	checker.Assert(firstBenefit.Defense.Dodge, Equals, 4)

@@ -7,6 +7,8 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
+// TODO privatize all fields
+
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
 type LevelUpBenefit struct {
 	Identification *Identification    `json:"identification" yaml:"identification"`
@@ -16,15 +18,22 @@ type LevelUpBenefit struct {
 	Movement       *squaddie.Movement `json:"Movement" yaml:"Movement"`
 }
 
+// NewLevelUpBenefit returns a new LevelUpBenefit object.
+func NewLevelUpBenefit(identification *Identification) *LevelUpBenefit {
+	return &LevelUpBenefit{
+		Identification: identification,
+	}
+}
+
 // CheckForErrors ensures the LevelUpBenefit has valid fields
-func (benefit *LevelUpBenefit) CheckForErrors() error {
-	if benefit.Identification.LevelUpBenefitType != Small && benefit.Identification.LevelUpBenefitType != Big {
-		newError := fmt.Errorf(`unknown level up benefit type: "%s"`, benefit.Identification.LevelUpBenefitType)
+func (l *LevelUpBenefit) CheckForErrors() error {
+	if l.LevelUpBenefitType() != Small && l.LevelUpBenefitType() != Big {
+		newError := fmt.Errorf(`unknown level up benefit type`)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
-	if benefit.Identification.ClassID == "" {
+	if l.ClassID() == "" {
 		newError := errors.New(`no classID found for LevelUpBenefit`)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
@@ -62,4 +71,19 @@ func CountLevelUpBenefits(sliceToAnalyze []*LevelUpBenefit, condition func(benef
 		}
 	}
 	return count
+}
+
+// ID is a getter.
+func (l LevelUpBenefit) ID() string {
+	return l.Identification.LevelID()
+}
+
+// ClassID is a getter.
+func (l LevelUpBenefit) ClassID() string {
+	return l.Identification.ClassID()
+}
+
+// LevelUpBenefitType is a getter.
+func (l LevelUpBenefit) LevelUpBenefitType() Size {
+	return l.Identification.LevelUpBenefitSize()
 }

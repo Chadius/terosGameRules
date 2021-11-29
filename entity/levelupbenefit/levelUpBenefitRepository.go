@@ -71,7 +71,7 @@ func (repository *Repository) tryToAddLevelUpBenefitToSource(levelUpBenefit *Lev
 		return false, err
 	}
 
-	classID := levelUpBenefit.Identification.ClassID
+	classID := levelUpBenefit.ClassID()
 
 	if repository.levelUpBenefitsByClassID[classID] == nil {
 		repository.levelUpBenefitsByClassID[classID] = []*LevelUpBenefit{}
@@ -104,7 +104,7 @@ func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (
 		return levelsInClassByType, err
 	}
 	for _, level := range levelsInClass {
-		levelsInClassByType[level.Identification.LevelUpBenefitType] = append(levelsInClassByType[level.Identification.LevelUpBenefitType], level)
+		levelsInClassByType[level.LevelUpBenefitType()] = append(levelsInClassByType[level.LevelUpBenefitType()], level)
 	}
 	return levelsInClassByType, nil
 }

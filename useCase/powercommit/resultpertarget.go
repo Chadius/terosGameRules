@@ -51,11 +51,11 @@ type ResultPerTargetBuilder struct {
 // NewResultPerTargetBuilder creates a new ResultPerTargetBuilder.
 func NewResultPerTargetBuilder() *ResultPerTargetBuilder {
 	return &ResultPerTargetBuilder{
-		userID: "",
-		powerID: "",
+		userID:   "",
+		powerID:  "",
 		targetID: "",
-		attack: nil,
-		healing: nil,
+		attack:   nil,
+		healing:  nil,
 	}
 }
 
@@ -92,10 +92,10 @@ func (rp *ResultPerTargetBuilder) HealResult(result *HealResult) *ResultPerTarge
 // Build creates the ResultPerTarget.
 func (rp *ResultPerTargetBuilder) Build() *ResultPerTarget {
 	return &ResultPerTarget{
-		userID: rp.userID,
-		powerID: rp.powerID,
+		userID:   rp.userID,
+		powerID:  rp.powerID,
 		targetID: rp.targetID,
-		attack: rp.attack,
-		healing: rp.healing,
+		attack:   rp.attack,
+		healing:  rp.healing,
 	}
 }

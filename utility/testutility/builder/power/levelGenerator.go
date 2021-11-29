@@ -23,11 +23,11 @@ func (generator *LevelGenerator) Build() []*levelupbenefit.LevelUpBenefit {
 	levels := []*levelupbenefit.LevelUpBenefit{}
 	for i := 0; i < generator.Instructions.NumberOfLevels; i++ {
 		newLevelUpBenefit := &levelupbenefit.LevelUpBenefit{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: generator.Instructions.Type,
-				ClassID:            generator.Instructions.ClassID,
-				ID:                 generator.Instructions.PrefixLevelID + strconv.Itoa(i),
-			},
+			Identification: levelupbenefit.NewIdentification(
+				generator.Instructions.PrefixLevelID+strconv.Itoa(i),
+				generator.Instructions.ClassID,
+				generator.Instructions.Type,
+			),
 		}
 		levels = append(levels, newLevelUpBenefit)
 	}

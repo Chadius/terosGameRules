@@ -36,7 +36,7 @@ func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) GetSquaddieClassLeve
 
 		smallLevelCount := progress.AccumulateLevelsConsumed(func(consumedLevelID string) int {
 			return levelupbenefit.CountLevelUpBenefits(levelsInClass, func(benefit *levelupbenefit.LevelUpBenefit) bool {
-				return benefit.Identification.ID == consumedLevelID && benefit.Identification.LevelUpBenefitType == levelupbenefit.Small
+				return benefit.ID() == consumedLevelID && benefit.LevelUpBenefitType() == levelupbenefit.Small
 			})
 		})
 		levels[classID] = smallLevelCount
@@ -102,7 +102,7 @@ func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) selectBigLevelUpForS
 	}
 
 	bigLevelCandidates := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Big], func(level *levelupbenefit.LevelUpBenefit) bool {
-		return level.Identification.ID == bigLevelIDToRetrieve
+		return level.ID() == bigLevelIDToRetrieve
 	})
 
 	if len(bigLevelCandidates) == 0 {
@@ -121,7 +121,7 @@ func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) selectSmallLevelUpFo
 ) *levelupbenefit.LevelUpBenefit {
 	smallLevelsToChooseFrom := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Small],
 		func(level *levelupbenefit.LevelUpBenefit) bool {
-			if squaddieToLevelUp.IsClassLevelAlreadyUsed(level.Identification.ID) {
+			if squaddieToLevelUp.IsClassLevelAlreadyUsed(level.ID()) {
 				return false
 			}
 			return true
