@@ -33,18 +33,8 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 
 	suite.statBooster = levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("deadbeef", suite.mageClass.ID(), levelupbenefit.Small),
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 0,
-			Dodge:        4,
-			Deflect:      3,
-			MaxBarrier:   2,
-			Armor:        1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      7,
-			Strength: 6,
-			Mind:     5,
-		},
+		Defense: levelupbenefit.NewDefense(0,4,3,2,1),
+		Offense: levelupbenefit.NewOffense(7,6,5),
 	}
 
 	suite.improveAllMovement = &levelupbenefit.LevelUpBenefit{
@@ -84,18 +74,8 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClass(checker *C) {
 	mushroomClassLevel := levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("deedbeeg", "bad SquaddieID", levelupbenefit.Small),
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 0,
-			Dodge:        4,
-			Deflect:      3,
-			MaxBarrier:   2,
-			Armor:        1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      7,
-			Strength: 6,
-			Mind:     5,
-		},
+		Defense: levelupbenefit.NewDefense(0,4,3,2,1),
+		Offense: levelupbenefit.NewOffense(7,6,5),
 	}
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(&mushroomClassLevel, suite.teros)
 	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)

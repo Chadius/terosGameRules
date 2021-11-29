@@ -19,9 +19,11 @@ type LevelUpBenefit struct {
 }
 
 // NewLevelUpBenefit returns a new LevelUpBenefit object.
-func NewLevelUpBenefit(identification *Identification) *LevelUpBenefit {
+func NewLevelUpBenefit(identification *Identification, defense *Defense, offense *Offense) *LevelUpBenefit {
 	return &LevelUpBenefit{
 		Identification: identification,
+		Defense: defense,
+		Offense: offense,
 	}
 }
 
@@ -86,4 +88,44 @@ func (l LevelUpBenefit) ClassID() string {
 // LevelUpBenefitType is a getter.
 func (l LevelUpBenefit) LevelUpBenefitType() Size {
 	return l.Identification.LevelUpBenefitSize()
+}
+
+// MaxHitPoints is a getter.
+func (l LevelUpBenefit) MaxHitPoints() int {
+	return l.Defense.MaxHitPoints()
+}
+
+// Dodge is a getter.
+func (l LevelUpBenefit) Dodge() int {
+	return l.Defense.Dodge()
+}
+
+// Deflect is a getter.
+func (l LevelUpBenefit) Deflect() int {
+	return l.Defense.Deflect()
+}
+
+// MaxBarrier is a getter.
+func (l LevelUpBenefit) MaxBarrier() int {
+	return l.Defense.MaxBarrier()
+}
+
+// Armor is a getter.
+func (l LevelUpBenefit) Armor() int {
+	return l.Defense.Armor()
+}
+
+// Aim is a getter.
+func (l LevelUpBenefit) Aim() int {
+	return l.Offense.Aim()
+}
+
+// Strength is a getter.
+func (l LevelUpBenefit) Strength() int {
+	return l.Offense.Strength()
+}
+
+// Mind is a getter.
+func (l LevelUpBenefit) Mind() int {
+	return l.Offense.Mind()
 }

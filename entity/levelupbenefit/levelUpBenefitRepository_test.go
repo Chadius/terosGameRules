@@ -273,15 +273,15 @@ func (suite *LevelUpBenefitRepositorySuite) TestCanSearchLevelUpBenefits(checker
 	checker.Assert(firstBenefit.LevelUpBenefitType(), Equals, levelupbenefit.Small)
 	checker.Assert(firstBenefit.ClassID(), Equals, "class0")
 
-	checker.Assert(firstBenefit.Defense.MaxHitPoints, Equals, 1)
-	checker.Assert(firstBenefit.Defense.Dodge, Equals, 4)
-	checker.Assert(firstBenefit.Defense.Deflect, Equals, 5)
-	checker.Assert(firstBenefit.Defense.MaxBarrier, Equals, 6)
-	checker.Assert(firstBenefit.Defense.Armor, Equals, 7)
+	checker.Assert(firstBenefit.MaxHitPoints(), Equals, 1)
+	checker.Assert(firstBenefit.Dodge(), Equals, 4)
+	checker.Assert(firstBenefit.Deflect(), Equals, 5)
+	checker.Assert(firstBenefit.MaxBarrier(), Equals, 6)
+	checker.Assert(firstBenefit.Armor(), Equals, 7)
 
-	checker.Assert(firstBenefit.Offense.Aim, Equals, 0)
-	checker.Assert(firstBenefit.Offense.Strength, Equals, 2)
-	checker.Assert(firstBenefit.Offense.Mind, Equals, 3)
+	checker.Assert(firstBenefit.Aim(), Equals, 0)
+	checker.Assert(firstBenefit.Strength(), Equals, 2)
+	checker.Assert(firstBenefit.Mind(), Equals, 3)
 
 	checker.Assert(firstBenefit.PowerChanges.Gained, HasLen, 1)
 	checker.Assert(firstBenefit.PowerChanges.Gained[0].Name, Equals, "Scimitar")

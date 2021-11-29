@@ -52,18 +52,8 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 
 	suite.mageLevel0 = &levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("mageLevel0", suite.mageClass.ID(), levelupbenefit.Small),
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 1,
-			Dodge:        1,
-			Deflect:      1,
-			MaxBarrier:   1,
-			Armor:        1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      1,
-			Strength: 1,
-			Mind:     1,
-		},
+		Defense: levelupbenefit.NewDefense(1,1,1,1,1),
+		Offense: levelupbenefit.NewOffense(1,1,1),
 		PowerChanges: &levelupbenefit.PowerChanges{
 			Gained: nil,
 			Lost:   nil,
@@ -73,18 +63,8 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 
 	suite.mageLevel1 = &levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("mageLevel1", suite.mageClass.ID(), levelupbenefit.Big),
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 0,
-			Dodge:        0,
-			Deflect:      0,
-			MaxBarrier:   0,
-			Armor:        0,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      0,
-			Strength: 0,
-			Mind:     0,
-		},
+		Defense: levelupbenefit.NewDefense(0,0,0,0,0),
+		Offense: levelupbenefit.NewOffense(0,0,0),
 		PowerChanges: &levelupbenefit.PowerChanges{
 			Gained: nil,
 			Lost:   nil,
@@ -99,25 +79,14 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 
 	suite.dimensionWalkerLevel1 = &levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("dwLevel1", suite.dimensionWalkerClass.ID(), levelupbenefit.Big),
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      0,
-			Strength: 0,
-			Mind:     0,
-		},
+		Defense: levelupbenefit.NewDefense(1,0,0,0,0),
+		Offense: levelupbenefit.NewOffense(0,0,0),
 	}
 
 	suite.ancientTomeClassLevel0 = &levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("ancientTomeLevel0", suite.ancientTomeClass.ID(), levelupbenefit.Small),
-		Defense: &levelupbenefit.Defense{
-			Dodge:   1,
-			Deflect: 1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Mind: 1,
-		},
+		Defense: levelupbenefit.NewDefense(0,1,1,0,0),
+		Offense: levelupbenefit.NewOffense(0,0,1),
 	}
 
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()

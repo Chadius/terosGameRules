@@ -13,21 +13,15 @@ func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
 	listToTest := []*levelupbenefit.LevelUpBenefit{
 		{
 			Identification: levelupbenefit.NewIdentification("level0", "class0", levelupbenefit.Small),
-			Offense: &levelupbenefit.Offense{
-				Aim: 1,
-			},
+			Offense: levelupbenefit.NewOffense(1, 0, 0),
 		},
 		{
 			Identification: levelupbenefit.NewIdentification("level1", "class0", levelupbenefit.Small),
-			Defense: &levelupbenefit.Defense{
-				MaxHitPoints: 1,
-			},
+			Defense: levelupbenefit.NewDefense(1,0,0,0,0),
 		},
 		{
 			Identification: levelupbenefit.NewIdentification("level2", "class0", levelupbenefit.Big),
-			Offense: &levelupbenefit.Offense{
-				Aim: 1,
-			},
+			Offense: levelupbenefit.NewOffense(1, 0, 0),
 		},
 	}
 
@@ -52,7 +46,7 @@ func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
 	checker.Assert(onlyBigLevels, HasLen, 1)
 
 	increasesAimLevels := levelupbenefit.FilterLevelUpBenefits(listToTest, func(benefit *levelupbenefit.LevelUpBenefit) bool {
-		return benefit.Offense != nil && benefit.Offense.Aim > 0
+		return benefit.Offense != nil && benefit.Aim() > 0
 	})
 	checker.Assert(increasesAimLevels, HasLen, 2)
 }

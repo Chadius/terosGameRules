@@ -41,16 +41,16 @@ func (i *ImproveSquaddieClass) ImproveSquaddie(benefit *levelupbenefit.LevelUpBe
 func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	if benefit.Defense != nil {
 		squaddieToImprove.ImproveDefense(
-			benefit.Defense.MaxHitPoints,
-			benefit.Defense.Dodge,
-			benefit.Defense.Deflect,
-			benefit.Defense.MaxBarrier,
-			benefit.Defense.Armor,
+			benefit.MaxHitPoints(),
+			benefit.Dodge(),
+			benefit.Deflect(),
+			benefit.MaxBarrier(),
+			benefit.Armor(),
 		)
 	}
 
 	if benefit.Offense != nil {
-		squaddieToImprove.ImproveOffense(benefit.Offense.Aim, benefit.Offense.Strength, benefit.Offense.Mind)
+		squaddieToImprove.ImproveOffense(benefit.Aim(), benefit.Strength(), benefit.Mind())
 	}
 }
 func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
