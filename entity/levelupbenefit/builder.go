@@ -1,5 +1,7 @@
 package levelupbenefit
 
+import "github.com/chadius/terosbattleserver/entity/squaddie"
+
 // Builder is used to create formula objects.
 type Builder struct {
 	levelID   string
@@ -15,6 +17,10 @@ type Builder struct {
 	aim int
 	strength int
 	mind int
+
+	movementDistance int
+	movementType squaddie.MovementType
+	movementCanHitAndRun bool
 }
 
 // NewLevelUpBenefitBuilder returns a new object used to build Term objects.
@@ -33,6 +39,10 @@ func NewLevelUpBenefitBuilder() *Builder {
 		aim: 0,
 		strength: 0,
 		mind: 0,
+
+		movementDistance: 0,
+		movementType: squaddie.Foot,
+		movementCanHitAndRun: false,
 	}
 }
 
@@ -85,6 +95,7 @@ func (b * Builder) Armor(armor int) *Builder {
 	return b
 }
 
+
 // Aim increases the offensive parameter.
 func (b * Builder) Aim(aim int) *Builder {
 	b.aim = aim
@@ -100,6 +111,25 @@ func (b * Builder) Strength(strength int) *Builder {
 // Mind increases the offensive parameter.
 func (b * Builder) Mind(mind int) *Builder {
 	b.mind = mind
+	return b
+}
+
+
+// MovementDistance increases the squaddie's movement.
+func (b *Builder) MovementDistance(distance int) *Builder {
+	b.movementDistance = distance
+	return b
+}
+
+// MovementType will upgrade the squaddie movement type
+func (b *Builder) MovementType(newMovementType squaddie.MovementType) *Builder {
+	b.movementType = newMovementType
+	return b
+}
+
+// CanHitAndRun means the squaddie can use hit-and-run movement.
+func (b *Builder) CanHitAndRun() *Builder {
+	b.movementCanHitAndRun = true
 	return b
 }
 
@@ -123,6 +153,11 @@ func (b *Builder) Build() (*LevelUpBenefit, error) {
 			b.aim,
 			b.strength,
 			b.mind,
+		),
+		squaddie.NewMovement(
+			b.movementDistance,
+			b.movementType,
+			b.movementCanHitAndRun,
 		),
 	), nil
 }

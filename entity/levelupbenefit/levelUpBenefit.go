@@ -19,11 +19,17 @@ type LevelUpBenefit struct {
 }
 
 // NewLevelUpBenefit returns a new LevelUpBenefit object.
-func NewLevelUpBenefit(identification *Identification, defense *Defense, offense *Offense) *LevelUpBenefit {
+func NewLevelUpBenefit(
+	identification *Identification,
+	defense *Defense,
+	offense *Offense,
+	movement *squaddie.Movement,
+	) *LevelUpBenefit {
 	return &LevelUpBenefit{
 		Identification: identification,
 		Defense: defense,
 		Offense: offense,
+		Movement: movement,
 	}
 }
 
@@ -128,4 +134,19 @@ func (l LevelUpBenefit) Strength() int {
 // Mind is a getter.
 func (l LevelUpBenefit) Mind() int {
 	return l.Offense.Mind()
+}
+
+// MovementDistance is a getter.
+func (l LevelUpBenefit) MovementDistance() int {
+	return l.Movement.MovementDistance()
+}
+
+// MovementType is a getter.
+func (l LevelUpBenefit) MovementType() squaddie.MovementType {
+	return l.Movement.MovementType()
+}
+
+// CanHitAndRun is a getter.
+func (l LevelUpBenefit) CanHitAndRun() bool {
+	return l.Movement.CanHitAndRun()
 }

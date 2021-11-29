@@ -2,6 +2,7 @@ package levelupbenefit_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -59,4 +60,17 @@ func (l *LevelUpBuilderSuite) TestBuildWithOffense(checker *C) {
 	checker.Assert(levelUpBenefit.Aim(), Equals, 2)
 	checker.Assert(levelUpBenefit.Strength(), Equals, 3)
 	checker.Assert(levelUpBenefit.Mind(), Equals, 5)
+}
+
+func (l *LevelUpBuilderSuite) TestBuildWithMovement(checker *C) {
+	levelUpBenefit, err := levelupbenefit.NewLevelUpBenefitBuilder().
+		MovementDistance(2).
+		MovementType(squaddie.Fly).
+		CanHitAndRun().
+		Build()
+
+	checker.Assert(err, IsNil)
+	checker.Assert(levelUpBenefit.MovementDistance(), Equals, 2)
+	checker.Assert(levelUpBenefit.MovementType(), Equals, squaddie.Fly)
+	checker.Assert(levelUpBenefit.CanHitAndRun(), Equals, true)
 }
