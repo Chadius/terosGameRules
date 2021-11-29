@@ -68,42 +68,18 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		},
 	}).Build())
 
+	classWithInitialLevel0, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevel0").ClassID(suite.classWithInitialLevel.ID()).Build()
+	classWithInitialLevel1, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevel1").ClassID(suite.classWithInitialLevel.ID()).Build()
+	classWithInitialLevel2, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevel2").ClassID(suite.classWithInitialLevel.ID()).Build()
+	classWithInitialLevelThisIsTakenFirst, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevelThisIsTakenFirst").ClassID(suite.classWithInitialLevel.ID()).BigLevel().Build()
+	classWithInitialLevelThisShouldNotBeTakenFirst, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevelThisShouldNotBeTakenFirst").ClassID(suite.classWithInitialLevel.ID()).BigLevel().Build()
+
 	suite.levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{
-		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            suite.classWithInitialLevel.ID(),
-				ID:                 "classWithInitialLevel0",
-			},
-		},
-		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            suite.classWithInitialLevel.ID(),
-				ID:                 "classWithInitialLevel1",
-			},
-		},
-		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Small,
-				ClassID:            suite.classWithInitialLevel.ID(),
-				ID:                 "classWithInitialLevel2",
-			},
-		},
-		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            suite.classWithInitialLevel.ID(),
-				ID:                 "classWithInitialLevelThisIsTakenFirst",
-			},
-		},
-		{
-			Identification: &levelupbenefit.Identification{
-				LevelUpBenefitType: levelupbenefit.Big,
-				ClassID:            suite.classWithInitialLevel.ID(),
-				ID:                 "classWithInitialLevelThisShouldNotBeTakenFirst",
-			},
-		},
+		classWithInitialLevel0,
+		classWithInitialLevel1,
+		classWithInitialLevel2,
+		classWithInitialLevelThisIsTakenFirst,
+		classWithInitialLevelThisShouldNotBeTakenFirst,
 	})
 
 	suite.repos = &repositories.RepositoryCollection{
@@ -132,7 +108,7 @@ func (suite *SquaddieChoosesLevelsSuite) TestUseSmallLevelsForClassLevel(checker
 func (suite *SquaddieChoosesLevelsSuite) TestOddClassLevelEarnsBigAndSmallLevel(checker *C) {
 	suite.teros.AddClass(suite.mageClass.GetReference())
 	suite.teros.SetClass(suite.mageClass.ID())
-	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].Identification.ID, suite.repos)
+	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].ID(), suite.repos)
 	checker.Assert(err, IsNil)
 
 	classLevels := suite.selectLevelUpStrategy.GetSquaddieClassLevels(suite.teros, suite.repos)
@@ -141,28 +117,28 @@ func (suite *SquaddieChoosesLevelsSuite) TestOddClassLevelEarnsBigAndSmallLevel(
 
 	hasSmallLevel := (*suite.teros.ClassLevelsConsumed())[suite.mageClass.ID()].AnyLevelsConsumed(func(consumedLevelID string) bool {
 		return levelupbenefit.AnyLevelUpBenefits(suite.lotsOfSmallLevels, func(level *levelupbenefit.LevelUpBenefit) bool {
-			return level.Identification.ID == consumedLevelID
+			return level.ID() == consumedLevelID
 		})
 	})
 	checker.Assert(hasSmallLevel, Equals, true)
 
 	hasBigLevel := (*suite.teros.ClassLevelsConsumed())[suite.mageClass.ID()].AnyLevelsConsumed(func(consumedLevelID string) bool {
 		return levelupbenefit.AnyLevelUpBenefits(suite.lotsOfBigLevels, func(level *levelupbenefit.LevelUpBenefit) bool {
-			return level.Identification.ID == consumedLevelID
+			return level.ID() == consumedLevelID
 		})
 	})
 	checker.Assert(hasBigLevel, Equals, true)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestRaisesAnErrorIfClassIsNotFound(checker *C) {
-	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].Identification.ID, suite.repos)
+	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].ID(), suite.repos)
 	checker.Assert(err, ErrorMatches, `class repository: No class found with SquaddieID: ""`)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseBigLevelIfNoneAvailable(checker *C) {
 	suite.teros.AddClass(suite.onlySmallLevelsClass.GetReference())
 	suite.teros.SetClass(suite.onlySmallLevelsClass.ID())
-	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].Identification.ID, suite.repos)
+	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].ID(), suite.repos)
 	checker.Assert(err, IsNil)
 
 	classLevels := suite.selectLevelUpStrategy.GetSquaddieClassLevels(suite.teros, suite.repos)

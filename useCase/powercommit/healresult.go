@@ -10,6 +10,7 @@ func (h *HealResult) HitPointsRestored() int {
 	return h.hitPointsRestored
 }
 
+// HealResultBuilder is used to build heal results.
 type HealResultBuilder struct {
 	hitPointsRestored int
 }
@@ -28,7 +29,7 @@ func (hr *HealResultBuilder) HitPointsRestored(hitPoints int) *HealResultBuilder
 }
 
 // Build returns a HealResult
-func (hr *HealResultBuilder) Build() *HealResult{
+func (hr *HealResultBuilder) Build() *HealResult {
 	return &HealResult{
 		hr.hitPointsRestored,
 	}

@@ -1,10 +1,46 @@
 package levelupbenefit
 
-// Defense describes all of the defensive benefits of leveling up.
+// Defense describes the defensive benefits of leveling up.
 type Defense struct {
-	MaxHitPoints int `json:"max_hit_points" yaml:"max_hit_points"`
-	Dodge        int `json:"dodge" yaml:"dodge"`
-	Deflect      int `json:"deflect" yaml:"deflect"`
-	MaxBarrier   int `json:"max_barrier" yaml:"max_barrier"`
-	Armor        int `json:"armor" yaml:"armor"`
+	maxHitPoints int
+	dodge        int
+	deflect      int
+	maxBarrier   int
+	armor        int
+}
+
+// NewDefense returns a new Defense object.
+func NewDefense(maxHitPoints, dodge, deflect, maxBarrier, armor int) *Defense {
+	return &Defense{
+		maxHitPoints: maxHitPoints,
+		dodge:        dodge,
+		deflect:      deflect,
+		maxBarrier:   maxBarrier,
+		armor:        armor,
+	}
+}
+
+// MaxHitPoints is a getter.
+func (d *Defense) MaxHitPoints() int {
+	return d.maxHitPoints
+}
+
+// Dodge is a getter.
+func (d *Defense) Dodge() int {
+	return d.dodge
+}
+
+// Deflect is a getter.
+func (d *Defense) Deflect() int {
+	return d.deflect
+}
+
+// MaxBarrier is a getter.
+func (d *Defense) MaxBarrier() int {
+	return d.maxBarrier
+}
+
+// Armor is a getter.
+func (d *Defense) Armor() int {
+	return d.armor
 }

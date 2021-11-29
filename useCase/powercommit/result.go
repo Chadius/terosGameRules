@@ -10,6 +10,7 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
+// ResultStrategy describes the shape of Result objects.
 type ResultStrategy interface {
 	Forecast() *powerattackforecast.Forecast
 	DieRoller() utility.SixSideGenerator
@@ -17,8 +18,7 @@ type ResultStrategy interface {
 	Commit()
 }
 
-// Result applies the forecast given to determine what actually happened.
-//  changes are committed.
+// Result applies the forecast given to determine what actually happened. Changes are committed.
 type Result struct {
 	forecast        *powerattackforecast.Forecast
 	dieRoller       utility.SixSideGenerator
@@ -170,4 +170,3 @@ func (result *Result) calculateHealingResultForThisTarget(setup *powerusagescena
 	resultForThisTarget.healing.hitPointsRestored = hitPointsRestored
 	return resultForThisTarget
 }
-

@@ -3,28 +3,46 @@ package levelupbenefit
 import (
 	"errors"
 	"fmt"
+	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
 type LevelUpBenefit struct {
-	Identification *Identification    `json:"identification" yaml:"identification"`
-	Defense        *Defense           `json:"defense" yaml:"defense"`
-	Offense        *Offense           `json:"offense" yaml:"offense"`
-	PowerChanges   *PowerChanges      `json:"powers" yaml:"powers"`
-	Movement       *squaddie.Movement `json:"Movement" yaml:"Movement"`
+	identification *Identification
+	defense        *Defense
+	offense        *Offense
+	powerChanges   *PowerChanges
+	movement       *squaddie.Movement
+}
+
+// NewLevelUpBenefit returns a new LevelUpBenefit object.
+func NewLevelUpBenefit(
+	identification *Identification,
+	defense *Defense,
+	offense *Offense,
+	movement *squaddie.Movement,
+	changes *PowerChanges,
+) *LevelUpBenefit {
+	return &LevelUpBenefit{
+		identification: identification,
+		defense:        defense,
+		offense:        offense,
+		movement:       movement,
+		powerChanges:   changes,
+	}
 }
 
 // CheckForErrors ensures the LevelUpBenefit has valid fields
-func (benefit *LevelUpBenefit) CheckForErrors() error {
-	if benefit.Identification.LevelUpBenefitType != Small && benefit.Identification.LevelUpBenefitType != Big {
-		newError := fmt.Errorf(`unknown level up benefit type: "%s"`, benefit.Identification.LevelUpBenefitType)
+func (l *LevelUpBenefit) CheckForErrors() error {
+	if l.LevelUpBenefitType() != Small && l.LevelUpBenefitType() != Big {
+		newError := fmt.Errorf(`unknown level up benefit type`)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
 	}
 
-	if benefit.Identification.ClassID == "" {
+	if l.ClassID() == "" {
 		newError := errors.New(`no classID found for LevelUpBenefit`)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return newError
@@ -62,4 +80,117 @@ func CountLevelUpBenefits(sliceToAnalyze []*LevelUpBenefit, condition func(benef
 		}
 	}
 	return count
+}
+
+// ID is a getter.
+func (l LevelUpBenefit) ID() string {
+	return l.identification.LevelID()
+}
+
+// ClassID is a getter.
+func (l LevelUpBenefit) ClassID() string {
+	return l.identification.ClassID()
+}
+
+// LevelUpBenefitType is a getter.
+func (l LevelUpBenefit) LevelUpBenefitType() Size {
+	return l.identification.LevelUpBenefitSize()
+}
+
+// MaxHitPoints is a getter.
+func (l LevelUpBenefit) MaxHitPoints() int {
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.MaxHitPoints()
+}
+
+// Dodge is a getter.
+func (l LevelUpBenefit) Dodge() int {
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.Dodge()
+}
+
+// Deflect is a getter.
+func (l LevelUpBenefit) Deflect() int {
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.Deflect()
+}
+
+// MaxBarrier is a getter.
+func (l LevelUpBenefit) MaxBarrier() int {
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.MaxBarrier()
+}
+
+// Armor is a getter.
+func (l LevelUpBenefit) Armor() int {
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.Armor()
+}
+
+// Aim is a getter.
+func (l LevelUpBenefit) Aim() int {
+	if l.offense == nil {
+		return 0
+	}
+	return l.offense.Aim()
+}
+
+// Strength is a getter.
+func (l LevelUpBenefit) Strength() int {
+	if l.offense == nil {
+		return 0
+	}
+	return l.offense.Strength()
+}
+
+// Mind is a getter.
+func (l LevelUpBenefit) Mind() int {
+	if l.offense == nil {
+		return 0
+	}
+	return l.offense.Mind()
+}
+
+// MovementDistance is a getter.
+func (l LevelUpBenefit) MovementDistance() int {
+	if l.movement == nil {
+		return 0
+	}
+	return l.movement.MovementDistance()
+}
+
+// MovementType is a getter.
+func (l LevelUpBenefit) MovementType() squaddie.MovementType {
+	if l.movement == nil {
+		return squaddie.Foot
+	}
+	return l.movement.MovementType()
+}
+
+// CanHitAndRun is a getter.
+func (l LevelUpBenefit) CanHitAndRun() bool {
+	if l.movement == nil {
+		return false
+	}
+	return l.movement.CanHitAndRun()
+}
+
+// PowersGained is a getter.
+func (l LevelUpBenefit) PowersGained() []*power.Reference {
+	return l.powerChanges.Gained()
+}
+
+// PowersLost is a getter.
+func (l LevelUpBenefit) PowersLost() []*power.Reference {
+	return l.powerChanges.Lost()
 }

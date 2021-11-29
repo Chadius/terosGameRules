@@ -16,7 +16,7 @@ import (
 
 type SquaddieUsesLevelUpBenefitSuite struct {
 	mageClass              *squaddieclass.Class
-	statBooster            levelupbenefit.LevelUpBenefit
+	statBooster            *levelupbenefit.LevelUpBenefit
 	teros                  *squaddie.Squaddie
 	improveAllMovement     *levelupbenefit.LevelUpBenefit
 	upgradeToLightMovement *levelupbenefit.LevelUpBenefit
@@ -31,46 +31,37 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 	suite.teros = squaddieBuilder.Builder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
-	suite.statBooster = levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			ID:      "deadbeef",
-			ClassID: suite.mageClass.ID(),
-		},
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 0,
-			Dodge:        4,
-			Deflect:      3,
-			MaxBarrier:   2,
-			Armor:        1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      7,
-			Strength: 6,
-			Mind:     5,
-		},
-	}
+	suite.statBooster, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("deadbeef").
+		WithClassID(suite.mageClass.ID()).
+		Dodge(4).
+		Deflect(3).
+		Barrier(2).
+		Armor(1).
+		Aim(7).
+		Strength(6).
+		Mind(5).
+		Build()
 
-	suite.improveAllMovement = &levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			ID:      "aaaaaaa0",
-			ClassID: suite.mageClass.ID(),
-		},
-		Movement: squaddieBuilder.MovementBuilder().Fly().CanHitAndRun().Distance(1).Build(),
-	}
+	suite.improveAllMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaaaaaa0").
+		WithClassID(suite.mageClass.ID()).
+		MovementType(squaddie.Fly).
+		CanHitAndRun().
+		MovementDistance(1).
+		Build()
 
-	suite.upgradeToLightMovement = &levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			ID:      "aaaaaaa1",
-			ClassID: suite.mageClass.ID(),
-		},
-		Movement: squaddieBuilder.MovementBuilder().Light().Build(),
-	}
+	suite.upgradeToLightMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaaaaaa1").
+		WithClassID(suite.mageClass.ID()).
+		MovementType(squaddie.Light).
+		Build()
 
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.MaxHitPoints(), Equals, 5)
 	checker.Assert(suite.teros.Aim(), Equals, 7)
@@ -83,49 +74,35 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *C) {
-	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.Identification.ID), Equals, false)
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.ID()), Equals, false)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{suite.mageClass.ID(): 1})
-	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.Identification.ID), Equals, true)
+	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.ID()), Equals, true)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClass(checker *C) {
-	mushroomClassLevel := levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			ID:      "deedbeeg",
-			ClassID: "bad SquaddieID",
-		},
-		Defense: &levelupbenefit.Defense{
-			MaxHitPoints: 0,
-			Dodge:        4,
-			Deflect:      3,
-			MaxBarrier:   2,
-			Armor:        1,
-		},
-		Offense: &levelupbenefit.Offense{
-			Aim:      7,
-			Strength: 6,
-			Mind:     5,
-		},
-	}
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&mushroomClassLevel, suite.teros)
+	mushroomClassLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("deadbeeg").
+		WithClassID("bad SquaddieID").
+		Build()
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(mushroomClassLevel, suite.teros)
 	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(checker *C) {
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"ffffffff": 1})
-	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.Identification.ID), Equals, true)
+	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.ID()), Equals, true)
 
-	err = suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err = suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err.Error(), Equals, `teros already consumed LevelUpBenefit - class:"ffffffff" id:"deadbeef"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestUsingLevelSetsBaseClassIfBaseClassIsUnset(checker *C) {
 	checker.Assert(suite.teros.BaseClassID(), Equals, "")
-	suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(suite.teros.BaseClassID(), Equals, suite.mageClass.ID())
 }
 
@@ -185,28 +162,24 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 
-	suite.gainPower = levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			ID:                 "aaab1234",
-			LevelUpBenefitType: levelupbenefit.Big,
-			ClassID:            suite.mageClass.ID(),
-		},
-		PowerChanges: &levelupbenefit.PowerChanges{
-			Gained: []*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}},
-		},
-	}
+	newLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaab1234").
+		WithClassID(suite.mageClass.ID()).
+		BigLevel().
+		GainPower(suite.spear.PowerID, "spear").
+		Build()
 
-	suite.upgradePower = levelupbenefit.LevelUpBenefit{
-		Identification: &levelupbenefit.Identification{
-			ID:                 "aaaa1235",
-			LevelUpBenefitType: levelupbenefit.Big,
-			ClassID:            suite.mageClass.ID(),
-		},
-		PowerChanges: &levelupbenefit.PowerChanges{
-			Lost:   []*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}},
-			Gained: []*power.Reference{{Name: "spear", PowerID: suite.spearLevel2.PowerID}},
-		},
-	}
+	suite.gainPower = *newLevel
+
+	upgradePowerLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaab1235").
+		WithClassID(suite.mageClass.ID()).
+		BigLevel().
+		GainPower(suite.spearLevel2.PowerID, "spear").
+		LosePower(suite.spear.PowerID).
+		Build()
+
+	suite.upgradePower = *upgradePowerLevel
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})

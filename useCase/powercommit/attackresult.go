@@ -149,19 +149,19 @@ func (ar *AttackResultBuilder) CounterAttack() *AttackResultBuilder {
 }
 
 // AttackRoll sets the field.
-func (ar *AttackResultBuilder) AttackRoll(attackRoll           int) *AttackResultBuilder {
+func (ar *AttackResultBuilder) AttackRoll(attackRoll int) *AttackResultBuilder {
 	ar.attackRoll = attackRoll
 	return ar
 }
 
 // DefendRoll sets the field.
-func (ar *AttackResultBuilder) DefendRoll(defendRoll           int) *AttackResultBuilder {
+func (ar *AttackResultBuilder) DefendRoll(defendRoll int) *AttackResultBuilder {
 	ar.defendRoll = defendRoll
 	return ar
 }
 
 // AttackerToHitBonus sets the field.
-func (ar *AttackResultBuilder) AttackerToHitBonus(attackerToHitBonus   int) *AttackResultBuilder {
+func (ar *AttackResultBuilder) AttackerToHitBonus(attackerToHitBonus int) *AttackResultBuilder {
 	ar.attackerToHitBonus = attackerToHitBonus
 	return ar
 }
@@ -173,13 +173,13 @@ func (ar *AttackResultBuilder) DefenderToHitPenalty(defenderToHitPenalty int) *A
 }
 
 // AttackerTotal sets the field.
-func (ar *AttackResultBuilder) AttackerTotal(attackerTotal        int) *AttackResultBuilder {
+func (ar *AttackResultBuilder) AttackerTotal(attackerTotal int) *AttackResultBuilder {
 	ar.attackerTotal = attackerTotal
 	return ar
 }
 
 // DefenderTotal sets the field.
-func (ar *AttackResultBuilder) DefenderTotal(defenderTotal        int) *AttackResultBuilder {
+func (ar *AttackResultBuilder) DefenderTotal(defenderTotal int) *AttackResultBuilder {
 	ar.defenderTotal = defenderTotal
 	return ar
 }
