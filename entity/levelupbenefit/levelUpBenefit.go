@@ -3,6 +3,7 @@ package levelupbenefit
 import (
 	"errors"
 	"fmt"
+	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/utility"
 )
@@ -24,12 +25,14 @@ func NewLevelUpBenefit(
 	defense *Defense,
 	offense *Offense,
 	movement *squaddie.Movement,
+	changes *PowerChanges,
 	) *LevelUpBenefit {
 	return &LevelUpBenefit{
 		Identification: identification,
 		Defense: defense,
 		Offense: offense,
 		Movement: movement,
+		PowerChanges: changes,
 	}
 }
 
@@ -149,4 +152,14 @@ func (l LevelUpBenefit) MovementType() squaddie.MovementType {
 // CanHitAndRun is a getter.
 func (l LevelUpBenefit) CanHitAndRun() bool {
 	return l.Movement.CanHitAndRun()
+}
+
+// PowersGained is a getter.
+func (l LevelUpBenefit) PowersGained() []*power.Reference {
+	return l.PowerChanges.Gained()
+}
+
+// PowersLost is a getter.
+func (l LevelUpBenefit) PowersLost() []*power.Reference {
+	return l.PowerChanges.Lost()
 }

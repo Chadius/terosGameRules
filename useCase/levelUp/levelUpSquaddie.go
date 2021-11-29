@@ -55,8 +55,8 @@ func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImpr
 }
 func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	if benefit.PowerChanges != nil {
-		squaddieToImprove.RemovePowerReferences(benefit.PowerChanges.Lost)
-		squaddieToImprove.AddPowerReferences(benefit.PowerChanges.Gained)
+		squaddieToImprove.RemovePowerReferences(benefit.PowersLost())
+		squaddieToImprove.AddPowerReferences(benefit.PowersGained())
 	}
 }
 func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {

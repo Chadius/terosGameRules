@@ -283,9 +283,9 @@ func (suite *LevelUpBenefitRepositorySuite) TestCanSearchLevelUpBenefits(checker
 	checker.Assert(firstBenefit.Strength(), Equals, 2)
 	checker.Assert(firstBenefit.Mind(), Equals, 3)
 
-	checker.Assert(firstBenefit.PowerChanges.Gained, HasLen, 1)
-	checker.Assert(firstBenefit.PowerChanges.Gained[0].Name, Equals, "Scimitar")
-	checker.Assert(firstBenefit.PowerChanges.Gained[0].PowerID, Equals, "deadbeef")
+	checker.Assert(firstBenefit.PowerChanges.Gained(), HasLen, 1)
+	checker.Assert(firstBenefit.PowerChanges.Gained()[0].Name, Equals, "Scimitar")
+	checker.Assert(firstBenefit.PowerChanges.Gained()[0].PowerID, Equals, "deadbeef")
 }
 
 func (suite *LevelUpBenefitRepositorySuite) TestRaisesAnErrorWithNonexistentClassID(checker *C) {

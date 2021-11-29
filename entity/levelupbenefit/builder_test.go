@@ -74,3 +74,21 @@ func (l *LevelUpBuilderSuite) TestBuildWithMovement(checker *C) {
 	checker.Assert(levelUpBenefit.MovementType(), Equals, squaddie.Fly)
 	checker.Assert(levelUpBenefit.CanHitAndRun(), Equals, true)
 }
+
+func (l *LevelUpBuilderSuite) TestBuildWithPowerChanges(checker *C) {
+	levelUpBenefit, err := levelupbenefit.NewLevelUpBenefitBuilder().
+		GainPower("spearLevel1", "Gold spear").
+		GainPower("healingKitLevel0", "Healing kit").
+		LosePower("spearLevel0").
+		Build()
+
+	checker.Assert(err, IsNil)
+	checker.Assert(levelUpBenefit.PowersGained(), HasLen, 2)
+	checker.Assert(levelUpBenefit.PowersGained()[0].Name, Equals, "Gold spear")
+	checker.Assert(levelUpBenefit.PowersGained()[0].PowerID, Equals, "spearLevel1")
+	checker.Assert(levelUpBenefit.PowersGained()[1].Name, Equals, "Healing kit")
+	checker.Assert(levelUpBenefit.PowersGained()[1].PowerID, Equals, "healingKitLevel0")
+
+	checker.Assert(levelUpBenefit.PowersLost(), HasLen, 1)
+	checker.Assert(levelUpBenefit.PowersLost()[0].PowerID, Equals, "spearLevel0")
+}

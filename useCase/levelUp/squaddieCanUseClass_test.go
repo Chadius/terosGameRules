@@ -54,10 +54,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		Identification: levelupbenefit.NewIdentification("mageLevel0", suite.mageClass.ID(), levelupbenefit.Small),
 		Defense: levelupbenefit.NewDefense(1,1,1,1,1),
 		Offense: levelupbenefit.NewOffense(1,1,1),
-		PowerChanges: &levelupbenefit.PowerChanges{
-			Gained: nil,
-			Lost:   nil,
-		},
+		PowerChanges: levelupbenefit.NewPowerChanges(nil,nil),
 		Movement: nil,
 	}
 
@@ -65,10 +62,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		Identification: levelupbenefit.NewIdentification("mageLevel1", suite.mageClass.ID(), levelupbenefit.Big),
 		Defense: levelupbenefit.NewDefense(0,0,0,0,0),
 		Offense: levelupbenefit.NewOffense(0,0,0),
-		PowerChanges: &levelupbenefit.PowerChanges{
-			Gained: nil,
-			Lost:   nil,
-		},
+		PowerChanges: levelupbenefit.NewPowerChanges(nil,nil),
 		Movement: squaddieBuilder.MovementBuilder().Distance(1).Build(),
 	}
 

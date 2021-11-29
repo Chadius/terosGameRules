@@ -1,6 +1,9 @@
 package levelupbenefit
 
-import "github.com/chadius/terosbattleserver/entity/squaddie"
+import (
+	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
+)
 
 // Builder is used to create formula objects.
 type Builder struct {
@@ -21,6 +24,9 @@ type Builder struct {
 	movementDistance int
 	movementType squaddie.MovementType
 	movementCanHitAndRun bool
+
+	powersGained []*power.Reference
+	powersLost []*power.Reference
 }
 
 // NewLevelUpBenefitBuilder returns a new object used to build Term objects.
@@ -43,6 +49,9 @@ func NewLevelUpBenefitBuilder() *Builder {
 		movementDistance: 0,
 		movementType: squaddie.Foot,
 		movementCanHitAndRun: false,
+
+		powersGained: []*power.Reference{},
+		powersLost: []*power.Reference{},
 	}
 }
 
@@ -133,6 +142,29 @@ func (b *Builder) CanHitAndRun() *Builder {
 	return b
 }
 
+// GainPower will change powers.
+func (b *Builder) GainPower(powerID, powerName string) *Builder {
+	b.powersGained = append(
+		b.powersGained,
+		&power.Reference{
+			Name:    powerName,
+			PowerID: powerID,
+		},
+	)
+	return b
+}
+
+// LosePower will change powers.
+func (b *Builder) LosePower(powerID string) *Builder {
+	b.powersLost = append(
+		b.powersLost,
+		&power.Reference{
+			Name:    "power name does not matter",
+			PowerID: powerID,
+		},
+	)
+	return b
+}
 
 // Build creates a new LevelUpBenefit object.
 func (b *Builder) Build() (*LevelUpBenefit, error) {
@@ -158,6 +190,10 @@ func (b *Builder) Build() (*LevelUpBenefit, error) {
 			b.movementDistance,
 			b.movementType,
 			b.movementCanHitAndRun,
+		),
+		NewPowerChanges(
+			b.powersGained,
+			b.powersLost,
 		),
 	), nil
 }
