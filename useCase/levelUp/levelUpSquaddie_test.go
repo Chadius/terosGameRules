@@ -166,19 +166,15 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 
 	suite.gainPower = *newLevel
 
-	//			levelupbenefit.LevelUpBenefit{
-	//	Identification: levelupbenefit.NewIdentification("aaab1234", suite.mageClass.ID(), levelupbenefit.Big),
-	//	PowerChanges: levelupbenefit.NewPowerChanges(
-	//		[]*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}}, nil),
-	//}
+	upgradePowerLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaab1235").
+		WithClassID(suite.mageClass.ID()).
+		BigLevel().
+		GainPower(suite.spearLevel2.PowerID, "spear").
+		LosePower(suite.spear.PowerID).
+		Build()
 
-	suite.upgradePower = levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("aaab1235", suite.mageClass.ID(), levelupbenefit.Big),
-		PowerChanges: levelupbenefit.NewPowerChanges(
-			[]*power.Reference{{Name: "spear", PowerID: suite.spearLevel2.PowerID}},
-			[]*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}},
-		),
-	}
+	suite.upgradePower = *upgradePowerLevel
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
