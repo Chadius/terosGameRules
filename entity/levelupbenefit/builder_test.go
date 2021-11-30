@@ -92,3 +92,127 @@ func (l *LevelUpBuilderSuite) TestBuildWithPowerChanges(checker *C) {
 	checker.Assert(levelUpBenefit.PowersLost(), HasLen, 1)
 	checker.Assert(levelUpBenefit.PowersLost()[0].PowerID, Equals, "spearLevel0")
 }
+
+func (l *LevelUpBuilderSuite) TestBuildWithAlternateMovementTypes(checker *C) {
+	onFootLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		MovementType(squaddie.Fly).
+		FootMovement().
+		Build()
+
+	checker.Assert(onFootLevelUp.MovementType(), Equals, squaddie.Foot)
+
+	onLightLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		LightMovement().
+		Build()
+
+	checker.Assert(onLightLevelUp.MovementType(), Equals, squaddie.Light)
+
+	onFlyLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		FlyMovement().
+		Build()
+
+	checker.Assert(onFlyLevelUp.MovementType(), Equals, squaddie.Fly)
+
+	onTeleportLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		TeleportMovement().
+		Build()
+
+	checker.Assert(onTeleportLevelUp.MovementType(), Equals, squaddie.Teleport)
+}
+
+type LevelUpBuilderDataSuite struct{}
+
+var _ = Suite(&LevelUpBuilderDataSuite{})
+
+// TODO Set MovementType using the types as functions (so MovementLight() instead of MovementType("Light"))
+
+func (l LevelUpBuilderDataSuite) TestUseYAMLToCreateBuilder(checker *C) {
+	yamlByteStream := []byte(
+		`
+id: abcdefg0
+class_id: class0
+hit_points: 2
+dodge: 3
+deflect: 5
+barrier: 7
+armor: 11
+aim: 13
+strength: 15
+mind: 17
+powers_gained:
+  - name: Scimitar
+    id: deadbeef
+movement_distance: 19
+movement_type: teleport
+can_hit_and_run: true
+`)
+
+	levelUp, _ := levelupbenefit.NewLevelUpBenefitBuilderFromYAML(yamlByteStream).Build()
+
+	checker.Assert(levelUp.ID(), Equals, "abcdefg0")
+	checker.Assert(levelUp.ClassID(), Equals, "class0")
+	checker.Assert(levelUp.LevelUpBenefitType(), Equals, levelupbenefit.Small)
+
+	checker.Assert(levelUp.MaxHitPoints(), Equals, 2)
+	checker.Assert(levelUp.Dodge(), Equals, 3)
+	checker.Assert(levelUp.Deflect(), Equals, 5)
+	checker.Assert(levelUp.MaxBarrier(), Equals, 7)
+	checker.Assert(levelUp.Armor(), Equals, 11)
+
+	checker.Assert(levelUp.Aim(), Equals, 13)
+	checker.Assert(levelUp.Strength(), Equals, 15)
+	checker.Assert(levelUp.Mind(), Equals, 17)
+
+	checker.Assert(levelUp.MovementDistance(), Equals, 19)
+	checker.Assert(levelUp.MovementType(), Equals, squaddie.Teleport)
+	checker.Assert(levelUp.CanHitAndRun(), Equals, true)
+
+	checker.Assert(levelUp.PowersGained(), HasLen, 1)
+	checker.Assert(levelUp.PowersGained()[0].Name, Equals, "Scimitar")
+	checker.Assert(levelUp.PowersGained()[0].PowerID, Equals, "deadbeef")
+}
+
+func (l LevelUpBuilderDataSuite) TestUseJSONToCreateBuilder(checker *C) {
+	jsonByteStream := []byte(
+		`{
+"id": "abcdefg0",
+"class_id": "class0",
+"is_a_big_level": true,
+"hit_points": 2,
+"dodge": 3,
+"deflect": 5,
+"barrier": 7,
+"armor": 11,
+"aim": 13,
+"strength": 15,
+"mind": 17,
+"powers_lost": ["deadbeef"],
+"movement_distance": 19,
+"movement_type": "light"
+}`)
+
+	levelUp, _ := levelupbenefit.NewLevelUpBenefitBuilderFromJSON(jsonByteStream).Build()
+
+	checker.Assert(levelUp.ID(), Equals, "abcdefg0")
+	checker.Assert(levelUp.ClassID(), Equals, "class0")
+	checker.Assert(levelUp.LevelUpBenefitType(), Equals, levelupbenefit.Big)
+
+	checker.Assert(levelUp.MaxHitPoints(), Equals, 2)
+	checker.Assert(levelUp.Dodge(), Equals, 3)
+	checker.Assert(levelUp.Deflect(), Equals, 5)
+	checker.Assert(levelUp.MaxBarrier(), Equals, 7)
+	checker.Assert(levelUp.Armor(), Equals, 11)
+
+	checker.Assert(levelUp.Aim(), Equals, 13)
+	checker.Assert(levelUp.Strength(), Equals, 15)
+	checker.Assert(levelUp.Mind(), Equals, 17)
+
+	checker.Assert(levelUp.MovementDistance(), Equals, 19)
+	checker.Assert(levelUp.MovementType(), Equals, squaddie.Light)
+	checker.Assert(levelUp.CanHitAndRun(), Equals, false)
+
+	checker.Assert(levelUp.PowersGained(), HasLen, 0)
+
+	checker.Assert(levelUp.PowersLost(), HasLen, 1)
+	checker.Assert(levelUp.PowersLost()[0].PowerID, Equals, "deadbeef")
+}
