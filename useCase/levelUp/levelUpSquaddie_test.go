@@ -37,15 +37,19 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 		Offense: levelupbenefit.NewOffense(7,6,5),
 	}
 
-	suite.improveAllMovement = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("aaaaaaa0", suite.mageClass.ID(), levelupbenefit.Small),
-		Movement:       squaddieBuilder.MovementBuilder().Fly().CanHitAndRun().Distance(1).Build(),
-	}
+	suite.improveAllMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaaaaaa0").
+		WithClassID(suite.mageClass.ID()).
+		MovementType(squaddie.Fly).
+		CanHitAndRun().
+		MovementDistance(1).
+		Build()
 
-	suite.upgradeToLightMovement = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("aaaaaaa1", suite.mageClass.ID(), levelupbenefit.Small),
-		Movement:       squaddieBuilder.MovementBuilder().Light().Build(),
-	}
+	suite.upgradeToLightMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaaaaaa1").
+		WithClassID(suite.mageClass.ID()).
+		MovementType(squaddie.Light).
+		Build()
 
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 }
@@ -153,10 +157,20 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 
-	suite.gainPower = levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("aaab1234", suite.mageClass.ID(), levelupbenefit.Big),
-		PowerChanges: levelupbenefit.NewPowerChanges([]*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}}, nil),
-	}
+	newLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("aaab1234").
+		WithClassID(suite.mageClass.ID()).
+		BigLevel().
+		GainPower(suite.spear.PowerID, "spear").
+		Build()
+
+	suite.gainPower = *newLevel
+
+	//			levelupbenefit.LevelUpBenefit{
+	//	Identification: levelupbenefit.NewIdentification("aaab1234", suite.mageClass.ID(), levelupbenefit.Big),
+	//	PowerChanges: levelupbenefit.NewPowerChanges(
+	//		[]*power.Reference{{Name: "spear", PowerID: suite.spear.PowerID}}, nil),
+	//}
 
 	suite.upgradePower = levelupbenefit.LevelUpBenefit{
 		Identification: levelupbenefit.NewIdentification("aaab1235", suite.mageClass.ID(), levelupbenefit.Big),

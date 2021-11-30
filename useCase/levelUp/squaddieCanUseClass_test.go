@@ -50,38 +50,48 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	suite.classRepo = squaddieclass.NewRepository()
 	suite.classRepo.AddListOfClasses([]*squaddieclass.Class{suite.mageClass, suite.dimensionWalkerClass, suite.ancientTomeClass})
 
-	suite.mageLevel0 = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("mageLevel0", suite.mageClass.ID(), levelupbenefit.Small),
-		Defense: levelupbenefit.NewDefense(1,1,1,1,1),
-		Offense: levelupbenefit.NewOffense(1,1,1),
-		PowerChanges: levelupbenefit.NewPowerChanges(nil,nil),
-		Movement: nil,
-	}
+	suite.mageLevel0, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("mageLevel0").
+		WithClassID(suite.mageClass.ID()).
+		HitPoints(1).
+		Dodge(1).
+		Deflect(1).
+		Barrier(1).
+		Armor(1).
+		Aim(1).
+		Strength(1).
+		Mind(1).
+		Build()
 
-	suite.mageLevel1 = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("mageLevel1", suite.mageClass.ID(), levelupbenefit.Big),
-		Defense: levelupbenefit.NewDefense(0,0,0,0,0),
-		Offense: levelupbenefit.NewOffense(0,0,0),
-		PowerChanges: levelupbenefit.NewPowerChanges(nil,nil),
-		Movement: squaddieBuilder.MovementBuilder().Distance(1).Build(),
-	}
+	suite.mageLevel1, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("mageLevel1").
+		WithClassID(suite.mageClass.ID()).
+		BigLevel().
+		MovementDistance(1).
+		Build()
 
-	suite.dimensionWalkerLevel0 = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("dwLevel0", suite.dimensionWalkerClass.ID(), levelupbenefit.Big),
-		Movement:       squaddieBuilder.MovementBuilder().Light().Distance(1).Build(),
-	}
+	suite.dimensionWalkerLevel0, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("dwLevel0").
+		WithClassID(suite.dimensionWalkerClass.ID()).
+		BigLevel().
+		MovementType(squaddie.Light).
+		MovementDistance(1).
+		Build()
 
-	suite.dimensionWalkerLevel1 = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("dwLevel1", suite.dimensionWalkerClass.ID(), levelupbenefit.Big),
-		Defense: levelupbenefit.NewDefense(1,0,0,0,0),
-		Offense: levelupbenefit.NewOffense(0,0,0),
-	}
+	suite.dimensionWalkerLevel1, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("dwLevel1").
+		WithClassID(suite.dimensionWalkerClass.ID()).
+		BigLevel().
+		HitPoints(1).
+		Build()
 
-	suite.ancientTomeClassLevel0 = &levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("ancientTomeLevel0", suite.ancientTomeClass.ID(), levelupbenefit.Small),
-		Defense: levelupbenefit.NewDefense(0,1,1,0,0),
-		Offense: levelupbenefit.NewOffense(0,0,1),
-	}
+	suite.ancientTomeClassLevel0, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("ancientTomeLevel0").
+		WithClassID(suite.ancientTomeClass.ID()).
+		Dodge(1).
+		Deflect(1).
+		Mind(1).
+		Build()
 
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
 	suite.levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{

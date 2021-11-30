@@ -10,20 +10,29 @@ type LevelUpBenefitSuite struct{}
 var _ = Suite(&LevelUpBenefitSuite{})
 
 func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
-	listToTest := []*levelupbenefit.LevelUpBenefit{
-		{
-			Identification: levelupbenefit.NewIdentification("level0", "class0", levelupbenefit.Small),
-			Offense: levelupbenefit.NewOffense(1, 0, 0),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("level1", "class0", levelupbenefit.Small),
-			Defense: levelupbenefit.NewDefense(1,0,0,0,0),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("level2", "class0", levelupbenefit.Big),
-			Offense: levelupbenefit.NewOffense(1, 0, 0),
-		},
-	}
+	listToTest := []*levelupbenefit.LevelUpBenefit{}
+	var newLevel *levelupbenefit.LevelUpBenefit
+	newLevel, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("level0").
+		WithClassID("class0").
+		Aim(1).
+		Build()
+	listToTest = append(listToTest, newLevel)
+
+	newLevel, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("level1").
+		WithClassID("class0").
+		HitPoints(1).
+		Build()
+	listToTest = append(listToTest, newLevel)
+
+	newLevel, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("level2").
+		WithClassID("class0").
+		Aim(1).
+		BigLevel().
+		Build()
+	listToTest = append(listToTest, newLevel)
 
 	noLevelsFound := levelupbenefit.FilterLevelUpBenefits(listToTest, func(benefit *levelupbenefit.LevelUpBenefit) bool {
 		return false
