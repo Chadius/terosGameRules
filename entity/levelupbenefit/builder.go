@@ -35,8 +35,8 @@ type Builder struct {
 // NewLevelUpBenefitBuilder returns a new object used to build Term objects.
 func NewLevelUpBenefitBuilder() *Builder {
 	return &Builder{
-		levelID:   "newID",
-		classID:   "newClass",
+		levelID:   "missing ID",
+		classID:   "missing class ID",
 		levelSize: Small,
 
 		hitPoints: 0,
@@ -284,6 +284,12 @@ func (b *Builder) unmarshalAndApplyDataStream(data []byte, unmarshal utility.Unm
 	if unmarshalError != nil {
 		return false, unmarshalError
 	}
+
+	b.populateBuilderBasedOnMarshal(builderFields)
+	return true, nil
+}
+
+func (b *Builder) populateBuilderBasedOnMarshal(builderFields BuilderMarshal) *Builder {
 	b.LevelID(builderFields.LevelID).
 		ClassID(builderFields.ClassID).
 
@@ -316,5 +322,11 @@ func (b *Builder) unmarshalAndApplyDataStream(data []byte, unmarshal utility.Unm
 		b.LosePower(powerID)
 	}
 
-	return true, nil
+	return b
+}
+
+// NewBuilderFromMarshal creates a new Builder with fields based on the Marshal object
+func NewBuilderFromMarshal(builderFields BuilderMarshal) *Builder {
+	b := NewLevelUpBenefitBuilder().populateBuilderBasedOnMarshal(builderFields)
+	return b
 }

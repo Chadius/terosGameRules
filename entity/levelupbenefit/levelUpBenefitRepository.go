@@ -13,7 +13,7 @@ type Repository struct {
 	levelUpBenefitsByClassID map[string][]*LevelUpBenefit
 }
 
-// GetNumberOfLevelUpBenefits returns a total count of all of the LevelUpBenefit objects stored.
+// GetNumberOfLevelUpBenefits returns a total count of the LevelUpBenefit objects stored.
 func (repository *Repository) GetNumberOfLevelUpBenefits() int {
 	count := 0
 	for _, levelUpBenefits := range repository.levelUpBenefitsByClassID {
@@ -107,6 +107,45 @@ func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (
 		levelsInClassByType[level.LevelUpBenefitType()] = append(levelsInClassByType[level.LevelUpBenefitType()], level)
 	}
 	return levelsInClassByType, nil
+}
+
+// AddBuilderYAML accepts a YAML data stream to create levelUpBenefits, using the LevelUpBenefitBuilder.
+func (repository *Repository) AddBuilderYAML(stream []byte) error {
+	_, err := repository.addSourceForBuilders(stream, yaml.Unmarshal)
+	return err
+}
+
+// AddBuilderJSON accepts a JSON data stream to create levelUpBenefits, using the LevelUpBenefitBuilder.
+func (repository *Repository) AddBuilderJSON(stream []byte) error {
+	_, err := repository.addSourceForBuilders(stream, json.Unmarshal)
+	return err
+}
+
+// addSourceForBuilders consumes a given stream of the given sourceType and tries to analyze it.
+func (repository *Repository) addSourceForBuilders(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
+	var unmarshalError error
+
+	var builderInstructions []BuilderMarshal
+
+	unmarshalError = unmarshal(data, &builderInstructions)
+
+	if unmarshalError != nil {
+		return false, unmarshalError
+	}
+
+	for _, instruction := range builderInstructions {
+		levelUpBenefit, buildError := NewBuilderFromMarshal(instruction).Build()
+		if buildError != nil {
+			return false, buildError
+		}
+
+		success, err := repository.tryToAddLevelUpBenefitToSource(levelUpBenefit)
+		if success == false {
+			return false, err
+		}
+	}
+
+	return true, nil
 }
 
 // NewLevelUpBenefitRepository generates a pointer to a new LevelUpBenefitRepository.

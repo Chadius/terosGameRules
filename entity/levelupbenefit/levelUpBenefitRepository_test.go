@@ -376,3 +376,44 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaiseErrorIfClassDoesNotExist(ch
 	checker.Assert(levelsByBenefitType[levelupbenefit.Small], HasLen, 0)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Big], HasLen, 0)
 }
+
+type BuilderFormatSuite struct {}
+
+var _ = Suite(&BuilderFormatSuite{})
+
+func (suite *BuilderFormatSuite) TestCreateWithYAML(checker *C) {
+	yamlByteStream := []byte(
+		`-
+  id: abcdefg0
+  class_id: class0
+  hit_points: 2
+-
+  id: abcdefg1
+  class_id: class0
+  hit_points: 3
+`)
+	levelRepo := levelupbenefit.NewLevelUpBenefitRepository()
+	err := levelRepo.AddBuilderYAML(yamlByteStream)
+	checker.Assert(err, IsNil)
+	checker.Assert(levelRepo.GetNumberOfLevelUpBenefits(), Equals, 2)
+}
+
+func (suite *BuilderFormatSuite) TestCreateWithJSON(checker *C) {
+	jsonByteStream := []byte(
+		`[
+	{
+	  "id": "abcdefg0",
+	  "class_id": "class0",
+	  "hit_points": 2
+	},
+	{
+	  "id": "abcdefg1",
+	  "class_id": "class0",
+	  "hit_points": 3
+	}
+]`)
+	levelRepo := levelupbenefit.NewLevelUpBenefitRepository()
+	err := levelRepo.AddBuilderJSON(jsonByteStream)
+	checker.Assert(err, IsNil)
+	checker.Assert(levelRepo.GetNumberOfLevelUpBenefits(), Equals, 2)
+}

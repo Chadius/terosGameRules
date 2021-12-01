@@ -124,8 +124,6 @@ type LevelUpBuilderDataSuite struct{}
 
 var _ = Suite(&LevelUpBuilderDataSuite{})
 
-// TODO Set MovementType using the types as functions (so MovementLight() instead of MovementType("Light"))
-
 func (l LevelUpBuilderDataSuite) TestUseYAMLToCreateBuilder(checker *C) {
 	yamlByteStream := []byte(
 		`
