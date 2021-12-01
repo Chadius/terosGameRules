@@ -22,16 +22,6 @@ func (repository *Repository) GetNumberOfLevelUpBenefits() int {
 	return count
 }
 
-// AddJSONSource consumes a given bytestream and tries to analyze it.
-func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
-	return repository.addSource(data, json.Unmarshal)
-}
-
-// AddYAMLSource consumes a given bytestream and tries to analyze it.
-func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
-	return repository.addSource(data, yaml.Unmarshal)
-}
-
 // AddLevels adds a list of LevelUpBenefits to the repository.
 func (repository *Repository) AddLevels(allBenefits []*LevelUpBenefit) (bool, error) {
 	for _, levelUpBenefit := range allBenefits {
@@ -40,28 +30,6 @@ func (repository *Repository) AddLevels(allBenefits []*LevelUpBenefit) (bool, er
 			return false, err
 		}
 	}
-	return true, nil
-}
-
-// AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
-	var unmarshalError error
-
-	var allBenefits []LevelUpBenefit
-
-	unmarshalError = unmarshal(data, &allBenefits)
-
-	if unmarshalError != nil {
-		return false, unmarshalError
-	}
-
-	for _, levelUpBenefit := range allBenefits {
-		success, err := repository.tryToAddLevelUpBenefitToSource(&levelUpBenefit)
-		if success == false {
-			return false, err
-		}
-	}
-
 	return true, nil
 }
 
