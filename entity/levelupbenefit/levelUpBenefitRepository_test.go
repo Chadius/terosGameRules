@@ -85,13 +85,13 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
 func (suite *LevelUpBenefitRepositorySuite) TestCreateLevelUpBenefitsFromASlice(checker *C) {
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
 	checker.Assert(suite.levelRepo.GetNumberOfLevelUpBenefits(), Equals, 0)
+
+	level0, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("level0").ClassID("class0").Build()
+	level1, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("level1").ClassID("class0").Build()
+
 	success, _ := suite.levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{
-		{
-			Identification: levelupbenefit.NewIdentification("level0", "class0", levelupbenefit.Small),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("level1", "class0", levelupbenefit.Small),
-		},
+		level0,
+		level1,
 	})
 	checker.Assert(success, Equals, true)
 	checker.Assert(suite.levelRepo.GetNumberOfLevelUpBenefits(), Equals, 2)
@@ -122,7 +122,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestCanSearchLevelUpBenefits(checker
 ]`)
 
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
-	loadErr := suite.levelRepo.AddBuilderJSON(suite.jsonByteStream)
+	loadErr := suite.levelRepo.AddJSON(suite.jsonByteStream)
 	checker.Assert(loadErr, IsNil)
 
 	benefits, err := suite.levelRepo.GetLevelUpBenefitsByClassID("class0")
@@ -143,9 +143,9 @@ func (suite *LevelUpBenefitRepositorySuite) TestCanSearchLevelUpBenefits(checker
 	checker.Assert(firstBenefit.Strength(), Equals, 2)
 	checker.Assert(firstBenefit.Mind(), Equals, 3)
 
-	checker.Assert(firstBenefit.PowerChanges.Gained(), HasLen, 1)
-	checker.Assert(firstBenefit.PowerChanges.Gained()[0].Name, Equals, "Scimitar")
-	checker.Assert(firstBenefit.PowerChanges.Gained()[0].PowerID, Equals, "deadbeef")
+	checker.Assert(firstBenefit.PowersGained(), HasLen, 1)
+	checker.Assert(firstBenefit.PowersGained()[0].Name, Equals, "Scimitar")
+	checker.Assert(firstBenefit.PowersGained()[0].PowerID, Equals, "deadbeef")
 }
 
 func (suite *LevelUpBenefitRepositorySuite) TestRaisesAnErrorWithNonexistentClassID(checker *C) {
@@ -157,7 +157,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaisesAnErrorWithNonexistentClas
 ]`)
 
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
-	suite.levelRepo.AddBuilderJSON(suite.jsonByteStream)
+	suite.levelRepo.AddJSON(suite.jsonByteStream)
 
 	benefits, err := suite.levelRepo.GetLevelUpBenefitsByClassID("Class not found")
 
@@ -180,7 +180,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaiseErrorIfClassDoesNotExist(ch
 	}
 ]`)
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
-	suite.levelRepo.AddBuilderJSON(suite.jsonByteStream)
+	suite.levelRepo.AddJSON(suite.jsonByteStream)
 
 	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType("bad SquaddieID")
 
@@ -205,7 +205,7 @@ func (suite *BuilderFormatSuite) TestCreateWithYAML(checker *C) {
   hit_points: 3
 `)
 	levelRepo := levelupbenefit.NewLevelUpBenefitRepository()
-	err := levelRepo.AddBuilderYAML(yamlByteStream)
+	err := levelRepo.AddYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 	checker.Assert(levelRepo.GetNumberOfLevelUpBenefits(), Equals, 2)
 }
@@ -225,7 +225,7 @@ func (suite *BuilderFormatSuite) TestCreateWithJSON(checker *C) {
 	}
 ]`)
 	levelRepo := levelupbenefit.NewLevelUpBenefitRepository()
-	err := levelRepo.AddBuilderJSON(jsonByteStream)
+	err := levelRepo.AddJSON(jsonByteStream)
 	checker.Assert(err, IsNil)
 	checker.Assert(levelRepo.GetNumberOfLevelUpBenefits(), Equals, 2)
 }

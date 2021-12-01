@@ -55,7 +55,7 @@ func (s *LevelUpBenefitSuite) TestFiltersAList(checker *C) {
 	checker.Assert(onlyBigLevels, HasLen, 1)
 
 	increasesAimLevels := levelupbenefit.FilterLevelUpBenefits(listToTest, func(benefit *levelupbenefit.LevelUpBenefit) bool {
-		return benefit.Offense != nil && benefit.Aim() > 0
+		return benefit.Aim() > 0
 	})
 	checker.Assert(increasesAimLevels, HasLen, 2)
 }

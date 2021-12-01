@@ -39,34 +39,26 @@ func (i *ImproveSquaddieClass) ImproveSquaddie(benefit *levelupbenefit.LevelUpBe
 }
 
 func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
-	if benefit.Defense != nil {
-		squaddieToImprove.ImproveDefense(
-			benefit.MaxHitPoints(),
-			benefit.Dodge(),
-			benefit.Deflect(),
-			benefit.MaxBarrier(),
-			benefit.Armor(),
-		)
-	}
+	squaddieToImprove.ImproveDefense(
+		benefit.MaxHitPoints(),
+		benefit.Dodge(),
+		benefit.Deflect(),
+		benefit.MaxBarrier(),
+		benefit.Armor(),
+	)
 
-	if benefit.Offense != nil {
-		squaddieToImprove.ImproveOffense(benefit.Aim(), benefit.Strength(), benefit.Mind())
-	}
+	squaddieToImprove.ImproveOffense(benefit.Aim(), benefit.Strength(), benefit.Mind())
 }
+
 func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
-	if benefit.PowerChanges != nil {
-		squaddieToImprove.RemovePowerReferences(benefit.PowersLost())
-		squaddieToImprove.AddPowerReferences(benefit.PowersGained())
-	}
+	squaddieToImprove.RemovePowerReferences(benefit.PowersLost())
+	squaddieToImprove.AddPowerReferences(benefit.PowersGained())
 }
-func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
-	if benefit.Movement == nil {
-		return
-	}
 
+func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	squaddieToImprove.ImproveMovement(
-		benefit.Movement.MovementDistance(),
-		benefit.Movement.MovementType(),
-		benefit.Movement.CanHitAndRun(),
+		benefit.MovementDistance(),
+		benefit.MovementType(),
+		benefit.CanHitAndRun(),
 	)
 }

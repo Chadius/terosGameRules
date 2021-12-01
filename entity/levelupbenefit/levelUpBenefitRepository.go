@@ -77,20 +77,20 @@ func (repository *Repository) GetLevelUpBenefitsForClassByType(classID string) (
 	return levelsInClassByType, nil
 }
 
-// AddBuilderYAML accepts a YAML data stream to create levelUpBenefits, using the LevelUpBenefitBuilder.
-func (repository *Repository) AddBuilderYAML(stream []byte) error {
-	_, err := repository.addSourceForBuilders(stream, yaml.Unmarshal)
+// AddYAML accepts a YAML data stream to create levelUpBenefits, using the LevelUpBenefitBuilder.
+func (repository *Repository) AddYAML(stream []byte) error {
+	_, err := repository.addSource(stream, yaml.Unmarshal)
 	return err
 }
 
-// AddBuilderJSON accepts a JSON data stream to create levelUpBenefits, using the LevelUpBenefitBuilder.
-func (repository *Repository) AddBuilderJSON(stream []byte) error {
-	_, err := repository.addSourceForBuilders(stream, json.Unmarshal)
+// AddJSON accepts a JSON data stream to create levelUpBenefits, using the LevelUpBenefitBuilder.
+func (repository *Repository) AddJSON(stream []byte) error {
+	_, err := repository.addSource(stream, json.Unmarshal)
 	return err
 }
 
-// addSourceForBuilders consumes a given stream of the given sourceType and tries to analyze it.
-func (repository *Repository) addSourceForBuilders(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
+// addSource consumes a given stream of the given sourceType and tries to analyze it.
+func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
 
 	var builderInstructions []BuilderMarshal

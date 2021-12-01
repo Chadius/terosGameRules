@@ -12,11 +12,11 @@ import (
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
 type LevelUpBenefit struct {
-	Identification *Identification    `json:"identification" yaml:"identification"`
-	Defense        *Defense           `json:"defense" yaml:"defense"`
-	Offense        *Offense           `json:"offense" yaml:"offense"`
-	PowerChanges   *PowerChanges      `json:"powers" yaml:"powers"`
-	Movement       *squaddie.Movement `json:"Movement" yaml:"Movement"`
+	identification *Identification
+	defense      *Defense
+	offense      *Offense
+	powerChanges *PowerChanges
+	movement     *squaddie.Movement
 }
 
 // NewLevelUpBenefit returns a new LevelUpBenefit object.
@@ -28,11 +28,11 @@ func NewLevelUpBenefit(
 	changes *PowerChanges,
 	) *LevelUpBenefit {
 	return &LevelUpBenefit{
-		Identification: identification,
-		Defense: defense,
-		Offense: offense,
-		Movement: movement,
-		PowerChanges: changes,
+		identification: identification,
+		defense:        defense,
+		offense:        offense,
+		movement:       movement,
+		powerChanges:   changes,
 	}
 }
 
@@ -86,80 +86,113 @@ func CountLevelUpBenefits(sliceToAnalyze []*LevelUpBenefit, condition func(benef
 
 // ID is a getter.
 func (l LevelUpBenefit) ID() string {
-	return l.Identification.LevelID()
+	return l.identification.LevelID()
 }
 
 // ClassID is a getter.
 func (l LevelUpBenefit) ClassID() string {
-	return l.Identification.ClassID()
+	return l.identification.ClassID()
 }
 
 // LevelUpBenefitType is a getter.
 func (l LevelUpBenefit) LevelUpBenefitType() Size {
-	return l.Identification.LevelUpBenefitSize()
+	return l.identification.LevelUpBenefitSize()
 }
 
 // MaxHitPoints is a getter.
 func (l LevelUpBenefit) MaxHitPoints() int {
-	return l.Defense.MaxHitPoints()
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.MaxHitPoints()
 }
 
 // Dodge is a getter.
 func (l LevelUpBenefit) Dodge() int {
-	return l.Defense.Dodge()
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.Dodge()
 }
 
 // Deflect is a getter.
 func (l LevelUpBenefit) Deflect() int {
-	return l.Defense.Deflect()
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.Deflect()
 }
 
 // MaxBarrier is a getter.
 func (l LevelUpBenefit) MaxBarrier() int {
-	return l.Defense.MaxBarrier()
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.MaxBarrier()
 }
 
 // Armor is a getter.
 func (l LevelUpBenefit) Armor() int {
-	return l.Defense.Armor()
+	if l.defense == nil {
+		return 0
+	}
+	return l.defense.Armor()
 }
 
 // Aim is a getter.
 func (l LevelUpBenefit) Aim() int {
-	return l.Offense.Aim()
+	if l.offense == nil {
+		return 0
+	}
+	return l.offense.Aim()
 }
 
 // Strength is a getter.
 func (l LevelUpBenefit) Strength() int {
-	return l.Offense.Strength()
+	if l.offense == nil {
+		return 0
+	}
+	return l.offense.Strength()
 }
 
 // Mind is a getter.
 func (l LevelUpBenefit) Mind() int {
-	return l.Offense.Mind()
+	if l.offense == nil {
+		return 0
+	}
+	return l.offense.Mind()
 }
 
 // MovementDistance is a getter.
 func (l LevelUpBenefit) MovementDistance() int {
-	return l.Movement.MovementDistance()
+	if l.movement == nil {
+		return 0
+	}
+	return l.movement.MovementDistance()
 }
 
 // MovementType is a getter.
 func (l LevelUpBenefit) MovementType() squaddie.MovementType {
-	return l.Movement.MovementType()
+	if l.movement == nil {
+		return squaddie.Foot
+	}
+	return l.movement.MovementType()
 }
 
 // CanHitAndRun is a getter.
 func (l LevelUpBenefit) CanHitAndRun() bool {
-	return l.Movement.CanHitAndRun()
+	if l.movement == nil {
+		return false
+	}
+	return l.movement.CanHitAndRun()
 }
 
 // PowersGained is a getter.
 func (l LevelUpBenefit) PowersGained() []*power.Reference {
-	return l.PowerChanges.Gained()
+	return l.powerChanges.Gained()
 }
 
 // PowersLost is a getter.
 func (l LevelUpBenefit) PowersLost() []*power.Reference {
-	return l.PowerChanges.Lost()
+	return l.powerChanges.Lost()
 }

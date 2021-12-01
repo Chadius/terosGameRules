@@ -16,7 +16,7 @@ import (
 
 type SquaddieUsesLevelUpBenefitSuite struct {
 	mageClass              *squaddieclass.Class
-	statBooster            levelupbenefit.LevelUpBenefit
+	statBooster            *levelupbenefit.LevelUpBenefit
 	teros                  *squaddie.Squaddie
 	improveAllMovement     *levelupbenefit.LevelUpBenefit
 	upgradeToLightMovement *levelupbenefit.LevelUpBenefit
@@ -31,11 +31,17 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 	suite.teros = squaddieBuilder.Builder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
-	suite.statBooster = levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("deadbeef", suite.mageClass.ID(), levelupbenefit.Small),
-		Defense: levelupbenefit.NewDefense(0,4,3,2,1),
-		Offense: levelupbenefit.NewOffense(7,6,5),
-	}
+	suite.statBooster, _ = levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("deadbeef").
+		WithClassID(suite.mageClass.ID()).
+		Dodge(4).
+		Deflect(3).
+		Barrier(2).
+		Armor(1).
+		Aim(7).
+		Strength(6).
+		Mind(5).
+		Build()
 
 	suite.improveAllMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("aaaaaaa0").
@@ -55,7 +61,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.MaxHitPoints(), Equals, 5)
 	checker.Assert(suite.teros.Aim(), Equals, 7)
@@ -69,35 +75,34 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestIncreaseStats(checker *C) {
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *C) {
 	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.ID()), Equals, false)
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{suite.mageClass.ID(): 1})
 	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.ID()), Equals, true)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClass(checker *C) {
-	mushroomClassLevel := levelupbenefit.LevelUpBenefit{
-		Identification: levelupbenefit.NewIdentification("deedbeeg", "bad SquaddieID", levelupbenefit.Small),
-		Defense: levelupbenefit.NewDefense(0,4,3,2,1),
-		Offense: levelupbenefit.NewOffense(7,6,5),
-	}
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&mushroomClassLevel, suite.teros)
+	mushroomClassLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
+		WithID("deadbeeg").
+		WithClassID("bad SquaddieID").
+		Build()
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(mushroomClassLevel, suite.teros)
 	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(checker *C) {
-	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err, IsNil)
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"ffffffff": 1})
 	checker.Assert(suite.teros.IsClassLevelAlreadyUsed(suite.statBooster.ID()), Equals, true)
 
-	err = suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	err = suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(err.Error(), Equals, `teros already consumed LevelUpBenefit - class:"ffffffff" id:"deadbeef"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestUsingLevelSetsBaseClassIfBaseClassIsUnset(checker *C) {
 	checker.Assert(suite.teros.BaseClassID(), Equals, "")
-	suite.improveSquaddieStrategy.ImproveSquaddie(&suite.statBooster, suite.teros)
+	suite.improveSquaddieStrategy.ImproveSquaddie(suite.statBooster, suite.teros)
 	checker.Assert(suite.teros.BaseClassID(), Equals, suite.mageClass.ID())
 }
 

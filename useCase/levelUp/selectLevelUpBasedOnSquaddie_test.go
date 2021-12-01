@@ -68,22 +68,18 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		},
 	}).Build())
 
+	classWithInitialLevel0, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevel0").ClassID(suite.classWithInitialLevel.ID()).Build()
+	classWithInitialLevel1, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevel1").ClassID(suite.classWithInitialLevel.ID()).Build()
+	classWithInitialLevel2, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevel2").ClassID(suite.classWithInitialLevel.ID()).Build()
+	classWithInitialLevelThisIsTakenFirst, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevelThisIsTakenFirst").ClassID(suite.classWithInitialLevel.ID()).BigLevel().Build()
+	classWithInitialLevelThisShouldNotBeTakenFirst, _ := levelupbenefit.NewLevelUpBenefitBuilder().LevelID("classWithInitialLevelThisShouldNotBeTakenFirst").ClassID(suite.classWithInitialLevel.ID()).BigLevel().Build()
+
 	suite.levelRepo.AddLevels([]*levelupbenefit.LevelUpBenefit{
-		{
-			Identification: levelupbenefit.NewIdentification("classWithInitialLevel0", suite.classWithInitialLevel.ID(), levelupbenefit.Small),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("classWithInitialLevel1", suite.classWithInitialLevel.ID(), levelupbenefit.Small),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("classWithInitialLevel2", suite.classWithInitialLevel.ID(), levelupbenefit.Small),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("classWithInitialLevelThisIsTakenFirst", suite.classWithInitialLevel.ID(), levelupbenefit.Big),
-		},
-		{
-			Identification: levelupbenefit.NewIdentification("classWithInitialLevelThisShouldNotBeTakenFirst", suite.classWithInitialLevel.ID(), levelupbenefit.Big),
-		},
+		classWithInitialLevel0,
+		classWithInitialLevel1,
+		classWithInitialLevel2,
+		classWithInitialLevelThisIsTakenFirst,
+		classWithInitialLevelThisShouldNotBeTakenFirst,
 	})
 
 	suite.repos = &repositories.RepositoryCollection{
