@@ -8,15 +8,13 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
-// TODO privatize all fields
-
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.
 type LevelUpBenefit struct {
 	identification *Identification
-	defense      *Defense
-	offense      *Offense
-	powerChanges *PowerChanges
-	movement     *squaddie.Movement
+	defense        *Defense
+	offense        *Offense
+	powerChanges   *PowerChanges
+	movement       *squaddie.Movement
 }
 
 // NewLevelUpBenefit returns a new LevelUpBenefit object.
@@ -26,7 +24,7 @@ func NewLevelUpBenefit(
 	offense *Offense,
 	movement *squaddie.Movement,
 	changes *PowerChanges,
-	) *LevelUpBenefit {
+) *LevelUpBenefit {
 	return &LevelUpBenefit{
 		identification: identification,
 		defense:        defense,

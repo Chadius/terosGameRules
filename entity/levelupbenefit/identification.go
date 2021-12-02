@@ -12,31 +12,31 @@ const (
 
 // Identification is used to uniquely identify this LevelUpBenefit.
 type Identification struct {
-	PrivatizeMeLevelID            string `json:"id" yaml:"id"`
-	PrivatizeMeClassID            string `json:"class_id" yaml:"class_id"`
-	PrivatizeMeLevelUpBenefitSize Size   `json:"level_up_benefit_type" yaml:"level_up_benefit_type"`
+	levelID   string
+	classID   string
+	levelSize Size
 }
 
 // NewIdentification returns a new identifier for the LevelUpBenefit.
 func NewIdentification(levelID, classID string, size Size) *Identification {
 	return &Identification{
-		PrivatizeMeLevelID:            levelID,
-		PrivatizeMeClassID:            classID,
-		PrivatizeMeLevelUpBenefitSize: size,
+		levelID:   levelID,
+		classID:   classID,
+		levelSize: size,
 	}
 }
 
 // LevelID is a getter.
 func (i Identification) LevelID() string {
-	return i.PrivatizeMeLevelID
+	return i.levelID
 }
 
 // ClassID is a getter.
 func (i Identification) ClassID() string {
-	return i.PrivatizeMeClassID
+	return i.classID
 }
 
 // LevelUpBenefitSize is a getter.
 func (i Identification) LevelUpBenefitSize() Size {
-	return i.PrivatizeMeLevelUpBenefitSize
+	return i.levelSize
 }

@@ -23,7 +23,7 @@ func (generator *LevelGenerator) Build() []*levelupbenefit.LevelUpBenefit {
 	levels := []*levelupbenefit.LevelUpBenefit{}
 	for i := 0; i < generator.Instructions.NumberOfLevels; i++ {
 		builder := levelupbenefit.NewLevelUpBenefitBuilder().
-			WithID(generator.Instructions.PrefixLevelID+strconv.Itoa(i)).
+			WithID(generator.Instructions.PrefixLevelID + strconv.Itoa(i)).
 			WithClassID(generator.Instructions.ClassID)
 
 		if generator.Instructions.Type == levelupbenefit.Big {

@@ -189,7 +189,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaiseErrorIfClassDoesNotExist(ch
 	checker.Assert(levelsByBenefitType[levelupbenefit.Big], HasLen, 0)
 }
 
-type BuilderFormatSuite struct {}
+type BuilderFormatSuite struct{}
 
 var _ = Suite(&BuilderFormatSuite{})
 

@@ -2,31 +2,31 @@ package levelupbenefit
 
 // Offense describes the offensive benefits of leveling up.
 type Offense struct {
-	PrivatizeMeAim      int `json:"aim" yaml:"aim"`
-	PrivatizeMeStrength int `json:"strength" yaml:"strength"`
-	PrivatizeMeMind     int `json:"mind" yaml:"mind"`
+	aim      int
+	strength int
+	mind     int
 }
 
 // NewOffense returns a new Offense object.
 func NewOffense(aim, strength, mind int) *Offense {
 	return &Offense{
-		PrivatizeMeAim:      aim,
-		PrivatizeMeStrength: strength,
-		PrivatizeMeMind:     mind,
+		aim:      aim,
+		strength: strength,
+		mind:     mind,
 	}
 }
 
 // Aim is a getter.
 func (o *Offense) Aim() int {
-	return o.PrivatizeMeAim
+	return o.aim
 }
 
 // Strength is a getter.
 func (o *Offense) Strength() int {
-	return o.PrivatizeMeStrength
+	return o.strength
 }
 
 // Mind is a getter.
 func (o *Offense) Mind() int {
-	return o.PrivatizeMeMind
+	return o.mind
 }

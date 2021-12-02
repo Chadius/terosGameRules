@@ -15,21 +15,21 @@ type Builder struct {
 	levelSize Size
 
 	hitPoints int
-	deflect int
-	dodge int
-	barrier int
-	armor int
+	deflect   int
+	dodge     int
+	barrier   int
+	armor     int
 
-	aim int
+	aim      int
 	strength int
-	mind int
+	mind     int
 
-	movementDistance int
-	movementType squaddie.MovementType
+	movementDistance     int
+	movementType         squaddie.MovementType
 	movementCanHitAndRun bool
 
 	powersGained []*power.Reference
-	powersLost []*power.Reference
+	powersLost   []*power.Reference
 }
 
 // NewLevelUpBenefitBuilder returns a new object used to build Term objects.
@@ -40,21 +40,21 @@ func NewLevelUpBenefitBuilder() *Builder {
 		levelSize: Small,
 
 		hitPoints: 0,
-		deflect: 0,
-		dodge: 0,
-		barrier: 0,
-		armor: 0,
+		deflect:   0,
+		dodge:     0,
+		barrier:   0,
+		armor:     0,
 
-		aim: 0,
+		aim:      0,
 		strength: 0,
-		mind: 0,
+		mind:     0,
 
-		movementDistance: 0,
-		movementType: squaddie.Foot,
+		movementDistance:     0,
+		movementType:         squaddie.Foot,
 		movementCanHitAndRun: false,
 
 		powersGained: []*power.Reference{},
-		powersLost: []*power.Reference{},
+		powersLost:   []*power.Reference{},
 	}
 }
 
@@ -91,56 +91,53 @@ func (b *Builder) BigLevel() *Builder {
 	return b
 }
 
-
 // HitPoints increases the defensive parameter
-func (b * Builder) HitPoints(hitPoints int) *Builder {
+func (b *Builder) HitPoints(hitPoints int) *Builder {
 	b.hitPoints = hitPoints
 	return b
 }
 
 // Deflect increases the defensive parameter
-func (b * Builder) Deflect(deflect int) *Builder {
+func (b *Builder) Deflect(deflect int) *Builder {
 	b.deflect = deflect
 	return b
 }
 
 // Dodge increases the defensive parameter
-func (b * Builder) Dodge(dodge int) *Builder {
+func (b *Builder) Dodge(dodge int) *Builder {
 	b.dodge = dodge
 	return b
 }
 
 // Barrier increases the defensive parameter
-func (b * Builder) Barrier(barrier int) *Builder {
+func (b *Builder) Barrier(barrier int) *Builder {
 	b.barrier = barrier
 	return b
 }
 
 // Armor increases the defensive parameter
-func (b * Builder) Armor(armor int) *Builder {
+func (b *Builder) Armor(armor int) *Builder {
 	b.armor = armor
 	return b
 }
 
-
 // Aim increases the offensive parameter.
-func (b * Builder) Aim(aim int) *Builder {
+func (b *Builder) Aim(aim int) *Builder {
 	b.aim = aim
 	return b
 }
 
 // Strength increases the offensive parameter.
-func (b * Builder) Strength(strength int) *Builder {
+func (b *Builder) Strength(strength int) *Builder {
 	b.strength = strength
 	return b
 }
 
 // Mind increases the offensive parameter.
-func (b * Builder) Mind(mind int) *Builder {
+func (b *Builder) Mind(mind int) *Builder {
 	b.mind = mind
 	return b
 }
-
 
 // MovementDistance increases the squaddie's movement.
 func (b *Builder) MovementDistance(distance int) *Builder {
@@ -252,26 +249,26 @@ func NewLevelUpBenefitBuilderFromJSON(data []byte) *Builder {
 
 // BuilderMarshal is used to convert to and from data streams.
 type BuilderMarshal struct {
-	LevelID   string `json:"id" yaml:"id"`
-	ClassID   string `json:"class_id" yaml:"class_id"`
-	BigLevel bool `json:"is_a_big_level" yaml:"is_a_big_level"`
+	LevelID  string `json:"id" yaml:"id"`
+	ClassID  string `json:"class_id" yaml:"class_id"`
+	BigLevel bool   `json:"is_a_big_level" yaml:"is_a_big_level"`
 
 	HitPoints int `json:"hit_points" yaml:"hit_points"`
-	Deflect int `json:"deflect" yaml:"deflect"`
-	Dodge int `json:"dodge" yaml:"dodge"`
-	Barrier int `json:"barrier" yaml:"barrier"`
-	Armor int `json:"armor" yaml:"armor"`
+	Deflect   int `json:"deflect" yaml:"deflect"`
+	Dodge     int `json:"dodge" yaml:"dodge"`
+	Barrier   int `json:"barrier" yaml:"barrier"`
+	Armor     int `json:"armor" yaml:"armor"`
 
-	Aim int `json:"aim" yaml:"aim"`
+	Aim      int `json:"aim" yaml:"aim"`
 	Strength int `json:"strength" yaml:"strength"`
-	Mind int `json:"mind" yaml:"mind"`
+	Mind     int `json:"mind" yaml:"mind"`
 
-	MovementDistance int `json:"movement_distance" yaml:"movement_distance"`
-	MovementType squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
-	MovementCanHitAndRun bool `json:"can_hit_and_run" yaml:"can_hit_and_run"`
+	MovementDistance     int                   `json:"movement_distance" yaml:"movement_distance"`
+	MovementType         squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
+	MovementCanHitAndRun bool                  `json:"can_hit_and_run" yaml:"can_hit_and_run"`
 
 	PowersGained []*power.Reference `json:"powers_gained" yaml:"powers_gained"`
-	PowersLost []string `json:"powers_lost" yaml:"powers_lost"`
+	PowersLost   []string           `json:"powers_lost" yaml:"powers_lost"`
 }
 
 // unmarshalAndApplyDataStream consumes a given bytestream of the given sourceType and tries to analyze it.
@@ -292,17 +289,14 @@ func (b *Builder) unmarshalAndApplyDataStream(data []byte, unmarshal utility.Unm
 func (b *Builder) populateBuilderBasedOnMarshal(builderFields BuilderMarshal) *Builder {
 	b.LevelID(builderFields.LevelID).
 		ClassID(builderFields.ClassID).
-
 		HitPoints(builderFields.HitPoints).
 		Dodge(builderFields.Dodge).
 		Deflect(builderFields.Deflect).
 		Barrier(builderFields.Barrier).
 		Armor(builderFields.Armor).
-
 		Aim(builderFields.Aim).
 		Strength(builderFields.Strength).
 		Mind(builderFields.Mind).
-
 		MovementDistance(builderFields.MovementDistance).
 		MovementType(builderFields.MovementType)
 
