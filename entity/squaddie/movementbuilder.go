@@ -1,14 +1,10 @@
 package squaddie
 
-import (
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-)
-
 // MovementBuilderOptions is used to create healing effects.
 type MovementBuilderOptions struct {
 	distance     int
 	canHitAndRun bool
-	movementType squaddie.MovementType
+	movementType MovementType
 }
 
 // MovementBuilder creates a MovementBuilderOptions with default values.
@@ -18,7 +14,7 @@ func MovementBuilder() *MovementBuilderOptions {
 	return &MovementBuilderOptions{
 		distance:     0,
 		canHitAndRun: false,
-		movementType: squaddie.Foot,
+		movementType: Foot,
 	}
 }
 
@@ -36,30 +32,30 @@ func (m *MovementBuilderOptions) CanHitAndRun() *MovementBuilderOptions {
 
 // Foot sets the movement type to Foot.
 func (m *MovementBuilderOptions) Foot() *MovementBuilderOptions {
-	m.movementType = squaddie.Foot
+	m.movementType = Foot
 	return m
 }
 
 // Light sets the movement type to Light.
 func (m *MovementBuilderOptions) Light() *MovementBuilderOptions {
-	m.movementType = squaddie.Light
+	m.movementType = Light
 	return m
 }
 
 // Fly sets the movement type to Fly.
 func (m *MovementBuilderOptions) Fly() *MovementBuilderOptions {
-	m.movementType = squaddie.Fly
+	m.movementType = Fly
 	return m
 }
 
 // Teleport sets the movement type to Teleport.
 func (m *MovementBuilderOptions) Teleport() *MovementBuilderOptions {
-	m.movementType = squaddie.Teleport
+	m.movementType = Teleport
 	return m
 }
 
 // Build uses the MovementBuilderOptions to create a Movement.
-func (m *MovementBuilderOptions) Build() *squaddie.Movement {
-	newMovement := squaddie.NewMovement(m.distance, m.movementType, m.canHitAndRun)
+func (m *MovementBuilderOptions) Build() *Movement {
+	newMovement := NewMovement(m.distance, m.movementType, m.canHitAndRun)
 	return newMovement
 }

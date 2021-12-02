@@ -1,11 +1,9 @@
 package power
 
-import "github.com/chadius/terosbattleserver/entity/power"
-
 // HealingEffectOptions is used to create healing effects.
 type HealingEffectOptions struct {
 	hitPointsHealed                  int
-	healingAdjustmentBasedOnUserMind power.HealingAdjustmentBasedOnUserMind
+	healingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind
 }
 
 // HealingEffectBuilder creates a HealingEffectOptions with default values.
@@ -14,7 +12,7 @@ type HealingEffectOptions struct {
 func HealingEffectBuilder() *HealingEffectOptions {
 	return &HealingEffectOptions{
 		hitPointsHealed:                  0,
-		healingAdjustmentBasedOnUserMind: power.Full,
+		healingAdjustmentBasedOnUserMind: Full,
 	}
 }
 
@@ -26,25 +24,25 @@ func (h *HealingEffectOptions) HitPointsHealed(heal int) *HealingEffectOptions {
 
 // HealingAdjustmentBasedOnUserMindFull applies the user's Full SquaddieMind bonus to healing effects.
 func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindFull() *HealingEffectOptions {
-	h.healingAdjustmentBasedOnUserMind = power.Full
+	h.healingAdjustmentBasedOnUserMind = Full
 	return h
 }
 
 // HealingAdjustmentBasedOnUserMindHalf applies Half of the user's SquaddieMind bonus to healing effects.
 func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindHalf() *HealingEffectOptions {
-	h.healingAdjustmentBasedOnUserMind = power.Half
+	h.healingAdjustmentBasedOnUserMind = Half
 	return h
 }
 
 // HealingAdjustmentBasedOnUserMindZero applies None of the user's SquaddieMind bonus to healing effects.
 func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindZero() *HealingEffectOptions {
-	h.healingAdjustmentBasedOnUserMind = power.Zero
+	h.healingAdjustmentBasedOnUserMind = Zero
 	return h
 }
 
 // Build uses the HealingEffectOptions to create a healingEffect.
-func (h *HealingEffectOptions) Build() *power.HealingEffect {
-	newHealingEffect := power.NewHealingEffect(
+func (h *HealingEffectOptions) Build() *HealingEffect {
+	newHealingEffect := NewHealingEffect(
 		h.hitPointsHealed,
 		h.healingAdjustmentBasedOnUserMind,
 	)

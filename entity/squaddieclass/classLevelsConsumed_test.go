@@ -1,7 +1,7 @@
-package squaddie_test
+package squaddieclass_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -13,7 +13,7 @@ type ClassProgressSuite struct{}
 var _ = Suite(&ClassProgressSuite{})
 
 func (suite *ClassProgressSuite) TestIfLevelIsConsumed(checker *C) {
-	progress := squaddie.NewClassLevelsConsumed(
+	progress := squaddieclass.NewClassLevelsConsumed(
 		"007",
 		"Superspy",
 		[]string{"1", "2", "3", "4", "5"},

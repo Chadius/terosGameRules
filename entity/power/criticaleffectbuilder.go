@@ -1,7 +1,5 @@
 package power
 
-import "github.com/chadius/terosbattleserver/entity/power"
-
 // CriticalEffectOptions is used to create healing effects.
 type CriticalEffectOptions struct {
 	damage                    int
@@ -31,7 +29,7 @@ func (c *CriticalEffectOptions) CriticalHitThresholdBonus(thresholdBonus int) *C
 }
 
 // Build uses the CriticalEffectOptions to create a CriticalEffect.
-func (c *CriticalEffectOptions) Build() *power.CriticalEffect {
-	newCriticalEffect := power.NewCriticalEffect(c.criticalHitThresholdBonus, c.damage)
+func (c *CriticalEffectOptions) Build() *CriticalEffect {
+	newCriticalEffect := NewCriticalEffect(c.criticalHitThresholdBonus, c.damage)
 	return newCriticalEffect
 }

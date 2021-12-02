@@ -6,8 +6,6 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -19,8 +17,8 @@ type SquaddiePowerCollectionTests struct {
 var _ = Suite(&SquaddiePowerCollectionTests{})
 
 func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.attackA = powerBuilder.Builder().WithName("attack Formation A").Build()
+	suite.teros = squaddie.Builder().Teros().Build()
+	suite.attackA = power.Builder().WithName("attack Formation A").Build()
 }
 
 func (suite *SquaddiePowerCollectionTests) TestAddPowerReference(checker *C) {
@@ -66,7 +64,7 @@ func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
-	spear := powerBuilder.Builder().Spear().Build()
+	spear := power.Builder().Spear().Build()
 
 	powerRepo := powerrepository.NewPowerRepository()
 	powerRepo.AddSlicePowerSource([]*power.Power{spear})

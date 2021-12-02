@@ -3,7 +3,6 @@ package squaddie
 import (
 	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
@@ -190,13 +189,13 @@ func (s *BuilderOptions) SetBaseClassByID(targetClassID string) *BuilderOptions 
 }
 
 // Build uses the BuilderOptions to create a Movement.
-func (s *BuilderOptions) Build() *squaddie.Squaddie {
-	newSquaddie := &squaddie.Squaddie{
+func (s *BuilderOptions) Build() *Squaddie {
+	newSquaddie := &Squaddie{
 		Identification: *s.identificationOptions.Build(),
 		Offense:        *s.offenseOptions.Build(),
 		Defense:        *s.defenseOptions.Build(),
 		Movement:       *s.movementOptions.Build(),
-		ClassProgress:  *squaddie.NewClassProgress("", "", nil),
+		ClassProgress:  *squaddieclass.NewClassProgress("", "", nil),
 	}
 
 	for _, newPowerReference := range s.powerReferencesToAdd {
@@ -254,9 +253,9 @@ func (s *BuilderOptions) MysticMage() *BuilderOptions {
 
 // BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
 type BuilderOptionMarshal struct {
-	ID          string               `json:"id" yaml:"id"`
-	Name        string               `json:"name" yaml:"name"`
-	Affiliation squaddie.Affiliation `json:"affiliation" yaml:"affiliation"`
+	ID          string      `json:"id" yaml:"id"`
+	Name        string      `json:"name" yaml:"name"`
+	Affiliation Affiliation `json:"affiliation" yaml:"affiliation"`
 
 	MaxHitPoints int `json:"max_hit_points" yaml:"max_hit_points"`
 	Dodge        int `json:"dodge" yaml:"dodge"`
@@ -268,9 +267,9 @@ type BuilderOptionMarshal struct {
 	Strength int `json:"strength" yaml:"strength"`
 	Mind     int `json:"mind" yaml:"mind"`
 
-	MovementDistance     int                   `json:"movement_distance" yaml:"movement_distance"`
-	MovementType         squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
-	MovementCanHitAndRun bool                  `json:"hit_and_run" yaml:"hit_and_run"`
+	MovementDistance     int          `json:"movement_distance" yaml:"movement_distance"`
+	MovementType         MovementType `json:"movement_type" yaml:"movement_type"`
+	MovementCanHitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
 
 	ClassProgress   []*classProgressMarshal `json:"class_progress" yaml:"class_progress"`
 	PowerReferences []*power.Reference      `json:"powers" yaml:"powers"`
@@ -309,29 +308,29 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 		Aim(marshaledOptions.Aim).Strength(marshaledOptions.Strength).Mind(marshaledOptions.Mind).
 		MoveDistance(marshaledOptions.MovementDistance)
 
-	if marshaledOptions.Affiliation == squaddie.Player {
+	if marshaledOptions.Affiliation == Player {
 		s.AsPlayer()
 	}
-	if marshaledOptions.Affiliation == squaddie.Enemy {
+	if marshaledOptions.Affiliation == Enemy {
 		s.AsEnemy()
 	}
-	if marshaledOptions.Affiliation == squaddie.Ally {
+	if marshaledOptions.Affiliation == Ally {
 		s.AsAlly()
 	}
-	if marshaledOptions.Affiliation == squaddie.Neutral {
+	if marshaledOptions.Affiliation == Neutral {
 		s.AsNeutral()
 	}
 
-	if marshaledOptions.MovementType == squaddie.Foot {
+	if marshaledOptions.MovementType == Foot {
 		s.MovementFoot()
 	}
-	if marshaledOptions.MovementType == squaddie.Light {
+	if marshaledOptions.MovementType == Light {
 		s.MovementLight()
 	}
-	if marshaledOptions.MovementType == squaddie.Fly {
+	if marshaledOptions.MovementType == Fly {
 		s.MovementFly()
 	}
-	if marshaledOptions.MovementType == squaddie.Teleport {
+	if marshaledOptions.MovementType == Teleport {
 		s.MovementTeleport()
 	}
 
@@ -365,7 +364,7 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 }
 
 // CloneOf modifies the BuilderOptions based on the source, except for the classID.
-func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
+func (s *BuilderOptions) CloneOf(source *Squaddie) *BuilderOptions {
 	s.WithName(source.Name()).
 		HitPoints(source.MaxHitPoints()).Deflect(source.Deflect()).Barrier(source.MaxBarrier()).Armor(source.Armor()).Dodge(source.Dodge()).
 		Aim(source.Aim()).Strength(source.Strength()).Mind(source.Mind()).
@@ -377,17 +376,17 @@ func (s *BuilderOptions) CloneOf(source *squaddie.Squaddie) *BuilderOptions {
 	return s
 }
 
-func (s *BuilderOptions) cloneMovement(source *squaddie.Squaddie) {
-	if source.MovementType() == squaddie.Foot {
+func (s *BuilderOptions) cloneMovement(source *Squaddie) {
+	if source.MovementType() == Foot {
 		s.MovementFoot()
 	}
-	if source.MovementType() == squaddie.Light {
+	if source.MovementType() == Light {
 		s.MovementLight()
 	}
-	if source.MovementType() == squaddie.Fly {
+	if source.MovementType() == Fly {
 		s.MovementFly()
 	}
-	if source.MovementType() == squaddie.Teleport {
+	if source.MovementType() == Teleport {
 		s.MovementTeleport()
 	}
 	if source.MovementCanHitAndRun() {
@@ -395,28 +394,28 @@ func (s *BuilderOptions) cloneMovement(source *squaddie.Squaddie) {
 	}
 }
 
-func (s *BuilderOptions) cloneAffiliation(source *squaddie.Squaddie) {
-	if source.Affiliation() == squaddie.Player {
+func (s *BuilderOptions) cloneAffiliation(source *Squaddie) {
+	if source.Affiliation() == Player {
 		s.AsPlayer()
 	}
-	if source.Affiliation() == squaddie.Enemy {
+	if source.Affiliation() == Enemy {
 		s.AsEnemy()
 	}
-	if source.Affiliation() == squaddie.Ally {
+	if source.Affiliation() == Ally {
 		s.AsAlly()
 	}
-	if source.Affiliation() == squaddie.Neutral {
+	if source.Affiliation() == Neutral {
 		s.AsNeutral()
 	}
 }
 
-func (s *BuilderOptions) clonePowerReferences(source *squaddie.Squaddie) {
+func (s *BuilderOptions) clonePowerReferences(source *Squaddie) {
 	for _, reference := range source.GetCopyOfPowerReferences() {
 		s.AddPowerByReference(reference)
 	}
 }
 
-func (s *BuilderOptions) cloneClassProgress(source *squaddie.Squaddie) {
+func (s *BuilderOptions) cloneClassProgress(source *Squaddie) {
 	for classID, classLevelsConsumed := range *source.ClassLevelsConsumed() {
 		s.AddClassByReference(&squaddieclass.ClassReference{
 			ID:   classID,

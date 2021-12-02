@@ -1,7 +1,5 @@
 package squaddie
 
-import "github.com/chadius/terosbattleserver/entity/squaddie"
-
 // DefenseBuilderOptions is used to set a squaddie's defensive attributes.
 type DefenseBuilderOptions struct {
 	armor        int
@@ -55,8 +53,8 @@ func (d *DefenseBuilderOptions) Barrier(maxBarrier int) *DefenseBuilderOptions {
 }
 
 // Build uses the DefenseBuilderOptions to create a Movement.
-func (d *DefenseBuilderOptions) Build() *squaddie.Defense {
-	newDefense := squaddie.NewDefense(0, d.maxHitPoints, d.dodge, d.deflect, 0, d.maxBarrier, d.armor)
+func (d *DefenseBuilderOptions) Build() *Defense {
+	newDefense := NewDefense(0, d.maxHitPoints, d.dodge, d.deflect, 0, d.maxBarrier, d.armor)
 	newDefense.SetHPToMax()
 	return newDefense
 }

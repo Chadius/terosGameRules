@@ -7,8 +7,6 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -28,12 +26,12 @@ type AttackContextTestSuite struct {
 var _ = Suite(&AttackContextTestSuite{})
 
 func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Aim(2).Strength(2).Mind(2).Build()
+	suite.teros = squaddie.Builder().Teros().Aim(2).Strength(2).Mind(2).Build()
 
-	suite.spear = powerBuilder.Builder().Spear().Build()
-	suite.blot = powerBuilder.Builder().Blot().Build()
+	suite.spear = power.Builder().Spear().Build()
+	suite.blot = power.Builder().Blot().Build()
 
-	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
+	suite.bandit = squaddie.Builder().Bandit().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})
@@ -103,7 +101,7 @@ func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 }
 
 func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
-	suite.spear = powerBuilder.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
+	suite.spear = power.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
 	suite.powerRepo.AddPower(suite.spear)
 
 	suite.forecastSpearOnBandit.CalculateForecast()

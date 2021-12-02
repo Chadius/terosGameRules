@@ -2,6 +2,7 @@ package squaddie
 
 import (
 	"encoding/json"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
@@ -108,7 +109,7 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 		clone.AddPowerReference(reference)
 	}
 
-	clone.ClassProgress = *NewClassProgress(
+	clone.ClassProgress = *squaddieclass.NewClassProgress(
 		base.BaseClassID(),
 		base.CurrentClassID(),
 		*base.ClassLevelsConsumed(),

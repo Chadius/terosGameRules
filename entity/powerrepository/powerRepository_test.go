@@ -3,7 +3,6 @@ package powerrepository_test
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -19,8 +18,8 @@ type PowerCreationSuite struct {
 var _ = Suite(&PowerCreationSuite{})
 
 func (suite *PowerCreationSuite) SetUpTest(checker *C) {
-	suite.spear = powerBuilder.Builder().Spear().WithName("Spear").WithID("spearLevel1").Build()
-	suite.spear2 = powerBuilder.Builder().Spear().WithName("Spear").WithID("spearLevel2").Build()
+	suite.spear = power.Builder().Spear().WithName("Spear").WithID("spearLevel1").Build()
+	suite.spear2 = power.Builder().Spear().WithName("Spear").WithID("spearLevel2").Build()
 
 	newPowers := []*power.Power{suite.spear, suite.spear2}
 
@@ -31,7 +30,7 @@ func (suite *PowerCreationSuite) SetUpTest(checker *C) {
 func (suite *PowerCreationSuite) TestAddPowersToNewRepository(checker *C) {
 	newRepo := powerrepository.NewPowerRepository()
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 0)
-	spear := powerBuilder.Builder().Spear().Build()
+	spear := power.Builder().Spear().Build()
 	newPowers := []*power.Power{spear}
 	success, _ := newRepo.AddSlicePowerSource(newPowers)
 	checker.Assert(success, Equals, true)

@@ -8,9 +8,6 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
-	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
@@ -27,8 +24,8 @@ type SquaddieUsesLevelUpBenefitSuite struct {
 var _ = Suite(&SquaddieUsesLevelUpBenefitSuite{})
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
-	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
-	suite.teros = squaddieBuilder.Builder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
+	suite.teros = squaddie.Builder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.statBooster, _ = levelupbenefit.NewLevelUpBenefitBuilder().
@@ -145,20 +142,20 @@ type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
 var _ = Suite(&SquaddieChangePowersWithLevelUpBenefitsSuite{})
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C) {
-	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
-	suite.teros = squaddieBuilder.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
+	suite.teros = squaddie.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
 
-	suite.spear = powerBuilder.Builder().Spear().WithID("spearlvl1").Build()
+	suite.spear = power.Builder().Spear().WithID("spearlvl1").Build()
 
 	suite.teros.AddPowerReference(&power.Reference{
 		Name:    "spear",
 		PowerID: "spearlvl1",
 	})
 
-	suite.spearLevel2 = powerBuilder.Builder().Spear().WithID("spearlvl2").Build()
+	suite.spearLevel2 = power.Builder().Spear().WithID("spearlvl2").Build()
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 

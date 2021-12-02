@@ -1,12 +1,9 @@
 package squaddieclass_test
 
 import (
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
-	"testing"
 )
-
-func Test(t *testing.T) { TestingT(t) }
 
 type ClassBuilder struct{}
 

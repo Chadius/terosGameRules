@@ -2,12 +2,8 @@ package squaddieclass_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
-	"testing"
 )
-
-func Test(t *testing.T) { TestingT(t) }
 
 type ClassRepositoryUnmarshalSuite struct {
 	repo           *squaddieclass.Repository
@@ -33,8 +29,8 @@ func (suite *ClassRepositoryUnmarshalSuite) TestLoadClassesWithJSON(checker *C) 
 
 func (suite *ClassRepositoryUnmarshalSuite) TestLoadClassesDirectly(checker *C) {
 	listOfClasses := []*squaddieclass.Class{
-		squaddieClassBuilder.ClassBuilder().WithID("class1").Build(),
-		squaddieClassBuilder.ClassBuilder().WithID("class2").Build(),
+		squaddieclass.ClassBuilder().WithID("class1").Build(),
+		squaddieclass.ClassBuilder().WithID("class2").Build(),
 	}
 	checker.Assert(suite.repo.GetNumberOfClasses(), Equals, 0)
 	success, _ := suite.repo.AddListOfClasses(listOfClasses)
@@ -52,8 +48,8 @@ var _ = Suite(&ClassRepositoryRetrieveSuite{})
 
 func (suite *ClassRepositoryRetrieveSuite) SetUpTest(checker *C) {
 	suite.repo = squaddieclass.NewRepository()
-	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("class1").WithName("Mage").Build()
-	suite.dimensionWalkerClass = squaddieClassBuilder.ClassBuilder().WithID("class2").WithName("Dimension Walker").RequiresBaseClass().Build()
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("class1").WithName("Mage").Build()
+	suite.dimensionWalkerClass = squaddieclass.ClassBuilder().WithID("class2").WithName("Dimension Walker").RequiresBaseClass().Build()
 	suite.repo.AddListOfClasses([]*squaddieclass.Class{suite.mageClass, suite.dimensionWalkerClass})
 }
 

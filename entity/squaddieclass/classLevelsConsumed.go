@@ -1,4 +1,4 @@
-package squaddie
+package squaddieclass
 
 // ClassLevelsConsumed tracks information about how a Squaddie uses a class as well
 //    as the progress made in a given class.

@@ -1,7 +1,7 @@
 package squaddie_test
 
 import (
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
 )
 

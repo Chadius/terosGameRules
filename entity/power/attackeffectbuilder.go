@@ -1,7 +1,5 @@
 package power
 
-import "github.com/chadius/terosbattleserver/entity/power"
-
 // AttackEffectOptions is used to create healing effects.
 type AttackEffectOptions struct {
 	damage                        int
@@ -89,12 +87,12 @@ func (a *AttackEffectOptions) CriticalHitThresholdBonus(thresholdBonus int) *Att
 }
 
 // Build uses the AttackEffectOptions to create an AttackingEffect.
-func (a *AttackEffectOptions) Build() *power.AttackingEffect {
-	var criticalEffect *power.CriticalEffect = nil
+func (a *AttackEffectOptions) Build() *AttackingEffect {
+	var criticalEffect *CriticalEffect = nil
 	if a.criticalEffectOptions != nil {
 		criticalEffect = a.criticalEffectOptions.Build()
 	}
-	newAttackingEffect := power.NewAttackingEffect(
+	newAttackingEffect := NewAttackingEffect(
 		a.toHitBonus,
 		a.damage,
 		a.extraBarrierBurn,

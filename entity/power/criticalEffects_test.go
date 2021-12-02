@@ -3,7 +3,6 @@ package power_test
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 	. "gopkg.in/check.v1"
 )
 
@@ -18,13 +17,13 @@ func (suite *CriticalEffectActivation) TestCanSetCriticalHitThreshold(checker *C
 
 	checker.Assert(defaultCriticalHitEffect.CriticalHitThreshold(), Equals, 6)
 
-	moreLikelyToCrit := powerBuilder.CriticalEffectBuilder().CriticalHitThresholdBonus(2).Build()
+	moreLikelyToCrit := power.CriticalEffectBuilder().CriticalHitThresholdBonus(2).Build()
 
 	checker.Assert(moreLikelyToCrit.CriticalHitThreshold(), Equals, 4)
 }
 
 func (suite *CriticalEffectActivation) TestExtraCriticalHitDamage(checker *C) {
-	extraCriticalDamage := powerBuilder.CriticalEffectBuilder().DealsDamage(6).Build()
+	extraCriticalDamage := power.CriticalEffectBuilder().DealsDamage(6).Build()
 	checker.Assert(extraCriticalDamage.ExtraCriticalHitDamage(), Equals, 6)
 }
 

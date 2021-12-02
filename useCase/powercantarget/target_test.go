@@ -7,8 +7,6 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powercantarget"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -40,19 +38,19 @@ type TargetingCheck struct {
 var _ = Suite(&TargetingCheck{})
 
 func (suite *TargetingCheck) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.lini = squaddieBuilder.Builder().Lini().Build()
-	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
-	suite.bandit2 = squaddieBuilder.Builder().Bandit().WithID("bandit2").WithName("bandit2").Build()
-	suite.citizen = squaddieBuilder.Builder().WithName("citizen").AsAlly().Build()
-	suite.mayor = squaddieBuilder.Builder().WithName("mayor").AsAlly().Build()
-	suite.bomb = squaddieBuilder.Builder().WithName("bomb").AsNeutral().Build()
-	suite.bomb2 = squaddieBuilder.Builder().WithName("bomb2").AsNeutral().Build()
+	suite.teros = squaddie.Builder().Teros().Build()
+	suite.lini = squaddie.Builder().Lini().Build()
+	suite.bandit = squaddie.Builder().Bandit().Build()
+	suite.bandit2 = squaddie.Builder().Bandit().WithID("bandit2").WithName("bandit2").Build()
+	suite.citizen = squaddie.Builder().WithName("citizen").AsAlly().Build()
+	suite.mayor = squaddie.Builder().WithName("mayor").AsAlly().Build()
+	suite.bomb = squaddie.Builder().WithName("bomb").AsNeutral().Build()
+	suite.bomb2 = squaddie.Builder().WithName("bomb2").AsNeutral().Build()
 
-	suite.axe = powerBuilder.Builder().Axe().Build()
-	suite.meditation = powerBuilder.Builder().TargetsSelf().Build()
-	suite.healingStaff = powerBuilder.Builder().HealingStaff().Build()
-	suite.selfDestruct = powerBuilder.Builder().TargetsFoe().Build()
+	suite.axe = power.Builder().Axe().Build()
+	suite.meditation = power.Builder().TargetsSelf().Build()
+	suite.healingStaff = power.Builder().HealingStaff().Build()
+	suite.selfDestruct = power.Builder().TargetsFoe().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{

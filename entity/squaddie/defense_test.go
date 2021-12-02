@@ -3,7 +3,6 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -14,7 +13,7 @@ type SquaddieDefenseSuite struct {
 var _ = Suite(&SquaddieDefenseSuite{})
 
 func (suite *SquaddieDefenseSuite) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Barrier(3).Build()
+	suite.teros = squaddie.Builder().Teros().Barrier(3).Build()
 }
 
 func (suite *SquaddieDefenseSuite) TestSetMaxHPAndMatchToCurrentHP(checker *C) {
@@ -24,7 +23,7 @@ func (suite *SquaddieDefenseSuite) TestSetMaxHPAndMatchToCurrentHP(checker *C) {
 }
 
 func (suite *SquaddieDefenseSuite) TestCanSetCurrentBarrierToMax(checker *C) {
-	suite.teros.Defense = *squaddieBuilder.DefenseBuilder().Barrier(2).Build()
+	suite.teros.Defense = *squaddie.DefenseBuilder().Barrier(2).Build()
 	suite.teros.Defense.SetBarrierToMax()
 	checker.Assert(suite.teros.CurrentBarrier(), Equals, 2)
 }
@@ -45,7 +44,7 @@ func (suite *SquaddieDefenseSuite) TestCannotReduceHitPointsBelowZero(checker *C
 }
 
 func (suite *SquaddieDefenseSuite) TestTakeBarrierBurnLowersBarrier(checker *C) {
-	suite.teros.Defense = *squaddieBuilder.DefenseBuilder().Barrier(3).Build()
+	suite.teros.Defense = *squaddie.DefenseBuilder().Barrier(3).Build()
 	suite.teros.Defense.SetBarrierToMax()
 	suite.teros.Defense.ReduceBarrier(2)
 	checker.Assert(suite.teros.CurrentBarrier(), Equals, suite.teros.MaxBarrier()-2)

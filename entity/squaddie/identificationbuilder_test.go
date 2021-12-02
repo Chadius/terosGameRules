@@ -1,8 +1,7 @@
 package squaddie_test
 
 import (
-	squaddieEntity "github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -22,20 +21,20 @@ func (suite *IdentificationBuilder) TestBuildIdentificationWithID(checker *C) {
 
 func (suite *IdentificationBuilder) TestBuildIdentificationAffiliationPlayer(checker *C) {
 	teros := squaddie.IdentificationBuilder().AsPlayer().Build()
-	checker.Assert(squaddieEntity.Player, Equals, teros.Affiliation())
+	checker.Assert(squaddie.Player, Equals, teros.Affiliation())
 }
 
 func (suite *IdentificationBuilder) TestBuildIdentificationAffiliationEnemy(checker *C) {
 	bandit := squaddie.IdentificationBuilder().AsEnemy().Build()
-	checker.Assert(squaddieEntity.Enemy, Equals, bandit.Affiliation())
+	checker.Assert(squaddie.Enemy, Equals, bandit.Affiliation())
 }
 
 func (suite *IdentificationBuilder) TestBuildIdentificationAffiliationAlly(checker *C) {
 	citizen := squaddie.IdentificationBuilder().AsAlly().Build()
-	checker.Assert(squaddieEntity.Ally, Equals, citizen.Affiliation())
+	checker.Assert(squaddie.Ally, Equals, citizen.Affiliation())
 }
 
 func (suite *IdentificationBuilder) TestBuildIdentificationAffiliationNeutral(checker *C) {
 	bomb := squaddie.IdentificationBuilder().AsNeutral().Build()
-	checker.Assert(squaddieEntity.Neutral, Equals, bomb.Affiliation())
+	checker.Assert(squaddie.Neutral, Equals, bomb.Affiliation())
 }

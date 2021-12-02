@@ -7,8 +7,6 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 )
 
@@ -29,14 +27,14 @@ type DefenderContextTestSuite struct {
 var _ = Suite(&DefenderContextTestSuite{})
 
 func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.teros = squaddie.Builder().Teros().Build()
 
-	suite.spear = powerBuilder.Builder().Spear().Build()
-	suite.blot = powerBuilder.Builder().Blot().Build()
-	suite.bandit = squaddieBuilder.Builder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
+	suite.spear = power.Builder().Spear().Build()
+	suite.blot = power.Builder().Blot().Build()
+	suite.bandit = squaddie.Builder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe = powerBuilder.Builder().Axe().Build()
+	suite.axe = power.Builder().Axe().Build()
 
 	suite.bandit.AddPowerReference(suite.axe.GetReference())
 

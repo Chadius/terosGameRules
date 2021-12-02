@@ -1,7 +1,5 @@
 package squaddieclass
 
-import "github.com/chadius/terosbattleserver/entity/squaddieclass"
-
 // ClassBuilderOptions is used to set a squaddie's defensive attributes.
 type ClassBuilderOptions struct {
 	id                string
@@ -47,7 +45,7 @@ func (c *ClassBuilderOptions) RequiresBaseClass() *ClassBuilderOptions {
 }
 
 // Build uses the ClassBuilderOptions to create a Movement.
-func (c *ClassBuilderOptions) Build() *squaddieclass.Class {
-	newClass := squaddieclass.NewClass(c.id, c.name, c.baseClassRequired, c.initialBigLevelID)
+func (c *ClassBuilderOptions) Build() *Class {
+	newClass := NewClass(c.id, c.name, c.baseClassRequired, c.initialBigLevelID)
 	return newClass
 }

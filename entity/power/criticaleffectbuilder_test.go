@@ -1,7 +1,7 @@
 package power_test
 
 import (
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
+	"github.com/chadius/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
 )
 

@@ -1,8 +1,7 @@
 package squaddie_test
 
 import (
-	squaddieEntity "github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -25,20 +24,20 @@ func (suite *MovementBuilder) TestBuildMovementCanHitAndRun(checker *C) {
 
 func (suite *MovementBuilder) TestChangeMovementFoot(checker *C) {
 	movement := squaddie.MovementBuilder().Foot().Build()
-	checker.Assert(squaddieEntity.Foot, Equals, movement.MovementType())
+	checker.Assert(squaddie.Foot, Equals, movement.MovementType())
 }
 
 func (suite *MovementBuilder) TestChangeMovementLight(checker *C) {
 	movement := squaddie.MovementBuilder().Light().Build()
-	checker.Assert(squaddieEntity.Light, Equals, movement.MovementType())
+	checker.Assert(squaddie.Light, Equals, movement.MovementType())
 }
 
 func (suite *MovementBuilder) TestChangeMovementFly(checker *C) {
 	movement := squaddie.MovementBuilder().Fly().Build()
-	checker.Assert(squaddieEntity.Fly, Equals, movement.MovementType())
+	checker.Assert(squaddie.Fly, Equals, movement.MovementType())
 }
 
 func (suite *MovementBuilder) TestChangeMovementTeleport(checker *C) {
 	movement := squaddie.MovementBuilder().Teleport().Build()
-	checker.Assert(squaddieEntity.Teleport, Equals, movement.MovementType())
+	checker.Assert(squaddie.Teleport, Equals, movement.MovementType())
 }

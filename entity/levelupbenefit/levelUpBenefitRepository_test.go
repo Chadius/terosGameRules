@@ -3,8 +3,7 @@ package levelupbenefit_test
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
+	"github.com/chadius/terosbattleserver/utility/testutility/builder"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -58,9 +57,9 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
       }
 ]`)
 
-	suite.mageClass = squaddieBuilder.ClassBuilder().WithID("class1").Build()
-	suite.lotsOfSmallLevels = (&power.LevelGenerator{
-		Instructions: &power.LevelGeneratorInstruction{
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("class1").Build()
+	suite.lotsOfSmallLevels = (&builder.LevelGenerator{
+		Instructions: &builder.LevelGeneratorInstruction{
 			NumberOfLevels: 11,
 			ClassID:        suite.mageClass.ID(),
 			PrefixLevelID:  "lotsLevelsSmall",
@@ -68,8 +67,8 @@ func (suite *LevelUpBenefitRepositorySuite) SetUpTest(c *C) {
 		},
 	}).Build()
 
-	suite.lotsOfBigLevels = (&power.LevelGenerator{
-		Instructions: &power.LevelGeneratorInstruction{
+	suite.lotsOfBigLevels = (&builder.LevelGenerator{
+		Instructions: &builder.LevelGeneratorInstruction{
 			NumberOfLevels: 4,
 			ClassID:        suite.mageClass.ID(),
 			PrefixLevelID:  "lotsLevelsBig",

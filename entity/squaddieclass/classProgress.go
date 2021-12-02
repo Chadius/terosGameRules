@@ -1,8 +1,7 @@
-package squaddie
+package squaddieclass
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
@@ -22,7 +21,7 @@ func NewClassProgress(baseClassID, currentClassID string, levelsConsumedByClassI
 	}
 
 	for classID, levelsConsumed := range levelsConsumedByClassID {
-		newClassProgress.AddClass(&squaddieclass.ClassReference{
+		newClassProgress.AddClass(&ClassReference{
 			ID:   levelsConsumed.GetClassID(),
 			Name: levelsConsumed.GetClassName(),
 		})
@@ -35,7 +34,7 @@ func NewClassProgress(baseClassID, currentClassID string, levelsConsumedByClassI
 }
 
 // AddClass gives the ClassProgress a new class it can gain levels in, if it wasn't already added.
-func (classProgress *ClassProgress) AddClass(classReference *squaddieclass.ClassReference) {
+func (classProgress *ClassProgress) AddClass(classReference *ClassReference) {
 	if classProgress.ClassProgressClassLevelsConsumed[classReference.ID] != nil {
 		return
 	}

@@ -2,11 +2,8 @@ package squaddie_test
 
 import (
 	powerEntity "github.com/chadius/terosbattleserver/entity/power"
-	squaddieEntity "github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddie"
 	classEntity "github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
@@ -26,22 +23,22 @@ func (suite *SquaddieIdentificationBuilder) TestBuildSquaddieWithID(checker *C) 
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationPlayer(checker *C) {
 	teros := squaddie.Builder().AsPlayer().Build()
-	checker.Assert(squaddieEntity.Player, Equals, teros.Affiliation())
+	checker.Assert(squaddie.Player, Equals, teros.Affiliation())
 }
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationEnemy(checker *C) {
 	bandit := squaddie.Builder().AsEnemy().Build()
-	checker.Assert(squaddieEntity.Enemy, Equals, bandit.Affiliation())
+	checker.Assert(squaddie.Enemy, Equals, bandit.Affiliation())
 }
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationAlly(checker *C) {
 	citizen := squaddie.Builder().AsAlly().Build()
-	checker.Assert(squaddieEntity.Ally, Equals, citizen.Affiliation())
+	checker.Assert(squaddie.Ally, Equals, citizen.Affiliation())
 }
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationNeutral(checker *C) {
 	bomb := squaddie.Builder().AsNeutral().Build()
-	checker.Assert(squaddieEntity.Neutral, Equals, bomb.Affiliation())
+	checker.Assert(squaddie.Neutral, Equals, bomb.Affiliation())
 }
 
 type SquaddieOffenseBuilder struct{}
@@ -109,22 +106,22 @@ func (suite *SquaddieMovementBuilder) TestBuildMovementCanHitAndRun(checker *C) 
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFoot(checker *C) {
 	soldier := squaddie.Builder().MovementFoot().Build()
-	checker.Assert(squaddieEntity.Foot, Equals, soldier.Movement.MovementType())
+	checker.Assert(squaddie.Foot, Equals, soldier.Movement.MovementType())
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementLight(checker *C) {
 	ninja := squaddie.Builder().MovementLight().Build()
-	checker.Assert(squaddieEntity.Light, Equals, ninja.Movement.MovementType())
+	checker.Assert(squaddie.Light, Equals, ninja.Movement.MovementType())
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFly(checker *C) {
 	bird := squaddie.Builder().MovementFly().Build()
-	checker.Assert(squaddieEntity.Fly, Equals, bird.Movement.MovementType())
+	checker.Assert(squaddie.Fly, Equals, bird.Movement.MovementType())
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementTeleport(checker *C) {
 	wizard := squaddie.Builder().MovementTeleport().Build()
-	checker.Assert(squaddieEntity.Teleport, Equals, wizard.Movement.MovementType())
+	checker.Assert(squaddie.Teleport, Equals, wizard.Movement.MovementType())
 }
 
 type SquaddiePowerBuilder struct{}
@@ -132,7 +129,7 @@ type SquaddiePowerBuilder struct{}
 var _ = Suite(&SquaddiePowerBuilder{})
 
 func (suite *SquaddiePowerBuilder) TestBuildAddPowerReference(checker *C) {
-	spear := power.Builder().Spear().Build()
+	spear := powerEntity.Builder().Spear().Build()
 
 	teros := squaddie.Builder().AddPowerByReference(spear.GetReference()).Build()
 
@@ -144,13 +141,13 @@ type SquaddieClassBuilder struct{}
 var _ = Suite(&SquaddieClassBuilder{})
 
 func (suite *SquaddieClassBuilder) TestBuildAddClass(checker *C) {
-	mageClass := squaddieclass.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
+	mageClass := classEntity.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
 	teros := squaddie.Builder().AddClassByReference(mageClass.GetReference()).Build()
 	checker.Assert(true, Equals, teros.HasAddedClass(mageClass.ID()))
 }
 
 func (suite *SquaddieClassBuilder) TestBuildSetClass(checker *C) {
-	mageClass := squaddieclass.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
+	mageClass := classEntity.ClassBuilder().WithID("A class SquaddieID").WithName("mage").WithInitialBigLevelID("level0").Build()
 	teros := squaddie.Builder().AddClassByReference(mageClass.GetReference()).SetClassByID(mageClass.ID()).Build()
 	checker.Assert(mageClass.ID(), Equals, teros.CurrentClassID())
 }
@@ -226,7 +223,7 @@ func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) 
 
 	checker.Assert(yamlSquaddie.ID(), Equals, "squaddie_yaml")
 	checker.Assert(yamlSquaddie.Name(), Equals, "YAML squaddie")
-	checker.Assert(yamlSquaddie.Affiliation(), Equals, squaddieEntity.Enemy)
+	checker.Assert(yamlSquaddie.Affiliation(), Equals, squaddie.Enemy)
 }
 
 func (suite *YAMLBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {
@@ -251,7 +248,7 @@ func (suite *YAMLBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	yamlSquaddie := squaddie.Builder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 19)
-	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddieEntity.Light)
+	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddie.Light)
 	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
 }
 
@@ -344,7 +341,7 @@ func (suite *JSONBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) 
 
 	checker.Assert(jsonSquaddie.ID(), Equals, "squaddie_json")
 	checker.Assert(jsonSquaddie.Name(), Equals, "JSON squaddie")
-	checker.Assert(jsonSquaddie.Affiliation(), Equals, squaddieEntity.Ally)
+	checker.Assert(jsonSquaddie.Affiliation(), Equals, squaddie.Ally)
 }
 
 func (suite *JSONBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {
@@ -370,7 +367,7 @@ func (suite *JSONBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	jsonSquaddie := squaddie.Builder().UsingJSON(suite.jsonData).Build()
 
 	checker.Assert(jsonSquaddie.MovementDistance(), Equals, 2)
-	checker.Assert(jsonSquaddie.MovementType(), Equals, squaddieEntity.Teleport)
+	checker.Assert(jsonSquaddie.MovementType(), Equals, squaddie.Teleport)
 	checker.Assert(jsonSquaddie.MovementCanHitAndRun(), Equals, true)
 }
 
@@ -404,7 +401,7 @@ func (suite *JSONBuilderSuite) TestClassesMatchesNewSquaddie(checker *C) {
 }
 
 type BuildCopySuite struct {
-	teros *squaddieEntity.Squaddie
+	teros *squaddie.Squaddie
 }
 
 var _ = Suite(&BuildCopySuite{})

@@ -7,8 +7,6 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -31,10 +29,10 @@ type squaddieOffense struct {
 var _ = Suite(&squaddieOffense{})
 
 func (suite *squaddieOffense) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
+	suite.teros = squaddie.Builder().Teros().Build()
 
-	suite.spear = powerBuilder.Builder().Spear().Build()
-	suite.blot = powerBuilder.Builder().Blot().Build()
+	suite.spear = power.Builder().Spear().Build()
+	suite.blot = power.Builder().Blot().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
@@ -61,14 +59,14 @@ func (suite *squaddieOffense) SetUpTest(checker *C) {
 }
 
 func (suite *squaddieOffense) TestSquaddieMeasuresAim(checker *C) {
-	terosWithAim := squaddieBuilder.Builder().Teros().Aim(1).Build()
+	terosWithAim := squaddie.Builder().Teros().Aim(1).Build()
 	suite.squaddieRepo.AddSquaddie(terosWithAim)
 
 	spearAim, spearErr := suite.offenseStrategy.GetSquaddieAimWithPower(terosWithAim.ID(), suite.spear.ID(), suite.repos)
 	checker.Assert(spearErr, IsNil)
 	checker.Assert(spearAim, Equals, 2)
 
-	accurateBlot := powerBuilder.Builder().Blot().ToHitBonus(2).Build()
+	accurateBlot := power.Builder().Blot().ToHitBonus(2).Build()
 	suite.repos.PowerRepo.AddPower(accurateBlot)
 
 	blotAim, blotErr := suite.offenseStrategy.GetSquaddieAimWithPower(terosWithAim.ID(), accurateBlot.ID(), suite.repos)
@@ -87,7 +85,7 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerDoesNotExist(checker *C) 
 }
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker *C) {
-	wait := powerBuilder.Builder().WithID("powerWait").Build()
+	wait := power.Builder().WithID("powerWait").Build()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{wait})
 
 	checkEquip := powerequip.CheckRepositories{}
@@ -106,10 +104,10 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker
 }
 
 func (suite *squaddieOffense) TestGetRawDamageOfPhysicalPower(checker *C) {
-	strongTeros := squaddieBuilder.Builder().Teros().Strength(1).Build()
+	strongTeros := squaddie.Builder().Teros().Strength(1).Build()
 	suite.squaddieRepo.AddSquaddie(strongTeros)
 
-	weakerSpear := powerBuilder.Builder().Spear().DealsDamage(1).Build()
+	weakerSpear := power.Builder().Spear().DealsDamage(1).Build()
 	suite.repos.PowerRepo.AddPower(weakerSpear)
 
 	spearDamage, spearErr := suite.offenseStrategy.GetSquaddieRawDamageWithPower(strongTeros.ID(), weakerSpear.ID(), suite.repos)
@@ -118,10 +116,10 @@ func (suite *squaddieOffense) TestGetRawDamageOfPhysicalPower(checker *C) {
 }
 
 func (suite *squaddieOffense) TestGetRawDamageOfSpellPower(checker *C) {
-	smartTeros := squaddieBuilder.Builder().Teros().Mind(3).Build()
+	smartTeros := squaddie.Builder().Teros().Mind(3).Build()
 	suite.squaddieRepo.AddSquaddie(smartTeros)
 
-	weakerBlot := powerBuilder.Builder().Blot().DealsDamage(0).Build()
+	weakerBlot := power.Builder().Blot().DealsDamage(0).Build()
 	suite.repos.PowerRepo.AddPower(weakerBlot)
 
 	blotDamage, blotErr := suite.offenseStrategy.GetSquaddieRawDamageWithPower(smartTeros.ID(), weakerBlot.ID(), suite.repos)
@@ -130,7 +128,7 @@ func (suite *squaddieOffense) TestGetRawDamageOfSpellPower(checker *C) {
 }
 
 func (suite *squaddieOffense) TestGetCriticalThresholdOfPower(checker *C) {
-	criticalSpear := powerBuilder.Builder().Spear().CriticalHitThresholdBonus(2).CriticalDealsDamage(5).Build()
+	criticalSpear := power.Builder().Spear().CriticalHitThresholdBonus(2).CriticalDealsDamage(5).Build()
 	suite.repos.PowerRepo.AddPower(criticalSpear)
 
 	spearCritThreat, critErr := suite.offenseStrategy.GetSquaddieCriticalThresholdWithPower(suite.teros.ID(), criticalSpear.ID(), suite.repos)
@@ -144,10 +142,10 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerDoesNotCrit(checker *C) {
 }
 
 func (suite *squaddieOffense) TestGetCriticalDamageOfPower(checker *C) {
-	strongTeros := squaddieBuilder.Builder().Teros().Strength(1).Build()
+	strongTeros := squaddie.Builder().Teros().Strength(1).Build()
 	suite.squaddieRepo.AddSquaddie(strongTeros)
 
-	criticalSpear := powerBuilder.Builder().Spear().CriticalDealsDamage(5).Build()
+	criticalSpear := power.Builder().Spear().CriticalDealsDamage(5).Build()
 	suite.repos.PowerRepo.AddPower(criticalSpear)
 
 	spearDamage, damageErr := suite.offenseStrategy.GetSquaddieCriticalRawDamageWithPower(strongTeros.ID(), criticalSpear.ID(), suite.repos)
@@ -166,10 +164,10 @@ func (suite *squaddieOffense) TestSquaddieCanCounterAttackWithPower(checker *C) 
 }
 
 func (suite *squaddieOffense) TestSquaddieShowsCounterAttackToHit(checker *C) {
-	accurateTeros := squaddieBuilder.Builder().Teros().Aim(2).Build()
+	accurateTeros := squaddie.Builder().Teros().Aim(2).Build()
 	suite.squaddieRepo.AddSquaddie(accurateTeros)
 
-	spearThatIsEasyToCounter := powerBuilder.Builder().Spear().CounterAttackPenaltyReduction(1).Build()
+	spearThatIsEasyToCounter := power.Builder().Spear().CounterAttackPenaltyReduction(1).Build()
 	suite.repos.PowerRepo.AddPower(spearThatIsEasyToCounter)
 
 	spearAim, spearErr := suite.offenseStrategy.GetSquaddieCounterAttackAimWithPower(accurateTeros.ID(), spearThatIsEasyToCounter.ID(), suite.repos)
@@ -178,10 +176,10 @@ func (suite *squaddieOffense) TestSquaddieShowsCounterAttackToHit(checker *C) {
 }
 
 func (suite *squaddieOffense) TestGetTotalBarrierBurnOfAttacks(checker *C) {
-	smartTeros := squaddieBuilder.Builder().Teros().Mind(3).Build()
+	smartTeros := squaddie.Builder().Teros().Mind(3).Build()
 	suite.squaddieRepo.AddSquaddie(smartTeros)
 
-	blotWithBarrierBurn := powerBuilder.Builder().Blot().ExtraBarrierBurn(2).Build()
+	blotWithBarrierBurn := power.Builder().Blot().ExtraBarrierBurn(2).Build()
 	suite.repos.PowerRepo.AddPower(blotWithBarrierBurn)
 
 	blotDamage, blotErr := suite.offenseStrategy.GetSquaddieExtraBarrierBurnWithPower(smartTeros.ID(), blotWithBarrierBurn.ID(), suite.repos)
@@ -190,14 +188,14 @@ func (suite *squaddieOffense) TestGetTotalBarrierBurnOfAttacks(checker *C) {
 }
 
 func (suite *squaddieOffense) TestCanCriticallyHitWithPower(checker *C) {
-	criticalSpear := powerBuilder.Builder().Spear().CriticalDealsDamage(1).Build()
+	criticalSpear := power.Builder().Spear().CriticalDealsDamage(1).Build()
 	suite.repos.PowerRepo.AddPower(criticalSpear)
 
 	spearCanCrit, spearCanCritErr := suite.offenseStrategy.GetSquaddieCanCriticallyHitWithPower(suite.teros.ID(), criticalSpear.ID(), suite.repos)
 	checker.Assert(spearCanCritErr, IsNil)
 	checker.Assert(spearCanCrit, Equals, true)
 
-	weakerBlot := powerBuilder.Builder().Blot().ToHitBonus(0).DealsDamage(0).Build()
+	weakerBlot := power.Builder().Blot().ToHitBonus(0).DealsDamage(0).Build()
 	suite.repos.PowerRepo.AddPower(weakerBlot)
 
 	blotCanCrit, blotCanCritErr := suite.offenseStrategy.GetSquaddieCanCriticallyHitWithPower(suite.teros.ID(), weakerBlot.ID(), suite.repos)
@@ -219,9 +217,9 @@ type healingPower struct {
 var _ = Suite(&healingPower{})
 
 func (suite *healingPower) SetUpTest(checker *C) {
-	suite.lini = squaddieBuilder.Builder().Lini().Mind(1).Build()
+	suite.lini = squaddie.Builder().Lini().Mind(1).Build()
 
-	suite.healingStaff = powerBuilder.Builder().HealingStaff().Build()
+	suite.healingStaff = power.Builder().HealingStaff().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.lini})

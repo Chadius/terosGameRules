@@ -3,8 +3,6 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
-	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
@@ -17,9 +15,9 @@ type SquaddieIdentificationCreationTests struct {
 var _ = Suite(&SquaddieIdentificationCreationTests{})
 
 func (suite *SquaddieIdentificationCreationTests) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().WithName("teros").Build()
-	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("mageClassID").Build()
-	suite.mushroomClass = squaddieClassBuilder.ClassBuilder().WithID("mushroomClassID").Build()
+	suite.teros = squaddie.Builder().Teros().WithName("teros").Build()
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("mageClassID").Build()
+	suite.mushroomClass = squaddieclass.ClassBuilder().WithID("mushroomClassID").Build()
 }
 
 func (suite *SquaddieIdentificationCreationTests) TestNameIsSet(checker *C) {

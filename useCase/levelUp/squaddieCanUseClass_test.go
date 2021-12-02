@@ -6,9 +6,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
-	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
+	"github.com/chadius/terosbattleserver/utility/testutility/builder"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -42,10 +40,10 @@ type SquaddieQualifiesForClassSuite struct {
 var _ = Suite(&SquaddieQualifiesForClassSuite{})
 
 func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
-	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("class1").WithName("Mage").Build()
-	suite.dimensionWalkerClass = squaddieClassBuilder.ClassBuilder().WithID("class2").WithName("Dimension Walker").RequiresBaseClass().Build()
-	suite.ancientTomeClass = squaddieClassBuilder.ClassBuilder().WithID("class3").WithName("Ancient Tome").RequiresBaseClass().Build()
-	suite.atLeastTenLevelsBaseClass = squaddieClassBuilder.ClassBuilder().WithID("class4").WithName("Base with many levels").Build()
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("class1").WithName("Mage").Build()
+	suite.dimensionWalkerClass = squaddieclass.ClassBuilder().WithID("class2").WithName("Dimension Walker").RequiresBaseClass().Build()
+	suite.ancientTomeClass = squaddieclass.ClassBuilder().WithID("class3").WithName("Ancient Tome").RequiresBaseClass().Build()
+	suite.atLeastTenLevelsBaseClass = squaddieclass.ClassBuilder().WithID("class4").WithName("Base with many levels").Build()
 
 	suite.classRepo = squaddieclass.NewRepository()
 	suite.classRepo.AddListOfClasses([]*squaddieclass.Class{suite.mageClass, suite.dimensionWalkerClass, suite.ancientTomeClass})
@@ -99,16 +97,16 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 	})
 
 	suite.lotsOfLevels = append(
-		(&power.LevelGenerator{
-			Instructions: &power.LevelGeneratorInstruction{
+		(&builder.LevelGenerator{
+			Instructions: &builder.LevelGeneratorInstruction{
 				NumberOfLevels: 11,
 				ClassID:        suite.atLeastTenLevelsBaseClass.ID(),
 				PrefixLevelID:  "lotsLevelsSmall",
 				Type:           levelupbenefit.Small,
 			},
 		}).Build(),
-		(&power.LevelGenerator{
-			Instructions: &power.LevelGeneratorInstruction{
+		(&builder.LevelGenerator{
+			Instructions: &builder.LevelGeneratorInstruction{
 				NumberOfLevels: 11,
 				ClassID:        suite.atLeastTenLevelsBaseClass.ID(),
 				PrefixLevelID:  "lotsLevelsBig",
@@ -123,7 +121,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		LevelRepo: suite.levelRepo,
 	}
 
-	suite.teros = squaddieBuilder.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).AddClassByReference(suite.dimensionWalkerClass.GetReference()).AddClassByReference(suite.ancientTomeClass.GetReference()).AddClassByReference(suite.atLeastTenLevelsBaseClass.GetReference()).Build()
+	suite.teros = squaddie.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).AddClassByReference(suite.dimensionWalkerClass.GetReference()).AddClassByReference(suite.ancientTomeClass.GetReference()).AddClassByReference(suite.atLeastTenLevelsBaseClass.GetReference()).Build()
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 	suite.levelUpCheck = &levelup.LevelsConsumedChecker{}
 }

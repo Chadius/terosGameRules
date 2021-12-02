@@ -9,8 +9,6 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -37,13 +35,13 @@ type CounterAttackCalculate struct {
 var _ = Suite(&CounterAttackCalculate{})
 
 func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.mysticMage = squaddieBuilder.Builder().MysticMage().Build()
-	suite.bandit = squaddieBuilder.Builder().Bandit().Build()
+	suite.teros = squaddie.Builder().Teros().Build()
+	suite.mysticMage = squaddie.Builder().MysticMage().Build()
+	suite.bandit = squaddie.Builder().Bandit().Build()
 
-	suite.spear = powerBuilder.Builder().Spear().Build()
-	suite.axe = powerBuilder.Builder().Axe().Build()
-	suite.fireball = powerBuilder.Builder().IsSpell().CanBeEquipped().Build()
+	suite.spear = power.Builder().Spear().Build()
+	suite.axe = power.Builder().Axe().Build()
+	suite.fireball = power.Builder().IsSpell().CanBeEquipped().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.mysticMage})
@@ -128,11 +126,11 @@ type HealingEffectForecast struct {
 var _ = Suite(&HealingEffectForecast{})
 
 func (suite *HealingEffectForecast) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.lini = squaddieBuilder.Builder().Lini().Build()
-	suite.vale = squaddieBuilder.Builder().WithName("Vale").AsPlayer().Build()
+	suite.teros = squaddie.Builder().Teros().Build()
+	suite.lini = squaddie.Builder().Lini().Build()
+	suite.vale = squaddie.Builder().WithName("Vale").AsPlayer().Build()
 
-	suite.healingStaff = powerBuilder.Builder().HealingStaff().Build()
+	suite.healingStaff = power.Builder().HealingStaff().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.lini, suite.vale})
@@ -181,10 +179,10 @@ func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(check
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker *C) {
-	suite.teros.Defense = *squaddieBuilder.DefenseBuilder().HitPoints(10).Build()
+	suite.teros.Defense = *squaddie.DefenseBuilder().HitPoints(10).Build()
 	suite.teros.Defense.SetHPToMax()
 	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	suite.lini.Offense = *squaddieBuilder.OffenseBuilder().Mind(3).Build()
+	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(3).Build()
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed()+suite.lini.Mind())
@@ -193,8 +191,8 @@ func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C) {
 	suite.teros.Defense.SetHPToMax()
 	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	suite.lini.Offense = *squaddieBuilder.OffenseBuilder().Mind(3).Build()
-	suite.healingStaff = powerBuilder.Builder().CloneOf(suite.healingStaff).WithID(suite.healingStaff.ID()).HealingAdjustmentBasedOnUserMindHalf().Build()
+	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(3).Build()
+	suite.healingStaff = power.Builder().CloneOf(suite.healingStaff).WithID(suite.healingStaff.ID()).HealingAdjustmentBasedOnUserMindHalf().Build()
 	suite.powerRepo.AddPower(suite.healingStaff)
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
@@ -205,8 +203,8 @@ func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C)
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C) {
 	suite.teros.Defense.SetHPToMax()
 	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	suite.lini.Offense = *squaddieBuilder.OffenseBuilder().Mind(3).Build()
-	suite.healingStaff = powerBuilder.Builder().CloneOf(suite.healingStaff).WithID(suite.healingStaff.ID()).HealingAdjustmentBasedOnUserMindZero().Build()
+	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(3).Build()
+	suite.healingStaff = power.Builder().CloneOf(suite.healingStaff).WithID(suite.healingStaff.ID()).HealingAdjustmentBasedOnUserMindZero().Build()
 	suite.powerRepo.AddPower(suite.healingStaff)
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()

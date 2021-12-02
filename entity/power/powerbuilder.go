@@ -2,7 +2,6 @@ package power
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
@@ -14,7 +13,7 @@ type BuilderOptions struct {
 	targetSelf           bool
 	targetFriend         bool
 	targetFoe            bool
-	powerType            power.DamageType
+	powerType            DamageType
 	healingEffectOptions *HealingEffectOptions
 	attackEffectOptions  *AttackEffectOptions
 }
@@ -29,7 +28,7 @@ func Builder() *BuilderOptions {
 		targetSelf:           false,
 		targetFriend:         false,
 		targetFoe:            false,
-		powerType:            power.Physical,
+		powerType:            Physical,
 		healingEffectOptions: nil,
 		attackEffectOptions:  nil,
 	}
@@ -49,13 +48,13 @@ func (p *BuilderOptions) WithID(id string) *BuilderOptions {
 
 // IsPhysical sets the power type to physical.
 func (p *BuilderOptions) IsPhysical() *BuilderOptions {
-	p.powerType = power.Physical
+	p.powerType = Physical
 	return p
 }
 
 // IsSpell sets the power type to spell.
 func (p *BuilderOptions) IsSpell() *BuilderOptions {
-	p.powerType = power.Spell
+	p.powerType = Spell
 	return p
 }
 
@@ -195,21 +194,21 @@ func (p *BuilderOptions) CriticalHitThresholdBonus(thresholdBonus int) *BuilderO
 }
 
 // Build uses the BuilderOptions to create a power.
-func (p *BuilderOptions) Build() *power.Power {
-	var attackEffect *power.AttackingEffect = nil
+func (p *BuilderOptions) Build() *Power {
+	var attackEffect *AttackingEffect = nil
 	if p.attackEffectOptions != nil {
 		attackEffect = p.attackEffectOptions.Build()
 	}
-	var healingEffect *power.HealingEffect = nil
+	var healingEffect *HealingEffect = nil
 	if p.healingEffectOptions != nil {
 		healingEffect = p.healingEffectOptions.Build()
 	}
 
-	newPower := power.NewPower(
+	newPower := NewPower(
 		p.name,
 		p.id,
 		&p.powerType,
-		&power.Targeting{
+		&Targeting{
 			TargetSelf:   p.targetSelf,
 			TargetFoe:    p.targetFoe,
 			TargetFriend: p.targetFriend,
@@ -246,9 +245,9 @@ func (p *BuilderOptions) HealingStaff() *BuilderOptions {
 
 // BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
 type BuilderOptionMarshal struct {
-	ID        string           `json:"id" yaml:"id"`
-	Name      string           `json:"name" yaml:"name"`
-	PowerType power.DamageType `json:"power_type" yaml:"power_type"`
+	ID        string     `json:"id" yaml:"id"`
+	Name      string     `json:"name" yaml:"name"`
+	PowerType DamageType `json:"power_type" yaml:"power_type"`
 
 	TargetSelf   bool `json:"target_self" yaml:"target_self"`
 	TargetFoe    bool `json:"target_foe" yaml:"target_foe"`
@@ -266,9 +265,9 @@ type BuilderOptionMarshal struct {
 	CriticalHitThresholdBonus int  `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
 	CriticalDamage            int  `json:"critical_damage" yaml:"critical_damage"`
 
-	CanHeal                          bool                                   `json:"can_heal" yaml:"can_heal"`
-	HealingAdjustmentBasedOnUserMind power.HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
-	HitPointsHealed                  int                                    `json:"hit_points_healed" yaml:"hit_points_healed"`
+	CanHeal                          bool                             `json:"can_heal" yaml:"can_heal"`
+	HealingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
+	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
 
 // UsingYAML uses the yaml data to generate BuilderOptions.
@@ -344,22 +343,22 @@ func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMa
 	if marshaledOptions.CanHeal {
 		p.HitPointsHealed(marshaledOptions.HitPointsHealed)
 
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == power.Full {
+		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Full {
 			p.HealingAdjustmentBasedOnUserMindFull()
 		}
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == power.Half {
+		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Half {
 			p.HealingAdjustmentBasedOnUserMindHalf()
 		}
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == power.Zero {
+		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Zero {
 			p.HealingAdjustmentBasedOnUserMindZero()
 		}
 	}
 
-	if marshaledOptions.PowerType == power.Physical {
+	if marshaledOptions.PowerType == Physical {
 		p.IsPhysical()
 	}
 
-	if marshaledOptions.PowerType == power.Spell {
+	if marshaledOptions.PowerType == Spell {
 		p.IsSpell()
 	}
 
@@ -377,7 +376,7 @@ func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMa
 }
 
 // CloneOf modifies the BuilderOptions based on the source, except for the classID.
-func (p *BuilderOptions) CloneOf(source *power.Power) *BuilderOptions {
+func (p *BuilderOptions) CloneOf(source *Power) *BuilderOptions {
 	p.WithName(source.Name())
 
 	p.clonePowerType(source)
@@ -388,23 +387,23 @@ func (p *BuilderOptions) CloneOf(source *power.Power) *BuilderOptions {
 	return p
 }
 
-func (p *BuilderOptions) cloneHealingEffect(source *power.Power) {
+func (p *BuilderOptions) cloneHealingEffect(source *Power) {
 	if source.CanHeal() {
 		p.HitPointsHealed(source.HitPointsHealed())
 
-		if source.HealingAdjustmentBasedOnUserMind() == power.Full {
+		if source.HealingAdjustmentBasedOnUserMind() == Full {
 			p.HealingAdjustmentBasedOnUserMindFull()
 		}
-		if source.HealingAdjustmentBasedOnUserMind() == power.Half {
+		if source.HealingAdjustmentBasedOnUserMind() == Half {
 			p.HealingAdjustmentBasedOnUserMindHalf()
 		}
-		if source.HealingAdjustmentBasedOnUserMind() == power.Zero {
+		if source.HealingAdjustmentBasedOnUserMind() == Zero {
 			p.HealingAdjustmentBasedOnUserMindZero()
 		}
 	}
 }
 
-func (p *BuilderOptions) cloneAttackEffect(source *power.Power) {
+func (p *BuilderOptions) cloneAttackEffect(source *Power) {
 	if source.CanAttack() {
 		p.ToHitBonus(source.ToHitBonus()).DealsDamage(source.DamageBonus()).ExtraBarrierBurn(source.ExtraBarrierBurn()).
 			CounterAttackPenaltyReduction(source.CounterAttackPenaltyReduction())
@@ -432,7 +431,7 @@ func (p *BuilderOptions) cloneAttackEffect(source *power.Power) {
 	}
 }
 
-func (p *BuilderOptions) cloneTargeting(source *power.Power) {
+func (p *BuilderOptions) cloneTargeting(source *Power) {
 	if source.CanPowerTargetFoe() {
 		p.TargetsFoe()
 	}
@@ -446,11 +445,11 @@ func (p *BuilderOptions) cloneTargeting(source *power.Power) {
 	}
 }
 
-func (p *BuilderOptions) clonePowerType(source *power.Power) {
-	if source.Type() == power.Physical {
+func (p *BuilderOptions) clonePowerType(source *Power) {
+	if source.Type() == Physical {
 		p.IsPhysical()
 	}
-	if source.Type() == power.Spell {
+	if source.Type() == Spell {
 		p.IsSpell()
 	}
 }

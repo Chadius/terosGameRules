@@ -1,7 +1,5 @@
 package squaddie
 
-import "github.com/chadius/terosbattleserver/entity/squaddie"
-
 // OffenseBuilderOptions is used to set a squaddie's offensive attributes.
 type OffenseBuilderOptions struct {
 	aim      int
@@ -39,7 +37,7 @@ func (o *OffenseBuilderOptions) Mind(mind int) *OffenseBuilderOptions {
 }
 
 // Build uses the OffenseBuilderOptions to create a Movement.
-func (o *OffenseBuilderOptions) Build() *squaddie.Offense {
-	newOffense := squaddie.NewOffense(o.aim, o.strength, o.mind)
+func (o *OffenseBuilderOptions) Build() *Offense {
+	newOffense := NewOffense(o.aim, o.strength, o.mind)
 	return newOffense
 }

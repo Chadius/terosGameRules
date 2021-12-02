@@ -20,12 +20,12 @@ const (
 
 // Squaddie represents a person, creature or thing that can take actions on a battlefield.
 type Squaddie struct {
-	Identification  Identification  `json:"identification" yaml:"identification"`
-	ClassProgress   ClassProgress   `json:"class_progress" yaml:"class_progress"`
-	Defense         Defense         `json:"defense" yaml:"defense"`
-	Offense         Offense         `json:"offense" yaml:"offense"`
-	Movement        Movement        `json:"movement" yaml:"movement"`
-	PowerCollection PowerCollection `json:"powers" yaml:"powers"`
+	Identification  Identification              `json:"identification" yaml:"identification"`
+	ClassProgress   squaddieclass.ClassProgress `json:"class_progress" yaml:"class_progress"`
+	Defense         Defense                     `json:"defense" yaml:"defense"`
+	Offense         Offense                     `json:"offense" yaml:"offense"`
+	Movement        Movement                    `json:"movement" yaml:"movement"`
+	PowerCollection PowerCollection             `json:"powers" yaml:"powers"`
 }
 
 // NewSquaddie generates a squaddie with maxed out health.
@@ -36,7 +36,7 @@ func NewSquaddie(name string) *Squaddie {
 			name,
 			Player,
 		),
-		ClassProgress: *NewClassProgress("", "", map[string]*ClassLevelsConsumed{}),
+		ClassProgress: *squaddieclass.NewClassProgress("", "", map[string]*squaddieclass.ClassLevelsConsumed{}),
 		Defense:       *NewDefense(0, 5, 0, 0, 0, 0, 0),
 		Offense:       *NewOffense(0, 0, 0),
 		Movement:      *NewMovement(3, Foot, false),
@@ -338,6 +338,6 @@ func (s *Squaddie) BaseClassID() string {
 }
 
 // ClassLevelsConsumed delegates
-func (s *Squaddie) ClassLevelsConsumed() *map[string]*ClassLevelsConsumed {
+func (s *Squaddie) ClassLevelsConsumed() *map[string]*squaddieclass.ClassLevelsConsumed {
 	return s.ClassProgress.ClassLevelsConsumed()
 }

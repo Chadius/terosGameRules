@@ -1,10 +1,8 @@
-package squaddie_test
+package squaddieclass_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
-	squaddieClassBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddieclass"
 	. "gopkg.in/check.v1"
 )
 
@@ -17,9 +15,9 @@ type ClassProgressTests struct {
 var _ = Suite(&ClassProgressTests{})
 
 func (suite *ClassProgressTests) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.mageClass = squaddieClassBuilder.ClassBuilder().WithID("mageClassID").Build()
-	suite.mushroomClass = squaddieClassBuilder.ClassBuilder().WithID("mushroomClassID").Build()
+	suite.teros = squaddie.Builder().Teros().Build()
+	suite.mageClass = squaddieclass.ClassBuilder().WithID("mageClassID").Build()
+	suite.mushroomClass = squaddieclass.ClassBuilder().WithID("mushroomClassID").Build()
 }
 
 func (suite *ClassProgressTests) TestNewSquaddieHasNoClassesOrLevels(checker *C) {

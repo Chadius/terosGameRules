@@ -6,8 +6,6 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
-	squaddieBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/squaddie"
 	. "gopkg.in/check.v1"
 	"testing"
 )
@@ -28,10 +26,10 @@ type SquaddieEquipPowersFromRepo struct {
 var _ = Suite(&SquaddieEquipPowersFromRepo{})
 
 func (suite *SquaddieEquipPowersFromRepo) SetUpTest(checker *C) {
-	suite.teros = squaddieBuilder.Builder().Teros().Build()
-	suite.spear = powerBuilder.Builder().Spear().Build()
-	suite.scimitar = powerBuilder.Builder().WithName("scimitar the second").CanBeEquipped().Build()
-	suite.blot = powerBuilder.Builder().Blot().CannotBeEquipped().Build()
+	suite.teros = squaddie.Builder().Teros().Build()
+	suite.spear = power.Builder().Spear().Build()
+	suite.scimitar = power.Builder().WithName("scimitar the second").CanBeEquipped().Build()
+	suite.blot = power.Builder().Blot().CannotBeEquipped().Build()
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
@@ -115,7 +113,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipNonexistentPowers(check
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C) {
-	notTerosPower := powerBuilder.Builder().CanBeEquipped().Build()
+	notTerosPower := power.Builder().CanBeEquipped().Build()
 
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		notTerosPower,

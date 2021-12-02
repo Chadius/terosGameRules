@@ -1,4 +1,4 @@
-package power
+package builder
 
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"

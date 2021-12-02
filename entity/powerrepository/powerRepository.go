@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/utility"
-	powerBuilder "github.com/chadius/terosbattleserver/utility/testutility/builder/power"
 )
 
 // Repository will interact with external devices to manage Powers.
@@ -22,7 +21,7 @@ func NewPowerRepository() *Repository {
 
 // AddJSONSource consumes a given bytestream and tries to analyze it.
 func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
-	builderOptions := powerBuilder.CreatePowerBuilderOptionsFromJSON(data)
+	builderOptions := power.CreatePowerBuilderOptionsFromJSON(data)
 	if builderOptions == nil {
 		return false, errors.New("could not create BuilderOptions with given JSON")
 	}
@@ -38,7 +37,7 @@ func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
 
 // AddYAMLSource consumes a given bytestream and tries to analyze it.
 func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
-	builderOptions := powerBuilder.CreatePowerBuilderOptionsFromYAML(data)
+	builderOptions := power.CreatePowerBuilderOptionsFromYAML(data)
 	if builderOptions == nil {
 		return false, errors.New("could not create BuilderOptions with given YAML")
 	}
