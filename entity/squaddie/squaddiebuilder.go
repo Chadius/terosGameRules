@@ -21,6 +21,8 @@ type BuilderOptions struct {
 	baseClassID             string
 }
 
+// TODO Rename to NewSquaddieBuilder
+
 // Builder creates a BuilderOptions with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
@@ -426,4 +428,83 @@ func (s *BuilderOptions) cloneClassProgress(source *Squaddie) {
 	}
 
 	s.SetClassByID(source.CurrentClassID())
+}
+
+// NewSquaddieFromMarshal creates a new Builder with fields based on the Marshal object
+func NewSquaddieFromMarshal(builderFields BuilderOptionMarshal) *BuilderOptions {
+	s := Builder().populateBuilderBasedOnMarshal(builderFields)
+	return s
+}
+
+func (s *BuilderOptions) populateBuilderBasedOnMarshal(builderFields BuilderOptionMarshal) *BuilderOptions {
+	s.WithName(builderFields.Name).
+		WithID(builderFields.ID).
+		Aim(builderFields.Aim).
+		Strength(builderFields.Strength).
+		Mind(builderFields.Mind).
+		HitPoints(builderFields.MaxHitPoints).
+		Barrier(builderFields.MaxBarrier).
+		Armor(builderFields.Armor).
+		Dodge(builderFields.Dodge).
+		Deflect(builderFields.Deflect).
+		MoveDistance(builderFields.MovementDistance)
+
+	if builderFields.Affiliation == Player {
+		s.AsPlayer()
+	}
+	if builderFields.Affiliation == Enemy {
+		s.AsEnemy()
+	}
+	if builderFields.Affiliation == Ally {
+		s.AsAlly()
+	}
+	if builderFields.Affiliation == Neutral {
+		s.AsNeutral()
+	}
+
+	if builderFields.MovementCanHitAndRun {
+		s.CanHitAndRun()
+	}
+
+	if builderFields.MovementType == Foot {
+		s.MovementFoot()
+	}
+	if builderFields.MovementType == Fly {
+		s.MovementFly()
+	}
+	if builderFields.MovementType == Light {
+		s.MovementLight()
+	}
+	if builderFields.MovementType == Teleport {
+		s.MovementTeleport()
+	}
+
+	for _, reference := range builderFields.PowerReferences {
+		s.AddPowerByReference(reference)
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		if progress.BaseClass {
+			s.SetBaseClassByID(progress.ClassID)
+		}
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		if progress.CurrentClass {
+			s.SetClassByID(progress.ClassID)
+		}
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		s.AddClassByReference(&squaddieclass.ClassReference{
+			ID:   progress.ClassID,
+			Name: progress.ClassName,
+		})
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		s.AddClassLevelsConsumed(progress.ClassID, &progress.LevelsConsumed)
+	}
+
+	return s
 }

@@ -21,6 +21,7 @@ func (suite *SquaddieRepositorySuite) SetUpTest(checker *C) {
 	suite.attackA = power.Builder().WithName("attack Formation A").Build()
 }
 
+// TODO will I need this function once I'm done refactoring?
 func (suite *SquaddieRepositorySuite) TestUseJSONSource(checker *C) {
 	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 0)
 	jsonByteStream := []byte(`[{
@@ -219,6 +220,7 @@ func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
 	checker.Assert(referencedSquaddie, Equals, originalSquaddie)
 }
 
+// TODO all of these may be deleted soon
 func (suite *SquaddieRepositorySuite) TestLoadSquaddieByYAML(checker *C) {
 	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 0)
 	yamlByteStream := []byte(`-
@@ -230,6 +232,7 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddieByYAML(checker *C) {
 	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
 }
 
+// TODO
 func (suite *SquaddieRepositorySuite) TestLoadClassLevelsYAML(checker *C) {
 	yamlByteStream := []byte(`-
   identification:
@@ -440,4 +443,157 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
 		checker.Assert(cloneLevelsConsumed, Not(Equals), levelsConsumed)
 		checker.Assert(cloneLevelsConsumed, DeepEquals, levelsConsumed)
 	}
+}
+
+type SquaddieLoadDataStreamUsingBuilders struct{}
+
+var _ = Suite(&SquaddieLoadDataStreamUsingBuilders{})
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestLoadSquaddieByYAMLUsingSquaddieBuilder(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_teros
+  name: teros
+  affiliation: Player
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+	checker.Assert(squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
+
+	teros := squaddieRepository.GetSquaddieByID("squaddie_teros")
+	checker.Assert(teros.Name(), Equals, "teros")
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedIdentification(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_bandit
+  name: Bandit
+  affiliation: Enemy
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_bandit")
+	checker.Assert(loadedSquaddie.Name(), Equals, "Bandit")
+	checker.Assert(loadedSquaddie.Affiliation(), Equals, squaddie.Enemy)
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedOffense(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_offense
+  aim: 2
+  strength: 3
+  mind: 5
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_offense")
+	checker.Assert(loadedSquaddie.Aim(), Equals, 2)
+	checker.Assert(loadedSquaddie.Strength(), Equals, 3)
+	checker.Assert(loadedSquaddie.Mind(), Equals, 5)
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedDefense(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_defense
+  max_hit_points: 2
+  max_barrier: 3
+  armor: 5
+  dodge: 7
+  deflect: 11
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_defense")
+	checker.Assert(loadedSquaddie.MaxHitPoints(), Equals, 2)
+	checker.Assert(loadedSquaddie.CurrentHitPoints(), Equals, 2)
+	checker.Assert(loadedSquaddie.MaxBarrier(), Equals, 3)
+	checker.Assert(loadedSquaddie.Armor(), Equals, 5)
+	checker.Assert(loadedSquaddie.Dodge(), Equals, 7)
+	checker.Assert(loadedSquaddie.Deflect(), Equals, 11)
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedMovement(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_on_the_move
+  hit_and_run: true
+  movement_type: fly
+  movement_distance: 2
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_on_the_move")
+	checker.Assert(loadedSquaddie.MovementDistance(), Equals, 2)
+	checker.Assert(loadedSquaddie.MovementCanHitAndRun(), Equals, true)
+	checker.Assert(loadedSquaddie.MovementType(), Equals, squaddie.Fly)
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedPowers(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_with_powers
+  powers:
+  -
+    name: Baseball Bat
+    id: power_baseball_bat
+  -
+    name: BasketBrawl
+    id: power_basket_brawl
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_with_powers")
+	squaddiePowers := loadedSquaddie.GetCopyOfPowerReferences()
+
+	checker.Assert(squaddiePowers, HasLen, 2)
+	checker.Assert(squaddiePowers[0].PowerID, Equals, "power_baseball_bat")
+	checker.Assert(squaddiePowers[0].Name, Equals, "Baseball Bat")
+
+	checker.Assert(squaddiePowers[1].PowerID, Equals, "power_basket_brawl")
+	checker.Assert(squaddiePowers[1].Name, Equals, "BasketBrawl")
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedClasses(checker *C) {
+	yamlByteStream := []byte(`-
+  id: squaddie_with_class
+  class_progress:
+  -
+    is_base_class: true
+    class_id: class_dirt_farmer
+    class_name: Dirt Farmer
+    levels_gained: ["levelDirtFarmer0", "levelDirtFarmer1", "levelDirtFarmer2"]
+  -
+    is_base_class: false
+    is_current_class: true
+    class_id: class_jedi_knight
+    class_name: Jedi Knight
+    levels_gained: ["levelJediKnight0"]
+`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	checker.Assert(err, IsNil)
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_with_class")
+	levelCountsByClass := loadedSquaddie.GetLevelCountsByClass()
+
+	checker.Assert(loadedSquaddie.BaseClassID(), Equals, "class_dirt_farmer")
+	checker.Assert(loadedSquaddie.CurrentClassID(), Equals, "class_jedi_knight")
+
+	checker.Assert(levelCountsByClass, HasLen, 2)
+	checker.Assert(levelCountsByClass["class_dirt_farmer"], Equals, 3)
+	checker.Assert(levelCountsByClass["class_jedi_knight"], Equals, 1)
+
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelDirtFarmer0"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelDirtFarmer1"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelDirtFarmer2"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelDirtFarmer3"), Equals, false)
+
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelJediKnight0"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelJediKnight1"), Equals, false)
 }

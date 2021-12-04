@@ -46,7 +46,7 @@ func NewSquaddie(name string) *Squaddie {
 }
 
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
-func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
+func CheckSquaddieForErrors(newSquaddie *Squaddie) error {
 	if !newSquaddie.Identification.HasValidAffiliation() {
 		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.ID(), newSquaddie.Affiliation())
 		utility.Log(newError.Error(), 0, utility.Error)

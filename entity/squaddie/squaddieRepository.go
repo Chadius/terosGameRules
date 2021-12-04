@@ -70,6 +70,37 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	return true, nil
 }
 
+// AddYAMLSourceUsingSquaddieBuilder adds multiple squaddies using builder objects.
+func (repository *Repository) AddYAMLSourceUsingSquaddieBuilder(data []byte) error {
+	_, err := repository.addSourceUsingSquaddieBuilder(data, yaml.Unmarshal)
+	return err
+}
+
+// addSourceUsingSquaddieBuilder reads the byte stream to create new squaddies.
+func (repository *Repository) addSourceUsingSquaddieBuilder(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
+	var unmarshalError error
+
+	var builderInstructions []BuilderOptionMarshal
+
+	unmarshalError = unmarshal(data, &builderInstructions)
+
+	if unmarshalError != nil {
+		return false, unmarshalError
+	}
+
+	for _, instruction := range builderInstructions {
+		newSquaddie := NewSquaddieFromMarshal(instruction).Build()
+
+		newSquaddie.Defense.SetHPToMax()
+		success, err := repository.tryToAddSquaddie(newSquaddie)
+		if success == false {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
 func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, error) {
 	squaddieErr := CheckSquaddieForErrors(squaddieToAdd)
 	if squaddieErr != nil {
