@@ -12,7 +12,7 @@ type SquaddieMovementTests struct {
 var _ = Suite(&SquaddieMovementTests{})
 
 func (suite *SquaddieMovementTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
 }
 
 func (suite *SquaddieMovementTests) TestDefaultMovement(checker *C) {

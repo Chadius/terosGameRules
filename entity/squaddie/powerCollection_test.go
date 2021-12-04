@@ -17,8 +17,8 @@ type SquaddiePowerCollectionTests struct {
 var _ = Suite(&SquaddiePowerCollectionTests{})
 
 func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
-	suite.attackA = power.Builder().WithName("attack Formation A").Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.attackA = power.NewPowerBuilder().WithName("attack Formation A").Build()
 }
 
 func (suite *SquaddiePowerCollectionTests) TestAddPowerReference(checker *C) {
@@ -64,7 +64,7 @@ func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
-	spear := power.Builder().Spear().Build()
+	spear := power.NewPowerBuilder().Spear().Build()
 
 	powerRepo := powerrepository.NewPowerRepository()
 	powerRepo.AddSlicePowerSource([]*power.Power{spear})

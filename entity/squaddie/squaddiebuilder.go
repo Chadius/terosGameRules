@@ -8,8 +8,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// BuilderOptions is used to create healing effects.
-type BuilderOptions struct {
+// Builder is used to define the parameters for a squaddie builder.
+type Builder struct {
 	identificationOptions   *IdentificationBuilderOptions
 	offenseOptions          *OffenseBuilderOptions
 	defenseOptions          *DefenseBuilderOptions
@@ -21,11 +21,11 @@ type BuilderOptions struct {
 	baseClassID             string
 }
 
-// Builder creates a BuilderOptions with default values.
+// NewSquaddieBuilder creates a Builder with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func Builder() *BuilderOptions {
-	return &BuilderOptions{
+func NewSquaddieBuilder() *Builder {
+	return &Builder{
 		identificationOptions:   IdentificationBuilder(),
 		offenseOptions:          OffenseBuilder(),
 		defenseOptions:          DefenseBuilder(),
@@ -39,157 +39,157 @@ func Builder() *BuilderOptions {
 }
 
 // WithName delegates to the IdentificationBuilderOptions.
-func (s *BuilderOptions) WithName(name string) *BuilderOptions {
+func (s *Builder) WithName(name string) *Builder {
 	s.identificationOptions.WithName(name)
 	return s
 }
 
 // WithID delegates to the IdentificationBuilderOptions.
-func (s *BuilderOptions) WithID(id string) *BuilderOptions {
+func (s *Builder) WithID(id string) *Builder {
 	s.identificationOptions.WithID(id)
 	return s
 }
 
 // AsPlayer delegates to the IdentificationBuilderOptions.
-func (s *BuilderOptions) AsPlayer() *BuilderOptions {
+func (s *Builder) AsPlayer() *Builder {
 	s.identificationOptions.AsPlayer()
 	return s
 }
 
 // AsEnemy delegates to the IdentificationBuilderOptions.
-func (s *BuilderOptions) AsEnemy() *BuilderOptions {
+func (s *Builder) AsEnemy() *Builder {
 	s.identificationOptions.AsEnemy()
 	return s
 }
 
 // AsAlly delegates to the IdentificationBuilderOptions.
-func (s *BuilderOptions) AsAlly() *BuilderOptions {
+func (s *Builder) AsAlly() *Builder {
 	s.identificationOptions.AsAlly()
 	return s
 }
 
 // AsNeutral delegates to the IdentificationBuilderOptions.
-func (s *BuilderOptions) AsNeutral() *BuilderOptions {
+func (s *Builder) AsNeutral() *Builder {
 	s.identificationOptions.AsNeutral()
 	return s
 }
 
 // Aim delegates to the OffenseBuilderOptions.
-func (s *BuilderOptions) Aim(aim int) *BuilderOptions {
+func (s *Builder) Aim(aim int) *Builder {
 	s.offenseOptions.Aim(aim)
 	return s
 }
 
 // Strength delegates to the OffenseBuilderOptions.
-func (s *BuilderOptions) Strength(strength int) *BuilderOptions {
+func (s *Builder) Strength(strength int) *Builder {
 	s.offenseOptions.Strength(strength)
 	return s
 }
 
 // Mind delegates to the OffenseBuilderOptions.
-func (s *BuilderOptions) Mind(mind int) *BuilderOptions {
+func (s *Builder) Mind(mind int) *Builder {
 	s.offenseOptions.Mind(mind)
 	return s
 }
 
 // HitPoints delegates to the DefenseBuilderOptions.
-func (s *BuilderOptions) HitPoints(maxHitPoints int) *BuilderOptions {
+func (s *Builder) HitPoints(maxHitPoints int) *Builder {
 	s.defenseOptions.HitPoints(maxHitPoints)
 	return s
 }
 
 // Barrier delegates to the DefenseBuilderOptions.
-func (s *BuilderOptions) Barrier(maxBarrier int) *BuilderOptions {
+func (s *Builder) Barrier(maxBarrier int) *Builder {
 	s.defenseOptions.Barrier(maxBarrier)
 	return s
 }
 
 // Armor delegates to the DefenseBuilderOptions.
-func (s *BuilderOptions) Armor(armor int) *BuilderOptions {
+func (s *Builder) Armor(armor int) *Builder {
 	s.defenseOptions.Armor(armor)
 	return s
 }
 
 // Dodge delegates to the DefenseBuilderOptions.
-func (s *BuilderOptions) Dodge(dodge int) *BuilderOptions {
+func (s *Builder) Dodge(dodge int) *Builder {
 	s.defenseOptions.Dodge(dodge)
 	return s
 }
 
 // Deflect delegates to the DefenseBuilderOptions.
-func (s *BuilderOptions) Deflect(deflect int) *BuilderOptions {
+func (s *Builder) Deflect(deflect int) *Builder {
 	s.defenseOptions.Deflect(deflect)
 	return s
 }
 
 // MoveDistance delegates to the MovementBuilderOptions.
-func (s *BuilderOptions) MoveDistance(distance int) *BuilderOptions {
+func (s *Builder) MoveDistance(distance int) *Builder {
 	s.movementOptions.Distance(distance)
 	return s
 }
 
 // CanHitAndRun delegates to the MovementBuilderOptions.
-func (s *BuilderOptions) CanHitAndRun() *BuilderOptions {
+func (s *Builder) CanHitAndRun() *Builder {
 	s.movementOptions.CanHitAndRun()
 	return s
 }
 
 // MovementFoot delegates to the MovementBuilderOptions.
-func (s *BuilderOptions) MovementFoot() *BuilderOptions {
+func (s *Builder) MovementFoot() *Builder {
 	s.movementOptions.Foot()
 	return s
 }
 
 // MovementLight delegates to the MovementBuilderOptions.
-func (s *BuilderOptions) MovementLight() *BuilderOptions {
+func (s *Builder) MovementLight() *Builder {
 	s.movementOptions.Light()
 	return s
 }
 
 // MovementFly delegates to the MovementBuilderOptions.
-func (s *BuilderOptions) MovementFly() *BuilderOptions {
+func (s *Builder) MovementFly() *Builder {
 	s.movementOptions.Fly()
 	return s
 }
 
 // MovementTeleport delegates to the MovementBuilderOptions.
-func (s *BuilderOptions) MovementTeleport() *BuilderOptions {
+func (s *Builder) MovementTeleport() *Builder {
 	s.movementOptions.Teleport()
 	return s
 }
 
 // AddPowerByReference adds the power to the squaddie's collection.
-func (s *BuilderOptions) AddPowerByReference(newPowerReference *power.Reference) *BuilderOptions {
+func (s *Builder) AddPowerByReference(newPowerReference *power.Reference) *Builder {
 	s.powerReferencesToAdd = append(s.powerReferencesToAdd, newPowerReference)
 	return s
 }
 
 // AddClassByReference adds the class to the squaddie's list of possible classes.
-func (s *BuilderOptions) AddClassByReference(newClassReference *squaddieclass.ClassReference) *BuilderOptions {
+func (s *Builder) AddClassByReference(newClassReference *squaddieclass.ClassReference) *Builder {
 	s.classReferencesToAdd = append(s.classReferencesToAdd, newClassReference)
 	return s
 }
 
 // AddClassLevelsConsumed adds consumed class levels.
-func (s *BuilderOptions) AddClassLevelsConsumed(classID string, levelIDsConsumed *[]string) *BuilderOptions {
+func (s *Builder) AddClassLevelsConsumed(classID string, levelIDsConsumed *[]string) *Builder {
 	s.levelsConsumedByClassID[classID] = levelIDsConsumed
 	return s
 }
 
 // SetClassByID sets the squaddie's class to the given class.
-func (s *BuilderOptions) SetClassByID(targetClassID string) *BuilderOptions {
+func (s *Builder) SetClassByID(targetClassID string) *Builder {
 	s.classIDToUse = targetClassID
 	return s
 }
 
 // SetBaseClassByID sets the squaddie's class to the given class.
-func (s *BuilderOptions) SetBaseClassByID(targetClassID string) *BuilderOptions {
+func (s *Builder) SetBaseClassByID(targetClassID string) *Builder {
 	s.baseClassID = targetClassID
 	return s
 }
 
-// Build uses the BuilderOptions to create a Movement.
-func (s *BuilderOptions) Build() *Squaddie {
+// Build uses the Builder to create a Movement.
+func (s *Builder) Build() *Squaddie {
 	newSquaddie := &Squaddie{
 		Identification: *s.identificationOptions.Build(),
 		Offense:        *s.offenseOptions.Build(),
@@ -225,33 +225,33 @@ func (s *BuilderOptions) Build() *Squaddie {
 
 // Teros returns a specific squaddie build for testing.
 //   Teros is a player combines physical attacks with magical attacks.
-func (s *BuilderOptions) Teros() *BuilderOptions {
-	teros := Builder().WithName("Teros").WithID("squaddieTeros").MovementFoot().MoveDistance(3).AsPlayer()
+func (s *Builder) Teros() *Builder {
+	teros := NewSquaddieBuilder().WithName("Teros").WithID("squaddieTeros").MovementFoot().MoveDistance(3).AsPlayer()
 	return teros
 }
 
 // Bandit returns a specific squaddie build for testing.
 //   Bandit is a weak enemy with an axe.
-func (s *BuilderOptions) Bandit() *BuilderOptions {
-	bandit := Builder().WithName("Bandit").WithID("squaddieBandit").AsEnemy()
+func (s *Builder) Bandit() *Builder {
+	bandit := NewSquaddieBuilder().WithName("Bandit").WithID("squaddieBandit").AsEnemy()
 	return bandit
 }
 
 // Lini returns a specific squaddie build for testing.
 //   Lini is a player who carries a healing staff to aid her allies.
-func (s *BuilderOptions) Lini() *BuilderOptions {
-	lini := Builder().WithName("Lini").WithID("squaddieLini").AsPlayer()
+func (s *Builder) Lini() *Builder {
+	lini := NewSquaddieBuilder().WithName("Lini").WithID("squaddieLini").AsPlayer()
 	return lini
 }
 
 // MysticMage returns a specific squaddie build for testing.
 //   MysticMage is an enemy with a potent fireball and magical defenses.
-func (s *BuilderOptions) MysticMage() *BuilderOptions {
-	mysticMage := Builder().WithName("Mystic Mage").WithID("squaddieMysticMage")
+func (s *Builder) MysticMage() *Builder {
+	mysticMage := NewSquaddieBuilder().WithName("Mystic Mage").WithID("squaddieMysticMage")
 	return mysticMage
 }
 
-// BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
+// BuilderOptionMarshal is a flattened representation of all Squaddie NewSquaddieBuilder options.
 type BuilderOptionMarshal struct {
 	ID          string      `json:"id" yaml:"id"`
 	Name        string      `json:"name" yaml:"name"`
@@ -283,17 +283,17 @@ type classProgressMarshal struct {
 	LevelsConsumed []string `json:"levels_gained" yaml:"levels_gained"`
 }
 
-// UsingYAML uses the yaml data to generate BuilderOptions.
-func (s *BuilderOptions) UsingYAML(yamlData []byte) *BuilderOptions {
+// UsingYAML uses the yaml data to generate Builder.
+func (s *Builder) UsingYAML(yamlData []byte) *Builder {
 	return s.usingByteStream(yamlData, yaml.Unmarshal)
 }
 
-// UsingJSON uses the json data to generate BuilderOptions.
-func (s *BuilderOptions) UsingJSON(jsonData []byte) *BuilderOptions {
+// UsingJSON uses the json data to generate Builder.
+func (s *Builder) UsingJSON(jsonData []byte) *Builder {
 	return s.usingByteStream(jsonData, json.Unmarshal)
 }
 
-func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) *BuilderOptions {
+func (s *Builder) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) *Builder {
 	var unmarshalError error
 	var marshaledOptions BuilderOptionMarshal
 
@@ -363,8 +363,8 @@ func (s *BuilderOptions) usingByteStream(data []byte, unmarshal utility.Unmarsha
 	return s
 }
 
-// CloneOf modifies the BuilderOptions based on the source, except for the classID.
-func (s *BuilderOptions) CloneOf(source *Squaddie) *BuilderOptions {
+// CloneOf modifies the Builder based on the source, except for the classID.
+func (s *Builder) CloneOf(source *Squaddie) *Builder {
 	s.WithName(source.Name()).
 		HitPoints(source.MaxHitPoints()).Deflect(source.Deflect()).Barrier(source.MaxBarrier()).Armor(source.Armor()).Dodge(source.Dodge()).
 		Aim(source.Aim()).Strength(source.Strength()).Mind(source.Mind()).
@@ -376,7 +376,7 @@ func (s *BuilderOptions) CloneOf(source *Squaddie) *BuilderOptions {
 	return s
 }
 
-func (s *BuilderOptions) cloneMovement(source *Squaddie) {
+func (s *Builder) cloneMovement(source *Squaddie) {
 	if source.MovementType() == Foot {
 		s.MovementFoot()
 	}
@@ -394,7 +394,7 @@ func (s *BuilderOptions) cloneMovement(source *Squaddie) {
 	}
 }
 
-func (s *BuilderOptions) cloneAffiliation(source *Squaddie) {
+func (s *Builder) cloneAffiliation(source *Squaddie) {
 	if source.Affiliation() == Player {
 		s.AsPlayer()
 	}
@@ -409,13 +409,13 @@ func (s *BuilderOptions) cloneAffiliation(source *Squaddie) {
 	}
 }
 
-func (s *BuilderOptions) clonePowerReferences(source *Squaddie) {
+func (s *Builder) clonePowerReferences(source *Squaddie) {
 	for _, reference := range source.GetCopyOfPowerReferences() {
 		s.AddPowerByReference(reference)
 	}
 }
 
-func (s *BuilderOptions) cloneClassProgress(source *Squaddie) {
+func (s *Builder) cloneClassProgress(source *Squaddie) {
 	for classID, classLevelsConsumed := range *source.ClassLevelsConsumed() {
 		s.AddClassByReference(&squaddieclass.ClassReference{
 			ID:   classID,
@@ -426,4 +426,84 @@ func (s *BuilderOptions) cloneClassProgress(source *Squaddie) {
 	}
 
 	s.SetClassByID(source.CurrentClassID())
+	s.SetBaseClassByID(source.BaseClassID())
+}
+
+// NewSquaddieFromMarshal creates a new NewSquaddieBuilder with fields based on the Marshal object
+func NewSquaddieFromMarshal(builderFields BuilderOptionMarshal) *Builder {
+	s := NewSquaddieBuilder().populateBuilderBasedOnMarshal(builderFields)
+	return s
+}
+
+func (s *Builder) populateBuilderBasedOnMarshal(builderFields BuilderOptionMarshal) *Builder {
+	s.WithName(builderFields.Name).
+		WithID(builderFields.ID).
+		Aim(builderFields.Aim).
+		Strength(builderFields.Strength).
+		Mind(builderFields.Mind).
+		HitPoints(builderFields.MaxHitPoints).
+		Barrier(builderFields.MaxBarrier).
+		Armor(builderFields.Armor).
+		Dodge(builderFields.Dodge).
+		Deflect(builderFields.Deflect).
+		MoveDistance(builderFields.MovementDistance)
+
+	if builderFields.Affiliation == Player {
+		s.AsPlayer()
+	}
+	if builderFields.Affiliation == Enemy {
+		s.AsEnemy()
+	}
+	if builderFields.Affiliation == Ally {
+		s.AsAlly()
+	}
+	if builderFields.Affiliation == Neutral {
+		s.AsNeutral()
+	}
+
+	if builderFields.MovementCanHitAndRun {
+		s.CanHitAndRun()
+	}
+
+	if builderFields.MovementType == Foot {
+		s.MovementFoot()
+	}
+	if builderFields.MovementType == Fly {
+		s.MovementFly()
+	}
+	if builderFields.MovementType == Light {
+		s.MovementLight()
+	}
+	if builderFields.MovementType == Teleport {
+		s.MovementTeleport()
+	}
+
+	for _, reference := range builderFields.PowerReferences {
+		s.AddPowerByReference(reference)
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		if progress.BaseClass {
+			s.SetBaseClassByID(progress.ClassID)
+		}
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		if progress.CurrentClass {
+			s.SetClassByID(progress.ClassID)
+		}
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		s.AddClassByReference(&squaddieclass.ClassReference{
+			ID:   progress.ClassID,
+			Name: progress.ClassName,
+		})
+	}
+
+	for _, progress := range builderFields.ClassProgress {
+		s.AddClassLevelsConsumed(progress.ClassID, &progress.LevelsConsumed)
+	}
+
+	return s
 }

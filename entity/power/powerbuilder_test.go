@@ -10,102 +10,102 @@ type PowerBuilder struct{}
 var _ = Suite(&PowerBuilder{})
 
 func (suite *PowerBuilder) TestBuildPowerWithName(checker *C) {
-	sword := power.Builder().WithName("Master Sword").Build()
+	sword := power.NewPowerBuilder().WithName("Master Sword").Build()
 	checker.Assert("Master Sword", Equals, sword.Name())
 }
 
 func (suite *PowerBuilder) TestBuildPowerWithID(checker *C) {
-	sword := power.Builder().WithID("power123").Build()
+	sword := power.NewPowerBuilder().WithID("power123").Build()
 	checker.Assert("power123", Equals, sword.ID())
 }
 
 func (suite *PowerBuilder) TestBuildPowerTargetsSelf(checker *C) {
-	sword := power.Builder().TargetsSelf().Build()
+	sword := power.NewPowerBuilder().TargetsSelf().Build()
 	checker.Assert(true, Equals, sword.CanPowerTargetSelf())
 }
 
 func (suite *PowerBuilder) TestBuildPowerTargetsFriend(checker *C) {
-	sword := power.Builder().TargetsFriend().Build()
+	sword := power.NewPowerBuilder().TargetsFriend().Build()
 	checker.Assert(true, Equals, sword.CanPowerTargetFriend())
 }
 
 func (suite *PowerBuilder) TestBuildPowerTargetsFoe(checker *C) {
-	sword := power.Builder().TargetsFoe().Build()
+	sword := power.NewPowerBuilder().TargetsFoe().Build()
 	checker.Assert(true, Equals, sword.CanPowerTargetFoe())
 }
 
 func (suite *PowerBuilder) TestBuildPowerIsPhysical(checker *C) {
-	sword := power.Builder().IsPhysical().Build()
+	sword := power.NewPowerBuilder().IsPhysical().Build()
 	checker.Assert(power.Physical, Equals, sword.Type())
 }
 
 func (suite *PowerBuilder) TestBuildPowerIsSpell(checker *C) {
-	lightning := power.Builder().IsSpell().Build()
+	lightning := power.NewPowerBuilder().IsSpell().Build()
 	checker.Assert(power.Spell, Equals, lightning.Type())
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentFull(checker *C) {
-	bigHeals := power.Builder().HealingAdjustmentBasedOnUserMindFull().Build()
+	bigHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindFull().Build()
 	checker.Assert(power.Full, Equals, bigHeals.HealingAdjustmentBasedOnUserMind())
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentHalf(checker *C) {
-	someHeals := power.Builder().HealingAdjustmentBasedOnUserMindHalf().Build()
+	someHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindHalf().Build()
 	checker.Assert(power.Half, Equals, someHeals.HealingAdjustmentBasedOnUserMind())
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentZero(checker *C) {
-	someHeals := power.Builder().HealingAdjustmentBasedOnUserMindZero().Build()
+	someHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindZero().Build()
 	checker.Assert(power.Zero, Equals, someHeals.HealingAdjustmentBasedOnUserMind())
 }
 
 func (suite *PowerBuilder) TestHitPointsHealed(checker *C) {
-	bigHeals := power.Builder().HitPointsHealed(5).Build()
+	bigHeals := power.NewPowerBuilder().HitPointsHealed(5).Build()
 	checker.Assert(5, Equals, bigHeals.HitPointsHealed())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectToHitBonus(checker *C) {
-	damageEffect := power.Builder().ToHitBonus(2).Build()
+	damageEffect := power.NewPowerBuilder().ToHitBonus(2).Build()
 	checker.Assert(2, Equals, damageEffect.ToHitBonus())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectDamageBonus(checker *C) {
-	damageEffect := power.Builder().DealsDamage(3).Build()
+	damageEffect := power.NewPowerBuilder().DealsDamage(3).Build()
 	checker.Assert(3, Equals, damageEffect.DamageBonus())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectExtraBarrierBurn(checker *C) {
-	damageEffect := power.Builder().ExtraBarrierBurn(1).Build()
+	damageEffect := power.NewPowerBuilder().ExtraBarrierBurn(1).Build()
 	checker.Assert(1, Equals, damageEffect.ExtraBarrierBurn())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCounterAttackPenaltyReduction(checker *C) {
-	damageEffect := power.Builder().CounterAttackPenaltyReduction(4).Build()
+	damageEffect := power.NewPowerBuilder().CounterAttackPenaltyReduction(4).Build()
 	checker.Assert(4, Equals, damageEffect.CounterAttackPenaltyReduction())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCanBeEquipped(checker *C) {
-	sword := power.Builder().CanBeEquipped().Build()
+	sword := power.NewPowerBuilder().CanBeEquipped().Build()
 	checker.Assert(true, Equals, sword.CanBeEquipped())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCannotBeEquipped(checker *C) {
-	scroll := power.Builder().CanBeEquipped().CannotBeEquipped().Build()
+	scroll := power.NewPowerBuilder().CanBeEquipped().CannotBeEquipped().Build()
 	checker.Assert(false, Equals, scroll.CanBeEquipped())
 }
 
 func (suite *PowerBuilder) TestBuildAttackEffectCanCounterAttack(checker *C) {
-	sword := power.Builder().CanCounterAttack().Build()
+	sword := power.NewPowerBuilder().CanCounterAttack().Build()
 	checker.Assert(true, Equals, sword.CanCounterAttack())
 }
 
 func (suite *PowerBuilder) TestBuildCriticalEffectDamage(checker *C) {
-	criticalDamageEffect := power.Builder().CriticalDealsDamage(8).Build()
+	criticalDamageEffect := power.NewPowerBuilder().CriticalDealsDamage(8).Build()
 	checker.Assert(8, Equals, criticalDamageEffect.ExtraCriticalHitDamage())
 }
 
 func (suite *PowerBuilder) TestBuildCriticalEffectThresholdBonus(checker *C) {
-	criticalDamageEffect := power.Builder().CriticalHitThresholdBonus(-2).Build()
+	criticalDamageEffect := power.NewPowerBuilder().CriticalHitThresholdBonus(-2).Build()
 	checker.Assert(-2, Equals, criticalDamageEffect.CriticalHitThresholdBonus())
 }
 
@@ -114,7 +114,7 @@ type SpecificPowerBuilder struct{}
 var _ = Suite(&SpecificPowerBuilder{})
 
 func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
-	axe := power.Builder().Axe().Build()
+	axe := power.NewPowerBuilder().Axe().Build()
 
 	checker.Assert("axe", Equals, axe.Name())
 	checker.Assert("powerAxe", Equals, axe.ID())
@@ -127,7 +127,7 @@ func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
 }
 
 func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
-	spear := power.Builder().Spear().Build()
+	spear := power.NewPowerBuilder().Spear().Build()
 
 	checker.Assert("spear", Equals, spear.Name())
 	checker.Assert("powerSpear", Equals, spear.ID())
@@ -140,7 +140,7 @@ func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
 }
 
 func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
-	blot := power.Builder().Blot().Build()
+	blot := power.NewPowerBuilder().Blot().Build()
 
 	checker.Assert("blot", Equals, blot.Name())
 	checker.Assert("powerBlot", Equals, blot.ID())
@@ -153,7 +153,7 @@ func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
 }
 
 func (suite *SpecificPowerBuilder) TestHealingStaff(checker *C) {
-	healingStaff := power.Builder().HealingStaff().Build()
+	healingStaff := power.NewPowerBuilder().HealingStaff().Build()
 
 	checker.Assert("healingStaff", Equals, healingStaff.Name())
 	checker.Assert("powerHealingStaff", Equals, healingStaff.ID())
@@ -190,7 +190,7 @@ critical_damage: 11
 }
 
 func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
-	yamlPower := power.Builder().UsingYAML(suite.yamlData).Build()
+	yamlPower := power.NewPowerBuilder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlPower.ID(), Equals, "power_id")
 	checker.Assert(yamlPower.Name(), Equals, "Power name")
@@ -198,14 +198,14 @@ func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 }
 
 func (suite *YAMLBuilderSuite) TestTargetingMatchesNewPower(checker *C) {
-	yamlPower := power.Builder().UsingYAML(suite.yamlData).Build()
+	yamlPower := power.NewPowerBuilder().UsingYAML(suite.yamlData).Build()
 	checker.Assert(yamlPower.CanPowerTargetSelf(), Equals, true)
 	checker.Assert(yamlPower.CanPowerTargetFoe(), Equals, true)
 	checker.Assert(yamlPower.CanPowerTargetFriend(), Equals, false)
 }
 
 func (suite *YAMLBuilderSuite) TestAttackEffectMatchesNewPower(checker *C) {
-	yamlPower := power.Builder().UsingYAML(suite.yamlData).Build()
+	yamlPower := power.NewPowerBuilder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlPower.ToHitBonus(), Equals, 2)
 	checker.Assert(yamlPower.DamageBonus(), Equals, 3)
@@ -216,7 +216,7 @@ func (suite *YAMLBuilderSuite) TestAttackEffectMatchesNewPower(checker *C) {
 }
 
 func (suite *YAMLBuilderSuite) TestCriticalEffectMatchesNewPower(checker *C) {
-	yamlPower := power.Builder().UsingYAML(suite.yamlData).Build()
+	yamlPower := power.NewPowerBuilder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlPower.CriticalHitThreshold(), Equals, power.CriticalHitThresholdInitialValue-9)
 	checker.Assert(yamlPower.ExtraCriticalHitDamage(), Equals, 11)
@@ -243,7 +243,7 @@ func (suite *JSONBuilderSuite) SetUpTest(checker *C) {
 }
 
 func (suite *JSONBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
-	jsonPower := power.Builder().UsingJSON(suite.jsonData).Build()
+	jsonPower := power.NewPowerBuilder().UsingJSON(suite.jsonData).Build()
 
 	checker.Assert(jsonPower.ID(), Equals, "power_id")
 	checker.Assert(jsonPower.Name(), Equals, "Power name")
@@ -251,7 +251,7 @@ func (suite *JSONBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 }
 
 func (suite *JSONBuilderSuite) TestHealingMatchesNewPower(checker *C) {
-	jsonPower := power.Builder().UsingJSON(suite.jsonData).Build()
+	jsonPower := power.NewPowerBuilder().UsingJSON(suite.jsonData).Build()
 
 	checker.Assert(jsonPower.HealingAdjustmentBasedOnUserMind(), Equals, power.Half)
 	checker.Assert(jsonPower.HitPointsHealed(), Equals, 2)
@@ -265,22 +265,22 @@ type BuildCopySuite struct {
 var _ = Suite(&BuildCopySuite{})
 
 func (suite *BuildCopySuite) SetUpTest(checker *C) {
-	suite.spear = power.Builder().Spear().Build()
-	suite.healingStaff = power.Builder().HealingStaff().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.healingStaff = power.NewPowerBuilder().HealingStaff().Build()
 }
 
 func (suite *BuildCopySuite) TestCopyAttackPower(checker *C) {
-	copySpear := power.Builder().CloneOf(suite.spear).Build()
+	copySpear := power.NewPowerBuilder().CloneOf(suite.spear).Build()
 	checker.Assert(copySpear.HasSameStatsAs(suite.spear), Equals, true)
 }
 
 func (suite *BuildCopySuite) TestCopyHealingPower(checker *C) {
-	copyHealingStaff := power.Builder().CloneOf(suite.healingStaff).Build()
+	copyHealingStaff := power.NewPowerBuilder().CloneOf(suite.healingStaff).Build()
 	checker.Assert(copyHealingStaff.HasSameStatsAs(suite.healingStaff), Equals, true)
 }
 
 func (suite *BuildCopySuite) TestCopyCriticalAttackPower(checker *C) {
-	criticalSpear := power.Builder().CloneOf(suite.spear).CriticalDealsDamage(10).CriticalHitThresholdBonus(2).Build()
-	copyCriticalSpear := power.Builder().CloneOf(criticalSpear).Build()
+	criticalSpear := power.NewPowerBuilder().CloneOf(suite.spear).CriticalDealsDamage(10).CriticalHitThresholdBonus(2).Build()
+	copyCriticalSpear := power.NewPowerBuilder().CloneOf(criticalSpear).Build()
 	checker.Assert(copyCriticalSpear.HasSameStatsAs(criticalSpear), Equals, true)
 }

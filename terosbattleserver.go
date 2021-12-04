@@ -87,7 +87,7 @@ func processSquaddieAction(
 
 func loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
 	squaddieRepo := squaddie.NewSquaddieRepository()
-	_, err := squaddieRepo.AddYAMLSource(squaddieYamlData)
+	err := squaddieRepo.AddSquaddiesUsingYAML(squaddieYamlData)
 	if err != nil {
 		panic(err.Error())
 	}

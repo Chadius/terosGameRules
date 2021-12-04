@@ -22,19 +22,19 @@ func (h *HealingEffectOptions) HitPointsHealed(heal int) *HealingEffectOptions {
 	return h
 }
 
-// HealingAdjustmentBasedOnUserMindFull applies the user's Full SquaddieMind bonus to healing effects.
+// HealingAdjustmentBasedOnUserMindFull applies the user's Full mind bonus to healing effects.
 func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindFull() *HealingEffectOptions {
 	h.healingAdjustmentBasedOnUserMind = Full
 	return h
 }
 
-// HealingAdjustmentBasedOnUserMindHalf applies Half of the user's SquaddieMind bonus to healing effects.
+// HealingAdjustmentBasedOnUserMindHalf applies Half of the user's mind bonus to healing effects.
 func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindHalf() *HealingEffectOptions {
 	h.healingAdjustmentBasedOnUserMind = Half
 	return h
 }
 
-// HealingAdjustmentBasedOnUserMindZero applies None of the user's SquaddieMind bonus to healing effects.
+// HealingAdjustmentBasedOnUserMindZero applies None of the user's mind bonus to healing effects.
 func (h *HealingEffectOptions) HealingAdjustmentBasedOnUserMindZero() *HealingEffectOptions {
 	h.healingAdjustmentBasedOnUserMind = Zero
 	return h

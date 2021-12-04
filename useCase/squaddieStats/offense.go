@@ -55,7 +55,7 @@ func (c *CalculateSquaddieOffenseStats) GetSquaddieCriticalThresholdWithPower(sq
 	}
 
 	if powerToMeasure.CanCriticallyHit() != true {
-		newError := fmt.Errorf("cannot critical hit with power, SquaddieID: %s", powerID)
+		newError := fmt.Errorf("cannot critical hit with power, id: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
@@ -76,7 +76,7 @@ func (c *CalculateSquaddieOffenseStats) GetSquaddieCriticalRawDamageWithPower(sq
 	}
 
 	if powerToMeasure.CanCriticallyHit() != true {
-		newError := fmt.Errorf("cannot critical hit with power, SquaddieID: %s", powerID)
+		newError := fmt.Errorf("cannot critical hit with power, id: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return 0, newError
 	}
@@ -157,7 +157,7 @@ func (c *CalculateSquaddieOffenseStats) GetHitPointsHealedWithPower(squaddieID, 
 func getSquaddie(squaddieID string, repos *repositories.RepositoryCollection) (*squaddie.Squaddie, error) {
 	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
 	if squaddie == nil {
-		newError := fmt.Errorf("squaddie could not be found, SquaddieID: %s", squaddieID)
+		newError := fmt.Errorf("squaddie could not be found, id: %s", squaddieID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
@@ -167,12 +167,12 @@ func getSquaddie(squaddieID string, repos *repositories.RepositoryCollection) (*
 func getHealingPower(powerID string, repos *repositories.RepositoryCollection) (*power.Power, error) {
 	power := repos.PowerRepo.GetPowerByID(powerID)
 	if power == nil {
-		newError := fmt.Errorf("power could not be found, SquaddieID: %s", powerID)
+		newError := fmt.Errorf("power could not be found, id: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	if !power.CanHeal() {
-		newError := fmt.Errorf("cannot heal with power, SquaddieID: %s", powerID)
+		newError := fmt.Errorf("cannot heal with power, id: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
@@ -182,12 +182,12 @@ func getHealingPower(powerID string, repos *repositories.RepositoryCollection) (
 func getAttackPower(powerID string, repos *repositories.RepositoryCollection) (*power.Power, error) {
 	power := repos.PowerRepo.GetPowerByID(powerID)
 	if power == nil {
-		newError := fmt.Errorf("power could not be found, SquaddieID: %s", powerID)
+		newError := fmt.Errorf("power could not be found, id: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}
 	if !power.CanAttack() {
-		newError := fmt.Errorf("cannot attack with power, SquaddieID: %s", powerID)
+		newError := fmt.Errorf("cannot attack with power, id: %s", powerID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}

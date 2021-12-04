@@ -85,7 +85,7 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		ClassRepo: suite.classRepo,
 	}
 
-	suite.teros = squaddie.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 	suite.selectLevelUpStrategy = &levelup.SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels{}
 }
@@ -130,7 +130,7 @@ func (suite *SquaddieChoosesLevelsSuite) TestOddClassLevelEarnsBigAndSmallLevel(
 
 func (suite *SquaddieChoosesLevelsSuite) TestRaisesAnErrorIfClassIsNotFound(checker *C) {
 	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].ID(), suite.repos)
-	checker.Assert(err, ErrorMatches, `class repository: No class found with SquaddieID: ""`)
+	checker.Assert(err, ErrorMatches, `class repository: No class found with id: ""`)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseBigLevelIfNoneAvailable(checker *C) {

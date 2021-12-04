@@ -25,7 +25,7 @@ var _ = Suite(&SquaddieUsesLevelUpBenefitSuite{})
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 	suite.mageClass = squaddieclass.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
-	suite.teros = squaddie.Builder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.statBooster, _ = levelupbenefit.NewLevelUpBenefitBuilder().
@@ -81,10 +81,10 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClass(checker *C) {
 	mushroomClassLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("deadbeeg").
-		WithClassID("bad SquaddieID").
+		WithClassID("bad class ID").
 		Build()
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(mushroomClassLevel, suite.teros)
-	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)
+	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad class ID"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(checker *C) {
@@ -143,19 +143,19 @@ var _ = Suite(&SquaddieChangePowersWithLevelUpBenefitsSuite{})
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C) {
 	suite.mageClass = squaddieclass.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
-	suite.teros = squaddie.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.teros.Defense.SetBarrierToMax()
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
 
-	suite.spear = power.Builder().Spear().WithID("spearlvl1").Build()
+	suite.spear = power.NewPowerBuilder().Spear().WithID("spearlvl1").Build()
 
 	suite.teros.AddPowerReference(&power.Reference{
 		Name:    "spear",
 		PowerID: "spearlvl1",
 	})
 
-	suite.spearLevel2 = power.Builder().Spear().WithID("spearlvl2").Build()
+	suite.spearLevel2 = power.NewPowerBuilder().Spear().WithID("spearlvl2").Build()
 	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 

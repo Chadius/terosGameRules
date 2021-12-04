@@ -17,40 +17,32 @@ var _ = Suite(&ReplayScriptSuite{})
 func (suite *ReplayScriptSuite) Test(checker *C) {
 	squaddieData := []byte(`
 -
-  identification:
-    name: Teros
-    id: squaddieTeros
-    affiliation: Player
-  offense:
-    aim: 2
-    strength: 1
-  defense:
-    max_hit_points: 5
-    max_barrier: 3
-    armor: 2
-    dodge: 3
-    deflect: 4
+  name: Teros
+  id: squaddieTeros
+  affiliation: player
+  aim: 2
+  strength: 1
+  max_hit_points: 5
+  max_barrier: 3
+  armor: 2
+  dodge: 3
+  deflect: 4
   powers:
-    powers:
     -
       name: Spear
       id: powerSpear
 -
-  identification:
-    name: Bandit
-    id: squaddieBandit0
-    affiliation: Enemy
-  offense:
-    aim: 0
-    strength: 1
-  defense:
-    max_hit_points: 5
-    max_barrier: 0
-    armor: 0
-    dodge: 0
-    deflect: 0
+  name: Bandit
+  id: squaddieBandit0
+  affiliation: enemy
+  aim: 0
+  strength: 1
+  max_hit_points: 5
+  max_barrier: 0
+  armor: 0
+  dodge: 0
+  deflect: 0
   powers:
-    powers:
     -
       name: Axe
       id: powerAxe

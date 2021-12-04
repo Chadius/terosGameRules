@@ -38,19 +38,19 @@ type TargetingCheck struct {
 var _ = Suite(&TargetingCheck{})
 
 func (suite *TargetingCheck) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
-	suite.lini = squaddie.Builder().Lini().Build()
-	suite.bandit = squaddie.Builder().Bandit().Build()
-	suite.bandit2 = squaddie.Builder().Bandit().WithID("bandit2").WithName("bandit2").Build()
-	suite.citizen = squaddie.Builder().WithName("citizen").AsAlly().Build()
-	suite.mayor = squaddie.Builder().WithName("mayor").AsAlly().Build()
-	suite.bomb = squaddie.Builder().WithName("bomb").AsNeutral().Build()
-	suite.bomb2 = squaddie.Builder().WithName("bomb2").AsNeutral().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.lini = squaddie.NewSquaddieBuilder().Lini().Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
+	suite.bandit2 = squaddie.NewSquaddieBuilder().Bandit().WithID("bandit2").WithName("bandit2").Build()
+	suite.citizen = squaddie.NewSquaddieBuilder().WithName("citizen").AsAlly().Build()
+	suite.mayor = squaddie.NewSquaddieBuilder().WithName("mayor").AsAlly().Build()
+	suite.bomb = squaddie.NewSquaddieBuilder().WithName("bomb").AsNeutral().Build()
+	suite.bomb2 = squaddie.NewSquaddieBuilder().WithName("bomb2").AsNeutral().Build()
 
-	suite.axe = power.Builder().Axe().Build()
-	suite.meditation = power.Builder().TargetsSelf().Build()
-	suite.healingStaff = power.Builder().HealingStaff().Build()
-	suite.selfDestruct = power.Builder().TargetsFoe().Build()
+	suite.axe = power.NewPowerBuilder().Axe().Build()
+	suite.meditation = power.NewPowerBuilder().TargetsSelf().Build()
+	suite.healingStaff = power.NewPowerBuilder().HealingStaff().Build()
+	suite.selfDestruct = power.NewPowerBuilder().TargetsFoe().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{
@@ -238,7 +238,7 @@ func (suite *TargetingCheck) TestTargetGivesTargetIsDeadReasonForFailure(checker
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	suite.bandit.Defense.ReduceHitPoints(suite.bandit.MaxHitPoints())
+	suite.bandit.ReduceHitPoints(suite.bandit.MaxHitPoints())
 	checker.Assert(suite.bandit.Defense.IsDead(), Equals, true)
 
 	canTarget, reasonForInvalidTarget = suite.targetStrategy.IsValidTarget(suite.teros.ID(), suite.axe.PowerID, suite.bandit.ID(), suite.repos)
@@ -251,7 +251,7 @@ func (suite *TargetingCheck) TestTargetGivesUserIsDeadReasonForFailure(checker *
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints())
+	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints())
 	checker.Assert(suite.teros.Defense.IsDead(), Equals, true)
 
 	canTarget, reasonForInvalidTarget = suite.targetStrategy.IsValidTarget(suite.teros.ID(), suite.axe.PowerID, suite.bandit.ID(), suite.repos)

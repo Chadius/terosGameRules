@@ -2,7 +2,6 @@ package squaddie
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
@@ -18,16 +17,6 @@ func NewSquaddieRepository() *Repository {
 		map[string]*Squaddie{},
 	}
 	return &repository
-}
-
-// AddJSONSource consumes a given bytestream and tries to analyze it.
-func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
-	return repository.addSource(data, json.Unmarshal)
-}
-
-// AddYAMLSource consumes a given bytestream and tries to analyze it.
-func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
-	return repository.addSource(data, yaml.Unmarshal)
 }
 
 // AddSquaddies adds a slice of Squaddie to the repository.
@@ -50,23 +39,40 @@ func (repository *Repository) AddSquaddie(squaddieToAdd *Squaddie) (bool, error)
 	return true, nil
 }
 
-// AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
+// AddSquaddiesUsingYAML adds multiple squaddies using builder objects and a YAML data stream.
+func (repository *Repository) AddSquaddiesUsingYAML(data []byte) error {
+	_, err := repository.unmarshalDataAndAddSquaddies(data, yaml.Unmarshal)
+	return err
+}
+
+// AddSquaddiesUsingJSON adds multiple squaddies using builder objects and a JSON data stream.
+func (repository *Repository) AddSquaddiesUsingJSON(data []byte) error {
+	_, err := repository.unmarshalDataAndAddSquaddies(data, json.Unmarshal)
+	return err
+}
+
+// unmarshalDataAndAddSquaddies reads the byte stream to create new squaddies.
+func (repository *Repository) unmarshalDataAndAddSquaddies(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
-	var listOfSquaddies []Squaddie
-	unmarshalError = unmarshal(data, &listOfSquaddies)
+
+	var builderInstructions []BuilderOptionMarshal
+
+	unmarshalError = unmarshal(data, &builderInstructions)
 
 	if unmarshalError != nil {
 		return false, unmarshalError
 	}
-	for index := range listOfSquaddies {
-		newSquaddie := listOfSquaddies[index]
+
+	for _, instruction := range builderInstructions {
+		newSquaddie := NewSquaddieFromMarshal(instruction).Build()
+
 		newSquaddie.Defense.SetHPToMax()
-		success, err := repository.tryToAddSquaddie(&newSquaddie)
+		success, err := repository.tryToAddSquaddie(newSquaddie)
 		if success == false {
 			return false, err
 		}
 	}
+
 	return true, nil
 }
 
@@ -77,7 +83,7 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 	}
 
 	if squaddieToAdd.ID() == "" {
-		squaddieToAdd.Identification.SetNewIDToRandom()
+		squaddieToAdd.SetNewIDToRandom()
 	}
 	repository.squaddiesByID[squaddieToAdd.ID()] = squaddieToAdd
 	return true, nil
@@ -89,35 +95,24 @@ func (repository *Repository) GetNumberOfSquaddies() int {
 }
 
 //CloneSquaddieWithNewID uses the base Squaddie to create a new one.
-//  All fields will be the same except the SquaddieID.
-//  If newID isn't empty, the clone SquaddieID is set to that.
+//  All fields will be the same except the squaddieID.
+//  If newID isn't empty, the clone squaddieID is set to that.
 //  Otherwise, it is randomly generated.
 func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
-	clone := NewSquaddie(base.Name())
-
-	cloneSquaddieID := clone.ID()
+	cloneBuilder := NewSquaddieBuilder().CloneOf(base)
 	if newID != "" {
-		cloneSquaddieID = newID
+		cloneBuilder.WithID(newID)
+	} else {
+		cloneBuilder.WithID(utility.StringWithCharset(8, "abcdefgh0123456789"))
 	}
+	clone := cloneBuilder.Build()
 
-	clone.Identification = *NewIdentification(cloneSquaddieID, base.Name(), base.Affiliation())
-	clone.Offense = *NewOffense(base.Aim(), base.Strength(), base.Mind())
-	clone.Defense = *NewDefense(base.CurrentHitPoints(), base.MaxHitPoints(), base.Dodge(), base.Deflect(), base.CurrentBarrier(), base.MaxBarrier(), base.Armor())
-	clone.Movement = *NewMovement(base.MovementDistance(), base.MovementType(), base.MovementCanHitAndRun())
-
-	for _, reference := range base.PowerCollection.GetCopyOfPowerReferences() {
-		clone.AddPowerReference(reference)
-	}
-
-	clone.ClassProgress = *squaddieclass.NewClassProgress(
-		base.BaseClassID(),
-		base.CurrentClassID(),
-		*base.ClassLevelsConsumed(),
-	)
+	clone.ReduceHitPoints(clone.MaxHitPoints() - base.CurrentHitPoints())
+	clone.ReduceBarrier(clone.MaxBarrier() - base.CurrentBarrier())
 	return clone, nil
 }
 
-// GetSquaddieByID returns the Squaddie based on the one with the given SquaddieID.
+// GetSquaddieByID returns the Squaddie based on the one with the given squaddieID.
 func (repository *Repository) GetSquaddieByID(squaddieID string) *Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByID[squaddieID]
 	if !squaddieExists {
@@ -131,7 +126,7 @@ func (repository *Repository) GetSquaddieByID(squaddieID string) *Squaddie {
 	return clonedSquaddie
 }
 
-// GetOriginalSquaddieByID returns the stored Squaddie based on the SquaddieID.
+// GetOriginalSquaddieByID returns the stored Squaddie based on the squaddieID.
 func (repository *Repository) GetOriginalSquaddieByID(squaddieID string) *Squaddie {
 	squaddie, _ := repository.squaddiesByID[squaddieID]
 	return squaddie

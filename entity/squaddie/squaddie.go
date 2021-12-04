@@ -12,41 +12,24 @@ type Affiliation string
 
 // Squaddie Affiliation constants
 const (
-	Player  Affiliation = "Player"
-	Enemy   Affiliation = "Enemy"
-	Ally    Affiliation = "Ally"
-	Neutral Affiliation = "Neutral"
+	Player  Affiliation = "player"
+	Enemy   Affiliation = "enemy"
+	Ally    Affiliation = "ally"
+	Neutral Affiliation = "neutral"
 )
 
 // Squaddie represents a person, creature or thing that can take actions on a battlefield.
 type Squaddie struct {
-	Identification  Identification              `json:"identification" yaml:"identification"`
-	ClassProgress   squaddieclass.ClassProgress `json:"class_progress" yaml:"class_progress"`
-	Defense         Defense                     `json:"defense" yaml:"defense"`
-	Offense         Offense                     `json:"offense" yaml:"offense"`
-	Movement        Movement                    `json:"movement" yaml:"movement"`
-	PowerCollection PowerCollection             `json:"powers" yaml:"powers"`
-}
-
-// NewSquaddie generates a squaddie with maxed out health.
-func NewSquaddie(name string) *Squaddie {
-	newSquaddie := Squaddie{
-		Identification: *NewIdentification(
-			"squaddie_"+utility.StringWithCharset(8, "abcdefgh0123456789"),
-			name,
-			Player,
-		),
-		ClassProgress: *squaddieclass.NewClassProgress("", "", map[string]*squaddieclass.ClassLevelsConsumed{}),
-		Defense:       *NewDefense(0, 5, 0, 0, 0, 0, 0),
-		Offense:       *NewOffense(0, 0, 0),
-		Movement:      *NewMovement(3, Foot, false),
-	}
-	newSquaddie.Defense.SetHPToMax()
-	return &newSquaddie
+	Identification  Identification
+	ClassProgress   squaddieclass.ClassProgress
+	Defense         Defense
+	Offense         Offense
+	Movement        Movement
+	PowerCollection PowerCollection
 }
 
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
-func CheckSquaddieForErrors(newSquaddie *Squaddie) (newError error) {
+func CheckSquaddieForErrors(newSquaddie *Squaddie) error {
 	if !newSquaddie.Identification.HasValidAffiliation() {
 		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.ID(), newSquaddie.Affiliation())
 		utility.Log(newError.Error(), 0, utility.Error)
@@ -69,6 +52,11 @@ func (s *Squaddie) Affiliation() Affiliation {
 // Name delegates.
 func (s *Squaddie) Name() string {
 	return s.Identification.Name()
+}
+
+// SetNewIDToRandom delegates.
+func (s *Squaddie) SetNewIDToRandom() {
+	s.Identification.SetNewIDToRandom()
 }
 
 // ImproveDefense delegates.
@@ -109,6 +97,16 @@ func (s *Squaddie) CurrentHitPoints() int {
 // CurrentBarrier delegates.
 func (s *Squaddie) CurrentBarrier() int {
 	return s.Defense.CurrentBarrier()
+}
+
+// ReduceHitPoints delegates.
+func (s *Squaddie) ReduceHitPoints(damage int) {
+	s.Defense.ReduceHitPoints(damage)
+}
+
+// ReduceBarrier delegates.
+func (s *Squaddie) ReduceBarrier(damage int) {
+	s.Defense.ReduceBarrier(damage)
 }
 
 // ImproveOffense delegates.

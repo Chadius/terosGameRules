@@ -160,7 +160,7 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaisesAnErrorWithNonexistentClas
 
 	benefits, err := suite.levelRepo.GetLevelUpBenefitsByClassID("Class not found")
 
-	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class SquaddieID: "Class not found"`)
+	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class id: "Class not found"`)
 	checker.Assert(benefits, HasLen, 0)
 }
 
@@ -181,9 +181,9 @@ func (suite *LevelUpBenefitRepositorySuite) TestRaiseErrorIfClassDoesNotExist(ch
 	suite.levelRepo = levelupbenefit.NewLevelUpBenefitRepository()
 	suite.levelRepo.AddJSON(suite.jsonByteStream)
 
-	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType("bad SquaddieID")
+	levelsByBenefitType, err := suite.levelRepo.GetLevelUpBenefitsForClassByType("bad classID")
 
-	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class SquaddieID: "bad SquaddieID"`)
+	checker.Assert(err, ErrorMatches, `no LevelUpBenefits for this class id: "bad classID"`)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Small], HasLen, 0)
 	checker.Assert(levelsByBenefitType[levelupbenefit.Big], HasLen, 0)
 }

@@ -81,7 +81,7 @@ func (classProgress *ClassProgress) SetBaseClassIfNoBaseClass(classID string) {
 	}
 }
 
-// IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given SquaddieID has already been used.
+// IsClassLevelAlreadyUsed returns true if a LevelUpBenefit with the given id has already been used.
 func (classProgress *ClassProgress) IsClassLevelAlreadyUsed(benefitID string) bool {
 	return classProgress.anyClassLevelsConsumed(func(classID string, progress *ClassLevelsConsumed) bool {
 		return progress.IsLevelAlreadyConsumed(benefitID)

@@ -15,7 +15,7 @@ type SquaddieIdentificationCreationTests struct {
 var _ = Suite(&SquaddieIdentificationCreationTests{})
 
 func (suite *SquaddieIdentificationCreationTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().WithName("teros").Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().WithName("teros").Build()
 	suite.mageClass = squaddieclass.ClassBuilder().WithID("mageClassID").Build()
 	suite.mushroomClass = squaddieclass.ClassBuilder().WithID("mushroomClassID").Build()
 }
@@ -31,6 +31,6 @@ func (suite *SquaddieIdentificationCreationTests) TestGetARandomIDUponCreation(c
 
 func (suite *SquaddieIdentificationCreationTests) TestGetANewID(checker *C) {
 	initialID := suite.teros.ID()
-	suite.teros.Identification.SetNewIDToRandom()
+	suite.teros.SetNewIDToRandom()
 	checker.Assert(suite.teros.ID(), Not(Equals), initialID)
 }
