@@ -427,6 +427,7 @@ func (s *Builder) cloneClassProgress(source *Squaddie) {
 	}
 
 	s.SetClassByID(source.CurrentClassID())
+	s.SetBaseClassByID(source.BaseClassID())
 }
 
 // NewSquaddieFromMarshal creates a new NewSquaddieBuilder with fields based on the Marshal object

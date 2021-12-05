@@ -39,7 +39,7 @@ func (defense *Defense) SetBarrierToMax() {
 }
 
 // ReduceHitPoints reduces the squaddie's HP, possibly killing them.
-//   Hit Points cannot e reduced below 0.
+//   Hit Points cannot be reduced below 0.
 func (defense *Defense) ReduceHitPoints(damage int) int {
 	actualDamageTaken := damage
 	if defense.currentHitPoints < damage {
@@ -55,7 +55,7 @@ func (defense *Defense) ReduceHitPoints(damage int) int {
 }
 
 // ReduceBarrier reduces the squaddie's Barrier.
-//   Barrier cannot e reduced below 0.
+//   Barrier cannot be reduced below 0.
 func (defense *Defense) ReduceBarrier(burn int) int {
 	actualBarrierBurn := burn
 	if defense.currentBarrier < burn {

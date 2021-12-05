@@ -245,7 +245,7 @@ func (suite *healingPower) SetUpTest(checker *C) {
 }
 
 func (suite *healingPower) TestSquaddieKnowsHealingPotential(checker *C) {
-	suite.lini.Defense.ReduceHitPoints(suite.lini.MaxHitPoints() - 1)
+	suite.lini.ReduceHitPoints(suite.lini.MaxHitPoints() - 1)
 
 	staffHeal, staffErr := suite.offenseStrategy.GetHitPointsHealedWithPower(suite.lini.ID(), suite.healingStaff.ID(), suite.lini.ID(), suite.repos)
 	checker.Assert(staffErr, IsNil)

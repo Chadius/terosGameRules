@@ -534,7 +534,7 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 
 func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
 	suite.teros.Defense.SetHPToMax()
-	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
+	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
 	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(1).Build()
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
@@ -552,10 +552,10 @@ func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
 
 func (suite *ResultOnHealing) TestHealResultShowsForEachTarget(checker *C) {
 	suite.teros.Defense.SetHPToMax()
-	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
+	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
 	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(1).Build()
 	suite.vale.Defense.SetHPToMax()
-	suite.vale.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 2)
+	suite.vale.ReduceHitPoints(suite.teros.MaxHitPoints() - 2)
 
 	suite.forecastHealingStaffOnTerosAndVale.CalculateForecast()
 	suite.resultHealingStaffOnTerosAndVale.Commit()

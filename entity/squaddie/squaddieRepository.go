@@ -2,7 +2,6 @@ package squaddie
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 )
@@ -100,30 +99,16 @@ func (repository *Repository) GetNumberOfSquaddies() int {
 //  If newID isn't empty, the clone squaddieID is set to that.
 //  Otherwise, it is randomly generated.
 func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
-	// TODO Wait don't you have squaddie builder .clone()?
-
-	// TODO Move this into Squaddie, it should handle cloning so the repo can handle storage
-	clone := NewSquaddie(base.Name())
-
-	cloneSquaddieID := clone.ID()
+	cloneBuilder := NewSquaddieBuilder().CloneOf(base)
 	if newID != "" {
-		cloneSquaddieID = newID
+		cloneBuilder.WithID(newID)
+	} else {
+		cloneBuilder.WithID(utility.StringWithCharset(8, "abcdefgh0123456789"))
 	}
+	clone := cloneBuilder.Build()
 
-	clone.Identification = *NewIdentification(cloneSquaddieID, base.Name(), base.Affiliation())
-	clone.Offense = *NewOffense(base.Aim(), base.Strength(), base.Mind())
-	clone.Defense = *NewDefense(base.CurrentHitPoints(), base.MaxHitPoints(), base.Dodge(), base.Deflect(), base.CurrentBarrier(), base.MaxBarrier(), base.Armor())
-	clone.Movement = *NewMovement(base.MovementDistance(), base.MovementType(), base.MovementCanHitAndRun())
-
-	for _, reference := range base.PowerCollection.GetCopyOfPowerReferences() {
-		clone.AddPowerReference(reference)
-	}
-
-	clone.ClassProgress = *squaddieclass.NewClassProgress(
-		base.BaseClassID(),
-		base.CurrentClassID(),
-		*base.ClassLevelsConsumed(),
-	)
+	clone.ReduceHitPoints(clone.MaxHitPoints() - base.CurrentHitPoints())
+	clone.ReduceBarrier(clone.MaxBarrier() - base.CurrentBarrier())
 	return clone, nil
 }
 

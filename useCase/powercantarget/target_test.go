@@ -238,7 +238,7 @@ func (suite *TargetingCheck) TestTargetGivesTargetIsDeadReasonForFailure(checker
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	suite.bandit.Defense.ReduceHitPoints(suite.bandit.MaxHitPoints())
+	suite.bandit.ReduceHitPoints(suite.bandit.MaxHitPoints())
 	checker.Assert(suite.bandit.Defense.IsDead(), Equals, true)
 
 	canTarget, reasonForInvalidTarget = suite.targetStrategy.IsValidTarget(suite.teros.ID(), suite.axe.PowerID, suite.bandit.ID(), suite.repos)
@@ -251,7 +251,7 @@ func (suite *TargetingCheck) TestTargetGivesUserIsDeadReasonForFailure(checker *
 	checker.Assert(canTarget, Equals, true)
 	checker.Assert(reasonForInvalidTarget, Equals, powercantarget.TargetIsValid)
 
-	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints())
+	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints())
 	checker.Assert(suite.teros.Defense.IsDead(), Equals, true)
 
 	canTarget, reasonForInvalidTarget = suite.targetStrategy.IsValidTarget(suite.teros.ID(), suite.axe.PowerID, suite.bandit.ID(), suite.repos)

@@ -99,7 +99,7 @@ func (suite *squaddieDefense) TestGetDefenderBarrierResistance(checker *C) {
 
 func (suite *squaddieDefense) TestGetDefenderCurrentHitPoints(checker *C) {
 	injuredTeros := squaddie.NewSquaddieBuilder().Teros().Armor(3).Barrier(1).Build()
-	injuredTeros.Defense.ReduceHitPoints(injuredTeros.MaxHitPoints() - 2)
+	injuredTeros.ReduceHitPoints(injuredTeros.MaxHitPoints() - 2)
 	suite.squaddieRepo.AddSquaddie(injuredTeros)
 
 	spearBarrier, spearErr := suite.defenseStrategy.GetSquaddieCurrentHitPoints(injuredTeros.ID(), suite.weakerSpear.ID(), suite.repos)

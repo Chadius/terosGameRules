@@ -258,7 +258,7 @@ func (suite *ConsoleViewerSuite) SetUpLiniHealsTeros() *powercommit.Result {
 	resultHealingStaffOnTerosAlwaysHits := suite.resultHealingStaffOnTeros.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
 
 	suite.teros.Defense.SetHPToMax()
-	suite.teros.Defense.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
+	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
 	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(1).Build()
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
@@ -328,7 +328,7 @@ func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 }
 
 func (suite *ConsoleViewerSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
-	suite.bandit.Defense.ReduceHitPoints(suite.bandit.Defense.MaxHitPoints())
+	suite.bandit.ReduceHitPoints(suite.bandit.Defense.MaxHitPoints())
 	resultBlotOnBanditKills := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
@@ -479,10 +479,10 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 				Build(),
 		},
 	}
-	banditWithBarrier.Defense.ReduceHitPoints(2)
-	banditWithBarrier.Defense.ReduceBarrier(1)
-	suite.bandit2.Defense.ReduceHitPoints(3)
-	suite.teros.Defense.ReduceHitPoints(3)
+	banditWithBarrier.ReduceHitPoints(2)
+	banditWithBarrier.ReduceBarrier(1)
+	suite.bandit2.ReduceHitPoints(3)
+	suite.teros.ReduceHitPoints(3)
 
 	var counterAttackOutput strings.Builder
 	suite.viewer.PrintResult(
@@ -591,10 +591,10 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 				Build(),
 		},
 	}
-	banditWithBarrier.Defense.ReduceHitPoints(2)
-	banditWithBarrier.Defense.ReduceBarrier(1)
-	suite.bandit2.Defense.ReduceHitPoints(3)
-	suite.teros.Defense.ReduceHitPoints(3)
+	banditWithBarrier.ReduceHitPoints(2)
+	banditWithBarrier.ReduceBarrier(1)
+	suite.bandit2.ReduceHitPoints(3)
+	suite.teros.ReduceHitPoints(3)
 
 	var counterAttackOutput strings.Builder
 	suite.viewer.PrintResult(

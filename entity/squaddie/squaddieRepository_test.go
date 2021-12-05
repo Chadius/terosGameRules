@@ -214,8 +214,8 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesBasicStats(checker *C) {
 		HitPoints(9).Barrier(7).
 		Aim(2).Strength(3).Mind(5).Dodge(11).Deflect(13).Armor(17).
 		Build()
-	originalSquaddie.Defense.ReduceHitPoints(originalSquaddie.MaxHitPoints() - 1)
-	originalSquaddie.Defense.ReduceBarrier(originalSquaddie.MaxBarrier() - 2)
+	originalSquaddie.ReduceHitPoints(originalSquaddie.MaxHitPoints() - 1)
+	originalSquaddie.ReduceBarrier(originalSquaddie.MaxBarrier() - 2)
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
 	checker.Assert(clone.CurrentHitPoints(), Equals, originalSquaddie.CurrentHitPoints())

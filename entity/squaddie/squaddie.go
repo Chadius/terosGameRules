@@ -28,23 +28,6 @@ type Squaddie struct {
 	PowerCollection PowerCollection
 }
 
-// NewSquaddie generates a squaddie with maxed out health.
-func NewSquaddie(name string) *Squaddie {
-	newSquaddie := Squaddie{
-		Identification: *NewIdentification(
-			"squaddie_"+utility.StringWithCharset(8, "abcdefgh0123456789"),
-			name,
-			Player,
-		),
-		ClassProgress: *squaddieclass.NewClassProgress("", "", map[string]*squaddieclass.ClassLevelsConsumed{}),
-		Defense:       *NewDefense(0, 5, 0, 0, 0, 0, 0),
-		Offense:       *NewOffense(0, 0, 0),
-		Movement:      *NewMovement(3, Foot, false),
-	}
-	newSquaddie.Defense.SetHPToMax()
-	return &newSquaddie
-}
-
 // CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
 func CheckSquaddieForErrors(newSquaddie *Squaddie) error {
 	if !newSquaddie.Identification.HasValidAffiliation() {
@@ -109,6 +92,16 @@ func (s *Squaddie) CurrentHitPoints() int {
 // CurrentBarrier delegates.
 func (s *Squaddie) CurrentBarrier() int {
 	return s.Defense.CurrentBarrier()
+}
+
+// ReduceHitPoints delegates.
+func (s *Squaddie) ReduceHitPoints(damage int) {
+	s.Defense.ReduceHitPoints(damage)
+}
+
+// ReduceBarrier delegates.
+func (s *Squaddie) ReduceBarrier(damage int) {
+	s.Defense.ReduceBarrier(damage)
 }
 
 // ImproveOffense delegates.
