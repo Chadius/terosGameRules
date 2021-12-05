@@ -20,12 +20,12 @@ const (
 
 // Squaddie represents a person, creature or thing that can take actions on a battlefield.
 type Squaddie struct {
-	Identification  Identification              `json:"identification" yaml:"identification"`
-	ClassProgress   squaddieclass.ClassProgress `json:"class_progress" yaml:"class_progress"`
-	Defense         Defense                     `json:"defense" yaml:"defense"`
-	Offense         Offense                     `json:"offense" yaml:"offense"`
-	Movement        Movement                    `json:"movement" yaml:"movement"`
-	PowerCollection PowerCollection             `json:"powers" yaml:"powers"`
+	Identification  Identification
+	ClassProgress   squaddieclass.ClassProgress
+	Defense         Defense
+	Offense         Offense
+	Movement        Movement
+	PowerCollection PowerCollection
 }
 
 // NewSquaddie generates a squaddie with maxed out health.

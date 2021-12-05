@@ -130,7 +130,7 @@ func (suite *SquaddieChoosesLevelsSuite) TestOddClassLevelEarnsBigAndSmallLevel(
 
 func (suite *SquaddieChoosesLevelsSuite) TestRaisesAnErrorIfClassIsNotFound(checker *C) {
 	err := suite.selectLevelUpStrategy.ImproveSquaddieBasedOnLevel(suite.teros, suite.lotsOfBigLevels[0].ID(), suite.repos)
-	checker.Assert(err, ErrorMatches, `class repository: No class found with SquaddieID: ""`)
+	checker.Assert(err, ErrorMatches, `class repository: No class found with id: ""`)
 }
 
 func (suite *SquaddieChoosesLevelsSuite) TestDoesNotChooseBigLevelIfNoneAvailable(checker *C) {

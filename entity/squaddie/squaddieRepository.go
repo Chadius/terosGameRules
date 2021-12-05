@@ -84,7 +84,7 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 	}
 
 	if squaddieToAdd.ID() == "" {
-		squaddieToAdd.Identification.SetNewIDToRandom()
+		squaddieToAdd.Identification.SetNewIDToRandom() // TODO ask the squaddie to set its ID
 	}
 	repository.squaddiesByID[squaddieToAdd.ID()] = squaddieToAdd
 	return true, nil
@@ -96,10 +96,13 @@ func (repository *Repository) GetNumberOfSquaddies() int {
 }
 
 //CloneSquaddieWithNewID uses the base Squaddie to create a new one.
-//  All fields will be the same except the SquaddieID.
-//  If newID isn't empty, the clone SquaddieID is set to that.
+//  All fields will be the same except the squaddieID.
+//  If newID isn't empty, the clone squaddieID is set to that.
 //  Otherwise, it is randomly generated.
 func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID string) (*Squaddie, error) {
+	// TODO Wait don't you have squaddie builder .clone()?
+
+	// TODO Move this into Squaddie, it should handle cloning so the repo can handle storage
 	clone := NewSquaddie(base.Name())
 
 	cloneSquaddieID := clone.ID()
@@ -124,7 +127,7 @@ func (repository *Repository) CloneSquaddieWithNewID(base *Squaddie, newID strin
 	return clone, nil
 }
 
-// GetSquaddieByID returns the Squaddie based on the one with the given SquaddieID.
+// GetSquaddieByID returns the Squaddie based on the one with the given squaddieID.
 func (repository *Repository) GetSquaddieByID(squaddieID string) *Squaddie {
 	squaddie, squaddieExists := repository.squaddiesByID[squaddieID]
 	if !squaddieExists {
@@ -138,7 +141,7 @@ func (repository *Repository) GetSquaddieByID(squaddieID string) *Squaddie {
 	return clonedSquaddie
 }
 
-// GetOriginalSquaddieByID returns the stored Squaddie based on the SquaddieID.
+// GetOriginalSquaddieByID returns the stored Squaddie based on the squaddieID.
 func (repository *Repository) GetOriginalSquaddieByID(squaddieID string) *Squaddie {
 	squaddie, _ := repository.squaddiesByID[squaddieID]
 	return squaddie

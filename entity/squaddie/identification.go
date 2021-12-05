@@ -4,40 +4,40 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
-// Identification is akin to an SquaddieID card for each Squaddie. Each Squaddie carries a unique Identification.
+// Identification is akin to an squaddieID card for each Squaddie. Each Squaddie carries a unique Identification.
 type Identification struct {
-	SquaddieID          string      `json:"id" yaml:"id"`
-	SquaddieName        string      `json:"name" yaml:"name"`
-	SquaddieAffiliation Affiliation `json:"affiliation" yaml:"affiliation"`
+	squaddieID   string
+	squaddieName string
+	affiliation  Affiliation
 }
 
 // NewIdentification creates a new Identification object.
 func NewIdentification(id, name string, affiliation Affiliation) *Identification {
 	return &Identification{
-		SquaddieID:          id,
-		SquaddieName:        name,
-		SquaddieAffiliation: affiliation,
+		squaddieID:   id,
+		squaddieName: name,
+		affiliation:  affiliation,
 	}
 }
 
-// SetNewIDToRandom changes the SquaddieID to a random value.
+// SetNewIDToRandom changes the squaddieID to a random value.
 func (identification *Identification) SetNewIDToRandom() {
-	identification.SquaddieID = utility.StringWithCharset(8, "abcdefgh0123456789")
+	identification.squaddieID = utility.StringWithCharset(8, "abcdefgh0123456789")
 }
 
 // ID returns the squaddieID.
 func (identification *Identification) ID() string {
-	return identification.SquaddieID
+	return identification.squaddieID
 }
 
 // Name returns the squaddie's name.
 func (identification *Identification) Name() string {
-	return identification.SquaddieName
+	return identification.squaddieName
 }
 
 // Affiliation shows what affiliation the squaddie is a part of.
 func (identification *Identification) Affiliation() Affiliation {
-	return identification.SquaddieAffiliation
+	return identification.affiliation
 }
 
 // HasValidAffiliation makes sure the created squaddie doesn't have an error.

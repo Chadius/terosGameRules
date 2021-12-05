@@ -14,10 +14,10 @@ func NewHealingEffect(hitPointsHealed int, adjustment HealingAdjustmentBasedOnUs
 	}
 }
 
-// HealingAdjustmentBasedOnUserMind indicates how much the user's SquaddieMind should be adjusted.
+// HealingAdjustmentBasedOnUserMind indicates how much the user's mind should be adjusted.
 type HealingAdjustmentBasedOnUserMind string
 
-// User's SquaddieMind is added to most healing abilities (Full). But it may be at a Half bonus or doesn't affect (Zero)
+// User's mind is added to most healing abilities (Full). But it may be at a Half bonus or doesn't affect (Zero)
 const (
 	Full HealingAdjustmentBasedOnUserMind = "full"
 	Half HealingAdjustmentBasedOnUserMind = "half"

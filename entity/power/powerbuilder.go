@@ -42,7 +42,7 @@ func (p *Builder) WithName(name string) *Builder {
 	return p
 }
 
-// WithID applies the given SquaddieID to the power.
+// WithID applies the given ID to the power.
 func (p *Builder) WithID(id string) *Builder {
 	p.id = id
 	return p

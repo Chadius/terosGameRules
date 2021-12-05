@@ -6,50 +6,50 @@ import (
 
 // Defense holds everything needed to prevent the squaddie from getting hindered.
 type Defense struct {
-	SquaddieCurrentHitPoints int `json:"current_hit_points" yaml:"current_hit_points"`
-	SquaddieMaxHitPoints     int `json:"max_hit_points" yaml:"max_hit_points"`
-	SquaddieDodge            int `json:"dodge" yaml:"dodge"`
-	SquaddieDeflect          int `json:"deflect" yaml:"deflect"`
-	SquaddieCurrentBarrier   int `json:"current_barrier" yaml:"current_barrier"`
-	SquaddieMaxBarrier       int `json:"max_barrier" yaml:"max_barrier"`
-	SquaddieArmor            int `json:"armor" yaml:"armor"`
+	currentHitPoints int
+	maxHitPoints     int
+	dodge            int
+	deflect          int
+	currentBarrier   int
+	maxBarrier       int
+	armor            int
 }
 
 // NewDefense returns a new Defense object.
 func NewDefense(currentHitPoints, maxHitPoints, dodge, deflect, currentBarrier, maxBarrier, armor int) *Defense {
 	return &Defense{
-		SquaddieCurrentHitPoints: currentHitPoints,
-		SquaddieMaxHitPoints:     maxHitPoints,
-		SquaddieDodge:            dodge,
-		SquaddieDeflect:          deflect,
-		SquaddieCurrentBarrier:   currentBarrier,
-		SquaddieMaxBarrier:       maxBarrier,
-		SquaddieArmor:            armor,
+		currentHitPoints: currentHitPoints,
+		maxHitPoints:     maxHitPoints,
+		dodge:            dodge,
+		deflect:          deflect,
+		currentBarrier:   currentBarrier,
+		maxBarrier:       maxBarrier,
+		armor:            armor,
 	}
 }
 
 // SetHPToMax restores the Squaddie's HitPoints.
 func (defense *Defense) SetHPToMax() {
-	defense.SquaddieCurrentHitPoints = defense.SquaddieMaxHitPoints
+	defense.currentHitPoints = defense.maxHitPoints
 }
 
 // SetBarrierToMax restores the Squaddie's Barrier.
 func (defense *Defense) SetBarrierToMax() {
-	defense.SquaddieCurrentBarrier = defense.SquaddieMaxBarrier
+	defense.currentBarrier = defense.maxBarrier
 }
 
 // ReduceHitPoints reduces the squaddie's HP, possibly killing them.
 //   Hit Points cannot e reduced below 0.
 func (defense *Defense) ReduceHitPoints(damage int) int {
 	actualDamageTaken := damage
-	if defense.SquaddieCurrentHitPoints < damage {
-		actualDamageTaken = defense.SquaddieCurrentHitPoints
+	if defense.currentHitPoints < damage {
+		actualDamageTaken = defense.currentHitPoints
 	}
 
-	defense.SquaddieCurrentHitPoints -= damage
+	defense.currentHitPoints -= damage
 
-	if defense.SquaddieCurrentHitPoints < 0 {
-		defense.SquaddieCurrentHitPoints = 0
+	if defense.currentHitPoints < 0 {
+		defense.currentHitPoints = 0
 	}
 	return actualDamageTaken
 }
@@ -58,14 +58,14 @@ func (defense *Defense) ReduceHitPoints(damage int) int {
 //   Barrier cannot e reduced below 0.
 func (defense *Defense) ReduceBarrier(burn int) int {
 	actualBarrierBurn := burn
-	if defense.SquaddieCurrentBarrier < burn {
-		actualBarrierBurn = defense.SquaddieCurrentBarrier
+	if defense.currentBarrier < burn {
+		actualBarrierBurn = defense.currentBarrier
 	}
 
-	defense.SquaddieCurrentBarrier -= burn
+	defense.currentBarrier -= burn
 
-	if defense.SquaddieCurrentBarrier < 0 {
-		defense.SquaddieCurrentBarrier = 0
+	if defense.currentBarrier < 0 {
+		defense.currentBarrier = 0
 	}
 
 	return actualBarrierBurn
@@ -82,59 +82,59 @@ func (defense *Defense) TakeDamageDistribution(distribution *damagedistribution.
 
 // IsDead returns true if the squaddie has died
 func (defense *Defense) IsDead() bool {
-	return defense.SquaddieCurrentHitPoints <= 0
+	return defense.currentHitPoints <= 0
 }
 
 // GainHitPoints heals the squaddie and returns the number of hit points healed.
 func (defense *Defense) GainHitPoints(hitPoints int) int {
 	actualHealingReceived := hitPoints
-	if defense.SquaddieCurrentHitPoints+actualHealingReceived >= defense.SquaddieMaxHitPoints {
-		actualHealingReceived = defense.SquaddieMaxHitPoints - defense.SquaddieCurrentHitPoints
+	if defense.currentHitPoints+actualHealingReceived >= defense.maxHitPoints {
+		actualHealingReceived = defense.maxHitPoints - defense.currentHitPoints
 	}
-	defense.SquaddieCurrentHitPoints += actualHealingReceived
+	defense.currentHitPoints += actualHealingReceived
 	return actualHealingReceived
 }
 
 // MaxHitPoints returns the value.
 func (defense *Defense) MaxHitPoints() int {
-	return defense.SquaddieMaxHitPoints
+	return defense.maxHitPoints
 }
 
 // CurrentHitPoints returns the value.
 func (defense *Defense) CurrentHitPoints() int {
-	return defense.SquaddieCurrentHitPoints
+	return defense.currentHitPoints
 }
 
 // Dodge returns the value.
 func (defense *Defense) Dodge() int {
-	return defense.SquaddieDodge
+	return defense.dodge
 }
 
 // Deflect returns the value.
 func (defense *Defense) Deflect() int {
-	return defense.SquaddieDeflect
+	return defense.deflect
 }
 
 // MaxBarrier returns the value.
 func (defense *Defense) MaxBarrier() int {
-	return defense.SquaddieMaxBarrier
+	return defense.maxBarrier
 }
 
 // CurrentBarrier returns the value.
 func (defense *Defense) CurrentBarrier() int {
-	return defense.SquaddieCurrentBarrier
+	return defense.currentBarrier
 }
 
 // Armor returns the value.
 func (defense *Defense) Armor() int {
-	return defense.SquaddieArmor
+	return defense.armor
 }
 
 // Improve improves the defensive stats.
 func (defense *Defense) Improve(maxHitPoints, dodge, deflect, maxBarrier, armor int) {
-	defense.SquaddieMaxHitPoints += maxHitPoints
-	defense.SquaddieDodge += dodge
-	defense.SquaddieDeflect += deflect
-	defense.SquaddieMaxBarrier += maxBarrier
-	defense.SquaddieArmor += armor
+	defense.maxHitPoints += maxHitPoints
+	defense.dodge += dodge
+	defense.deflect += deflect
+	defense.maxBarrier += maxBarrier
+	defense.armor += armor
 }

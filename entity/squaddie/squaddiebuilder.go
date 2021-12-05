@@ -190,6 +190,7 @@ func (s *Builder) SetBaseClassByID(targetClassID string) *Builder {
 
 // Build uses the Builder to create a Movement.
 func (s *Builder) Build() *Squaddie {
+	// TODO Make a NewSquaddie() function that takes these smaller objects as arguments
 	newSquaddie := &Squaddie{
 		Identification: *s.identificationOptions.Build(),
 		Offense:        *s.offenseOptions.Build(),

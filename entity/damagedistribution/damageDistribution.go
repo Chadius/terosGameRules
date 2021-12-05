@@ -7,7 +7,7 @@ type ToHitComparison struct {
 	DefenderToHitPenalty int
 }
 
-// DamageDistribution tracks how a Squaddie handles damage across their Barrier, SquaddieArmor and Health.
+// DamageDistribution tracks how a Squaddie handles damage across their Barrier, armor and Health.
 type DamageDistribution struct {
 	DamageAbsorbedByArmor   int
 	DamageAbsorbedByBarrier int

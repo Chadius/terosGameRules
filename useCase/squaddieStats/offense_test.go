@@ -76,12 +76,12 @@ func (suite *squaddieOffense) TestSquaddieMeasuresAim(checker *C) {
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfSquaddieDoesNotExist(checker *C) {
 	_, err := suite.offenseStrategy.GetSquaddieAimWithPower("does not exist", suite.spear.ID(), suite.repos)
-	checker.Assert(err, ErrorMatches, "squaddie could not be found, SquaddieID: does not exist")
+	checker.Assert(err, ErrorMatches, "squaddie could not be found, id: does not exist")
 }
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfPowerDoesNotExist(checker *C) {
 	_, err := suite.offenseStrategy.GetSquaddieAimWithPower(suite.teros.ID(), "does not exist", suite.repos)
-	checker.Assert(err, ErrorMatches, "power could not be found, SquaddieID: does not exist")
+	checker.Assert(err, ErrorMatches, "power could not be found, id: does not exist")
 }
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker *C) {
@@ -100,7 +100,7 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker
 	)
 
 	_, err := suite.offenseStrategy.GetSquaddieAimWithPower(suite.teros.ID(), wait.ID(), suite.repos)
-	checker.Assert(err, ErrorMatches, "cannot attack with power, SquaddieID: powerWait")
+	checker.Assert(err, ErrorMatches, "cannot attack with power, id: powerWait")
 }
 
 func (suite *squaddieOffense) TestGetRawDamageOfPhysicalPower(checker *C) {
@@ -138,7 +138,7 @@ func (suite *squaddieOffense) TestGetCriticalThresholdOfPower(checker *C) {
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfPowerDoesNotCrit(checker *C) {
 	_, critErr := suite.offenseStrategy.GetSquaddieCriticalThresholdWithPower(suite.teros.ID(), suite.blot.ID(), suite.repos)
-	checker.Assert(critErr, ErrorMatches, "cannot critical hit with power, SquaddieID: powerBlot")
+	checker.Assert(critErr, ErrorMatches, "cannot critical hit with power, id: powerBlot")
 }
 
 func (suite *squaddieOffense) TestGetCriticalDamageOfPower(checker *C) {

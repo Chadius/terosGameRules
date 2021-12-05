@@ -2,17 +2,17 @@ package squaddie
 
 // Movement contains all information needed to describe a Squaddie's movement.
 type Movement struct {
-	SquaddieMovementDistance     int          `json:"distance" yaml:"distance"`
-	SquaddieMovementType         MovementType `json:"type" yaml:"type"`
-	SquaddieMovementCanHitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
+	movementDistance     int
+	movementType         MovementType
+	movementCanHitAndRun bool
 }
 
 // NewMovement creates a new Movement object.
 func NewMovement(distance int, movementType MovementType, canHitAndRun bool) *Movement {
 	return &Movement{
-		SquaddieMovementDistance:     distance,
-		SquaddieMovementType:         movementType,
-		SquaddieMovementCanHitAndRun: canHitAndRun,
+		movementDistance:     distance,
+		movementType:         movementType,
+		movementCanHitAndRun: canHitAndRun,
 	}
 }
 
@@ -42,36 +42,36 @@ var MovementValueByType = map[MovementType]int{
 
 // MovementDistance Returns the distance the Squaddie can travel.
 func (movement *Movement) MovementDistance() int {
-	return movement.SquaddieMovementDistance
+	return movement.movementDistance
 }
 
 // MovementType returns the Squaddie's movement type
 func (movement *Movement) MovementType() MovementType {
-	return movement.SquaddieMovementType
+	return movement.movementType
 }
 
 // CanHitAndRun indicates if the Squaddie can move after attacking.
 func (movement *Movement) CanHitAndRun() bool {
-	return movement.SquaddieMovementCanHitAndRun
+	return movement.movementCanHitAndRun
 }
 
 // Improve improves the movement stats.
 func (movement *Movement) Improve(distance int, moveType MovementType, canHitAndRun bool) {
-	movement.SquaddieMovementDistance += distance
+	movement.movementDistance += distance
 
 	if canHitAndRun {
-		movement.SquaddieMovementCanHitAndRun = true
+		movement.movementCanHitAndRun = true
 	}
 
 	if moveType == Teleport {
-		movement.SquaddieMovementType = Teleport
+		movement.movementType = Teleport
 	} else if moveType == Fly {
-		if movement.SquaddieMovementType != Teleport {
-			movement.SquaddieMovementType = Fly
+		if movement.movementType != Teleport {
+			movement.movementType = Fly
 		}
 	} else if moveType == Light {
-		if movement.SquaddieMovementType != Teleport && movement.SquaddieMovementType != Fly {
-			movement.SquaddieMovementType = Light
+		if movement.movementType != Teleport && movement.movementType != Fly {
+			movement.movementType = Light
 		}
 	}
 }

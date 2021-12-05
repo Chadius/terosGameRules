@@ -61,6 +61,6 @@ func (suite *ClassRepositoryRetrieveSuite) TestGetClassByID(checker *C) {
 }
 
 func (suite *ClassRepositoryRetrieveSuite) TestRaiseErrorWhenClassDoesNotExist(checker *C) {
-	_, err := suite.repo.GetClassByID("bad SquaddieID")
-	checker.Assert(err, ErrorMatches, `class repository: No class found with SquaddieID: "bad SquaddieID"`)
+	_, err := suite.repo.GetClassByID("bad classID")
+	checker.Assert(err, ErrorMatches, `class repository: No class found with id: "bad classID"`)
 }

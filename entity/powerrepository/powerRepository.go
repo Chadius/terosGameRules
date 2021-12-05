@@ -102,7 +102,7 @@ func (repository *Repository) GetNumberOfPowers() int {
 	return len(repository.powersByID)
 }
 
-// GetPowerByID returns the Power stored by SquaddieID.
+// GetPowerByID returns the Power stored by powerID.
 func (repository *Repository) GetPowerByID(powerID string) *power.Power {
 	return repository.powersByID[powerID]
 }

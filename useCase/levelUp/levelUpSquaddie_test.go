@@ -81,10 +81,10 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieRecordsLevel(checker *
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorForNonexistentClass(checker *C) {
 	mushroomClassLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("deadbeeg").
-		WithClassID("bad SquaddieID").
+		WithClassID("bad class ID").
 		Build()
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(mushroomClassLevel, suite.teros)
-	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad SquaddieID"`)
+	checker.Assert(err.Error(), Equals, `squaddie "teros" cannot add levels to unknown class "bad class ID"`)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestRaiseAnErrorIfReusingLevel(checker *C) {

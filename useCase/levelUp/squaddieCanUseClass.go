@@ -13,7 +13,7 @@ type SquaddieCanSwitchClassStrategy interface {
 // LevelsConsumedChecker looks at the Squaddie's consumed levels to determine if they can switch.
 type LevelsConsumedChecker struct{}
 
-// SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given SquaddieID.
+// SquaddieCanSwitchToClass returns true if the squaddie can use the class with the given id.
 func (l *LevelsConsumedChecker) SquaddieCanSwitchToClass(squaddieToTest *squaddie.Squaddie, testingClassID string, repositories *repositories.RepositoryCollection) bool {
 	classToTest, _ := repositories.ClassRepo.GetClassByID(testingClassID)
 

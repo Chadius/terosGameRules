@@ -59,11 +59,11 @@ func (repository *Repository) GetNumberOfClasses() int {
 	return len(repository.classesByID)
 }
 
-// GetClassByID returns a Class that matches the SquaddieID.
+// GetClassByID returns a Class that matches the id.
 func (repository *Repository) GetClassByID(classID string) (*Class, error) {
 	class, classFound := repository.classesByID[classID]
 	if classFound == false {
-		newError := fmt.Errorf(`class repository: No class found with SquaddieID: "%s"`, classID)
+		newError := fmt.Errorf(`class repository: No class found with id: "%s"`, classID)
 		utility.Log(newError.Error(), 0, utility.Error)
 		return nil, newError
 	}

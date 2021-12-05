@@ -20,7 +20,7 @@ func ClassBuilder() *ClassBuilderOptions {
 	}
 }
 
-// WithID sets the class SquaddieID.
+// WithID sets the class id.
 func (c *ClassBuilderOptions) WithID(id string) *ClassBuilderOptions {
 	c.id = id
 	return c
