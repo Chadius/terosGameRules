@@ -70,9 +70,15 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 	return true, nil
 }
 
-// AddYAMLSourceUsingSquaddieBuilder adds multiple squaddies using builder objects.
+// AddYAMLSourceUsingSquaddieBuilder adds multiple squaddies using builder objects and a YAML data stream.
 func (repository *Repository) AddYAMLSourceUsingSquaddieBuilder(data []byte) error {
 	_, err := repository.addSourceUsingSquaddieBuilder(data, yaml.Unmarshal)
+	return err
+}
+
+// AddJSONSourceUsingSquaddieBuilder adds multiple squaddies using builder objects and a JSON data stream.
+func (repository *Repository) AddJSONSourceUsingSquaddieBuilder(data []byte) error {
+	_, err := repository.addSourceUsingSquaddieBuilder(data, json.Unmarshal)
 	return err
 }
 

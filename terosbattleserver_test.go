@@ -20,7 +20,7 @@ func (suite *ReplayScriptSuite) Test(checker *C) {
   identification:
     name: Teros
     id: squaddieTeros
-    affiliation: Player
+    affiliation: player
   offense:
     aim: 2
     strength: 1
@@ -39,7 +39,7 @@ func (suite *ReplayScriptSuite) Test(checker *C) {
   identification:
     name: Bandit
     id: squaddieBandit0
-    affiliation: Enemy
+    affiliation: enemy
   offense:
     aim: 0
     strength: 1

@@ -187,7 +187,7 @@ func (suite *YAMLBuilderSuite) SetUpTest(checker *C) {
 		`
 id: squaddie_yaml
 name: YAML squaddie
-affiliation: Enemy
+affiliation: enemy
 max_hit_points: 2
 dodge: 3
 deflect: 5
@@ -293,7 +293,7 @@ func (suite *JSONBuilderSuite) SetUpTest(checker *C) {
 {
 	"id": "squaddie_json",
 	"name": "JSON squaddie",
-	"affiliation": "Ally",
+	"affiliation": "ally",
 	"max_hit_points": 23,
 	"dodge": 19,
 	"deflect": 17,

@@ -27,7 +27,7 @@ func (suite *SquaddieRepositorySuite) TestUseJSONSource(checker *C) {
 	jsonByteStream := []byte(`[{
 				"identification": {
 					"name": "teros",
-					"affiliation": "Player"
+					"affiliation": "player"
 				}
 			}]`)
 	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
@@ -40,7 +40,7 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
 				"identification": {
 					"id": "squaddieID",
 					"name": "teros",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"offense": {
 					"aim": 5
@@ -63,7 +63,7 @@ func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C)
 				"identification": {
 					"id": "12345",
 					"name": "teros",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"offense": {
 					"aim": 5
@@ -86,7 +86,7 @@ func (suite *SquaddieRepositorySuite) TestClonedSquaddiesHaveDifferentID(checker
 				"identification": {
 					"id": "terosID",
 					"name": "teros",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"offense": {
 					"aim": 5
@@ -105,7 +105,7 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevels(checker *C) {
 				"identification": {
 					"id": "terosSquaddieID",
 					"name": "teros",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"offense": {
 					"aim": 5
@@ -135,7 +135,7 @@ func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesWhenInvalid(checke
 	jsonByteStream := []byte(`[{
 				"identification": {
 					"name": "teros",
-					"Affiliation": "Player"
+					"Affiliation": "player"
 				}
 			},{
 				"identification": {
@@ -154,7 +154,7 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 				"identification": {
 					"id": "Soldier",
 					"name": "Soldier",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"movement": { "distance": 5, "type": "foot"}
 			},
@@ -162,7 +162,7 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 				"identification": {
 					"id": "Scout",
 					"name": "Scout",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"movement": { "distance": 4, "type": "light"}
 			},
@@ -170,7 +170,7 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 				"identification": {
 					"id": "Bird",
 					"name": "Bird",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"movement": { "distance": 3, "type": "fly", "hit_and_run": true}
 			},
@@ -178,7 +178,7 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 				"identification": {
 					"id": "Teleporter",
 					"name": "Teleporter",
-					"affiliation": "Player"
+					"affiliation": "player"
 				},
 				"movement": { "distance": 2, "type": "teleport"}
 			}
@@ -226,7 +226,7 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddieByYAML(checker *C) {
 	yamlByteStream := []byte(`-
   identification:
     name: teros
-    affiliation: Player
+    affiliation: player
 `)
 	suite.squaddieRepository.AddYAMLSource(yamlByteStream)
 	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
@@ -238,7 +238,7 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevelsYAML(checker *C) {
   identification:
     name: teros
     id: terosSquaddieID
-    affiliation: Player
+    affiliation: player
   class_progress:
     class_levels:
       '1':
@@ -261,7 +261,7 @@ func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesUponFirstInvalid(c
 	yamlByteStream := []byte(`-
   identification:
     name: teros
-    affiliation: Player
+    affiliation: player
 -
   identification:
     name: teros2
@@ -277,7 +277,7 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML
   identification:
     id: Soldier
     name: Soldier
-    affiliation: Player
+    affiliation: player
   movement:
     distance: 5
     type: foot
@@ -285,7 +285,7 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML
   identification:
     id: Scout
     name: Scout
-    affiliation: Player
+    affiliation: player
   movement:
     distance: 4
     type: light
@@ -293,7 +293,7 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML
   identification:
     id: Bird
     name: Bird
-    affiliation: Player
+    affiliation: player
   movement:
     distance: 3
     type: fly
@@ -302,7 +302,7 @@ func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML
   identification:
     id: Teleporter
     name: Teleporter
-    affiliation: Player
+    affiliation: player
   movement:
     distance: 2
     type: teleport
@@ -453,7 +453,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestLoadSquaddieByYAMLUsingSqu
 	yamlByteStream := []byte(`-
   id: squaddie_teros
   name: teros
-  affiliation: Player
+  affiliation: player
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
 	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
@@ -468,7 +468,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedIdentif
 	yamlByteStream := []byte(`-
   id: squaddie_bandit
   name: Bandit
-  affiliation: Enemy
+  affiliation: enemy
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
 	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
@@ -580,11 +580,11 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedClasses
 	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
 	checker.Assert(err, IsNil)
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_with_class")
-	levelCountsByClass := loadedSquaddie.GetLevelCountsByClass()
 
 	checker.Assert(loadedSquaddie.BaseClassID(), Equals, "class_dirt_farmer")
 	checker.Assert(loadedSquaddie.CurrentClassID(), Equals, "class_jedi_knight")
 
+	levelCountsByClass := loadedSquaddie.GetLevelCountsByClass()
 	checker.Assert(levelCountsByClass, HasLen, 2)
 	checker.Assert(levelCountsByClass["class_dirt_farmer"], Equals, 3)
 	checker.Assert(levelCountsByClass["class_jedi_knight"], Equals, 1)
@@ -596,4 +596,97 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedClasses
 
 	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelJediKnight0"), Equals, true)
 	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelJediKnight1"), Equals, false)
+}
+
+func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieCanBeBuiltWithJSON(checker *C) {
+	jsonByteStream := []byte(`[
+{
+	"id": "squaddie_id",
+	"name": "Buff Citizen",
+	"affiliation": "ally",
+	"aim": 2,
+	"strength": 3,
+	"mind": 5,
+	"max_hit_points": 7,
+	"max_barrier": 11,
+	"armor": 13,
+	"dodge": 17,
+	"deflect": 19,
+	"movement_distance": 23,
+	"movement_type": "teleport",
+	"hit_and_run": true,
+	"powers": [
+		{
+			"name": "Citizen Punch",
+			"id": "power_citizen_punch"
+		},
+		{
+			"name": "Citizen Kick",
+			"id": "power_citizen_kick"
+		}
+	],
+	"class_progress": [
+		{
+			"is_current_class": true,
+			"class_id": "class_action_bystander",
+			"class_name": "Action Bystander",
+			"levels_gained": ["levelActionBystander0", "levelActionBystander1"]
+		},
+		{
+			"is_base_class": true,
+			"class_id": "class_surviving_bystander",
+			"class_name": "Surviving Bystander",
+			"levels_gained": ["levelSurvivingBystander0"]
+		}
+	]
+}
+]`)
+	squaddieRepository := squaddie.NewSquaddieRepository()
+	err := squaddieRepository.AddJSONSourceUsingSquaddieBuilder(jsonByteStream)
+	checker.Assert(err, IsNil)
+
+	checker.Assert(squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
+	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_id")
+
+	checker.Assert(loadedSquaddie.Name(), Equals, "Buff Citizen")
+	checker.Assert(loadedSquaddie.Affiliation(), Equals, squaddie.Ally)
+
+	checker.Assert(loadedSquaddie.Aim(), Equals, 2)
+	checker.Assert(loadedSquaddie.Strength(), Equals, 3)
+	checker.Assert(loadedSquaddie.Mind(), Equals, 5)
+
+	checker.Assert(loadedSquaddie.MaxHitPoints(), Equals, 7)
+	checker.Assert(loadedSquaddie.CurrentHitPoints(), Equals, 7)
+	checker.Assert(loadedSquaddie.MaxBarrier(), Equals, 11)
+	checker.Assert(loadedSquaddie.Armor(), Equals, 13)
+	checker.Assert(loadedSquaddie.Dodge(), Equals, 17)
+	checker.Assert(loadedSquaddie.Deflect(), Equals, 19)
+
+	checker.Assert(loadedSquaddie.MovementDistance(), Equals, 23)
+	checker.Assert(loadedSquaddie.MovementCanHitAndRun(), Equals, true)
+	checker.Assert(loadedSquaddie.MovementType(), Equals, squaddie.Teleport)
+
+	squaddiePowers := loadedSquaddie.GetCopyOfPowerReferences()
+
+	checker.Assert(squaddiePowers, HasLen, 2)
+	checker.Assert(squaddiePowers[0].PowerID, Equals, "power_citizen_punch")
+	checker.Assert(squaddiePowers[0].Name, Equals, "Citizen Punch")
+
+	checker.Assert(squaddiePowers[1].PowerID, Equals, "power_citizen_kick")
+	checker.Assert(squaddiePowers[1].Name, Equals, "Citizen Kick")
+
+	checker.Assert(loadedSquaddie.BaseClassID(), Equals, "class_surviving_bystander")
+	checker.Assert(loadedSquaddie.CurrentClassID(), Equals, "class_action_bystander")
+
+	levelCountsByClass := loadedSquaddie.GetLevelCountsByClass()
+	checker.Assert(levelCountsByClass, HasLen, 2)
+	checker.Assert(levelCountsByClass["class_surviving_bystander"], Equals, 1)
+	checker.Assert(levelCountsByClass["class_action_bystander"], Equals, 2)
+
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelActionBystander0"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelActionBystander1"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelActionBystander2"), Equals, false)
+
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelSurvivingBystander0"), Equals, true)
+	checker.Assert(loadedSquaddie.IsClassLevelAlreadyUsed("levelSurvivingBystander1"), Equals, false)
 }

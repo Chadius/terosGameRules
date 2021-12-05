@@ -12,10 +12,10 @@ type Affiliation string
 
 // Squaddie Affiliation constants
 const (
-	Player  Affiliation = "Player"
-	Enemy   Affiliation = "Enemy"
-	Ally    Affiliation = "Ally"
-	Neutral Affiliation = "Neutral"
+	Player  Affiliation = "player"
+	Enemy   Affiliation = "enemy"
+	Ally    Affiliation = "ally"
+	Neutral Affiliation = "neutral"
 )
 
 // Squaddie represents a person, creature or thing that can take actions on a battlefield.
