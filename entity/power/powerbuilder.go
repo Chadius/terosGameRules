@@ -6,8 +6,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// TODO privatize fields
-
 // Builder covers options used to make Power objects.
 type Builder struct {
 	name                 string

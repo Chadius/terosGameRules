@@ -54,6 +54,11 @@ func (s *Squaddie) Name() string {
 	return s.Identification.Name()
 }
 
+// SetNewIDToRandom delegates.
+func (s *Squaddie) SetNewIDToRandom() {
+	s.Identification.SetNewIDToRandom()
+}
+
 // ImproveDefense delegates.
 func (s *Squaddie) ImproveDefense(maxHitPoints, dodge, deflect, maxBarrier, armor int) {
 	s.Defense.Improve(maxHitPoints, dodge, deflect, maxBarrier, armor)

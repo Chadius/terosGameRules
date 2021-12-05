@@ -83,7 +83,7 @@ func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, e
 	}
 
 	if squaddieToAdd.ID() == "" {
-		squaddieToAdd.Identification.SetNewIDToRandom() // TODO ask the squaddie to set its ID
+		squaddieToAdd.SetNewIDToRandom()
 	}
 	repository.squaddiesByID[squaddieToAdd.ID()] = squaddieToAdd
 	return true, nil

@@ -31,6 +31,6 @@ func (suite *SquaddieIdentificationCreationTests) TestGetARandomIDUponCreation(c
 
 func (suite *SquaddieIdentificationCreationTests) TestGetANewID(checker *C) {
 	initialID := suite.teros.ID()
-	suite.teros.Identification.SetNewIDToRandom()
+	suite.teros.SetNewIDToRandom()
 	checker.Assert(suite.teros.ID(), Not(Equals), initialID)
 }
