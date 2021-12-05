@@ -20,16 +20,6 @@ func NewSquaddieRepository() *Repository {
 	return &repository
 }
 
-// AddJSONSource consumes a given bytestream and tries to analyze it.
-func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
-	return repository.addSource(data, json.Unmarshal)
-}
-
-// AddYAMLSource consumes a given bytestream and tries to analyze it.
-func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
-	return repository.addSource(data, yaml.Unmarshal)
-}
-
 // AddSquaddies adds a slice of Squaddie to the repository.
 func (repository *Repository) AddSquaddies(squaddies []*Squaddie) (bool, error) {
 	for _, squaddieToAdd := range squaddies {
@@ -50,40 +40,20 @@ func (repository *Repository) AddSquaddie(squaddieToAdd *Squaddie) (bool, error)
 	return true, nil
 }
 
-// AddSource consumes a given bytestream of the given sourceType and tries to analyze it.
-func (repository *Repository) addSource(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
-	var unmarshalError error
-	var listOfSquaddies []Squaddie
-	unmarshalError = unmarshal(data, &listOfSquaddies)
-
-	if unmarshalError != nil {
-		return false, unmarshalError
-	}
-	for index := range listOfSquaddies {
-		newSquaddie := listOfSquaddies[index]
-		newSquaddie.Defense.SetHPToMax()
-		success, err := repository.tryToAddSquaddie(&newSquaddie)
-		if success == false {
-			return false, err
-		}
-	}
-	return true, nil
-}
-
-// AddYAMLSourceUsingSquaddieBuilder adds multiple squaddies using builder objects and a YAML data stream.
-func (repository *Repository) AddYAMLSourceUsingSquaddieBuilder(data []byte) error {
-	_, err := repository.addSourceUsingSquaddieBuilder(data, yaml.Unmarshal)
+// AddSquaddiesUsingYAML adds multiple squaddies using builder objects and a YAML data stream.
+func (repository *Repository) AddSquaddiesUsingYAML(data []byte) error {
+	_, err := repository.unmarshalDataAndAddSquaddies(data, yaml.Unmarshal)
 	return err
 }
 
-// AddJSONSourceUsingSquaddieBuilder adds multiple squaddies using builder objects and a JSON data stream.
-func (repository *Repository) AddJSONSourceUsingSquaddieBuilder(data []byte) error {
-	_, err := repository.addSourceUsingSquaddieBuilder(data, json.Unmarshal)
+// AddSquaddiesUsingJSON adds multiple squaddies using builder objects and a JSON data stream.
+func (repository *Repository) AddSquaddiesUsingJSON(data []byte) error {
+	_, err := repository.unmarshalDataAndAddSquaddies(data, json.Unmarshal)
 	return err
 }
 
-// addSourceUsingSquaddieBuilder reads the byte stream to create new squaddies.
-func (repository *Repository) addSourceUsingSquaddieBuilder(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
+// unmarshalDataAndAddSquaddies reads the byte stream to create new squaddies.
+func (repository *Repository) unmarshalDataAndAddSquaddies(data []byte, unmarshal utility.UnmarshalFunc) (bool, error) {
 	var unmarshalError error
 
 	var builderInstructions []BuilderOptionMarshal

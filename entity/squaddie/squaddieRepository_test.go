@@ -21,33 +21,15 @@ func (suite *SquaddieRepositorySuite) SetUpTest(checker *C) {
 	suite.attackA = power.Builder().WithName("attack Formation A").Build()
 }
 
-// TODO will I need this function once I'm done refactoring?
-func (suite *SquaddieRepositorySuite) TestUseJSONSource(checker *C) {
-	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 0)
-	jsonByteStream := []byte(`[{
-				"identification": {
-					"name": "teros",
-					"affiliation": "player"
-				}
-			}]`)
-	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, true)
-	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
-}
-
 func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
 	jsonByteStream := []byte(`[{
-				"identification": {
-					"id": "squaddieID",
-					"name": "teros",
-					"affiliation": "player"
-				},
-				"offense": {
-					"aim": 5
-				}
-			}]`)
-	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, true)
+		"id": "squaddieID",
+		"name": "teros",
+		"affiliation": "player",
+		"aim": 5
+	}]`)
+	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
+	checker.Assert(err, IsNil)
 
 	suite.teros = suite.squaddieRepository.GetSquaddieByID("squaddieID")
 	checker.Assert(suite.teros, NotNil)
@@ -60,17 +42,13 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
 
 func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C) {
 	jsonByteStream := []byte(`[{
-				"identification": {
-					"id": "12345",
-					"name": "teros",
-					"affiliation": "player"
-				},
-				"offense": {
-					"aim": 5
-				}
-			}]`)
-	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, true)
+		"id": "12345",
+		"name": "teros",
+		"affiliation": "player",
+		"aim": 5
+	}]`)
+	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
+	checker.Assert(err, IsNil)
 
 	suite.teros = suite.squaddieRepository.GetSquaddieByID("12345")
 	checker.Assert(suite.teros, NotNil)
@@ -83,17 +61,13 @@ func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C)
 
 func (suite *SquaddieRepositorySuite) TestClonedSquaddiesHaveDifferentID(checker *C) {
 	jsonByteStream := []byte(`[{
-				"identification": {
-					"id": "terosID",
-					"name": "teros",
-					"affiliation": "player"
-				},
-				"offense": {
-					"aim": 5
-				}
-			}]`)
-	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, true)
+		"id": "terosID",
+		"name": "teros",
+		"affiliation": "player",
+		"aim": 5
+	}]`)
+	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
+	checker.Assert(err, IsNil)
 
 	teros0 := suite.squaddieRepository.GetSquaddieByID("terosID")
 	teros1 := suite.squaddieRepository.GetSquaddieByID("terosID")
@@ -102,114 +76,88 @@ func (suite *SquaddieRepositorySuite) TestClonedSquaddiesHaveDifferentID(checker
 
 func (suite *SquaddieRepositorySuite) TestLoadClassLevels(checker *C) {
 	jsonByteStream := []byte(`[{
-				"identification": {
-					"id": "terosSquaddieID",
-					"name": "teros",
-					"affiliation": "player"
-				},
-				"offense": {
-					"aim": 5
-				},
-				"class_progress": {
-					"class_levels": {
-					  "1": {
-						"id": "1",
-						"name": "Mage",
-						"levels_gained": ["123"]
-					  },
-					  "2": {
-						"id": "2",
-						"name": "Dimension Walker"
-					  }
-				   }
-				}
-			}]`)
-	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, true)
+		"id": "terosSquaddieID",
+		"name": "teros",
+		"affiliation": "player",
+		"aim": 5,
+		"class_progress": [
+			{
+				"class_id": "1",
+				"class_name":"Mage",
+				"levels_gained": ["123"]
+			},
+			{
+				"class_id": "2",
+				"class_name":"Dimension Walker"
+			}
+		]
+	}]`)
+	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
+	checker.Assert(err, IsNil)
 
 	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
 	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
 }
 
-func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesWhenInvalid(checker *C) {
-	jsonByteStream := []byte(`[{
-				"identification": {
-					"name": "teros",
-					"Affiliation": "player"
-				}
-			},{
-				"identification": {
-					"name": "teros2",
-					"Affiliation": "Unknown Affiliation"
-				}
-			}]`)
-	success, err := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, false)
-	checker.Assert(err, ErrorMatches, "squaddie  has unknown affiliation: 'Unknown Affiliation'")
-}
-
 func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C) {
 	jsonByteStream := []byte(`[
 			{
-				"identification": {
-					"id": "Soldier",
-					"name": "Soldier",
-					"affiliation": "player"
-				},
-				"movement": { "distance": 5, "type": "foot"}
+				"id": "Soldier",
+				"name": "Soldier",
+				"affiliation": "player",
+				"movement_distance": 5,
+				"movement_type": "foot"
 			},
 			{
-				"identification": {
-					"id": "Scout",
-					"name": "Scout",
-					"affiliation": "player"
-				},
-				"movement": { "distance": 4, "type": "light"}
+				"id": "Scout",
+				"name": "Scout",
+				"affiliation": "player",
+				"movement_distance": 4,
+				"movement_type": "light"
 			},
 			{
-				"identification": {
-					"id": "Bird",
-					"name": "Bird",
-					"affiliation": "player"
-				},
-				"movement": { "distance": 3, "type": "fly", "hit_and_run": true}
+				"id": "Bird",
+				"name": "Bird",
+				"affiliation": "player",
+				"movement_distance": 3,
+				"movement_type": "fly",
+				"hit_and_run": true
 			},
 			{
-				"identification": {
-					"id": "Teleporter",
-					"name": "Teleporter",
-					"affiliation": "player"
-				},
-				"movement": { "distance": 2, "type": "teleport"}
+				"id": "Teleporter",
+				"name": "Teleporter",
+				"affiliation": "player",
+				"movement_distance": 2,
+				"movement_type": "teleport"
 			}
-			]`)
+		]`)
 
-	success, _ := suite.squaddieRepository.AddJSONSource(jsonByteStream)
-	checker.Assert(success, Equals, true)
+	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
+	checker.Assert(err, IsNil)
 	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 4)
 
 	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
 	checker.Assert(soldier.Name(), Equals, "Soldier")
 	checker.Assert(soldier.Movement.MovementDistance(), Equals, 5)
-	checker.Assert(soldier.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Foot))
+	checker.Assert(soldier.Movement.MovementType(), Equals, squaddie.Foot)
 	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
 
 	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
 	checker.Assert(scout.Name(), Equals, "Scout")
 	checker.Assert(scout.Movement.MovementDistance(), Equals, 4)
-	checker.Assert(scout.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Light))
+	checker.Assert(scout.Movement.MovementType(), Equals, squaddie.Light)
 	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
 
 	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
 	checker.Assert(bird.Name(), Equals, "Bird")
 	checker.Assert(bird.Movement.MovementDistance(), Equals, 3)
-	checker.Assert(bird.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(bird.Movement.MovementType(), Equals, squaddie.Fly)
 	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
 
 	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
 	checker.Assert(teleporter.Name(), Equals, "Teleporter")
 	checker.Assert(teleporter.Movement.MovementDistance(), Equals, 2)
-	checker.Assert(teleporter.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
+	checker.Assert(teleporter.Movement.MovementType(), Equals, squaddie.Teleport)
 	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
@@ -218,124 +166,6 @@ func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
 	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
 	referencedSquaddie := suite.squaddieRepository.GetOriginalSquaddieByID(originalSquaddie.ID())
 	checker.Assert(referencedSquaddie, Equals, originalSquaddie)
-}
-
-// TODO all of these may be deleted soon
-func (suite *SquaddieRepositorySuite) TestLoadSquaddieByYAML(checker *C) {
-	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 0)
-	yamlByteStream := []byte(`-
-  identification:
-    name: teros
-    affiliation: player
-`)
-	suite.squaddieRepository.AddYAMLSource(yamlByteStream)
-	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
-}
-
-// TODO
-func (suite *SquaddieRepositorySuite) TestLoadClassLevelsYAML(checker *C) {
-	yamlByteStream := []byte(`-
-  identification:
-    name: teros
-    id: terosSquaddieID
-    affiliation: player
-  class_progress:
-    class_levels:
-      '1':
-        id: '1'
-        name: Mage
-        levels_gained:
-        - '123'
-      '2':
-        id: '2'
-        name: Dimension Walker
-`)
-	success, _ := suite.squaddieRepository.AddYAMLSource(yamlByteStream)
-	checker.Assert(success, Equals, true)
-
-	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
-	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
-}
-
-func (suite *SquaddieRepositorySuite) TestStopLoadingSquaddiesUponFirstInvalid(checker *C) {
-	yamlByteStream := []byte(`-
-  identification:
-    name: teros
-    affiliation: player
--
-  identification:
-    name: teros2
-    affiliation: Unknown SquaddieAffiliation`)
-	success, err := suite.squaddieRepository.AddYAMLSource(yamlByteStream)
-	checker.Assert(success, Equals, false)
-	checker.Assert(err, NotNil)
-	checker.Assert(err.Error(), Equals, "squaddie  has unknown affiliation: 'Unknown SquaddieAffiliation'")
-}
-
-func (suite *SquaddieRepositorySuite) TestLoadSquaddiesWithDifferentMovementYAML(checker *C) {
-	yamlByteStream := []byte(`-
-  identification:
-    id: Soldier
-    name: Soldier
-    affiliation: player
-  movement:
-    distance: 5
-    type: foot
--
-  identification:
-    id: Scout
-    name: Scout
-    affiliation: player
-  movement:
-    distance: 4
-    type: light
--
-  identification:
-    id: Bird
-    name: Bird
-    affiliation: player
-  movement:
-    distance: 3
-    type: fly
-    hit_and_run: true
--
-  identification:
-    id: Teleporter
-    name: Teleporter
-    affiliation: player
-  movement:
-    distance: 2
-    type: teleport
-    hit_and_run: false
-`)
-
-	success, _ := suite.squaddieRepository.AddYAMLSource(yamlByteStream)
-	checker.Assert(success, Equals, true)
-	checker.Assert(suite.squaddieRepository.GetNumberOfSquaddies(), Equals, 4)
-
-	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
-	checker.Assert(soldier.Name(), Equals, "Soldier")
-	checker.Assert(soldier.Movement.MovementDistance(), Equals, 5)
-	checker.Assert(soldier.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Foot))
-	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
-
-	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
-	checker.Assert(scout.Name(), Equals, "Scout")
-	checker.Assert(scout.Movement.MovementDistance(), Equals, 4)
-	checker.Assert(scout.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Light))
-	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
-
-	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
-	checker.Assert(bird.Name(), Equals, "Bird")
-	checker.Assert(bird.Movement.MovementDistance(), Equals, 3)
-	checker.Assert(bird.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
-	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
-
-	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
-	checker.Assert(teleporter.Name(), Equals, "Teleporter")
-	checker.Assert(teleporter.Movement.MovementDistance(), Equals, 2)
-	checker.Assert(teleporter.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Teleport))
-	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
 func (suite *SquaddieRepositorySuite) TestAddSquaddieDirectly(checker *C) {
@@ -456,7 +286,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestLoadSquaddieByYAMLUsingSqu
   affiliation: player
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 	checker.Assert(squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
 
@@ -471,7 +301,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedIdentif
   affiliation: enemy
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_bandit")
@@ -487,7 +317,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedOffense
   mind: 5
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_offense")
@@ -506,7 +336,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedDefense
   deflect: 11
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_defense")
@@ -526,7 +356,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedMovemen
   movement_distance: 2
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_on_the_move")
@@ -547,7 +377,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedPowers(
     id: power_basket_brawl
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_with_powers")
 	squaddiePowers := loadedSquaddie.GetCopyOfPowerReferences()
@@ -577,7 +407,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedClasses
     levels_gained: ["levelJediKnight0"]
 `)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddYAMLSourceUsingSquaddieBuilder(yamlByteStream)
+	err := squaddieRepository.AddSquaddiesUsingYAML(yamlByteStream)
 	checker.Assert(err, IsNil)
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_with_class")
 
@@ -642,7 +472,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieCanBeBuiltWithJSON
 }
 ]`)
 	squaddieRepository := squaddie.NewSquaddieRepository()
-	err := squaddieRepository.AddJSONSourceUsingSquaddieBuilder(jsonByteStream)
+	err := squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
 	checker.Assert(err, IsNil)
 
 	checker.Assert(squaddieRepository.GetNumberOfSquaddies(), Equals, 1)
