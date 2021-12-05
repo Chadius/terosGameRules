@@ -23,7 +23,7 @@ func NewPowerRepository() *Repository {
 func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
 	builderOptions := power.CreatePowerBuilderOptionsFromJSON(data)
 	if builderOptions == nil {
-		return false, errors.New("could not create BuilderOptions with given JSON")
+		return false, errors.New("could not create Builder with given JSON")
 	}
 
 	powersToAdd := []*power.Power{}
@@ -39,7 +39,7 @@ func (repository *Repository) AddJSONSource(data []byte) (bool, error) {
 func (repository *Repository) AddYAMLSource(data []byte) (bool, error) {
 	builderOptions := power.CreatePowerBuilderOptionsFromYAML(data)
 	if builderOptions == nil {
-		return false, errors.New("could not create BuilderOptions with given YAML")
+		return false, errors.New("could not create Builder with given YAML")
 	}
 
 	powersToAdd := []*power.Power{}

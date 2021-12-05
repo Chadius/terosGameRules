@@ -27,10 +27,10 @@ type squaddieDefense struct {
 var _ = Suite(&squaddieDefense{})
 
 func (suite *squaddieDefense) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
 
-	suite.weakerSpear = power.Builder().Spear().DealsDamage(0).ToHitBonus(0).Build()
-	suite.weakerBlot = power.Builder().Blot().DealsDamage(0).ToHitBonus(0).Build()
+	suite.weakerSpear = power.NewPowerBuilder().Spear().DealsDamage(0).ToHitBonus(0).Build()
+	suite.weakerBlot = power.NewPowerBuilder().Blot().DealsDamage(0).ToHitBonus(0).Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
@@ -57,7 +57,7 @@ func (suite *squaddieDefense) SetUpTest(checker *C) {
 }
 
 func (suite *squaddieDefense) TestToHitPenaltyAgainstPhysicalAttacks(checker *C) {
-	dodgyTeros := squaddie.Builder().Teros().Dodge(1).Build()
+	dodgyTeros := squaddie.NewSquaddieBuilder().Teros().Dodge(1).Build()
 	suite.squaddieRepo.AddSquaddie(dodgyTeros)
 
 	spearDodge, spearErr := suite.defenseStrategy.GetSquaddieToHitPenaltyAgainstPower(dodgyTeros.ID(), suite.weakerSpear.ID(), suite.repos)
@@ -66,7 +66,7 @@ func (suite *squaddieDefense) TestToHitPenaltyAgainstPhysicalAttacks(checker *C)
 }
 
 func (suite *squaddieDefense) TestToHitPenaltyAgainstSpellAttacks(checker *C) {
-	deflectingTeros := squaddie.Builder().Teros().Deflect(2).Build()
+	deflectingTeros := squaddie.NewSquaddieBuilder().Teros().Deflect(2).Build()
 	suite.squaddieRepo.AddSquaddie(deflectingTeros)
 
 	blotDodge, blotErr := suite.defenseStrategy.GetSquaddieToHitPenaltyAgainstPower(deflectingTeros.ID(), suite.weakerBlot.ID(), suite.repos)
@@ -75,7 +75,7 @@ func (suite *squaddieDefense) TestToHitPenaltyAgainstSpellAttacks(checker *C) {
 }
 
 func (suite *squaddieDefense) TestGetDefenderArmorResistance(checker *C) {
-	armoredTeros := squaddie.Builder().Teros().Armor(3).Build()
+	armoredTeros := squaddie.NewSquaddieBuilder().Teros().Armor(3).Build()
 	suite.squaddieRepo.AddSquaddie(armoredTeros)
 
 	spearArmor, spearErr := suite.defenseStrategy.GetSquaddieArmorAgainstPower(armoredTeros.ID(), suite.weakerSpear.ID(), suite.repos)
@@ -88,7 +88,7 @@ func (suite *squaddieDefense) TestGetDefenderArmorResistance(checker *C) {
 }
 
 func (suite *squaddieDefense) TestGetDefenderBarrierResistance(checker *C) {
-	armoredTeros := squaddie.Builder().Teros().Armor(3).Barrier(1).Build()
+	armoredTeros := squaddie.NewSquaddieBuilder().Teros().Armor(3).Barrier(1).Build()
 	armoredTeros.Defense.SetBarrierToMax()
 	suite.squaddieRepo.AddSquaddie(armoredTeros)
 
@@ -98,7 +98,7 @@ func (suite *squaddieDefense) TestGetDefenderBarrierResistance(checker *C) {
 }
 
 func (suite *squaddieDefense) TestGetDefenderCurrentHitPoints(checker *C) {
-	injuredTeros := squaddie.Builder().Teros().Armor(3).Barrier(1).Build()
+	injuredTeros := squaddie.NewSquaddieBuilder().Teros().Armor(3).Barrier(1).Build()
 	injuredTeros.Defense.ReduceHitPoints(injuredTeros.MaxHitPoints() - 2)
 	suite.squaddieRepo.AddSquaddie(injuredTeros)
 

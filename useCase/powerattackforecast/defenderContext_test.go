@@ -27,14 +27,14 @@ type DefenderContextTestSuite struct {
 var _ = Suite(&DefenderContextTestSuite{})
 
 func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
 
-	suite.spear = power.Builder().Spear().Build()
-	suite.blot = power.Builder().Blot().Build()
-	suite.bandit = squaddie.Builder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.blot = power.NewPowerBuilder().Blot().Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe = power.Builder().Axe().Build()
+	suite.axe = power.NewPowerBuilder().Axe().Build()
 
 	suite.bandit.AddPowerReference(suite.axe.GetReference())
 

@@ -17,8 +17,8 @@ var _ = Suite(&SquaddieRepositorySuite{})
 
 func (suite *SquaddieRepositorySuite) SetUpTest(checker *C) {
 	suite.squaddieRepository = squaddie.NewSquaddieRepository()
-	suite.teros = squaddie.Builder().Teros().Armor(2).Dodge(3).Deflect(4).Barrier(1).Build()
-	suite.attackA = power.Builder().WithName("attack Formation A").Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Armor(2).Dodge(3).Deflect(4).Barrier(1).Build()
+	suite.attackA = power.NewPowerBuilder().WithName("attack Formation A").Build()
 }
 
 func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
@@ -162,7 +162,7 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 }
 
 func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
-	originalSquaddie := squaddie.Builder().WithName("Original").AsAlly().Build()
+	originalSquaddie := squaddie.NewSquaddieBuilder().WithName("Original").AsAlly().Build()
 	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
 	referencedSquaddie := suite.squaddieRepository.GetOriginalSquaddieByID(originalSquaddie.ID())
 	checker.Assert(referencedSquaddie, Equals, originalSquaddie)
@@ -170,7 +170,7 @@ func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
 
 func (suite *SquaddieRepositorySuite) TestAddSquaddieDirectly(checker *C) {
 	success, err := suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{
-		squaddie.Builder().Build(),
+		squaddie.NewSquaddieBuilder().Build(),
 	})
 	checker.Assert(success, Equals, true)
 	checker.Assert(err, IsNil)
@@ -189,13 +189,13 @@ type SquaddieCloneSuite struct {
 var _ = Suite(&SquaddieCloneSuite{})
 
 func (suite *SquaddieCloneSuite) SetUpTest(checker *C) {
-	suite.base = squaddie.Builder().WithName("Base").Build()
+	suite.base = squaddie.NewSquaddieBuilder().WithName("Base").Build()
 	suite.squaddieRepository = squaddie.NewSquaddieRepository()
 	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{suite.base})
 }
 
 func (suite *SquaddieCloneSuite) TestCloneHasAffiliationAndNameNotID(checker *C) {
-	originalSquaddie := squaddie.Builder().WithName("Base").AsEnemy().Build()
+	originalSquaddie := squaddie.NewSquaddieBuilder().WithName("Base").AsEnemy().Build()
 	clone, err := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
 	checker.Assert(err, IsNil)
 	checker.Assert(clone.Name(), Equals, originalSquaddie.Name())
@@ -204,13 +204,13 @@ func (suite *SquaddieCloneSuite) TestCloneHasAffiliationAndNameNotID(checker *C)
 }
 
 func (suite *SquaddieCloneSuite) TestCloneUsesGivenID(checker *C) {
-	originalSquaddie := squaddie.Builder().WithName("Base").AsEnemy().Build()
+	originalSquaddie := squaddie.NewSquaddieBuilder().WithName("Base").AsEnemy().Build()
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "12345")
 	checker.Assert(clone.ID(), Equals, "12345")
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesBasicStats(checker *C) {
-	originalSquaddie := squaddie.Builder().WithName("Base").
+	originalSquaddie := squaddie.NewSquaddieBuilder().WithName("Base").
 		HitPoints(9).Barrier(7).
 		Aim(2).Strength(3).Mind(5).Dodge(11).Deflect(13).Armor(17).
 		Build()
@@ -231,7 +231,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesBasicStats(checker *C) {
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
-	originalSquaddie := squaddie.Builder().WithName("Base").
+	originalSquaddie := squaddie.NewSquaddieBuilder().WithName("Base").
 		MoveDistance(2).MovementFly().CanHitAndRun().Build()
 
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
@@ -242,7 +242,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 }
 
 func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
-	attackA := power.Builder().WithName("attack Formation A").Build()
+	attackA := power.NewPowerBuilder().WithName("attack Formation A").Build()
 	suite.base.AddPowerReference(attackA.GetReference())
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 

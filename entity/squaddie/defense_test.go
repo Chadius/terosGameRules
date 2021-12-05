@@ -13,7 +13,7 @@ type SquaddieDefenseSuite struct {
 var _ = Suite(&SquaddieDefenseSuite{})
 
 func (suite *SquaddieDefenseSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Barrier(3).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Barrier(3).Build()
 }
 
 func (suite *SquaddieDefenseSuite) TestSetMaxHPAndMatchToCurrentHP(checker *C) {

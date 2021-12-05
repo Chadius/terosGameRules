@@ -18,8 +18,8 @@ type PowerCreationSuite struct {
 var _ = Suite(&PowerCreationSuite{})
 
 func (suite *PowerCreationSuite) SetUpTest(checker *C) {
-	suite.spear = power.Builder().Spear().WithName("Spear").WithID("spearLevel1").Build()
-	suite.spear2 = power.Builder().Spear().WithName("Spear").WithID("spearLevel2").Build()
+	suite.spear = power.NewPowerBuilder().Spear().WithName("Spear").WithID("spearLevel1").Build()
+	suite.spear2 = power.NewPowerBuilder().Spear().WithName("Spear").WithID("spearLevel2").Build()
 
 	newPowers := []*power.Power{suite.spear, suite.spear2}
 
@@ -30,7 +30,7 @@ func (suite *PowerCreationSuite) SetUpTest(checker *C) {
 func (suite *PowerCreationSuite) TestAddPowersToNewRepository(checker *C) {
 	newRepo := powerrepository.NewPowerRepository()
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 0)
-	spear := power.Builder().Spear().Build()
+	spear := power.NewPowerBuilder().Spear().Build()
 	newPowers := []*power.Power{spear}
 	success, _ := newRepo.AddSlicePowerSource(newPowers)
 	checker.Assert(success, Equals, true)

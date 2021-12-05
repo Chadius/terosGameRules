@@ -6,8 +6,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// BuilderOptions covers options used to make Power objects.
-type BuilderOptions struct {
+// TODO privatize fields
+
+// Builder covers options used to make Power objects.
+type Builder struct {
 	name                 string
 	id                   string
 	targetSelf           bool
@@ -18,11 +20,11 @@ type BuilderOptions struct {
 	attackEffectOptions  *AttackEffectOptions
 }
 
-// Builder creates a BuilderOptions with default values.
+// NewPowerBuilder creates a Builder with default values.
 //   Can be chained with other class functions. Call Build() to create the
 //   final object.
-func Builder() *BuilderOptions {
-	return &BuilderOptions{
+func NewPowerBuilder() *Builder {
+	return &Builder{
 		name:                 "power with no name",
 		id:                   "",
 		targetSelf:           false,
@@ -35,49 +37,49 @@ func Builder() *BuilderOptions {
 }
 
 // WithName applies the given name to the power.
-func (p *BuilderOptions) WithName(name string) *BuilderOptions {
+func (p *Builder) WithName(name string) *Builder {
 	p.name = name
 	return p
 }
 
 // WithID applies the given SquaddieID to the power.
-func (p *BuilderOptions) WithID(id string) *BuilderOptions {
+func (p *Builder) WithID(id string) *Builder {
 	p.id = id
 	return p
 }
 
 // IsPhysical sets the power type to physical.
-func (p *BuilderOptions) IsPhysical() *BuilderOptions {
+func (p *Builder) IsPhysical() *Builder {
 	p.powerType = Physical
 	return p
 }
 
 // IsSpell sets the power type to spell.
-func (p *BuilderOptions) IsSpell() *BuilderOptions {
+func (p *Builder) IsSpell() *Builder {
 	p.powerType = Spell
 	return p
 }
 
 // TargetsSelf means the power can target the user.
-func (p *BuilderOptions) TargetsSelf() *BuilderOptions {
+func (p *Builder) TargetsSelf() *Builder {
 	p.targetSelf = true
 	return p
 }
 
 // TargetsFriend means the power can target the user's friends.
-func (p *BuilderOptions) TargetsFriend() *BuilderOptions {
+func (p *Builder) TargetsFriend() *Builder {
 	p.targetFriend = true
 	return p
 }
 
 // TargetsFoe means the power can target the user's friends.
-func (p *BuilderOptions) TargetsFoe() *BuilderOptions {
+func (p *Builder) TargetsFoe() *Builder {
 	p.targetFoe = true
 	return p
 }
 
 // HitPointsHealed delegates to the HealingEffectOptions.
-func (p *BuilderOptions) HitPointsHealed(heal int) *BuilderOptions {
+func (p *Builder) HitPointsHealed(heal int) *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
@@ -86,7 +88,7 @@ func (p *BuilderOptions) HitPointsHealed(heal int) *BuilderOptions {
 }
 
 // HealingAdjustmentBasedOnUserMindFull delegates to the HealingEffectOptions.
-func (p *BuilderOptions) HealingAdjustmentBasedOnUserMindFull() *BuilderOptions {
+func (p *Builder) HealingAdjustmentBasedOnUserMindFull() *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
@@ -95,7 +97,7 @@ func (p *BuilderOptions) HealingAdjustmentBasedOnUserMindFull() *BuilderOptions 
 }
 
 // HealingAdjustmentBasedOnUserMindHalf delegates to the HealingEffectOptions.
-func (p *BuilderOptions) HealingAdjustmentBasedOnUserMindHalf() *BuilderOptions {
+func (p *Builder) HealingAdjustmentBasedOnUserMindHalf() *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
@@ -104,7 +106,7 @@ func (p *BuilderOptions) HealingAdjustmentBasedOnUserMindHalf() *BuilderOptions 
 }
 
 // HealingAdjustmentBasedOnUserMindZero delegates to the HealingEffectOptions.
-func (p *BuilderOptions) HealingAdjustmentBasedOnUserMindZero() *BuilderOptions {
+func (p *Builder) HealingAdjustmentBasedOnUserMindZero() *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
@@ -113,7 +115,7 @@ func (p *BuilderOptions) HealingAdjustmentBasedOnUserMindZero() *BuilderOptions 
 }
 
 // DealsDamage delegates to the AttackEffectOptions.
-func (p *BuilderOptions) DealsDamage(damage int) *BuilderOptions {
+func (p *Builder) DealsDamage(damage int) *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -122,7 +124,7 @@ func (p *BuilderOptions) DealsDamage(damage int) *BuilderOptions {
 }
 
 // ToHitBonus delegates to the AttackEffectOptions.
-func (p *BuilderOptions) ToHitBonus(toHitBonus int) *BuilderOptions {
+func (p *Builder) ToHitBonus(toHitBonus int) *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -131,7 +133,7 @@ func (p *BuilderOptions) ToHitBonus(toHitBonus int) *BuilderOptions {
 }
 
 // ExtraBarrierBurn delegates to the AttackEffectOptions.
-func (p *BuilderOptions) ExtraBarrierBurn(extraBarrierBurn int) *BuilderOptions {
+func (p *Builder) ExtraBarrierBurn(extraBarrierBurn int) *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -140,7 +142,7 @@ func (p *BuilderOptions) ExtraBarrierBurn(extraBarrierBurn int) *BuilderOptions 
 }
 
 // CounterAttackPenaltyReduction delegates to the AttackEffectOptions.
-func (p *BuilderOptions) CounterAttackPenaltyReduction(penaltyReduction int) *BuilderOptions {
+func (p *Builder) CounterAttackPenaltyReduction(penaltyReduction int) *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -149,7 +151,7 @@ func (p *BuilderOptions) CounterAttackPenaltyReduction(penaltyReduction int) *Bu
 }
 
 // CanBeEquipped delegates to the AttackEffectOptions.
-func (p *BuilderOptions) CanBeEquipped() *BuilderOptions {
+func (p *Builder) CanBeEquipped() *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -158,7 +160,7 @@ func (p *BuilderOptions) CanBeEquipped() *BuilderOptions {
 }
 
 // CannotBeEquipped delegates to the AttackEffectOptions.
-func (p *BuilderOptions) CannotBeEquipped() *BuilderOptions {
+func (p *Builder) CannotBeEquipped() *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -167,7 +169,7 @@ func (p *BuilderOptions) CannotBeEquipped() *BuilderOptions {
 }
 
 // CanCounterAttack delegates to the AttackEffectOptions.
-func (p *BuilderOptions) CanCounterAttack() *BuilderOptions {
+func (p *Builder) CanCounterAttack() *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -176,7 +178,7 @@ func (p *BuilderOptions) CanCounterAttack() *BuilderOptions {
 }
 
 // CriticalDealsDamage delegates to the AttackEffectOptions.
-func (p *BuilderOptions) CriticalDealsDamage(damage int) *BuilderOptions {
+func (p *Builder) CriticalDealsDamage(damage int) *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -185,7 +187,7 @@ func (p *BuilderOptions) CriticalDealsDamage(damage int) *BuilderOptions {
 }
 
 // CriticalHitThresholdBonus delegates to the AttackEffectOptions.
-func (p *BuilderOptions) CriticalHitThresholdBonus(thresholdBonus int) *BuilderOptions {
+func (p *Builder) CriticalHitThresholdBonus(thresholdBonus int) *Builder {
 	if p.attackEffectOptions == nil {
 		p.attackEffectOptions = AttackEffectBuilder()
 	}
@@ -193,8 +195,8 @@ func (p *BuilderOptions) CriticalHitThresholdBonus(thresholdBonus int) *BuilderO
 	return p
 }
 
-// Build uses the BuilderOptions to create a power.
-func (p *BuilderOptions) Build() *Power {
+// Build uses the Builder to create a power.
+func (p *Builder) Build() *Power {
 	var attackEffect *AttackingEffect = nil
 	if p.attackEffectOptions != nil {
 		attackEffect = p.attackEffectOptions.Build()
@@ -220,30 +222,30 @@ func (p *BuilderOptions) Build() *Power {
 }
 
 //Axe creates a Specific example of a physical attack power.
-func (p *BuilderOptions) Axe() *BuilderOptions {
+func (p *Builder) Axe() *Builder {
 	p.WithName("axe").WithID("powerAxe").TargetsFoe().CanBeEquipped().CanCounterAttack().DealsDamage(1).ToHitBonus(1).Build()
 	return p
 }
 
 //Spear creates a Specific example of a physical attack power.
-func (p *BuilderOptions) Spear() *BuilderOptions {
+func (p *Builder) Spear() *Builder {
 	p.WithName("spear").WithID("powerSpear").TargetsFoe().CanBeEquipped().CanCounterAttack().DealsDamage(1).ToHitBonus(1).Build()
 	return p
 }
 
 //Blot creates a Specific example of a spell attack power.
-func (p *BuilderOptions) Blot() *BuilderOptions {
+func (p *Builder) Blot() *Builder {
 	p.WithName("blot").WithID("powerBlot").TargetsFoe().IsSpell().CanBeEquipped().DealsDamage(3).Build()
 	return p
 }
 
 //HealingStaff creates a Specific example of a spell healing power.
-func (p *BuilderOptions) HealingStaff() *BuilderOptions {
+func (p *Builder) HealingStaff() *Builder {
 	p.WithName("healingStaff").WithID("powerHealingStaff").TargetsFriend().IsSpell().HitPointsHealed(3)
 	return p
 }
 
-// BuilderOptionMarshal is a flattened representation of all Squaddie Builder options.
+// BuilderOptionMarshal is a flattened representation of all Squaddie NewPowerBuilder options.
 type BuilderOptionMarshal struct {
 	ID        string     `json:"id" yaml:"id"`
 	Name      string     `json:"name" yaml:"name"`
@@ -270,17 +272,17 @@ type BuilderOptionMarshal struct {
 	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
 
-// UsingYAML uses the yaml data to generate BuilderOptions.
-func (p *BuilderOptions) UsingYAML(yamlData []byte) *BuilderOptions {
+// UsingYAML uses the yaml data to generate Builder.
+func (p *Builder) UsingYAML(yamlData []byte) *Builder {
 	return p.usingByteStreamForOneOption(yamlData, yaml.Unmarshal)
 }
 
-// UsingJSON uses the yaml data to generate BuilderOptions.
-func (p *BuilderOptions) UsingJSON(jsonData []byte) *BuilderOptions {
+// UsingJSON uses the yaml data to generate Builder.
+func (p *Builder) UsingJSON(jsonData []byte) *Builder {
 	return p.usingByteStreamForOneOption(jsonData, json.Unmarshal)
 }
 
-func (p *BuilderOptions) usingByteStreamForOneOption(data []byte, unmarshal utility.UnmarshalFunc) *BuilderOptions {
+func (p *Builder) usingByteStreamForOneOption(data []byte, unmarshal utility.UnmarshalFunc) *Builder {
 	var unmarshalError error
 	var marshaledOptions BuilderOptionMarshal
 	unmarshalError = unmarshal(data, &marshaledOptions)
@@ -292,17 +294,17 @@ func (p *BuilderOptions) usingByteStreamForOneOption(data []byte, unmarshal util
 	return p.usingMarshaledOptions(&marshaledOptions)
 }
 
-// CreatePowerBuilderOptionsFromYAML takes a YAML stream and converts them to a list of BuilderOptions.
-func CreatePowerBuilderOptionsFromYAML(yamlData []byte) []*BuilderOptions {
+// CreatePowerBuilderOptionsFromYAML takes a YAML stream and converts them to a list of Builder.
+func CreatePowerBuilderOptionsFromYAML(yamlData []byte) []*Builder {
 	return usingByteStreamForMultipleOptions(yamlData, yaml.Unmarshal)
 }
 
-// CreatePowerBuilderOptionsFromJSON takes a JSON stream and converts them to a list of BuilderOptions.
-func CreatePowerBuilderOptionsFromJSON(jsonData []byte) []*BuilderOptions {
+// CreatePowerBuilderOptionsFromJSON takes a JSON stream and converts them to a list of Builder.
+func CreatePowerBuilderOptionsFromJSON(jsonData []byte) []*Builder {
 	return usingByteStreamForMultipleOptions(jsonData, json.Unmarshal)
 }
 
-func usingByteStreamForMultipleOptions(data []byte, unmarshal utility.UnmarshalFunc) []*BuilderOptions {
+func usingByteStreamForMultipleOptions(data []byte, unmarshal utility.UnmarshalFunc) []*Builder {
 	var unmarshalError error
 	var allMarshaledOptions []BuilderOptionMarshal
 	unmarshalError = unmarshal(data, &allMarshaledOptions)
@@ -311,16 +313,16 @@ func usingByteStreamForMultipleOptions(data []byte, unmarshal utility.UnmarshalF
 		return nil
 	}
 
-	builderOptions := []*BuilderOptions{}
+	builderOptions := []*Builder{}
 	for _, marshaledOptions := range allMarshaledOptions {
-		newOption := Builder().usingMarshaledOptions(&marshaledOptions)
+		newOption := NewPowerBuilder().usingMarshaledOptions(&marshaledOptions)
 		builderOptions = append(builderOptions, newOption)
 	}
 
 	return builderOptions
 }
 
-func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) *BuilderOptions {
+func (p *Builder) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) *Builder {
 	p.WithID(marshaledOptions.ID).WithName(marshaledOptions.Name)
 
 	if marshaledOptions.CanAttack {
@@ -375,8 +377,8 @@ func (p *BuilderOptions) usingMarshaledOptions(marshaledOptions *BuilderOptionMa
 	return p
 }
 
-// CloneOf modifies the BuilderOptions based on the source, except for the classID.
-func (p *BuilderOptions) CloneOf(source *Power) *BuilderOptions {
+// CloneOf modifies the Builder based on the source, except for the classID.
+func (p *Builder) CloneOf(source *Power) *Builder {
 	p.WithName(source.Name())
 
 	p.clonePowerType(source)
@@ -387,7 +389,7 @@ func (p *BuilderOptions) CloneOf(source *Power) *BuilderOptions {
 	return p
 }
 
-func (p *BuilderOptions) cloneHealingEffect(source *Power) {
+func (p *Builder) cloneHealingEffect(source *Power) {
 	if source.CanHeal() {
 		p.HitPointsHealed(source.HitPointsHealed())
 
@@ -403,7 +405,7 @@ func (p *BuilderOptions) cloneHealingEffect(source *Power) {
 	}
 }
 
-func (p *BuilderOptions) cloneAttackEffect(source *Power) {
+func (p *Builder) cloneAttackEffect(source *Power) {
 	if source.CanAttack() {
 		p.ToHitBonus(source.ToHitBonus()).DealsDamage(source.DamageBonus()).ExtraBarrierBurn(source.ExtraBarrierBurn()).
 			CounterAttackPenaltyReduction(source.CounterAttackPenaltyReduction())
@@ -431,7 +433,7 @@ func (p *BuilderOptions) cloneAttackEffect(source *Power) {
 	}
 }
 
-func (p *BuilderOptions) cloneTargeting(source *Power) {
+func (p *Builder) cloneTargeting(source *Power) {
 	if source.CanPowerTargetFoe() {
 		p.TargetsFoe()
 	}
@@ -445,7 +447,7 @@ func (p *BuilderOptions) cloneTargeting(source *Power) {
 	}
 }
 
-func (p *BuilderOptions) clonePowerType(source *Power) {
+func (p *Builder) clonePowerType(source *Power) {
 	if source.Type() == Physical {
 		p.IsPhysical()
 	}

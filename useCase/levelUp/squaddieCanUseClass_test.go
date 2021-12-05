@@ -121,7 +121,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		LevelRepo: suite.levelRepo,
 	}
 
-	suite.teros = squaddie.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).AddClassByReference(suite.dimensionWalkerClass.GetReference()).AddClassByReference(suite.ancientTomeClass.GetReference()).AddClassByReference(suite.atLeastTenLevelsBaseClass.GetReference()).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().AddClassByReference(suite.mageClass.GetReference()).AddClassByReference(suite.dimensionWalkerClass.GetReference()).AddClassByReference(suite.ancientTomeClass.GetReference()).AddClassByReference(suite.atLeastTenLevelsBaseClass.GetReference()).Build()
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 	suite.levelUpCheck = &levelup.LevelsConsumedChecker{}
 }

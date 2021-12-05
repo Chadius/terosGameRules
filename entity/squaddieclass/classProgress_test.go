@@ -15,7 +15,7 @@ type ClassProgressTests struct {
 var _ = Suite(&ClassProgressTests{})
 
 func (suite *ClassProgressTests) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
 	suite.mageClass = squaddieclass.ClassBuilder().WithID("mageClassID").Build()
 	suite.mushroomClass = squaddieclass.ClassBuilder().WithID("mushroomClassID").Build()
 }

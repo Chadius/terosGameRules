@@ -27,15 +27,15 @@ type VersusContextTestSuite struct {
 var _ = Suite(&VersusContextTestSuite{})
 
 func (suite *VersusContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Aim(2).Strength(2).Mind(2).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Aim(2).Strength(2).Mind(2).Build()
 
-	suite.spear = power.Builder().Spear().Build()
-	suite.blot = power.Builder().Blot().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.blot = power.NewPowerBuilder().Blot().Build()
 
-	suite.bandit = squaddie.Builder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
 	suite.bandit.Defense.SetBarrierToMax()
 
-	suite.axe = power.Builder().Axe().Build()
+	suite.axe = power.NewPowerBuilder().Axe().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})
@@ -114,7 +114,7 @@ func (suite *VersusContextTestSuite) TestTargetUsesBarrierToResistDamageFromAllA
 }
 
 func (suite *VersusContextTestSuite) TestBarrierBurnCanSpillOverDamage(checker *C) {
-	suite.blot = power.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(1).ExtraBarrierBurn(2).Build()
+	suite.blot = power.NewPowerBuilder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(1).ExtraBarrierBurn(2).Build()
 	suite.powerRepo.AddPower(suite.blot)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
@@ -126,7 +126,7 @@ func (suite *VersusContextTestSuite) TestBarrierBurnCanSpillOverDamage(checker *
 }
 
 func (suite *VersusContextTestSuite) TestBarrierBurnCanBeTolerated(checker *C) {
-	suite.blot = power.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).ExtraBarrierBurn(1).Build()
+	suite.blot = power.NewPowerBuilder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).ExtraBarrierBurn(1).Build()
 	suite.powerRepo.AddPower(suite.blot)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
@@ -138,7 +138,7 @@ func (suite *VersusContextTestSuite) TestBarrierBurnCanBeTolerated(checker *C) {
 }
 
 func (suite *VersusContextTestSuite) TestCriticalHitChanceIsShown(checker *C) {
-	suite.spear = power.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
+	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
 	suite.powerRepo.AddPower(suite.spear)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
@@ -150,7 +150,7 @@ func (suite *VersusContextTestSuite) TestCriticalHitChanceIsShown(checker *C) {
 }
 
 func (suite *VersusContextTestSuite) TestCriticalDamageDistributes(checker *C) {
-	suite.spear = power.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
+	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
 	suite.powerRepo.AddPower(suite.spear)
 	suite.bandit.Defense = *squaddie.DefenseBuilder().Armor(1).Barrier(3).Build()
 	suite.bandit.Defense.SetBarrierToMax()
@@ -173,7 +173,7 @@ func (suite *VersusContextTestSuite) TestKnowsIfAttackIsNotFatalToTarget(checker
 	suite.bandit.Defense = *squaddie.DefenseBuilder().Armor(0).Barrier(0).Build()
 	suite.teros.Offense = *squaddie.OffenseBuilder().Mind(0).Build()
 
-	suite.blot = power.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).Build()
+	suite.blot = power.NewPowerBuilder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(0).Build()
 	suite.powerRepo.AddPower(suite.blot)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
@@ -182,7 +182,7 @@ func (suite *VersusContextTestSuite) TestKnowsIfAttackIsNotFatalToTarget(checker
 }
 
 func (suite *VersusContextTestSuite) TestKnowsIfAttackIsFatalToTarget(checker *C) {
-	suite.spear = power.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(
+	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(
 		suite.bandit.MaxHitPoints() + suite.bandit.Armor() + suite.bandit.MaxBarrier(),
 	).Build()
 	suite.powerRepo.AddPower(suite.spear)

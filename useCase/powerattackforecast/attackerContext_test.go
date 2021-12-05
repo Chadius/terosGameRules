@@ -26,12 +26,12 @@ type AttackContextTestSuite struct {
 var _ = Suite(&AttackContextTestSuite{})
 
 func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Aim(2).Strength(2).Mind(2).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Aim(2).Strength(2).Mind(2).Build()
 
-	suite.spear = power.Builder().Spear().Build()
-	suite.blot = power.Builder().Blot().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.blot = power.NewPowerBuilder().Blot().Build()
 
-	suite.bandit = squaddie.Builder().Bandit().Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})
@@ -101,7 +101,7 @@ func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 }
 
 func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
-	suite.spear = power.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
+	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
 	suite.powerRepo.AddPower(suite.spear)
 
 	suite.forecastSpearOnBandit.CalculateForecast()

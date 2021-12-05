@@ -13,9 +13,9 @@ type PowerChanceCheckSuite struct{}
 var _ = Suite(&PowerChanceCheckSuite{})
 
 func (suite *PowerChanceCheckSuite) TestPowerCanCrit(checker *C) {
-	staticPower := powerBuilder.Builder().DealsDamage(1).Build()
+	staticPower := powerBuilder.NewPowerBuilder().DealsDamage(1).Build()
 	checker.Assert(staticPower.CanCriticallyHit(), Equals, false)
 
-	criticalPower := powerBuilder.Builder().DealsDamage(1).CriticalDealsDamage(1).Build()
+	criticalPower := powerBuilder.NewPowerBuilder().DealsDamage(1).CriticalDealsDamage(1).Build()
 	checker.Assert(criticalPower.CanCriticallyHit(), Equals, true)
 }

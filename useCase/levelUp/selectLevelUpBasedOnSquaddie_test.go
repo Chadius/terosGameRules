@@ -85,7 +85,7 @@ func (suite *SquaddieChoosesLevelsSuite) SetUpTest(checker *C) {
 		ClassRepo: suite.classRepo,
 	}
 
-	suite.teros = squaddie.Builder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
 	suite.selectLevelUpStrategy = &levelup.SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels{}
 }

@@ -26,10 +26,10 @@ type SquaddieEquipPowersFromRepo struct {
 var _ = Suite(&SquaddieEquipPowersFromRepo{})
 
 func (suite *SquaddieEquipPowersFromRepo) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
-	suite.spear = power.Builder().Spear().Build()
-	suite.scimitar = power.Builder().WithName("scimitar the second").CanBeEquipped().Build()
-	suite.blot = power.Builder().Blot().CannotBeEquipped().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.scimitar = power.NewPowerBuilder().WithName("scimitar the second").CanBeEquipped().Build()
+	suite.blot = power.NewPowerBuilder().Blot().CannotBeEquipped().Build()
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
@@ -113,7 +113,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipNonexistentPowers(check
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C) {
-	notTerosPower := power.Builder().CanBeEquipped().Build()
+	notTerosPower := power.NewPowerBuilder().CanBeEquipped().Build()
 
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{
 		notTerosPower,

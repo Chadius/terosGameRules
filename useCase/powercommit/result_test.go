@@ -49,15 +49,15 @@ type resultOnAttack struct {
 var _ = Suite(&resultOnAttack{})
 
 func (suite *resultOnAttack) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
-	suite.mysticMage = squaddie.Builder().MysticMage().Build()
-	suite.bandit = squaddie.Builder().Bandit().Build()
-	suite.bandit2 = squaddie.Builder().Bandit().WithID("bandit2ID").WithName("bandit2").Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.mysticMage = squaddie.NewSquaddieBuilder().MysticMage().Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
+	suite.bandit2 = squaddie.NewSquaddieBuilder().Bandit().WithID("bandit2ID").WithName("bandit2").Build()
 
-	suite.spear = power.Builder().Spear().Build()
-	suite.blot = power.Builder().Blot().Build()
-	suite.axe = power.Builder().Axe().Build()
-	suite.fireball = power.Builder().IsSpell().DealsDamage(3).Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.blot = power.NewPowerBuilder().Blot().Build()
+	suite.axe = power.NewPowerBuilder().Axe().Build()
+	suite.fireball = power.NewPowerBuilder().IsSpell().DealsDamage(3).Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.bandit2, suite.mysticMage})
@@ -205,7 +205,7 @@ func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	resultBlotOnBanditAlwaysHits := suite.resultBlotOnBandit.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
 	suite.teros.Offense = *squaddie.OffenseBuilder().Mind(2).Build()
 
-	suite.blot = power.Builder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(3).CriticalDealsDamage(3).CriticalHitThresholdBonus(9000).Build()
+	suite.blot = power.NewPowerBuilder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(3).CriticalDealsDamage(3).CriticalHitThresholdBonus(9000).Build()
 	suite.powerRepo.AddPower(suite.blot)
 
 	suite.bandit.Defense = *squaddie.DefenseBuilder().HitPoints(1).Armor(1).Barrier(3).Build()
@@ -235,8 +235,8 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 	suite.teros.Offense = *squaddie.OffenseBuilder().Strength(2).Build()
 	suite.teros.Defense = *squaddie.DefenseBuilder().Armor(0).Barrier(0).Build()
 
-	suite.spear = power.Builder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(3).Build()
-	suite.axe = power.Builder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(3).Build()
+	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(3).Build()
+	suite.axe = power.NewPowerBuilder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(3).Build()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.axe})
 
 	suite.bandit.Offense = *squaddie.OffenseBuilder().Strength(0).Build()
@@ -305,7 +305,7 @@ func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 	suite.teros.Offense = *squaddie.OffenseBuilder().Strength(suite.bandit.MaxHitPoints()).Build()
 	suite.teros.Defense = *squaddie.DefenseBuilder().Armor(0).Barrier(0).Build()
 
-	suite.axe = power.Builder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().Build()
+	suite.axe = power.NewPowerBuilder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().Build()
 	suite.powerRepo.AddPower(suite.axe)
 
 	suite.bandit.Offense = *squaddie.OffenseBuilder().Strength(0).Build()
@@ -351,13 +351,13 @@ type EquipPowerWhenCommitting struct {
 var _ = Suite(&EquipPowerWhenCommitting{})
 
 func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
-	suite.mysticMage = squaddie.Builder().MysticMage().Build()
-	suite.bandit = squaddie.Builder().Bandit().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.mysticMage = squaddie.NewSquaddieBuilder().MysticMage().Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
 
-	suite.spear = power.Builder().Spear().Build()
-	suite.blot = power.Builder().Blot().CannotBeEquipped().Build()
-	suite.fireball = power.Builder().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.blot = power.NewPowerBuilder().Blot().CannotBeEquipped().Build()
+	suite.fireball = power.NewPowerBuilder().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit, suite.mysticMage})
@@ -487,11 +487,11 @@ type ResultOnHealing struct {
 var _ = Suite(&ResultOnHealing{})
 
 func (suite *ResultOnHealing) SetUpTest(checker *C) {
-	suite.teros = squaddie.Builder().Teros().Build()
-	suite.lini = squaddie.Builder().Lini().Build()
-	suite.vale = squaddie.Builder().WithName("Vale").AsPlayer().Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.lini = squaddie.NewSquaddieBuilder().Lini().Build()
+	suite.vale = squaddie.NewSquaddieBuilder().WithName("Vale").AsPlayer().Build()
 
-	suite.healingStaff = power.Builder().HealingStaff().Build()
+	suite.healingStaff = power.NewPowerBuilder().HealingStaff().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
 	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.lini, suite.vale})
