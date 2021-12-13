@@ -129,6 +129,9 @@ func (c *CalculateSquaddieOffenseStats) GetSquaddieCanCriticallyHitWithPower(squ
 	return powerToMeasure.CanCritical(), nil
 }
 
+// TODO Use the power's healing logic instead
+// TODO test this
+
 // GetHitPointsHealedWithPower returns the actual number of hit points healed.
 func (c *CalculateSquaddieOffenseStats) GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *repositories.RepositoryCollection) (int, error) {
 	squaddieToHeal, healingPower, err := getSquaddieAndHealingPower(squaddieID, powerID, repos)

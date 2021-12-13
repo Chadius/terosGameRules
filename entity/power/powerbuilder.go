@@ -2,8 +2,10 @@ package power
 
 import (
 	"encoding/json"
+	"github.com/chadius/terosbattleserver/entity/healing"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
+	"reflect"
 )
 
 // Builder covers options used to make Power objects.
@@ -16,6 +18,7 @@ type Builder struct {
 	powerType            DamageType
 	healingEffectOptions *HealingEffectOptions
 	attackEffectOptions  *AttackEffectOptions
+	healingLogic         healing.Interface
 }
 
 // NewPowerBuilder creates a Builder with default values.
@@ -31,6 +34,7 @@ func NewPowerBuilder() *Builder {
 		powerType:            Physical,
 		healingEffectOptions: nil,
 		attackEffectOptions:  nil,
+		healingLogic:         &healing.NoHealing{},
 	}
 }
 
@@ -90,7 +94,8 @@ func (p *Builder) HealingAdjustmentBasedOnUserMindFull() *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindFull()
+	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindFull() // TODO Delete this
+	p.healingLogic = &healing.FullMindBonus{}
 	return p
 }
 
@@ -99,7 +104,8 @@ func (p *Builder) HealingAdjustmentBasedOnUserMindHalf() *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindHalf()
+	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindHalf() // TODO Delete this
+	p.healingLogic = &healing.HalfMindBonus{}
 	return p
 }
 
@@ -108,7 +114,8 @@ func (p *Builder) HealingAdjustmentBasedOnUserMindZero() *Builder {
 	if p.healingEffectOptions == nil {
 		p.healingEffectOptions = HealingEffectBuilder()
 	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindZero()
+	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindZero() // TODO Delete this
+	p.healingLogic = &healing.ZeroMindBonus{}
 	return p
 }
 
@@ -215,6 +222,7 @@ func (p *Builder) Build() *Power {
 		},
 		attackEffect,
 		healingEffect,
+		p.healingLogic,
 	)
 	return newPower
 }
@@ -239,7 +247,7 @@ func (p *Builder) Blot() *Builder {
 
 //HealingStaff creates a Specific example of a spell healing power.
 func (p *Builder) HealingStaff() *Builder {
-	p.WithName("healingStaff").WithID("powerHealingStaff").TargetsFriend().IsSpell().HitPointsHealed(3)
+	p.WithName("healingStaff").WithID("powerHealingStaff").TargetsFriend().IsSpell().HitPointsHealed(3).HealingAdjustmentBasedOnUserMindFull()
 	return p
 }
 
@@ -391,13 +399,20 @@ func (p *Builder) cloneHealingEffect(source *Power) {
 	if source.CanHeal() {
 		p.HitPointsHealed(source.HitPointsHealed())
 
-		if source.HealingAdjustmentBasedOnUserMind() == Full {
+		// TODO figure out how to clone the healing logic dynamically
+		// TODO Add category for NoHealing
+
+		// TODO Delete this
+		if source.HealingAdjustmentBasedOnUserMind() == Full ||
+			reflect.TypeOf(source.HealingLogic()).String() == "*healing.FullMindBonus" {
 			p.HealingAdjustmentBasedOnUserMindFull()
 		}
-		if source.HealingAdjustmentBasedOnUserMind() == Half {
+		if source.HealingAdjustmentBasedOnUserMind() == Half ||
+			reflect.TypeOf(source.HealingLogic()).String() == "*healing.HalfMindBonus" {
 			p.HealingAdjustmentBasedOnUserMindHalf()
 		}
-		if source.HealingAdjustmentBasedOnUserMind() == Zero {
+		if source.HealingAdjustmentBasedOnUserMind() == Zero ||
+			reflect.TypeOf(source.HealingLogic()).String() == "*healing.ZeroMindBonus" {
 			p.HealingAdjustmentBasedOnUserMindZero()
 		}
 	}

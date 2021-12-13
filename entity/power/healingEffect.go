@@ -29,6 +29,8 @@ func (h *HealingEffect) HitPointsHealed() int {
 	return h.hitPointsHealed
 }
 
+// TODO Delete this
+
 // HealingAdjustmentBasedOnUserMind returns the value.
 func (h *HealingEffect) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
 	return h.healingAdjustmentBasedOnUserMind

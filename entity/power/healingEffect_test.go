@@ -19,7 +19,8 @@ func (suite *HealingEffectLoadedFromData) SetUpTest(checker *C) {
 					"id": "power_heal",
 					"power_type": "spell",
 					"can_heal": true,
-					"hit_points_healed": 2
+					"hit_points_healed": 2,
+					"healing_adjustment_based_on_user_mind": "full"
 				}]`)
 
 	suite.healStaffYAML = []byte(`-
@@ -28,6 +29,7 @@ func (suite *HealingEffectLoadedFromData) SetUpTest(checker *C) {
   power_type: spell
   can_heal: true
   hit_points_healed: 2
+  healing_adjustment_based_on_user_mind: full
 `)
 
 	suite.repo = powerrepository.NewPowerRepository()

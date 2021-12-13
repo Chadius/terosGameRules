@@ -3,6 +3,7 @@ package power_test
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type PowerBuilder struct{}
@@ -46,21 +47,24 @@ func (suite *PowerBuilder) TestBuildPowerIsSpell(checker *C) {
 
 func (suite *PowerBuilder) TestHealingAdjustmentFull(checker *C) {
 	bigHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindFull().Build()
-	checker.Assert(power.Full, Equals, bigHeals.HealingAdjustmentBasedOnUserMind())
+	checker.Assert(power.Full, Equals, bigHeals.HealingAdjustmentBasedOnUserMind()) // TODO delete this
+	checker.Assert(reflect.TypeOf(bigHeals.HealingLogic()).String(), Equals, "*healing.FullMindBonus")
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentHalf(checker *C) {
 	someHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindHalf().Build()
-	checker.Assert(power.Half, Equals, someHeals.HealingAdjustmentBasedOnUserMind())
+	checker.Assert(power.Half, Equals, someHeals.HealingAdjustmentBasedOnUserMind()) // TODO delete this
+	checker.Assert(reflect.TypeOf(someHeals.HealingLogic()).String(), Equals, "*healing.HalfMindBonus")
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentZero(checker *C) {
-	someHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindZero().Build()
-	checker.Assert(power.Zero, Equals, someHeals.HealingAdjustmentBasedOnUserMind())
+	noHeals := power.NewPowerBuilder().HealingAdjustmentBasedOnUserMindZero().Build()
+	checker.Assert(power.Zero, Equals, noHeals.HealingAdjustmentBasedOnUserMind()) // TODO delete this
+	checker.Assert(reflect.TypeOf(noHeals.HealingLogic()).String(), Equals, "*healing.ZeroMindBonus")
 }
 
 func (suite *PowerBuilder) TestHitPointsHealed(checker *C) {
-	bigHeals := power.NewPowerBuilder().HitPointsHealed(5).Build()
+	bigHeals := power.NewPowerBuilder().HitPointsHealed(5).HealingAdjustmentBasedOnUserMindFull().Build()
 	checker.Assert(5, Equals, bigHeals.HitPointsHealed())
 }
 
@@ -222,6 +226,12 @@ func (suite *YAMLBuilderSuite) TestCriticalEffectMatchesNewPower(checker *C) {
 	checker.Assert(yamlPower.ExtraCriticalHitDamage(), Equals, 11)
 }
 
+func (suite *YAMLBuilderSuite) TestPowersThatCannotHealHaveNoHealingLogic(checker *C) {
+	yamlPower := power.NewPowerBuilder().UsingYAML(suite.yamlData).Build()
+	checker.Assert(reflect.TypeOf(yamlPower.HealingLogic()).String(), Equals, "*healing.NoHealing")
+	checker.Assert(yamlPower.CanHeal(), Equals, false)
+}
+
 type JSONBuilderSuite struct {
 	jsonData []byte
 }
@@ -253,7 +263,8 @@ func (suite *JSONBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 func (suite *JSONBuilderSuite) TestHealingMatchesNewPower(checker *C) {
 	jsonPower := power.NewPowerBuilder().UsingJSON(suite.jsonData).Build()
 
-	checker.Assert(jsonPower.HealingAdjustmentBasedOnUserMind(), Equals, power.Half)
+	checker.Assert(jsonPower.HealingAdjustmentBasedOnUserMind(), Equals, power.Half) // TODO delete this
+	checker.Assert(reflect.TypeOf(jsonPower.HealingLogic()).String(), Equals, "*healing.HalfMindBonus")
 	checker.Assert(jsonPower.HitPointsHealed(), Equals, 2)
 }
 
