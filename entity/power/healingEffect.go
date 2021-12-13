@@ -2,34 +2,17 @@ package power
 
 // HealingEffect is a power designed to restore hit points and cure ailments.
 type HealingEffect struct {
-	healingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind
-	hitPointsHealed                  int
+	hitPointsHealed int
 }
 
 // NewHealingEffect creates a new HealingEffect object.
-func NewHealingEffect(hitPointsHealed int, adjustment HealingAdjustmentBasedOnUserMind) *HealingEffect {
+func NewHealingEffect(hitPointsHealed int) *HealingEffect {
 	return &HealingEffect{
-		healingAdjustmentBasedOnUserMind: adjustment,
-		hitPointsHealed:                  hitPointsHealed,
+		hitPointsHealed: hitPointsHealed,
 	}
 }
-
-// HealingAdjustmentBasedOnUserMind indicates how much the user's mind should be adjusted.
-type HealingAdjustmentBasedOnUserMind string
-
-// User's mind is added to most healing abilities (Full). But it may be at a Half bonus or doesn't affect (Zero)
-const (
-	Full HealingAdjustmentBasedOnUserMind = "full"
-	Half HealingAdjustmentBasedOnUserMind = "half"
-	Zero HealingAdjustmentBasedOnUserMind = "zero"
-)
 
 // HitPointsHealed returns the value.
 func (h *HealingEffect) HitPointsHealed() int {
 	return h.hitPointsHealed
-}
-
-// HealingAdjustmentBasedOnUserMind returns the value.
-func (h *HealingEffect) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
-	return h.healingAdjustmentBasedOnUserMind
 }

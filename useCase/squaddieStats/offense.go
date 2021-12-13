@@ -138,20 +138,8 @@ func (c *CalculateSquaddieOffenseStats) GetHitPointsHealedWithPower(squaddieID, 
 		return 0, nil
 	}
 
-	squaddieMindBonus := squaddieToHeal.Mind()
-	if healingPower.HealingAdjustmentBasedOnUserMind() == power.Half {
-		squaddieMindBonus /= 2
-	}
-	if healingPower.HealingAdjustmentBasedOnUserMind() == power.Zero {
-		squaddieMindBonus = 0
-	}
-
-	maximumHealing := healingPower.HitPointsHealed() + squaddieMindBonus
-	missingHitPoints := target.MaxHitPoints() - target.CurrentHitPoints()
-	if missingHitPoints < maximumHealing {
-		return missingHitPoints, nil
-	}
-	return maximumHealing, nil
+	hitPoints := healingPower.HealingLogic().CalculateExpectedHeal(squaddieToHeal, healingPower, target)
+	return hitPoints, nil
 }
 
 func getSquaddie(squaddieID string, repos *repositories.RepositoryCollection) (*squaddie.Squaddie, error) {

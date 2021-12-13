@@ -3,7 +3,9 @@ package power
 import (
 	"errors"
 	"fmt"
+	"github.com/chadius/terosbattleserver/entity/healing"
 	"github.com/chadius/terosbattleserver/utility"
+	"reflect"
 )
 
 // Reference is used to identify a power and is used to quickly identify a power.
@@ -36,6 +38,7 @@ type Power struct {
 	targeting     Targeting
 	attackEffect  *AttackingEffect
 	healingEffect *HealingEffect
+	healingLogic  healing.Interface
 }
 
 // GetReference returns a new PowerReference.
@@ -47,7 +50,7 @@ func (p Power) GetReference() *Reference {
 }
 
 // NewPower generates a Power.
-func NewPower(name, id string, damageType *DamageType, targeting *Targeting, attackEffect *AttackingEffect, healingEffect *HealingEffect) *Power {
+func NewPower(name, id string, damageType *DamageType, targeting *Targeting, attackEffect *AttackingEffect, healingEffect *HealingEffect, healingLogic healing.Interface) *Power {
 	powerID := "power_" + utility.StringWithCharset(8, "abcdefgh0123456789")
 	if id != "" {
 		powerID = id
@@ -61,6 +64,7 @@ func NewPower(name, id string, damageType *DamageType, targeting *Targeting, att
 		targeting:     *targeting,
 		attackEffect:  attackEffect,
 		healingEffect: healingEffect,
+		healingLogic:  healingLogic,
 	}
 	return &newAttackingPower
 }
@@ -208,23 +212,17 @@ func (p *Power) ExtraCriticalHitDamage() int {
 
 // CanHeal returns true if this power can be used to heal.
 func (p *Power) CanHeal() bool {
-	return p.healingEffect != nil
+	return reflect.TypeOf(p.HealingLogic()).String() != "*healing.NoHealing"
 }
 
 // HitPointsHealed delegates.
 func (p *Power) HitPointsHealed() int {
-	if !p.CanHeal() {
-		return 0
-	}
 	return p.healingEffect.HitPointsHealed()
 }
 
-// HealingAdjustmentBasedOnUserMind delegates.
-func (p *Power) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
-	if !p.CanHeal() {
-		return Zero
-	}
-	return p.healingEffect.HealingAdjustmentBasedOnUserMind()
+// HealingLogic returns the module used for healing.
+func (p *Power) HealingLogic() healing.Interface {
+	return p.healingLogic
 }
 
 // HasSameStatsAs returns true if other's stats matches this one.
@@ -253,16 +251,11 @@ func (p *Power) HasSameStatsAs(other *Power) bool {
 }
 
 func (p *Power) hasSameHealingEffectAs(other *Power) bool {
-	if p.CanHeal() != other.CanHeal() {
+	if p.HitPointsHealed() != other.HitPointsHealed() {
 		return false
 	}
-	if p.CanHeal() {
-		if p.HitPointsHealed() != other.HitPointsHealed() {
-			return false
-		}
-		if p.HealingAdjustmentBasedOnUserMind() != other.HealingAdjustmentBasedOnUserMind() {
-			return false
-		}
+	if reflect.TypeOf(p.HealingLogic()).String() != reflect.TypeOf(other.HealingLogic()).String() {
+		return false
 	}
 	return true
 }

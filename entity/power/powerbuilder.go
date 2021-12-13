@@ -2,8 +2,10 @@ package power
 
 import (
 	"encoding/json"
+	"github.com/chadius/terosbattleserver/entity/healing"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
+	"reflect"
 )
 
 // Builder covers options used to make Power objects.
@@ -16,6 +18,7 @@ type Builder struct {
 	powerType            DamageType
 	healingEffectOptions *HealingEffectOptions
 	attackEffectOptions  *AttackEffectOptions
+	healingLogic         healing.Interface
 }
 
 // NewPowerBuilder creates a Builder with default values.
@@ -29,8 +32,9 @@ func NewPowerBuilder() *Builder {
 		targetFriend:         false,
 		targetFoe:            false,
 		powerType:            Physical,
-		healingEffectOptions: nil,
+		healingEffectOptions: HealingEffectBuilder(),
 		attackEffectOptions:  nil,
+		healingLogic:         &healing.NoHealing{},
 	}
 }
 
@@ -78,37 +82,31 @@ func (p *Builder) TargetsFoe() *Builder {
 
 // HitPointsHealed delegates to the HealingEffectOptions.
 func (p *Builder) HitPointsHealed(heal int) *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
 	p.healingEffectOptions.HitPointsHealed(heal)
 	return p
 }
 
 // HealingAdjustmentBasedOnUserMindFull delegates to the HealingEffectOptions.
 func (p *Builder) HealingAdjustmentBasedOnUserMindFull() *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindFull()
+	p.healingLogic = &healing.FullMindBonus{}
 	return p
 }
 
 // HealingAdjustmentBasedOnUserMindHalf delegates to the HealingEffectOptions.
 func (p *Builder) HealingAdjustmentBasedOnUserMindHalf() *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindHalf()
+	p.healingLogic = &healing.HalfMindBonus{}
 	return p
 }
 
 // HealingAdjustmentBasedOnUserMindZero delegates to the HealingEffectOptions.
 func (p *Builder) HealingAdjustmentBasedOnUserMindZero() *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindZero()
+	p.healingLogic = &healing.ZeroMindBonus{}
+	return p
+}
+
+// WithHealingLogic adds HealingLogic, using the given keyword
+func (p *Builder) WithHealingLogic(keyword string) *Builder {
+	p.healingLogic = healing.NewHealingLogic(keyword)
 	return p
 }
 
@@ -199,10 +197,7 @@ func (p *Builder) Build() *Power {
 	if p.attackEffectOptions != nil {
 		attackEffect = p.attackEffectOptions.Build()
 	}
-	var healingEffect *HealingEffect = nil
-	if p.healingEffectOptions != nil {
-		healingEffect = p.healingEffectOptions.Build()
-	}
+	var healingEffect = p.healingEffectOptions.Build()
 
 	newPower := NewPower(
 		p.name,
@@ -215,6 +210,7 @@ func (p *Builder) Build() *Power {
 		},
 		attackEffect,
 		healingEffect,
+		p.healingLogic,
 	)
 	return newPower
 }
@@ -239,7 +235,7 @@ func (p *Builder) Blot() *Builder {
 
 //HealingStaff creates a Specific example of a spell healing power.
 func (p *Builder) HealingStaff() *Builder {
-	p.WithName("healingStaff").WithID("powerHealingStaff").TargetsFriend().IsSpell().HitPointsHealed(3)
+	p.WithName("healingStaff").WithID("powerHealingStaff").TargetsFriend().IsSpell().HitPointsHealed(3).HealingAdjustmentBasedOnUserMindFull()
 	return p
 }
 
@@ -265,9 +261,8 @@ type BuilderOptionMarshal struct {
 	CriticalHitThresholdBonus int  `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
 	CriticalDamage            int  `json:"critical_damage" yaml:"critical_damage"`
 
-	CanHeal                          bool                             `json:"can_heal" yaml:"can_heal"`
-	HealingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
-	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
+	HealingLogic    string `json:"healing_logic" yaml:"healing_logic"`
+	HitPointsHealed int    `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
 
 // UsingYAML uses the yaml data to generate Builder.
@@ -340,19 +335,8 @@ func (p *Builder) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) 
 		}
 	}
 
-	if marshaledOptions.CanHeal {
-		p.HitPointsHealed(marshaledOptions.HitPointsHealed)
-
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Full {
-			p.HealingAdjustmentBasedOnUserMindFull()
-		}
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Half {
-			p.HealingAdjustmentBasedOnUserMindHalf()
-		}
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Zero {
-			p.HealingAdjustmentBasedOnUserMindZero()
-		}
-	}
+	p.HitPointsHealed(marshaledOptions.HitPointsHealed)
+	p.WithHealingLogic(marshaledOptions.HealingLogic)
 
 	if marshaledOptions.PowerType == Physical {
 		p.IsPhysical()
@@ -388,19 +372,8 @@ func (p *Builder) CloneOf(source *Power) *Builder {
 }
 
 func (p *Builder) cloneHealingEffect(source *Power) {
-	if source.CanHeal() {
-		p.HitPointsHealed(source.HitPointsHealed())
-
-		if source.HealingAdjustmentBasedOnUserMind() == Full {
-			p.HealingAdjustmentBasedOnUserMindFull()
-		}
-		if source.HealingAdjustmentBasedOnUserMind() == Half {
-			p.HealingAdjustmentBasedOnUserMindHalf()
-		}
-		if source.HealingAdjustmentBasedOnUserMind() == Zero {
-			p.HealingAdjustmentBasedOnUserMindZero()
-		}
-	}
+	p.HitPointsHealed(source.HitPointsHealed())
+	p.WithHealingLogic(reflect.TypeOf(source.HealingLogic()).String())
 }
 
 func (p *Builder) cloneAttackEffect(source *Power) {
