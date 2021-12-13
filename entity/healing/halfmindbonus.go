@@ -5,6 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 )
 
+// HalfMindBonus applies half of the healer's Mind as a bonus to the healing amount.
 type HalfMindBonus struct{}
 
 // CalculateExpectedHeal determines how much the healer can heal the target using the given healing Power.

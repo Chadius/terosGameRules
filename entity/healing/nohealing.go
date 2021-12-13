@@ -5,6 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 )
 
+// NoHealing does no healing to the target.
 type NoHealing struct{}
 
 // CalculateExpectedHeal always returns 0.

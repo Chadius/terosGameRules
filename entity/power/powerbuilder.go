@@ -32,7 +32,7 @@ func NewPowerBuilder() *Builder {
 		targetFriend:         false,
 		targetFoe:            false,
 		powerType:            Physical,
-		healingEffectOptions: nil,
+		healingEffectOptions: HealingEffectBuilder(),
 		attackEffectOptions:  nil,
 		healingLogic:         &healing.NoHealing{},
 	}
@@ -82,39 +82,24 @@ func (p *Builder) TargetsFoe() *Builder {
 
 // HitPointsHealed delegates to the HealingEffectOptions.
 func (p *Builder) HitPointsHealed(heal int) *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
 	p.healingEffectOptions.HitPointsHealed(heal)
 	return p
 }
 
 // HealingAdjustmentBasedOnUserMindFull delegates to the HealingEffectOptions.
 func (p *Builder) HealingAdjustmentBasedOnUserMindFull() *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindFull() // TODO Delete this
 	p.healingLogic = &healing.FullMindBonus{}
 	return p
 }
 
 // HealingAdjustmentBasedOnUserMindHalf delegates to the HealingEffectOptions.
 func (p *Builder) HealingAdjustmentBasedOnUserMindHalf() *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindHalf() // TODO Delete this
 	p.healingLogic = &healing.HalfMindBonus{}
 	return p
 }
 
 // HealingAdjustmentBasedOnUserMindZero delegates to the HealingEffectOptions.
 func (p *Builder) HealingAdjustmentBasedOnUserMindZero() *Builder {
-	if p.healingEffectOptions == nil {
-		p.healingEffectOptions = HealingEffectBuilder()
-	}
-	p.healingEffectOptions.HealingAdjustmentBasedOnUserMindZero() // TODO Delete this
 	p.healingLogic = &healing.ZeroMindBonus{}
 	return p
 }
@@ -212,10 +197,7 @@ func (p *Builder) Build() *Power {
 	if p.attackEffectOptions != nil {
 		attackEffect = p.attackEffectOptions.Build()
 	}
-	var healingEffect *HealingEffect = nil
-	if p.healingEffectOptions != nil {
-		healingEffect = p.healingEffectOptions.Build()
-	}
+	var healingEffect = p.healingEffectOptions.Build()
 
 	newPower := NewPower(
 		p.name,
@@ -279,10 +261,8 @@ type BuilderOptionMarshal struct {
 	CriticalHitThresholdBonus int  `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
 	CriticalDamage            int  `json:"critical_damage" yaml:"critical_damage"`
 
-	CanHeal bool `json:"can_heal" yaml:"can_heal"`
-	// TODO HealingAdjustmentBasedOnUserMind should just be a string and entirely different name
-	HealingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
-	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
+	HealingLogic    string `json:"healing_logic" yaml:"healing_logic"`
+	HitPointsHealed int    `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
 
 // UsingYAML uses the yaml data to generate Builder.
@@ -355,23 +335,8 @@ func (p *Builder) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) 
 		}
 	}
 
-	if marshaledOptions.CanHeal {
-		p.HitPointsHealed(marshaledOptions.HitPointsHealed)
-
-		// TODO HealingAdjustmentBasedOnUserMind should just be a string
-		p.WithHealingLogic(string(marshaledOptions.HealingAdjustmentBasedOnUserMind))
-
-		// TODO delete this part
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Full {
-			p.HealingAdjustmentBasedOnUserMindFull()
-		}
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Half {
-			p.HealingAdjustmentBasedOnUserMindHalf()
-		}
-		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Zero {
-			p.HealingAdjustmentBasedOnUserMindZero()
-		}
-	}
+	p.HitPointsHealed(marshaledOptions.HitPointsHealed)
+	p.WithHealingLogic(marshaledOptions.HealingLogic)
 
 	if marshaledOptions.PowerType == Physical {
 		p.IsPhysical()
@@ -407,29 +372,8 @@ func (p *Builder) CloneOf(source *Power) *Builder {
 }
 
 func (p *Builder) cloneHealingEffect(source *Power) {
-	if source.CanHeal() {
-		p.HitPointsHealed(source.HitPointsHealed())
-
-		// TODO figure out how to clone the healing logic dynamically
-		// TODO Add category for NoHealing
-
-		// TODO Delete this
-		if source.HealingAdjustmentBasedOnUserMind() == Full ||
-			reflect.TypeOf(source.HealingLogic()).String() == "*healing.FullMindBonus" {
-			p.HealingAdjustmentBasedOnUserMindFull()
-		}
-		if source.HealingAdjustmentBasedOnUserMind() == Half ||
-			reflect.TypeOf(source.HealingLogic()).String() == "*healing.HalfMindBonus" {
-			p.HealingAdjustmentBasedOnUserMindHalf()
-		}
-		if source.HealingAdjustmentBasedOnUserMind() == Zero ||
-			reflect.TypeOf(source.HealingLogic()).String() == "*healing.ZeroMindBonus" {
-			p.HealingAdjustmentBasedOnUserMindZero()
-		}
-
-		// TODO Keep this
-		p.WithHealingLogic(reflect.TypeOf(source.HealingLogic()).String())
-	}
+	p.HitPointsHealed(source.HitPointsHealed())
+	p.WithHealingLogic(reflect.TypeOf(source.HealingLogic()).String())
 }
 
 func (p *Builder) cloneAttackEffect(source *Power) {

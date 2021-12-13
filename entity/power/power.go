@@ -212,35 +212,12 @@ func (p *Power) ExtraCriticalHitDamage() int {
 
 // CanHeal returns true if this power can be used to heal.
 func (p *Power) CanHeal() bool {
-	if p.healingEffect == nil {
-		return false
-	}
-
-	if p.healingLogic == nil {
-		return false
-	}
-
-	if reflect.TypeOf(p.HealingLogic()).String() == "*healing.NoHealing" {
-		return false
-	}
-
-	return true
+	return reflect.TypeOf(p.HealingLogic()).String() != "*healing.NoHealing"
 }
 
 // HitPointsHealed delegates.
 func (p *Power) HitPointsHealed() int {
-	if !p.CanHeal() {
-		return 0
-	}
 	return p.healingEffect.HitPointsHealed()
-}
-
-// HealingAdjustmentBasedOnUserMind delegates.
-func (p *Power) HealingAdjustmentBasedOnUserMind() HealingAdjustmentBasedOnUserMind {
-	if !p.CanHeal() {
-		return Zero
-	}
-	return p.healingEffect.HealingAdjustmentBasedOnUserMind()
 }
 
 // HealingLogic returns the module used for healing.
@@ -274,17 +251,11 @@ func (p *Power) HasSameStatsAs(other *Power) bool {
 }
 
 func (p *Power) hasSameHealingEffectAs(other *Power) bool {
-	if p.CanHeal() != other.CanHeal() {
+	if p.HitPointsHealed() != other.HitPointsHealed() {
 		return false
 	}
-	if p.CanHeal() {
-		if p.HitPointsHealed() != other.HitPointsHealed() {
-			return false
-		}
-
-		if reflect.TypeOf(p.HealingLogic()).String() != reflect.TypeOf(other.HealingLogic()).String() {
-			return false
-		}
+	if reflect.TypeOf(p.HealingLogic()).String() != reflect.TypeOf(other.HealingLogic()).String() {
+		return false
 	}
 	return true
 }
