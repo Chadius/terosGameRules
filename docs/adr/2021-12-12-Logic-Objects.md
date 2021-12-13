@@ -12,7 +12,7 @@ Builders will create logic objects as needed
 # What's next
 Use case tests will work on interfacing with logic objects rather than focus on how they work.
 
-# Yikes! Circular import
+# Yikes! Circular import! Make more interfaces!
 I want the Healing Logic object to know about Power and Squaddie, so I can keep it general.
 BUT I want the power to hold the Healing Logic.
 
@@ -24,6 +24,10 @@ Create an Interface object for Power:
   Power uses healing.interface
 
 I also had to make squaddie.interface. There is promise here to avoid all dependencies.
+
+# Now it's time for Factories
+How do I easily copy logic objects?
+- I can give a string to a logic factory and that will return an object 
 
 # Logic objects progress
 ## In progress

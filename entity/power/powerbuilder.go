@@ -119,6 +119,12 @@ func (p *Builder) HealingAdjustmentBasedOnUserMindZero() *Builder {
 	return p
 }
 
+// WithHealingLogic adds HealingLogic, using the given keyword
+func (p *Builder) WithHealingLogic(keyword string) *Builder {
+	p.healingLogic = healing.NewHealingLogic(keyword)
+	return p
+}
+
 // DealsDamage delegates to the AttackEffectOptions.
 func (p *Builder) DealsDamage(damage int) *Builder {
 	if p.attackEffectOptions == nil {
@@ -273,7 +279,8 @@ type BuilderOptionMarshal struct {
 	CriticalHitThresholdBonus int  `json:"critical_hit_threshold_bonus" yaml:"critical_hit_threshold_bonus"`
 	CriticalDamage            int  `json:"critical_damage" yaml:"critical_damage"`
 
-	CanHeal                          bool                             `json:"can_heal" yaml:"can_heal"`
+	CanHeal bool `json:"can_heal" yaml:"can_heal"`
+	// TODO HealingAdjustmentBasedOnUserMind should just be a string and entirely different name
 	HealingAdjustmentBasedOnUserMind HealingAdjustmentBasedOnUserMind `json:"healing_adjustment_based_on_user_mind" yaml:"healing_adjustment_based_on_user_mind"`
 	HitPointsHealed                  int                              `json:"hit_points_healed" yaml:"hit_points_healed"`
 }
@@ -351,6 +358,10 @@ func (p *Builder) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) 
 	if marshaledOptions.CanHeal {
 		p.HitPointsHealed(marshaledOptions.HitPointsHealed)
 
+		// TODO HealingAdjustmentBasedOnUserMind should just be a string
+		p.WithHealingLogic(string(marshaledOptions.HealingAdjustmentBasedOnUserMind))
+
+		// TODO delete this part
 		if marshaledOptions.HealingAdjustmentBasedOnUserMind == Full {
 			p.HealingAdjustmentBasedOnUserMindFull()
 		}
@@ -415,6 +426,9 @@ func (p *Builder) cloneHealingEffect(source *Power) {
 			reflect.TypeOf(source.HealingLogic()).String() == "*healing.ZeroMindBonus" {
 			p.HealingAdjustmentBasedOnUserMindZero()
 		}
+
+		// TODO Keep this
+		p.WithHealingLogic(reflect.TypeOf(source.HealingLogic()).String())
 	}
 }
 
