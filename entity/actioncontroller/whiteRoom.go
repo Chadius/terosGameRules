@@ -127,9 +127,9 @@ func (controller *WhiteRoomController) CheckForValidAction(action *powerusagesce
 					reasonForInvalidTarget,
 					[]string{
 						"Target is not compatible with affiliation",
-						fmt.Sprintf("  %s[%s] is a %s", user.Name(), user.ID(), user.Affiliation()),
+						fmt.Sprintf("  %s[%s] is a %s", user.Name(), user.ID(), user.AffiliationLogic().Name()),
 						fmt.Sprintf("    uses %s[%s] that targets %s", powerUsed.Name(), powerUsed.ID(), strings.Join(affiliationRelationsTargeted, ",")),
-						fmt.Sprintf("  %s[%s] is a %s", target.Name(), target.ID(), target.Affiliation()),
+						fmt.Sprintf("  %s[%s] is a %s", target.Name(), target.ID(), target.AffiliationLogic().Name()),
 					},
 				},
 			)

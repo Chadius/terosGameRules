@@ -1,22 +1,23 @@
 package squaddie
 
 import (
+	"github.com/chadius/terosbattleserver/entity/affiliation"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
 // Identification is akin to an squaddieID card for each Squaddie. Each Squaddie carries a unique Identification.
 type Identification struct {
-	squaddieID   string
-	squaddieName string
-	affiliation  Affiliation
+	squaddieID       string
+	squaddieName     string
+	affiliationLogic affiliation.Interface
 }
 
 // NewIdentification creates a new Identification object.
-func NewIdentification(id, name string, affiliation Affiliation) *Identification {
+func NewIdentification(id, name string, newAffiliationLogic affiliation.Interface) *Identification {
 	return &Identification{
-		squaddieID:   id,
-		squaddieName: name,
-		affiliation:  affiliation,
+		squaddieID:       id,
+		squaddieName:     name,
+		affiliationLogic: newAffiliationLogic,
 	}
 }
 
@@ -35,19 +36,7 @@ func (identification *Identification) Name() string {
 	return identification.squaddieName
 }
 
-// Affiliation shows what affiliation the squaddie is a part of.
-func (identification *Identification) Affiliation() Affiliation {
-	return identification.affiliation
-}
-
-// HasValidAffiliation makes sure the created squaddie doesn't have an error.
-func (identification *Identification) HasValidAffiliation() bool {
-	if identification.Affiliation() != Player &&
-		identification.Affiliation() != Enemy &&
-		identification.Affiliation() != Ally &&
-		identification.Affiliation() != Neutral {
-		return false
-	}
-
-	return true
+// AffiliationLogic shows what affiliation the squaddie is a part of.
+func (identification *Identification) AffiliationLogic() affiliation.Interface {
+	return identification.affiliationLogic
 }

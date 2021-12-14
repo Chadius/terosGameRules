@@ -5,6 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	squaddieClassBuilder "github.com/chadius/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type SquaddieRepositorySuite struct {
@@ -199,7 +200,11 @@ func (suite *SquaddieCloneSuite) TestCloneHasAffiliationAndNameNotID(checker *C)
 	clone, err := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
 	checker.Assert(err, IsNil)
 	checker.Assert(clone.Name(), Equals, originalSquaddie.Name())
-	checker.Assert(clone.Affiliation(), Equals, originalSquaddie.Affiliation())
+	checker.Assert(
+		reflect.TypeOf(clone.AffiliationLogic()).String(),
+		Equals,
+		reflect.TypeOf(originalSquaddie.AffiliationLogic()).String(),
+	)
 	checker.Assert(clone.ID(), Not(Equals), originalSquaddie.ID())
 }
 
@@ -306,7 +311,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedIdentif
 
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_bandit")
 	checker.Assert(loadedSquaddie.Name(), Equals, "Bandit")
-	checker.Assert(loadedSquaddie.Affiliation(), Equals, squaddie.Enemy)
+	checker.Assert(reflect.TypeOf(loadedSquaddie.AffiliationLogic()).String(), Equals, "*affiliation.Enemy")
 }
 
 func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedOffense(checker *C) {
@@ -479,7 +484,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieCanBeBuiltWithJSON
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_id")
 
 	checker.Assert(loadedSquaddie.Name(), Equals, "Buff Citizen")
-	checker.Assert(loadedSquaddie.Affiliation(), Equals, squaddie.Ally)
+	checker.Assert(reflect.TypeOf(loadedSquaddie.AffiliationLogic()).String(), Equals, "*affiliation.Ally")
 
 	checker.Assert(loadedSquaddie.Aim(), Equals, 2)
 	checker.Assert(loadedSquaddie.Strength(), Equals, 3)
