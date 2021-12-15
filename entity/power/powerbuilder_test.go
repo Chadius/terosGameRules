@@ -37,12 +37,12 @@ func (suite *PowerBuilder) TestBuildPowerTargetsFoe(checker *C) {
 
 func (suite *PowerBuilder) TestBuildPowerIsPhysical(checker *C) {
 	sword := power.NewPowerBuilder().IsPhysical().Build()
-	checker.Assert(power.Physical, Equals, sword.Type())
+	checker.Assert(reflect.TypeOf(sword.PowerSourceLogic()).String(), Equals, "*powersource.Physical")
 }
 
 func (suite *PowerBuilder) TestBuildPowerIsSpell(checker *C) {
 	lightning := power.NewPowerBuilder().IsSpell().Build()
-	checker.Assert(power.Spell, Equals, lightning.Type())
+	checker.Assert(reflect.TypeOf(lightning.PowerSourceLogic()).String(), Equals, "*powersource.Spell")
 }
 
 func (suite *PowerBuilder) TestHealingAdjustmentFull(checker *C) {
@@ -120,7 +120,7 @@ func (suite *SpecificPowerBuilder) TestAxe(checker *C) {
 	checker.Assert("axe", Equals, axe.Name())
 	checker.Assert("powerAxe", Equals, axe.ID())
 	checker.Assert(true, Equals, axe.CanPowerTargetFoe())
-	checker.Assert(power.Physical, Equals, axe.Type())
+	checker.Assert(reflect.TypeOf(axe.PowerSourceLogic()).String(), Equals, "*powersource.Physical")
 	checker.Assert(true, Equals, axe.CanBeEquipped())
 	checker.Assert(true, Equals, axe.CanCounterAttack())
 	checker.Assert(1, Equals, axe.DamageBonus())
@@ -133,7 +133,7 @@ func (suite *SpecificPowerBuilder) TestSpear(checker *C) {
 	checker.Assert("spear", Equals, spear.Name())
 	checker.Assert("powerSpear", Equals, spear.ID())
 	checker.Assert(true, Equals, spear.CanPowerTargetFoe())
-	checker.Assert(power.Physical, Equals, spear.Type())
+	checker.Assert(reflect.TypeOf(spear.PowerSourceLogic()).String(), Equals, "*powersource.Physical")
 	checker.Assert(true, Equals, spear.CanBeEquipped())
 	checker.Assert(true, Equals, spear.CanCounterAttack())
 	checker.Assert(1, Equals, spear.DamageBonus())
@@ -146,7 +146,7 @@ func (suite *SpecificPowerBuilder) TestBlot(checker *C) {
 	checker.Assert("blot", Equals, blot.Name())
 	checker.Assert("powerBlot", Equals, blot.ID())
 	checker.Assert(true, Equals, blot.CanPowerTargetFoe())
-	checker.Assert(power.Spell, Equals, blot.Type())
+	checker.Assert(reflect.TypeOf(blot.PowerSourceLogic()).String(), Equals, "*powersource.Spell")
 	checker.Assert(true, Equals, blot.CanBeEquipped())
 	checker.Assert(false, Equals, blot.CanCounterAttack())
 	checker.Assert(3, Equals, blot.DamageBonus())
@@ -159,7 +159,7 @@ func (suite *SpecificPowerBuilder) TestHealingStaff(checker *C) {
 	checker.Assert("healingStaff", Equals, healingStaff.Name())
 	checker.Assert("powerHealingStaff", Equals, healingStaff.ID())
 	checker.Assert(true, Equals, healingStaff.CanPowerTargetFriend())
-	checker.Assert(power.Spell, Equals, healingStaff.Type())
+	checker.Assert(reflect.TypeOf(healingStaff.PowerSourceLogic()).String(), Equals, "*powersource.Spell")
 	checker.Assert(3, Equals, healingStaff.HitPointsHealed())
 }
 
@@ -174,7 +174,7 @@ func (suite *YAMLBuilderSuite) SetUpTest(checker *C) {
 		`
 id: power_id
 name: Power name
-power_type: spell
+source: spell
 target_self: true
 target_foe: true
 can_attack: true
@@ -195,7 +195,7 @@ func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 
 	checker.Assert(yamlPower.ID(), Equals, "power_id")
 	checker.Assert(yamlPower.Name(), Equals, "Power name")
-	checker.Assert(yamlPower.Type(), Equals, power.Spell)
+	checker.Assert(reflect.TypeOf(yamlPower.PowerSourceLogic()).String(), Equals, "*powersource.Spell")
 }
 
 func (suite *YAMLBuilderSuite) TestTargetingMatchesNewPower(checker *C) {
@@ -241,7 +241,7 @@ func (suite *JSONBuilderSuite) SetUpTest(checker *C) {
 {
    "id": "power_id",
    "name": "Power name",
-   "power_type": "physical",
+   "source": "physical",
    "can_heal": true,
    "healing_logic": "half",
    "hit_points_healed": 2
@@ -254,7 +254,7 @@ func (suite *JSONBuilderSuite) TestIdentificationMatchesNewPower(checker *C) {
 
 	checker.Assert(jsonPower.ID(), Equals, "power_id")
 	checker.Assert(jsonPower.Name(), Equals, "Power name")
-	checker.Assert(jsonPower.Type(), Equals, power.Physical)
+	checker.Assert(reflect.TypeOf(jsonPower.PowerSourceLogic()).String(), Equals, "*powersource.Physical")
 }
 
 func (suite *JSONBuilderSuite) TestHealingMatchesNewPower(checker *C) {

@@ -2,7 +2,6 @@ package powerattackforecast
 
 import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
-	"github.com/chadius/terosbattleserver/entity/power"
 )
 
 // VersusContextStrategy describes objects that compares attack and defender contexts to figure out what happens when they attack.
@@ -68,10 +67,6 @@ func (context *VersusContext) setDamageBreakdown(damageDealtToTarget int, attack
 }
 
 func (context *VersusContext) calculateDamageAbsorbedByArmor(attackerContext AttackerContext, defenderContext DefenderContext, damageDealtToTarget int) int {
-	if attackerContext.DamageType() != power.Physical {
-		return 0
-	}
-
 	armorAbsorbsAllDamage := damageDealtToTarget <= defenderContext.ArmorResistance()
 	if armorAbsorbsAllDamage {
 		return damageDealtToTarget

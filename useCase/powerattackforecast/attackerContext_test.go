@@ -8,6 +8,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type AttackContextTestSuite struct {
@@ -90,13 +91,21 @@ func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(che
 
 func (suite *AttackContextTestSuite) TestGetAttackerPhysicalRawDamage(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType(), Equals, power.DamageType(power.Physical))
+	checker.Assert(
+		reflect.TypeOf(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.PowerSourceLogic()).String(),
+		Equals,
+		"*powersource.Physical",
+	)
 	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage(), Equals, 3)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.DamageType(), Equals, power.DamageType(power.Spell))
+	checker.Assert(
+		reflect.TypeOf(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.PowerSourceLogic()).String(),
+		Equals,
+		"*powersource.Spell",
+	)
 	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage(), Equals, 5)
 }
 

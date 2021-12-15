@@ -89,10 +89,6 @@ func (repository *Repository) addSource(data []byte, unmarshal utility.Unmarshal
 }
 
 func (repository *Repository) tryToAddPower(powerToAdd *power.Power) (bool, error) {
-	PowerErr := power.CheckPowerForErrors(powerToAdd)
-	if PowerErr != nil {
-		return false, PowerErr
-	}
 	repository.powersByID[powerToAdd.ID()] = powerToAdd
 	return true, nil
 }

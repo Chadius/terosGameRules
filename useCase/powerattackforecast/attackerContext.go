@@ -1,7 +1,7 @@
 package powerattackforecast
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powersource"
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
@@ -13,7 +13,6 @@ type AttackerContextStrategy interface {
 	TotalToHitBonus() int
 	IsCounterAttack() bool
 	RawDamage() int
-	DamageType() power.DamageType
 	ExtraBarrierBurn() int
 	CanCritical() bool
 	CriticalHitThreshold() int
@@ -22,10 +21,11 @@ type AttackerContextStrategy interface {
 
 // AttackerContext lists the attacker's relevant information when attacking
 type AttackerContext struct {
-	isCounterAttack      bool
-	totalToHitBonus      int
-	rawDamage            int
-	damageType           power.DamageType
+	isCounterAttack  bool
+	totalToHitBonus  int
+	rawDamage        int
+	powerSourceLogic powersource.Interface
+
 	extraBarrierBurn     int
 	canCritical          bool
 	criticalHitThreshold int
@@ -45,7 +45,8 @@ func (context *AttackerContext) Calculate(setup powerusagescenario.Setup, reposi
 
 	power := repositories.PowerRepo.GetPowerByID(setup.PowerID)
 
-	context.damageType = power.Type()
+	context.powerSourceLogic = power.PowerSourceLogic()
+
 	context.extraBarrierBurn = power.ExtraBarrierBurn()
 
 	context.rawDamage, err = context.calculateRawDamage(setup, repositories)
@@ -135,9 +136,9 @@ func (context *AttackerContext) RawDamage() int {
 	return context.rawDamage
 }
 
-// DamageType gets the field value.
-func (context *AttackerContext) DamageType() power.DamageType {
-	return context.damageType
+// PowerSourceLogic gets the field value.
+func (context *AttackerContext) PowerSourceLogic() powersource.Interface {
+	return context.powerSourceLogic
 }
 
 // ExtraBarrierBurn gets the field value.

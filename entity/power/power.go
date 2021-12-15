@@ -2,8 +2,8 @@ package power
 
 import (
 	"errors"
-	"fmt"
 	"github.com/chadius/terosbattleserver/entity/healing"
+	"github.com/chadius/terosbattleserver/entity/powersource"
 	"github.com/chadius/terosbattleserver/utility"
 	"reflect"
 )
@@ -13,16 +13,6 @@ type Reference struct {
 	Name    string `json:"name" yaml:"name"`
 	PowerID string `json:"id" yaml:"id"`
 }
-
-// DamageType defines the expected sources the power could be conjured from.
-type DamageType string
-
-const (
-	// Physical powers use martial training and cunning. Examples: Swords, Bows, Pushing
-	Physical DamageType = "physical"
-	// Spell powers are magical in nature and conjured without tools. Examples: Fireball, Mindread
-	Spell DamageType = "spell"
-)
 
 // Targeting notes how the power can be targeted.
 type Targeting struct {
@@ -34,11 +24,11 @@ type Targeting struct {
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
 	Reference
-	damageType    DamageType
-	targeting     Targeting
-	attackEffect  *AttackingEffect
-	healingEffect *HealingEffect
-	healingLogic  healing.Interface
+	powerSourceLogic powersource.Interface
+	targeting        Targeting
+	attackEffect     *AttackingEffect
+	healingEffect    *HealingEffect
+	healingLogic     healing.Interface
 }
 
 // GetReference returns a new PowerReference.
@@ -50,7 +40,7 @@ func (p Power) GetReference() *Reference {
 }
 
 // NewPower generates a Power.
-func NewPower(name, id string, damageType *DamageType, targeting *Targeting, attackEffect *AttackingEffect, healingEffect *HealingEffect, healingLogic healing.Interface) *Power {
+func NewPower(name, id string, powerSourceLogic powersource.Interface, targeting *Targeting, attackEffect *AttackingEffect, healingEffect *HealingEffect, healingLogic healing.Interface) *Power {
 	powerID := "power_" + utility.StringWithCharset(8, "abcdefgh0123456789")
 	if id != "" {
 		powerID = id
@@ -60,25 +50,13 @@ func NewPower(name, id string, damageType *DamageType, targeting *Targeting, att
 			Name:    name,
 			PowerID: powerID,
 		},
-		damageType:    *damageType,
-		targeting:     *targeting,
-		attackEffect:  attackEffect,
-		healingEffect: healingEffect,
-		healingLogic:  healingLogic,
+		powerSourceLogic: powerSourceLogic,
+		targeting:        *targeting,
+		attackEffect:     attackEffect,
+		healingEffect:    healingEffect,
+		healingLogic:     healingLogic,
 	}
 	return &newAttackingPower
-}
-
-// CheckPowerForErrors verifies the Power's fields and raises an error if it's invalid.
-func CheckPowerForErrors(newPower *Power) (newError error) {
-	if newPower.Type() != Physical &&
-		newPower.Type() != Spell {
-		newError := fmt.Errorf("AttackingPower '%s' has unknown power_type: '%s'", newPower.Name(), newPower.Type())
-		utility.Log(newError.Error(), 0, utility.Error)
-		return newError
-	}
-
-	return nil
 }
 
 // ID returns the power's ID.
@@ -91,9 +69,9 @@ func (p *Power) Name() string {
 	return p.Reference.Name
 }
 
-// Type returns the power's damage type.
-func (p *Power) Type() DamageType {
-	return p.damageType
+// PowerSourceLogic returns the power's source logic.
+func (p *Power) PowerSourceLogic() powersource.Interface {
+	return p.powerSourceLogic
 }
 
 // CanPowerTargetSelf checks to see if the power can be used on the user.
@@ -231,7 +209,7 @@ func (p *Power) HasSameStatsAs(other *Power) bool {
 	if p.Name() != other.Name() {
 		return false
 	}
-	if p.Type() != other.Type() {
+	if reflect.TypeOf(p.PowerSourceLogic()).String() != reflect.TypeOf(other.PowerSourceLogic()).String() {
 		return false
 	}
 

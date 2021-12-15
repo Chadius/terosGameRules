@@ -41,10 +41,7 @@ func (c *CalculateSquaddieOffenseStats) GetSquaddieRawDamageWithPower(squaddieID
 		return 0, err
 	}
 
-	if powerToMeasure.Type() == power.Physical {
-		return squaddie.Strength() + powerToMeasure.DamageBonus(), nil
-	}
-	return squaddie.Mind() + powerToMeasure.DamageBonus(), nil
+	return powerToMeasure.PowerSourceLogic().RawDamage(squaddie) + powerToMeasure.DamageBonus(), nil
 }
 
 // GetSquaddieCriticalThresholdWithPower returns the critical hit threshold the squaddie needs to beat in order to crit.

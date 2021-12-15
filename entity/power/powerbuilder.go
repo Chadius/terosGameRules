@@ -3,6 +3,7 @@ package power
 import (
 	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/healing"
+	"github.com/chadius/terosbattleserver/entity/powersource"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 	"reflect"
@@ -15,7 +16,7 @@ type Builder struct {
 	targetSelf           bool
 	targetFriend         bool
 	targetFoe            bool
-	powerType            DamageType
+	powerSourceLogic     powersource.Interface
 	healingEffectOptions *HealingEffectOptions
 	attackEffectOptions  *AttackEffectOptions
 	healingLogic         healing.Interface
@@ -31,7 +32,7 @@ func NewPowerBuilder() *Builder {
 		targetSelf:           false,
 		targetFriend:         false,
 		targetFoe:            false,
-		powerType:            Physical,
+		powerSourceLogic:     powersource.NewPowerSourceLogic("physical"),
 		healingEffectOptions: HealingEffectBuilder(),
 		attackEffectOptions:  nil,
 		healingLogic:         &healing.NoHealing{},
@@ -52,13 +53,13 @@ func (p *Builder) WithID(id string) *Builder {
 
 // IsPhysical sets the power type to physical.
 func (p *Builder) IsPhysical() *Builder {
-	p.powerType = Physical
+	p.powerSourceLogic = powersource.NewPowerSourceLogic("physical")
 	return p
 }
 
 // IsSpell sets the power type to spell.
 func (p *Builder) IsSpell() *Builder {
-	p.powerType = Spell
+	p.powerSourceLogic = powersource.NewPowerSourceLogic("spell")
 	return p
 }
 
@@ -202,7 +203,7 @@ func (p *Builder) Build() *Power {
 	newPower := NewPower(
 		p.name,
 		p.id,
-		&p.powerType,
+		p.powerSourceLogic,
 		&Targeting{
 			TargetSelf:   p.targetSelf,
 			TargetFoe:    p.targetFoe,
@@ -241,9 +242,9 @@ func (p *Builder) HealingStaff() *Builder {
 
 // BuilderOptionMarshal is a flattened representation of all Squaddie NewPowerBuilder options.
 type BuilderOptionMarshal struct {
-	ID        string     `json:"id" yaml:"id"`
-	Name      string     `json:"name" yaml:"name"`
-	PowerType DamageType `json:"power_type" yaml:"power_type"`
+	ID          string `json:"id" yaml:"id"`
+	Name        string `json:"name" yaml:"name"`
+	PowerSource string `json:"source" yaml:"source"`
 
 	TargetSelf   bool `json:"target_self" yaml:"target_self"`
 	TargetFoe    bool `json:"target_foe" yaml:"target_foe"`
@@ -338,13 +339,7 @@ func (p *Builder) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) 
 	p.HitPointsHealed(marshaledOptions.HitPointsHealed)
 	p.WithHealingLogic(marshaledOptions.HealingLogic)
 
-	if marshaledOptions.PowerType == Physical {
-		p.IsPhysical()
-	}
-
-	if marshaledOptions.PowerType == Spell {
-		p.IsSpell()
-	}
+	p.powerSourceLogic = powersource.NewPowerSourceLogic(marshaledOptions.PowerSource)
 
 	if marshaledOptions.TargetSelf == true {
 		p.TargetsSelf()
@@ -419,10 +414,7 @@ func (p *Builder) cloneTargeting(source *Power) {
 }
 
 func (p *Builder) clonePowerType(source *Power) {
-	if source.Type() == Physical {
-		p.IsPhysical()
-	}
-	if source.Type() == Spell {
-		p.IsSpell()
-	}
+	p.powerSourceLogic = powersource.NewPowerSourceLogic(
+		source.PowerSourceLogic().Name(),
+	)
 }

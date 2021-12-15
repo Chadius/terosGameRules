@@ -1,7 +1,6 @@
 package squaddiestats
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
@@ -23,15 +22,7 @@ func (c *CalculateSquaddieDefenseStats) GetSquaddieToHitPenaltyAgainstPower(squa
 		return 0, err
 	}
 
-	if powerToMeasure.Type() == power.Physical {
-		return squaddie.Dodge(), nil
-	}
-
-	if powerToMeasure.Type() == power.Spell {
-		return squaddie.Deflect(), nil
-	}
-
-	return 0, nil
+	return powerToMeasure.PowerSourceLogic().ToHitPenalty(squaddie), nil
 }
 
 // GetSquaddieArmorAgainstPower returns how well the squaddie can evade the attack
@@ -41,20 +32,17 @@ func (c *CalculateSquaddieDefenseStats) GetSquaddieArmorAgainstPower(squaddieID,
 		return 0, err
 	}
 
-	if powerToMeasure.Type() == power.Physical {
-		return squaddie.Armor(), nil
-	}
-	return 0, nil
+	return powerToMeasure.PowerSourceLogic().ArmorResistance(squaddie), nil
 }
 
 // GetSquaddieBarrierAgainstPower returns how much barrier the squaddie has to resist the power's damage.
 func (c *CalculateSquaddieDefenseStats) GetSquaddieBarrierAgainstPower(squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error) {
-	squaddie, _, err := getSquaddieAndAttackPower(squaddieID, powerID, repos)
+	squaddie, powerToMeasure, err := getSquaddieAndAttackPower(squaddieID, powerID, repos)
 	if err != nil {
 		return 0, err
 	}
 
-	return squaddie.CurrentBarrier(), nil
+	return powerToMeasure.PowerSourceLogic().BarrierResistance(squaddie), nil
 }
 
 // GetSquaddieCurrentHitPoints returns the squaddie's current hit points.
