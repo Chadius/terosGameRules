@@ -5,6 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	classEntity "github.com/chadius/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type SquaddieIdentificationBuilder struct{}
@@ -23,22 +24,22 @@ func (suite *SquaddieIdentificationBuilder) TestBuildSquaddieWithID(checker *C) 
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationPlayer(checker *C) {
 	teros := squaddie.NewSquaddieBuilder().AsPlayer().Build()
-	checker.Assert(squaddie.Player, Equals, teros.Affiliation())
+	checker.Assert(reflect.TypeOf(teros.AffiliationLogic()).String(), Equals, "*affiliation.Player")
 }
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationEnemy(checker *C) {
 	bandit := squaddie.NewSquaddieBuilder().AsEnemy().Build()
-	checker.Assert(squaddie.Enemy, Equals, bandit.Affiliation())
+	checker.Assert(reflect.TypeOf(bandit.AffiliationLogic()).String(), Equals, "*affiliation.Enemy")
 }
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationAlly(checker *C) {
 	citizen := squaddie.NewSquaddieBuilder().AsAlly().Build()
-	checker.Assert(squaddie.Ally, Equals, citizen.Affiliation())
+	checker.Assert(reflect.TypeOf(citizen.AffiliationLogic()).String(), Equals, "*affiliation.Ally")
 }
 
 func (suite *SquaddieIdentificationBuilder) TestBuildIdentificationAffiliationNeutral(checker *C) {
 	bomb := squaddie.NewSquaddieBuilder().AsNeutral().Build()
-	checker.Assert(squaddie.Neutral, Equals, bomb.Affiliation())
+	checker.Assert(reflect.TypeOf(bomb.AffiliationLogic()).String(), Equals, "*affiliation.Neutral")
 }
 
 type SquaddieOffenseBuilder struct{}
@@ -223,7 +224,7 @@ func (suite *YAMLBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) 
 
 	checker.Assert(yamlSquaddie.ID(), Equals, "squaddie_yaml")
 	checker.Assert(yamlSquaddie.Name(), Equals, "YAML squaddie")
-	checker.Assert(yamlSquaddie.Affiliation(), Equals, squaddie.Enemy)
+	checker.Assert(reflect.TypeOf(yamlSquaddie.AffiliationLogic()).String(), Equals, "*affiliation.Enemy")
 }
 
 func (suite *YAMLBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {
@@ -341,7 +342,7 @@ func (suite *JSONBuilderSuite) TestIdentificationMatchesNewSquaddie(checker *C) 
 
 	checker.Assert(jsonSquaddie.ID(), Equals, "squaddie_json")
 	checker.Assert(jsonSquaddie.Name(), Equals, "JSON squaddie")
-	checker.Assert(jsonSquaddie.Affiliation(), Equals, squaddie.Ally)
+	checker.Assert(reflect.TypeOf(jsonSquaddie.AffiliationLogic()).String(), Equals, "*affiliation.Ally")
 }
 
 func (suite *JSONBuilderSuite) TestDefenseMatchesNewSquaddie(checker *C) {

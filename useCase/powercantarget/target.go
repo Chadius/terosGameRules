@@ -1,7 +1,6 @@
 package powercantarget
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 )
 
@@ -43,15 +42,14 @@ func (v *ValidTargetChecker) CanTargetTargetAffiliationWithPower(userID string, 
 		return true
 	}
 
-	areFriendsBecauseAffiliationsAreTheSame := user.Affiliation() != squaddie.Neutral && user.Affiliation() == target.Affiliation()
-	areFriendsBecausePlayerAndAlly := (user.Affiliation() == squaddie.Player && target.Affiliation() == squaddie.Ally) || (user.Affiliation() == squaddie.Ally && target.Affiliation() == squaddie.Player)
-	if powerUsed.CanPowerTargetFriend() && (areFriendsBecauseAffiliationsAreTheSame || areFriendsBecausePlayerAndAlly) {
+	// TODO Demeter violation - AffiliationLogic should be able to work on a squaddie, not affiliation logic
+	areFriends := user.AffiliationLogic().IsFriendsWith(target.AffiliationLogic())
+	if powerUsed.CanPowerTargetFriend() && areFriends {
 		return true
 	}
 
-	areFoesBecauseNeutral := user.Affiliation() == squaddie.Neutral || target.Affiliation() == squaddie.Neutral
-	areFoesBecauseExactlyOneIsEnemy := (user.Affiliation() == squaddie.Enemy && target.Affiliation() != squaddie.Enemy) || (user.Affiliation() != squaddie.Enemy && target.Affiliation() == squaddie.Enemy)
-	if powerUsed.CanPowerTargetFoe() && (areFoesBecauseNeutral || areFoesBecauseExactlyOneIsEnemy) {
+	areFoes := user.AffiliationLogic().IsFoesWith(target.AffiliationLogic())
+	if powerUsed.CanPowerTargetFoe() && areFoes {
 		return true
 	}
 

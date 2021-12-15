@@ -77,11 +77,6 @@ func (repository *Repository) unmarshalDataAndAddSquaddies(data []byte, unmarsha
 }
 
 func (repository *Repository) tryToAddSquaddie(squaddieToAdd *Squaddie) (bool, error) {
-	squaddieErr := CheckSquaddieForErrors(squaddieToAdd)
-	if squaddieErr != nil {
-		return false, squaddieErr
-	}
-
 	if squaddieToAdd.ID() == "" {
 		squaddieToAdd.SetNewIDToRandom()
 	}

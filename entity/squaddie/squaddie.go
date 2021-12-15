@@ -1,21 +1,10 @@
 package squaddie
 
 import (
-	"fmt"
+	"github.com/chadius/terosbattleserver/entity/affiliation"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/utility"
-)
-
-// Affiliation describes the Squaddie's allegiance
-type Affiliation string
-
-// Squaddie Affiliation constants
-const (
-	Player  Affiliation = "player"
-	Enemy   Affiliation = "enemy"
-	Ally    Affiliation = "ally"
-	Neutral Affiliation = "neutral"
+	"reflect"
 )
 
 // Squaddie represents a person, creature or thing that can take actions on a battlefield.
@@ -28,25 +17,14 @@ type Squaddie struct {
 	PowerCollection PowerCollection
 }
 
-// CheckSquaddieForErrors makes sure the created squaddie doesn't have an error.
-func CheckSquaddieForErrors(newSquaddie *Squaddie) error {
-	if !newSquaddie.Identification.HasValidAffiliation() {
-		newError := fmt.Errorf("squaddie %s has unknown affiliation: '%s'", newSquaddie.ID(), newSquaddie.Affiliation())
-		utility.Log(newError.Error(), 0, utility.Error)
-		return newError
-	}
-
-	return nil
-}
-
 // ID delegates.
 func (s *Squaddie) ID() string {
 	return s.Identification.ID()
 }
 
-// Affiliation delegates.
-func (s *Squaddie) Affiliation() Affiliation {
-	return s.Identification.Affiliation()
+// AffiliationLogic delegates.
+func (s *Squaddie) AffiliationLogic() affiliation.Interface {
+	return s.Identification.AffiliationLogic()
 }
 
 // Name delegates.
@@ -155,7 +133,8 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 	if s.Name() != other.Name() {
 		return false
 	}
-	if s.Affiliation() != other.Affiliation() {
+
+	if reflect.TypeOf(s.AffiliationLogic()).String() != reflect.TypeOf(other.AffiliationLogic()).String() {
 		return false
 	}
 

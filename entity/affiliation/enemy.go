@@ -23,3 +23,8 @@ func (a *Enemy) IsFoesWith(other Interface) bool {
 
 	return true
 }
+
+// Name returns the name of this logic block.
+func (a *Enemy) Name() string {
+	return "enemy"
+}

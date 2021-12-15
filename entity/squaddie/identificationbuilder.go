@@ -1,10 +1,14 @@
 package squaddie
 
+import (
+	"github.com/chadius/terosbattleserver/entity/affiliation"
+)
+
 // IdentificationBuilderOptions is used to create healing effects.
 type IdentificationBuilderOptions struct {
-	name        string
-	id          string
-	affiliation Affiliation
+	name             string
+	id               string
+	affiliationLogic affiliation.Interface
 }
 
 // IdentificationBuilder creates a IdentificationBuilderOptions with default values.
@@ -12,9 +16,9 @@ type IdentificationBuilderOptions struct {
 //   final object.
 func IdentificationBuilder() *IdentificationBuilderOptions {
 	return &IdentificationBuilderOptions{
-		name:        "squaddie with no name",
-		id:          "",
-		affiliation: Neutral,
+		name:             "squaddie with no name",
+		id:               "",
+		affiliationLogic: &affiliation.Neutral{},
 	}
 }
 
@@ -32,30 +36,35 @@ func (i *IdentificationBuilderOptions) WithID(id string) *IdentificationBuilderO
 
 // AsPlayer makes the Identification as a Player.
 func (i *IdentificationBuilderOptions) AsPlayer() *IdentificationBuilderOptions {
-	i.affiliation = Player
+	i.affiliationLogic = &affiliation.Player{}
 	return i
 }
 
 // AsEnemy makes the Identification as an Enemy.
 func (i *IdentificationBuilderOptions) AsEnemy() *IdentificationBuilderOptions {
-	i.affiliation = Enemy
+	i.affiliationLogic = &affiliation.Enemy{}
 	return i
 }
 
 // AsAlly makes the Identification as an Ally.
 func (i *IdentificationBuilderOptions) AsAlly() *IdentificationBuilderOptions {
-	i.affiliation = Ally
+	i.affiliationLogic = &affiliation.Ally{}
 	return i
 }
 
 // AsNeutral makes the Identification as a Neutral.
 func (i *IdentificationBuilderOptions) AsNeutral() *IdentificationBuilderOptions {
-	i.affiliation = Neutral
+	i.affiliationLogic = &affiliation.Neutral{}
 	return i
 }
 
 // Build uses the IdentificationBuilderOptions to create a Movement.
 func (i *IdentificationBuilderOptions) Build() *Identification {
-	newIdentification := NewIdentification(i.id, i.name, i.affiliation)
+	newIdentification := NewIdentification(i.id, i.name, i.affiliationLogic)
 	return newIdentification
+}
+
+// WithAffiliationLogic sets the affiliation logic.
+func (i *IdentificationBuilderOptions) WithAffiliationLogic(keyword string) {
+	i.affiliationLogic = affiliation.NewAffiliationLogic(keyword)
 }

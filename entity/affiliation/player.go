@@ -25,3 +25,8 @@ func (a *Player) IsFoesWith(other Interface) bool {
 
 	return true
 }
+
+// Name returns the name of this logic block.
+func (a *Player) Name() string {
+	return "player"
+}

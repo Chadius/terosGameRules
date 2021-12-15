@@ -50,6 +50,11 @@ func (s *Builder) WithID(id string) *Builder {
 	return s
 }
 
+// WithAffiliationLogic sets the affiliation logic.
+func (s *Builder) WithAffiliationLogic(keyword string) {
+	s.identificationOptions.WithAffiliationLogic(keyword)
+}
+
 // AsPlayer delegates to the IdentificationBuilderOptions.
 func (s *Builder) AsPlayer() *Builder {
 	s.identificationOptions.AsPlayer()
@@ -253,9 +258,9 @@ func (s *Builder) MysticMage() *Builder {
 
 // BuilderOptionMarshal is a flattened representation of all Squaddie NewSquaddieBuilder options.
 type BuilderOptionMarshal struct {
-	ID          string      `json:"id" yaml:"id"`
-	Name        string      `json:"name" yaml:"name"`
-	Affiliation Affiliation `json:"affiliation" yaml:"affiliation"`
+	ID          string `json:"id" yaml:"id"`
+	Name        string `json:"name" yaml:"name"`
+	Affiliation string `json:"affiliation" yaml:"affiliation"`
 
 	MaxHitPoints int `json:"max_hit_points" yaml:"max_hit_points"`
 	Dodge        int `json:"dodge" yaml:"dodge"`
@@ -308,18 +313,7 @@ func (s *Builder) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) 
 		Aim(marshaledOptions.Aim).Strength(marshaledOptions.Strength).Mind(marshaledOptions.Mind).
 		MoveDistance(marshaledOptions.MovementDistance)
 
-	if marshaledOptions.Affiliation == Player {
-		s.AsPlayer()
-	}
-	if marshaledOptions.Affiliation == Enemy {
-		s.AsEnemy()
-	}
-	if marshaledOptions.Affiliation == Ally {
-		s.AsAlly()
-	}
-	if marshaledOptions.Affiliation == Neutral {
-		s.AsNeutral()
-	}
+	s.WithAffiliationLogic(marshaledOptions.Affiliation)
 
 	if marshaledOptions.MovementType == Foot {
 		s.MovementFoot()
@@ -395,18 +389,7 @@ func (s *Builder) cloneMovement(source *Squaddie) {
 }
 
 func (s *Builder) cloneAffiliation(source *Squaddie) {
-	if source.Affiliation() == Player {
-		s.AsPlayer()
-	}
-	if source.Affiliation() == Enemy {
-		s.AsEnemy()
-	}
-	if source.Affiliation() == Ally {
-		s.AsAlly()
-	}
-	if source.Affiliation() == Neutral {
-		s.AsNeutral()
-	}
+	s.WithAffiliationLogic(source.AffiliationLogic().Name())
 }
 
 func (s *Builder) clonePowerReferences(source *Squaddie) {
@@ -448,18 +431,7 @@ func (s *Builder) populateBuilderBasedOnMarshal(builderFields BuilderOptionMarsh
 		Deflect(builderFields.Deflect).
 		MoveDistance(builderFields.MovementDistance)
 
-	if builderFields.Affiliation == Player {
-		s.AsPlayer()
-	}
-	if builderFields.Affiliation == Enemy {
-		s.AsEnemy()
-	}
-	if builderFields.Affiliation == Ally {
-		s.AsAlly()
-	}
-	if builderFields.Affiliation == Neutral {
-		s.AsNeutral()
-	}
+	s.WithAffiliationLogic(builderFields.Affiliation)
 
 	if builderFields.MovementCanHitAndRun {
 		s.CanHitAndRun()

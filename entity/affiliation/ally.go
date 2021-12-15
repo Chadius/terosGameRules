@@ -25,3 +25,8 @@ func (a *Ally) IsFoesWith(other Interface) bool {
 
 	return true
 }
+
+// Name returns the name of this logic block.
+func (a *Ally) Name() string {
+	return "ally"
+}

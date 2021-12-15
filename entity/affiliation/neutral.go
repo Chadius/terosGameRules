@@ -13,3 +13,8 @@ func (a *Neutral) IsFriendsWith(other Interface) bool {
 func (a *Neutral) IsFoesWith(other Interface) bool {
 	return true
 }
+
+// Name returns the name of this logic block.
+func (a *Neutral) Name() string {
+	return "neutral"
+}
