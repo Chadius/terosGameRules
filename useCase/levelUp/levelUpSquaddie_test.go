@@ -9,6 +9,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type SquaddieUsesLevelUpBenefitSuite struct {
@@ -43,7 +44,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 	suite.improveAllMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("aaaaaaa0").
 		WithClassID(suite.mageClass.ID()).
-		MovementType(squaddie.Fly).
+		FlyMovement().
 		CanHitAndRun().
 		MovementDistance(1).
 		Build()
@@ -51,7 +52,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 	suite.upgradeToLightMovement, _ = levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("aaaaaaa1").
 		WithClassID(suite.mageClass.ID()).
-		MovementType(squaddie.Light).
+		MovementLogic("light").
 		Build()
 
 	suite.improveSquaddieStrategy = &levelup.ImproveSquaddieClass{}
@@ -110,7 +111,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker
 	checker.Assert(err, IsNil)
 
 	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
-	checker.Assert(suite.teros.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(reflect.TypeOf(suite.teros.Movement.MovementLogic()).String(), Equals, "*movement.Fly")
 	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
 }
 
@@ -122,7 +123,7 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovemen
 	checker.Assert(err, IsNil)
 
 	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
-	checker.Assert(suite.teros.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Fly))
+	checker.Assert(reflect.TypeOf(suite.teros.Movement.MovementLogic()).String(), Equals, "*movement.Fly")
 	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
 }
 

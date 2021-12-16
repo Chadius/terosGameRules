@@ -1,10 +1,12 @@
 package squaddie
 
+import "github.com/chadius/terosbattleserver/entity/movement"
+
 // MovementBuilderOptions is used to create healing effects.
 type MovementBuilderOptions struct {
-	distance     int
-	canHitAndRun bool
-	movementType MovementType
+	distance      int
+	canHitAndRun  bool
+	movementLogic movement.Interface
 }
 
 // MovementBuilder creates a MovementBuilderOptions with default values.
@@ -12,9 +14,9 @@ type MovementBuilderOptions struct {
 //   final object.
 func MovementBuilder() *MovementBuilderOptions {
 	return &MovementBuilderOptions{
-		distance:     0,
-		canHitAndRun: false,
-		movementType: Foot,
+		distance:      0,
+		canHitAndRun:  false,
+		movementLogic: movement.NewMovementLogic("foot"),
 	}
 }
 
@@ -32,30 +34,32 @@ func (m *MovementBuilderOptions) CanHitAndRun() *MovementBuilderOptions {
 
 // Foot sets the movement type to Foot.
 func (m *MovementBuilderOptions) Foot() *MovementBuilderOptions {
-	m.movementType = Foot
-	return m
+	return m.WithMovementLogicKeyword("foot")
 }
 
 // Light sets the movement type to Light.
 func (m *MovementBuilderOptions) Light() *MovementBuilderOptions {
-	m.movementType = Light
-	return m
+	return m.WithMovementLogicKeyword("light")
 }
 
 // Fly sets the movement type to Fly.
 func (m *MovementBuilderOptions) Fly() *MovementBuilderOptions {
-	m.movementType = Fly
-	return m
+	return m.WithMovementLogicKeyword("fly")
 }
 
 // Teleport sets the movement type to Teleport.
 func (m *MovementBuilderOptions) Teleport() *MovementBuilderOptions {
-	m.movementType = Teleport
+	return m.WithMovementLogicKeyword("teleport")
+}
+
+// WithMovementLogicKeyword creates movement logic object using the given keyword.
+func (m *MovementBuilderOptions) WithMovementLogicKeyword(keyword string) *MovementBuilderOptions {
+	m.movementLogic = movement.NewMovementLogic(keyword)
 	return m
 }
 
 // Build uses the MovementBuilderOptions to create a Movement.
 func (m *MovementBuilderOptions) Build() *Movement {
-	newMovement := NewMovement(m.distance, m.movementType, m.canHitAndRun)
+	newMovement := NewMovement(m.distance, m.canHitAndRun, m.movementLogic)
 	return newMovement
 }

@@ -140,25 +140,24 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
 	checker.Assert(soldier.Name(), Equals, "Soldier")
 	checker.Assert(soldier.Movement.MovementDistance(), Equals, 5)
-	checker.Assert(soldier.Movement.MovementType(), Equals, squaddie.Foot)
+	checker.Assert(reflect.TypeOf(soldier.MovementLogic()).String(), Equals, "*movement.Foot")
 	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
 
 	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
 	checker.Assert(scout.Name(), Equals, "Scout")
 	checker.Assert(scout.Movement.MovementDistance(), Equals, 4)
-	checker.Assert(scout.Movement.MovementType(), Equals, squaddie.Light)
 	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
 
 	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
 	checker.Assert(bird.Name(), Equals, "Bird")
 	checker.Assert(bird.Movement.MovementDistance(), Equals, 3)
-	checker.Assert(bird.Movement.MovementType(), Equals, squaddie.Fly)
+	checker.Assert(reflect.TypeOf(bird.MovementLogic()).String(), Equals, "*movement.Fly")
 	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
 
 	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
 	checker.Assert(teleporter.Name(), Equals, "Teleporter")
 	checker.Assert(teleporter.Movement.MovementDistance(), Equals, 2)
-	checker.Assert(teleporter.Movement.MovementType(), Equals, squaddie.Teleport)
+	checker.Assert(reflect.TypeOf(teleporter.MovementLogic()).String(), Equals, "*movement.Teleport")
 	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
 }
 
@@ -242,7 +241,11 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesMovement(checker *C) {
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(originalSquaddie, "")
 
 	checker.Assert(clone.MovementDistance(), Equals, originalSquaddie.MovementDistance())
-	checker.Assert(clone.MovementType(), Equals, originalSquaddie.MovementType())
+	checker.Assert(
+		reflect.TypeOf(clone.MovementLogic()).String(),
+		Equals,
+		reflect.TypeOf(originalSquaddie.MovementLogic()).String(),
+	)
 	checker.Assert(clone.MovementCanHitAndRun(), Equals, originalSquaddie.MovementCanHitAndRun())
 }
 
@@ -367,7 +370,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedMovemen
 	loadedSquaddie := squaddieRepository.GetSquaddieByID("squaddie_on_the_move")
 	checker.Assert(loadedSquaddie.MovementDistance(), Equals, 2)
 	checker.Assert(loadedSquaddie.MovementCanHitAndRun(), Equals, true)
-	checker.Assert(loadedSquaddie.MovementType(), Equals, squaddie.Fly)
+	checker.Assert(reflect.TypeOf(loadedSquaddie.MovementLogic()).String(), Equals, "*movement.Fly")
 }
 
 func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieHasExpectedPowers(checker *C) {
@@ -499,7 +502,7 @@ func (suite *SquaddieLoadDataStreamUsingBuilders) TestSquaddieCanBeBuiltWithJSON
 
 	checker.Assert(loadedSquaddie.MovementDistance(), Equals, 23)
 	checker.Assert(loadedSquaddie.MovementCanHitAndRun(), Equals, true)
-	checker.Assert(loadedSquaddie.MovementType(), Equals, squaddie.Teleport)
+	checker.Assert(reflect.TypeOf(loadedSquaddie.MovementLogic()).String(), Equals, "*movement.Teleport")
 
 	squaddiePowers := loadedSquaddie.GetCopyOfPowerReferences()
 

@@ -2,6 +2,7 @@ package levelupbenefit
 
 import (
 	"encoding/json"
+	"github.com/chadius/terosbattleserver/entity/movement"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/utility"
@@ -25,7 +26,7 @@ type Builder struct {
 	mind     int
 
 	movementDistance     int
-	movementType         squaddie.MovementType
+	movementLogic        movement.Interface
 	movementCanHitAndRun bool
 
 	powersGained []*power.Reference
@@ -50,7 +51,7 @@ func NewLevelUpBenefitBuilder() *Builder {
 		mind:     0,
 
 		movementDistance:     0,
-		movementType:         squaddie.Foot,
+		movementLogic:        movement.NewMovementLogic("foot"),
 		movementCanHitAndRun: false,
 
 		powersGained: []*power.Reference{},
@@ -145,30 +146,30 @@ func (b *Builder) MovementDistance(distance int) *Builder {
 	return b
 }
 
-// MovementType will upgrade the squaddie movement type
-func (b *Builder) MovementType(newMovementType squaddie.MovementType) *Builder {
-	b.movementType = newMovementType
+// MovementLogic will upgrade the squaddie movement logic using the given keyword
+func (b *Builder) MovementLogic(newMovementType string) *Builder {
+	b.movementLogic = movement.NewMovementLogic(newMovementType)
 	return b
 }
 
 // FootMovement will change the squaddie's movement type.
 func (b *Builder) FootMovement() *Builder {
-	return b.MovementType(squaddie.Foot)
+	return b.MovementLogic("foot")
 }
 
 // LightMovement will change the squaddie's movement type.
 func (b *Builder) LightMovement() *Builder {
-	return b.MovementType(squaddie.Light)
+	return b.MovementLogic("light")
 }
 
 // FlyMovement will change the squaddie's movement type.
 func (b *Builder) FlyMovement() *Builder {
-	return b.MovementType(squaddie.Fly)
+	return b.MovementLogic("fly")
 }
 
 // TeleportMovement will change the squaddie's movement type.
 func (b *Builder) TeleportMovement() *Builder {
-	return b.MovementType(squaddie.Teleport)
+	return b.MovementLogic("teleport")
 }
 
 // CanHitAndRun means the squaddie can use hit-and-run movement.
@@ -223,8 +224,8 @@ func (b *Builder) Build() (*LevelUpBenefit, error) {
 		),
 		squaddie.NewMovement(
 			b.movementDistance,
-			b.movementType,
 			b.movementCanHitAndRun,
+			b.movementLogic,
 		),
 		NewPowerChanges(
 			b.powersGained,
@@ -263,9 +264,9 @@ type BuilderMarshal struct {
 	Strength int `json:"strength" yaml:"strength"`
 	Mind     int `json:"mind" yaml:"mind"`
 
-	MovementDistance     int                   `json:"movement_distance" yaml:"movement_distance"`
-	MovementType         squaddie.MovementType `json:"movement_type" yaml:"movement_type"`
-	MovementCanHitAndRun bool                  `json:"can_hit_and_run" yaml:"can_hit_and_run"`
+	MovementDistance     int    `json:"movement_distance" yaml:"movement_distance"`
+	MovementLogic        string `json:"movement_type" yaml:"movement_type"`
+	MovementCanHitAndRun bool   `json:"can_hit_and_run" yaml:"can_hit_and_run"`
 
 	PowersGained []*power.Reference `json:"powers_gained" yaml:"powers_gained"`
 	PowersLost   []string           `json:"powers_lost" yaml:"powers_lost"`
@@ -298,7 +299,7 @@ func (b *Builder) populateBuilderBasedOnMarshal(builderFields BuilderMarshal) *B
 		Strength(builderFields.Strength).
 		Mind(builderFields.Mind).
 		MovementDistance(builderFields.MovementDistance).
-		MovementType(builderFields.MovementType)
+		MovementLogic(builderFields.MovementLogic)
 
 	if builderFields.MovementCanHitAndRun {
 		b.CanHitAndRun()

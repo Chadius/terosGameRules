@@ -3,6 +3,7 @@ package levelupbenefit
 import (
 	"errors"
 	"fmt"
+	"github.com/chadius/terosbattleserver/entity/movement"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/utility"
@@ -169,12 +170,9 @@ func (l LevelUpBenefit) MovementDistance() int {
 	return l.movement.MovementDistance()
 }
 
-// MovementType is a getter.
-func (l LevelUpBenefit) MovementType() squaddie.MovementType {
-	if l.movement == nil {
-		return squaddie.Foot
-	}
-	return l.movement.MovementType()
+// MovementLogic is a getter.
+func (l LevelUpBenefit) MovementLogic() movement.Interface {
+	return l.movement.MovementLogic()
 }
 
 // CanHitAndRun is a getter.

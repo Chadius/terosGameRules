@@ -58,7 +58,7 @@ func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImp
 func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
 	squaddieToImprove.ImproveMovement(
 		benefit.MovementDistance(),
-		benefit.MovementType(),
 		benefit.CanHitAndRun(),
+		benefit.MovementLogic(),
 	)
 }

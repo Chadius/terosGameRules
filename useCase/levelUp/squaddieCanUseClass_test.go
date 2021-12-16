@@ -72,7 +72,7 @@ func (suite *SquaddieQualifiesForClassSuite) SetUpTest(checker *C) {
 		WithID("dwLevel0").
 		WithClassID(suite.dimensionWalkerClass.ID()).
 		BigLevel().
-		MovementType(squaddie.Light).
+		MovementLogic("light").
 		MovementDistance(1).
 		Build()
 

@@ -2,8 +2,8 @@ package levelupbenefit_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type LevelUpBuilderSuite struct{}
@@ -65,14 +65,21 @@ func (l *LevelUpBuilderSuite) TestBuildWithOffense(checker *C) {
 func (l *LevelUpBuilderSuite) TestBuildWithMovement(checker *C) {
 	levelUpBenefit, err := levelupbenefit.NewLevelUpBenefitBuilder().
 		MovementDistance(2).
-		MovementType(squaddie.Fly).
+		MovementLogic("fly").
 		CanHitAndRun().
 		Build()
 
 	checker.Assert(err, IsNil)
 	checker.Assert(levelUpBenefit.MovementDistance(), Equals, 2)
-	checker.Assert(levelUpBenefit.MovementType(), Equals, squaddie.Fly)
+	checker.Assert(reflect.TypeOf(levelUpBenefit.MovementLogic()).String(), Equals, "*movement.Fly")
 	checker.Assert(levelUpBenefit.CanHitAndRun(), Equals, true)
+}
+
+func (l *LevelUpBuilderSuite) TestBuildWithDefaultMovement(checker *C) {
+	levelUpBenefit, err := levelupbenefit.NewLevelUpBenefitBuilder().Build()
+
+	checker.Assert(err, IsNil)
+	checker.Assert(reflect.TypeOf(levelUpBenefit.MovementLogic()).String(), Equals, "*movement.Foot")
 }
 
 func (l *LevelUpBuilderSuite) TestBuildWithPowerChanges(checker *C) {
@@ -95,29 +102,29 @@ func (l *LevelUpBuilderSuite) TestBuildWithPowerChanges(checker *C) {
 
 func (l *LevelUpBuilderSuite) TestBuildWithAlternateMovementTypes(checker *C) {
 	onFootLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
-		MovementType(squaddie.Fly).
+		MovementLogic("Fly").
 		FootMovement().
 		Build()
 
-	checker.Assert(onFootLevelUp.MovementType(), Equals, squaddie.Foot)
+	checker.Assert(reflect.TypeOf(onFootLevelUp.MovementLogic()).String(), Equals, "*movement.Foot")
 
 	onLightLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
 		LightMovement().
 		Build()
 
-	checker.Assert(onLightLevelUp.MovementType(), Equals, squaddie.Light)
+	checker.Assert(reflect.TypeOf(onLightLevelUp.MovementLogic()).String(), Equals, "*movement.Light")
 
 	onFlyLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
 		FlyMovement().
 		Build()
 
-	checker.Assert(onFlyLevelUp.MovementType(), Equals, squaddie.Fly)
+	checker.Assert(reflect.TypeOf(onFlyLevelUp.MovementLogic()).String(), Equals, "*movement.Fly")
 
 	onTeleportLevelUp, _ := levelupbenefit.NewLevelUpBenefitBuilder().
 		TeleportMovement().
 		Build()
 
-	checker.Assert(onTeleportLevelUp.MovementType(), Equals, squaddie.Teleport)
+	checker.Assert(reflect.TypeOf(onTeleportLevelUp.MovementLogic()).String(), Equals, "*movement.Teleport")
 }
 
 type LevelUpBuilderDataSuite struct{}
@@ -144,7 +151,6 @@ movement_distance: 19
 movement_type: teleport
 can_hit_and_run: true
 `)
-
 	levelUp, _ := levelupbenefit.NewLevelUpBenefitBuilderFromYAML(yamlByteStream).Build()
 
 	checker.Assert(levelUp.ID(), Equals, "abcdefg0")
@@ -162,7 +168,7 @@ can_hit_and_run: true
 	checker.Assert(levelUp.Mind(), Equals, 17)
 
 	checker.Assert(levelUp.MovementDistance(), Equals, 19)
-	checker.Assert(levelUp.MovementType(), Equals, squaddie.Teleport)
+	checker.Assert(reflect.TypeOf(levelUp.MovementLogic()).String(), Equals, "*movement.Teleport")
 	checker.Assert(levelUp.CanHitAndRun(), Equals, true)
 
 	checker.Assert(levelUp.PowersGained(), HasLen, 1)
@@ -188,7 +194,6 @@ func (l LevelUpBuilderDataSuite) TestUseJSONToCreateBuilder(checker *C) {
 "movement_distance": 19,
 "movement_type": "light"
 }`)
-
 	levelUp, _ := levelupbenefit.NewLevelUpBenefitBuilderFromJSON(jsonByteStream).Build()
 
 	checker.Assert(levelUp.ID(), Equals, "abcdefg0")
@@ -206,7 +211,7 @@ func (l LevelUpBuilderDataSuite) TestUseJSONToCreateBuilder(checker *C) {
 	checker.Assert(levelUp.Mind(), Equals, 17)
 
 	checker.Assert(levelUp.MovementDistance(), Equals, 19)
-	checker.Assert(levelUp.MovementType(), Equals, squaddie.Light)
+	checker.Assert(reflect.TypeOf(levelUp.MovementLogic()).String(), Equals, "*movement.Light")
 	checker.Assert(levelUp.CanHitAndRun(), Equals, false)
 
 	checker.Assert(levelUp.PowersGained(), HasLen, 0)

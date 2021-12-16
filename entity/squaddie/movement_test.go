@@ -1,8 +1,10 @@
 package squaddie_test
 
 import (
+	"github.com/chadius/terosbattleserver/entity/movement"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	. "gopkg.in/check.v1"
+	"reflect"
 )
 
 type SquaddieMovementTests struct {
@@ -17,7 +19,7 @@ func (suite *SquaddieMovementTests) SetUpTest(checker *C) {
 
 func (suite *SquaddieMovementTests) TestDefaultMovement(checker *C) {
 	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, 3)
-	checker.Assert(suite.teros.Movement.MovementType(), Equals, squaddie.MovementType(squaddie.Foot))
+	checker.Assert(reflect.TypeOf(suite.teros.Movement.MovementLogic()).String(), Equals, "*movement.Foot")
 }
 
 type improveMovement struct {
@@ -27,13 +29,13 @@ type improveMovement struct {
 var _ = Suite(&improveMovement{})
 
 func (suite *improveMovement) SetUpTest(checker *C) {
-	suite.initialMovement = squaddie.NewMovement(2, squaddie.Foot, false)
+	suite.initialMovement = squaddie.NewMovement(2, false, movement.NewMovementLogic("foot"))
 }
 
 func (suite *improveMovement) TestWhenImproveIsCalled_ThenMovementImproves(checker *C) {
-	suite.initialMovement.Improve(3, squaddie.Fly, true)
+	suite.initialMovement.Improve(3, true, movement.NewMovementLogic("fly"))
 
 	checker.Assert(suite.initialMovement.MovementDistance(), Equals, 5)
-	checker.Assert(suite.initialMovement.MovementType(), Equals, squaddie.Fly)
+	checker.Assert(reflect.TypeOf(suite.initialMovement.MovementLogic()).String(), Equals, "*movement.Fly")
 	checker.Assert(suite.initialMovement.CanHitAndRun(), Equals, true)
 }

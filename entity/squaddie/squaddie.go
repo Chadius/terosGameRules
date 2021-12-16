@@ -2,6 +2,7 @@ package squaddie
 
 import (
 	"github.com/chadius/terosbattleserver/entity/affiliation"
+	"github.com/chadius/terosbattleserver/entity/movement"
 	"github.com/chadius/terosbattleserver/entity/power"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"reflect"
@@ -108,8 +109,8 @@ func (s *Squaddie) Mind() int {
 }
 
 // ImproveMovement delegates.
-func (s *Squaddie) ImproveMovement(distance int, movementType MovementType, canHitAndRun bool) {
-	s.Movement.Improve(distance, movementType, canHitAndRun)
+func (s *Squaddie) ImproveMovement(distance int, canHitAndRun bool, movementLogic movement.Interface) {
+	s.Movement.Improve(distance, canHitAndRun, movementLogic)
 }
 
 //MovementDistance delegates.
@@ -117,9 +118,9 @@ func (s *Squaddie) MovementDistance() int {
 	return s.Movement.MovementDistance()
 }
 
-// MovementType delegates.
-func (s *Squaddie) MovementType() MovementType {
-	return s.Movement.MovementType()
+// MovementLogic delegates.
+func (s *Squaddie) MovementLogic() movement.Interface {
+	return s.Movement.MovementLogic()
 }
 
 // MovementCanHitAndRun delegates.
@@ -157,9 +158,10 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 }
 
 func (s *Squaddie) hasSameMovementAs(other *Squaddie) bool {
-	if s.MovementType() != other.MovementType() {
+	if reflect.TypeOf(s.MovementLogic()).String() != reflect.TypeOf(other.MovementLogic()).String() {
 		return false
 	}
+
 	if s.MovementDistance() != other.MovementDistance() {
 		return false
 	}

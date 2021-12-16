@@ -6,6 +6,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
+	"reflect"
 )
 
 // Builder is used to define the parameters for a squaddie builder.
@@ -136,6 +137,12 @@ func (s *Builder) MoveDistance(distance int) *Builder {
 // CanHitAndRun delegates to the MovementBuilderOptions.
 func (s *Builder) CanHitAndRun() *Builder {
 	s.movementOptions.CanHitAndRun()
+	return s
+}
+
+// WithMovementLogicKeyword delegates to the MovementBuilderOptions.
+func (s *Builder) WithMovementLogicKeyword(keyword string) *Builder {
+	s.movementOptions.WithMovementLogicKeyword(keyword)
 	return s
 }
 
@@ -272,9 +279,9 @@ type BuilderOptionMarshal struct {
 	Strength int `json:"strength" yaml:"strength"`
 	Mind     int `json:"mind" yaml:"mind"`
 
-	MovementDistance     int          `json:"movement_distance" yaml:"movement_distance"`
-	MovementType         MovementType `json:"movement_type" yaml:"movement_type"`
-	MovementCanHitAndRun bool         `json:"hit_and_run" yaml:"hit_and_run"`
+	MovementDistance     int    `json:"movement_distance" yaml:"movement_distance"`
+	MovementLogic        string `json:"movement_type" yaml:"movement_type"`
+	MovementCanHitAndRun bool   `json:"hit_and_run" yaml:"hit_and_run"`
 
 	ClassProgress   []*classProgressMarshal `json:"class_progress" yaml:"class_progress"`
 	PowerReferences []*power.Reference      `json:"powers" yaml:"powers"`
@@ -315,18 +322,7 @@ func (s *Builder) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) 
 
 	s.WithAffiliationLogic(marshaledOptions.Affiliation)
 
-	if marshaledOptions.MovementType == Foot {
-		s.MovementFoot()
-	}
-	if marshaledOptions.MovementType == Light {
-		s.MovementLight()
-	}
-	if marshaledOptions.MovementType == Fly {
-		s.MovementFly()
-	}
-	if marshaledOptions.MovementType == Teleport {
-		s.MovementTeleport()
-	}
+	s.WithMovementLogicKeyword(marshaledOptions.MovementLogic)
 
 	if marshaledOptions.MovementCanHitAndRun == true {
 		s.CanHitAndRun()
@@ -371,18 +367,8 @@ func (s *Builder) CloneOf(source *Squaddie) *Builder {
 }
 
 func (s *Builder) cloneMovement(source *Squaddie) {
-	if source.MovementType() == Foot {
-		s.MovementFoot()
-	}
-	if source.MovementType() == Light {
-		s.MovementLight()
-	}
-	if source.MovementType() == Fly {
-		s.MovementFly()
-	}
-	if source.MovementType() == Teleport {
-		s.MovementTeleport()
-	}
+	s.WithMovementLogicKeyword(reflect.TypeOf(source.MovementLogic()).String())
+
 	if source.MovementCanHitAndRun() {
 		s.CanHitAndRun()
 	}
@@ -437,18 +423,7 @@ func (s *Builder) populateBuilderBasedOnMarshal(builderFields BuilderOptionMarsh
 		s.CanHitAndRun()
 	}
 
-	if builderFields.MovementType == Foot {
-		s.MovementFoot()
-	}
-	if builderFields.MovementType == Fly {
-		s.MovementFly()
-	}
-	if builderFields.MovementType == Light {
-		s.MovementLight()
-	}
-	if builderFields.MovementType == Teleport {
-		s.MovementTeleport()
-	}
+	s.WithMovementLogicKeyword(builderFields.MovementLogic)
 
 	for _, reference := range builderFields.PowerReferences {
 		s.AddPowerByReference(reference)

@@ -107,22 +107,22 @@ func (suite *SquaddieMovementBuilder) TestBuildMovementCanHitAndRun(checker *C) 
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFoot(checker *C) {
 	soldier := squaddie.NewSquaddieBuilder().MovementFoot().Build()
-	checker.Assert(squaddie.Foot, Equals, soldier.Movement.MovementType())
+	checker.Assert(soldier.MovementLogic().Name(), Equals, "foot")
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementLight(checker *C) {
 	ninja := squaddie.NewSquaddieBuilder().MovementLight().Build()
-	checker.Assert(squaddie.Light, Equals, ninja.Movement.MovementType())
+	checker.Assert(ninja.MovementLogic().Name(), Equals, "light")
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFly(checker *C) {
 	bird := squaddie.NewSquaddieBuilder().MovementFly().Build()
-	checker.Assert(squaddie.Fly, Equals, bird.Movement.MovementType())
+	checker.Assert(bird.MovementLogic().Name(), Equals, "fly")
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementTeleport(checker *C) {
 	wizard := squaddie.NewSquaddieBuilder().MovementTeleport().Build()
-	checker.Assert(squaddie.Teleport, Equals, wizard.Movement.MovementType())
+	checker.Assert(wizard.MovementLogic().Name(), Equals, "teleport")
 }
 
 type SquaddiePowerBuilder struct{}
@@ -249,7 +249,7 @@ func (suite *YAMLBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	yamlSquaddie := squaddie.NewSquaddieBuilder().UsingYAML(suite.yamlData).Build()
 
 	checker.Assert(yamlSquaddie.MovementDistance(), Equals, 19)
-	checker.Assert(yamlSquaddie.MovementType(), Equals, squaddie.Light)
+	checker.Assert(yamlSquaddie.MovementLogic().Name(), Equals, "light")
 	checker.Assert(yamlSquaddie.MovementCanHitAndRun(), Equals, true)
 }
 
@@ -368,7 +368,7 @@ func (suite *JSONBuilderSuite) TestMovementMatchesNewSquaddie(checker *C) {
 	jsonSquaddie := squaddie.NewSquaddieBuilder().UsingJSON(suite.jsonData).Build()
 
 	checker.Assert(jsonSquaddie.MovementDistance(), Equals, 2)
-	checker.Assert(jsonSquaddie.MovementType(), Equals, squaddie.Teleport)
+	checker.Assert(jsonSquaddie.MovementLogic().Name(), Equals, "teleport")
 	checker.Assert(jsonSquaddie.MovementCanHitAndRun(), Equals, true)
 }
 
