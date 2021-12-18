@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/chadius/terosbattleserver/entity/healing"
 	"github.com/chadius/terosbattleserver/entity/powersource"
+	"github.com/chadius/terosbattleserver/entity/target"
 	"github.com/chadius/terosbattleserver/utility"
 	"reflect"
 )
@@ -14,21 +15,14 @@ type Reference struct {
 	PowerID string `json:"id" yaml:"id"`
 }
 
-// Targeting notes how the power can be targeted.
-type Targeting struct {
-	TargetSelf   bool
-	TargetFoe    bool
-	TargetFriend bool
-}
-
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
 	Reference
 	powerSourceLogic powersource.Interface
-	targeting        Targeting
 	attackEffect     *AttackingEffect
 	healingEffect    *HealingEffect
 	healingLogic     healing.Interface
+	targetLogic      []target.Interface
 }
 
 // GetReference returns a new PowerReference.
@@ -40,7 +34,7 @@ func (p Power) GetReference() *Reference {
 }
 
 // NewPower generates a Power.
-func NewPower(name, id string, powerSourceLogic powersource.Interface, targeting *Targeting, attackEffect *AttackingEffect, healingEffect *HealingEffect, healingLogic healing.Interface) *Power {
+func NewPower(name, id string, powerSourceLogic powersource.Interface, attackEffect *AttackingEffect, healingEffect *HealingEffect, healingLogic healing.Interface, targetLogicObjects []target.Interface) *Power {
 	powerID := "power_" + utility.StringWithCharset(8, "abcdefgh0123456789")
 	if id != "" {
 		powerID = id
@@ -51,10 +45,10 @@ func NewPower(name, id string, powerSourceLogic powersource.Interface, targeting
 			PowerID: powerID,
 		},
 		powerSourceLogic: powerSourceLogic,
-		targeting:        *targeting,
 		attackEffect:     attackEffect,
 		healingEffect:    healingEffect,
 		healingLogic:     healingLogic,
+		targetLogic:      targetLogicObjects,
 	}
 	return &newAttackingPower
 }
@@ -76,17 +70,35 @@ func (p *Power) PowerSourceLogic() powersource.Interface {
 
 // CanPowerTargetSelf checks to see if the power can be used on the user.
 func (p *Power) CanPowerTargetSelf() bool {
-	return p.targeting.TargetSelf
+	for _, targetObject := range p.targetLogic {
+		if targetObject.Name() == "self" {
+			return true
+		}
+	}
+
+	return false
 }
 
 // CanPowerTargetFriend checks to see if the power can be used on allies and teammates.
 func (p *Power) CanPowerTargetFriend() bool {
-	return p.targeting.TargetFriend
+	for _, targetObject := range p.targetLogic {
+		if targetObject.Name() == "friend" {
+			return true
+		}
+	}
+
+	return false
 }
 
 // CanPowerTargetFoe checks to see if the power can be used on enemies.
 func (p *Power) CanPowerTargetFoe() bool {
-	return p.targeting.TargetFoe
+	for _, targetObject := range p.targetLogic {
+		if targetObject.Name() == "foe" {
+			return true
+		}
+	}
+
+	return false
 }
 
 // CanAttack returns true if this power can be used to attack.

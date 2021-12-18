@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/healing"
 	"github.com/chadius/terosbattleserver/entity/powersource"
+	"github.com/chadius/terosbattleserver/entity/target"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 	"reflect"
@@ -200,18 +201,25 @@ func (p *Builder) Build() *Power {
 	}
 	var healingEffect = p.healingEffectOptions.Build()
 
+	targetOptions := []target.Interface{}
+	if p.targetSelf {
+		targetOptions = append(targetOptions, target.NewTargetingLogic("self"))
+	}
+	if p.targetFriend {
+		targetOptions = append(targetOptions, target.NewTargetingLogic("friend"))
+	}
+	if p.targetFoe {
+		targetOptions = append(targetOptions, target.NewTargetingLogic("foe"))
+	}
+
 	newPower := NewPower(
 		p.name,
 		p.id,
 		p.powerSourceLogic,
-		&Targeting{
-			TargetSelf:   p.targetSelf,
-			TargetFoe:    p.targetFoe,
-			TargetFriend: p.targetFriend,
-		},
 		attackEffect,
 		healingEffect,
 		p.healingLogic,
+		targetOptions,
 	)
 	return newPower
 }
