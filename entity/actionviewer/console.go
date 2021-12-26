@@ -362,7 +362,7 @@ func (viewer *ConsoleActionViewer) makeMessageForResultPerTargetAttackEffect(res
 	}
 
 	if result.Attack().HitTarget() || result.Attack().CriticallyHitTarget() {
-		if target.Defense.IsDead() {
+		if target.IsDead() {
 			effectMessage = ", felling"
 		} else {
 			damageTakenDescription := fmt.Sprintf(", for %d damage", result.Attack().Damage().ActualDamageTaken)

@@ -18,13 +18,13 @@ func (suite *SquaddieDefenseSuite) SetUpTest(checker *C) {
 
 func (suite *SquaddieDefenseSuite) TestSetMaxHPAndMatchToCurrentHP(checker *C) {
 	maxHP := suite.teros.MaxHitPoints()
-	suite.teros.Defense.SetHPToMax()
+	suite.teros.SetHPToMax()
 	checker.Assert(suite.teros.CurrentHitPoints(), Equals, maxHP)
 }
 
 func (suite *SquaddieDefenseSuite) TestCanSetCurrentBarrierToMax(checker *C) {
-	suite.teros.Defense = *squaddie.DefenseBuilder().Barrier(2).Build()
-	suite.teros.Defense.SetBarrierToMax()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Barrier(2).Build()
+	suite.teros.SetBarrierToMax()
 	checker.Assert(suite.teros.CurrentBarrier(), Equals, 2)
 }
 
@@ -44,21 +44,21 @@ func (suite *SquaddieDefenseSuite) TestCannotReduceHitPointsBelowZero(checker *C
 }
 
 func (suite *SquaddieDefenseSuite) TestTakeBarrierBurnLowersBarrier(checker *C) {
-	suite.teros.Defense = *squaddie.DefenseBuilder().Barrier(3).Build()
-	suite.teros.Defense.SetBarrierToMax()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Barrier(3).Build()
+	suite.teros.SetBarrierToMax()
 	suite.teros.ReduceBarrier(2)
 	checker.Assert(suite.teros.CurrentBarrier(), Equals, suite.teros.MaxBarrier()-2)
 }
 
 func (suite *SquaddieDefenseSuite) TestCannotReduceBarrierBelowZero(checker *C) {
-	suite.teros.Defense.SetBarrierToMax()
+	suite.teros.SetBarrierToMax()
 	suite.teros.ReduceBarrier(suite.teros.MaxBarrier() * 3)
 	checker.Assert(suite.teros.CurrentBarrier(), Equals, 0)
 }
 
 func (suite *SquaddieDefenseSuite) TestDamageDistributionLowersBarrierAndHealth(checker *C) {
-	suite.teros.Defense.SetBarrierToMax()
-	suite.teros.Defense.TakeDamageDistribution(
+	suite.teros.SetBarrierToMax()
+	suite.teros.TakeDamageDistribution(
 		&damagedistribution.DamageDistribution{
 			DamageAbsorbedByBarrier: suite.teros.MaxBarrier() * 3,
 			RawDamageDealt:          1,
@@ -69,27 +69,27 @@ func (suite *SquaddieDefenseSuite) TestDamageDistributionLowersBarrierAndHealth(
 }
 
 func (suite *SquaddieDefenseSuite) TestDamageDistributionShowsCappedDamage(checker *C) {
-	suite.teros.Defense.SetBarrierToMax()
+	suite.teros.SetBarrierToMax()
 	suite.teros.ReduceBarrier(suite.teros.MaxBarrier() - 1)
 	damageTaken := &damagedistribution.DamageDistribution{
 		DamageAbsorbedByBarrier: suite.teros.MaxBarrier() * 3,
 		RawDamageDealt:          suite.teros.MaxHitPoints() * 3,
 	}
-	suite.teros.Defense.TakeDamageDistribution(damageTaken)
+	suite.teros.TakeDamageDistribution(damageTaken)
 	checker.Assert(damageTaken.ActualBarrierBurn, Equals, 1)
 	checker.Assert(damageTaken.ActualDamageTaken, Equals, suite.teros.MaxHitPoints())
 }
 
 func (suite *SquaddieDefenseSuite) TestSquaddiesAreDeadWhenAtZeroHitPoints(checker *C) {
-	checker.Assert(suite.teros.Defense.IsDead(), Equals, false)
+	checker.Assert(suite.teros.IsDead(), Equals, false)
 	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints())
-	checker.Assert(suite.teros.Defense.IsDead(), Equals, true)
+	checker.Assert(suite.teros.IsDead(), Equals, true)
 }
 
 func (suite *SquaddieDefenseSuite) TestGainHitPoints(checker *C) {
-	suite.teros.Defense.SetHPToMax()
+	suite.teros.SetHPToMax()
 	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	healingAmount := suite.teros.Defense.GainHitPoints(suite.teros.MaxHitPoints())
+	healingAmount := suite.teros.GainHitPoints(suite.teros.MaxHitPoints())
 	checker.Assert(healingAmount, Equals, suite.teros.MaxHitPoints()-1)
 }
 

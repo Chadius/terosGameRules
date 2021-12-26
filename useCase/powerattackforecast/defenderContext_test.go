@@ -32,7 +32,7 @@ func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 	suite.spear = power.NewPowerBuilder().Spear().Build()
 	suite.blot = power.NewPowerBuilder().Blot().Build()
 	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Barrier(3).Armor(1).Deflect(2).Dodge(1).Build()
-	suite.bandit.Defense.SetBarrierToMax()
+	suite.bandit.SetBarrierToMax()
 
 	suite.axe = power.NewPowerBuilder().Axe().Build()
 

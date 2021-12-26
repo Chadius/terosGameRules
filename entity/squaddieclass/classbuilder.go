@@ -44,7 +44,7 @@ func (c *ClassBuilderOptions) RequiresBaseClass() *ClassBuilderOptions {
 	return c
 }
 
-// Build uses the ClassBuilderOptions to create a Movement.
+// Build uses the ClassBuilderOptions to create a Class.
 func (c *ClassBuilderOptions) Build() *Class {
 	newClass := NewClass(c.id, c.name, c.baseClassRequired, c.initialBigLevelID)
 	return newClass

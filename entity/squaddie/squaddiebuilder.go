@@ -202,13 +202,13 @@ func (s *Builder) SetBaseClassByID(targetClassID string) *Builder {
 
 // Build uses the Builder to create a Movement.
 func (s *Builder) Build() *Squaddie {
-	newSquaddie := &Squaddie{
-		Identification: *s.identificationOptions.Build(),
-		Offense:        *s.offenseOptions.Build(),
-		Defense:        *s.defenseOptions.Build(),
-		Movement:       *s.movementOptions.Build(),
-		ClassProgress:  *squaddieclass.NewClassProgress("", "", nil),
-	}
+	newSquaddie := NewSquaddie(
+		s.identificationOptions.Build(),
+		s.offenseOptions.Build(),
+		s.defenseOptions.Build(),
+		s.movementOptions.Build(),
+		squaddieclass.NewClassProgress("", "", nil),
+	)
 
 	for _, newPowerReference := range s.powerReferencesToAdd {
 		newSquaddie.AddPowerReference(newPowerReference)

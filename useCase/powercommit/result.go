@@ -91,7 +91,7 @@ func (result *Result) isCounterAttackPossible(calculation powerattackforecast.Ca
 	}
 
 	counterAttacker := calculation.Repositories.SquaddieRepo.GetOriginalSquaddieByID(calculation.CounterAttackSetup.UserID)
-	if counterAttacker.Defense.IsDead() {
+	if counterAttacker.IsDead() {
 		return false
 	}
 
@@ -140,7 +140,7 @@ func (result *Result) calculateAttackResultForThisTarget(setup *powerusagescenar
 	}
 
 	targetSquaddie := repositories.SquaddieRepo.GetOriginalSquaddieByID(results.targetID)
-	targetSquaddie.Defense.TakeDamageDistribution(results.attack.damage)
+	targetSquaddie.TakeDamageDistribution(results.attack.damage)
 
 	return results
 }
@@ -166,7 +166,7 @@ func (result *Result) calculateHealingResultForThisTarget(setup *powerusagescena
 	if err != nil {
 		return resultForThisTarget
 	}
-	hitPointsRestored := targetSquaddie.Defense.GainHitPoints(maximumHealing)
+	hitPointsRestored := targetSquaddie.GainHitPoints(maximumHealing)
 	resultForThisTarget.healing.hitPointsRestored = hitPointsRestored
 	return resultForThisTarget
 }

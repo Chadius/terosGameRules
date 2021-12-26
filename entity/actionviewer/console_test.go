@@ -9,9 +9,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powercommit"
-	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	"github.com/chadius/terosbattleserver/utility"
 	"github.com/chadius/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
@@ -39,261 +37,272 @@ func (g MockResult) ResultPerTarget() []*powercommit.ResultPerTarget {
 
 func (g MockResult) Commit() {}
 
-type ConsoleViewerSuite struct {
+type ConsoleShowsFatalAttacksSuite struct {
 	teros   *squaddie.Squaddie
 	bandit  *squaddie.Squaddie
 	bandit2 *squaddie.Squaddie
-	lini    *squaddie.Squaddie
 
-	blot         *power.Power
-	axe          *power.Power
-	healingStaff *power.Power
+	blot *power.Power
+	axe  *power.Power
 
+	viewer       *actionviewer.ConsoleActionViewer
 	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 	repos        *repositories.RepositoryCollection
-
-	forecastBlotOnBandit *powerattackforecast.Forecast
-
-	forecastBlotOnMultipleBandits *powerattackforecast.Forecast
-	resultBlotOnMultipleBandits   *powercommit.Result
-
-	forecastHealingStaffOnTeros *powerattackforecast.Forecast
-	resultHealingStaffOnTeros   *powercommit.Result
-
-	viewer *actionviewer.ConsoleActionViewer
-
-	resultBlotOnBanditHit           powercommit.ResultStrategy
-	resultBlotOnBanditMissed        powercommit.ResultStrategy
-	resultBlotOnBanditCriticallyHit powercommit.ResultStrategy
-	resultBlotOnMultipleBanditsHit  powercommit.ResultStrategy
 }
 
-var _ = Suite(&ConsoleViewerSuite{})
+var _ = Suite(&ConsoleShowsFatalAttacksSuite{})
 
-func (suite *ConsoleViewerSuite) SetUpTest(checker *C) {
-	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
-	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
-	suite.bandit2 = squaddie.NewSquaddieBuilder().Bandit().WithName("Bandit2").WithID("banditID2").Build()
-	suite.lini = squaddie.NewSquaddieBuilder().Lini().Build()
-
-	suite.blot = power.NewPowerBuilder().Blot().WithName("Blot").DealsDamage(0).Build()
-	suite.axe = power.NewPowerBuilder().Axe().Build()
-	suite.healingStaff = power.NewPowerBuilder().HealingStaff().WithName("healing Staff").Build()
-
+func (suite *ConsoleShowsFatalAttacksSuite) SetUpTest(checker *C) {
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{
-		suite.teros,
-		suite.bandit,
-		suite.bandit2,
-		suite.lini,
-	})
-
 	suite.powerRepo = powerrepository.NewPowerRepository()
-	suite.powerRepo.AddSlicePowerSource([]*power.Power{
-		suite.blot,
-		suite.axe,
-		suite.healingStaff,
-	})
-
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
 		PowerRepo:    suite.powerRepo,
 	}
+	suite.viewer = &actionviewer.ConsoleActionViewer{}
 
-	checkEquip := powerequip.CheckRepositories{}
-	checkEquip.LoadAllOfSquaddieInnatePowers(
-		suite.teros,
-		[]*power.Reference{
-			suite.blot.GetReference(),
-		},
-		suite.repos,
-	)
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Mind(3).Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().WithName("Bandit").WithID("banditID1").
+		Strength(0).
+		HitPoints(2).
+		Barrier(1).
+		Build()
+	suite.bandit.SetBarrierToMax()
 
-	checkEquip.LoadAllOfSquaddieInnatePowers(
-		suite.bandit,
-		[]*power.Reference{
-			suite.axe.GetReference(),
-		},
-		suite.repos,
-	)
+	suite.bandit2 = squaddie.NewSquaddieBuilder().Bandit().WithName("Bandit2").WithID("banditID2").
+		HitPoints(2).
+		Deflect(2).
+		Build()
 
-	checkEquip.LoadAllOfSquaddieInnatePowers(
-		suite.bandit2,
-		[]*power.Reference{
-			suite.axe.GetReference(),
-		},
-		suite.repos,
-	)
+	suite.axe = power.NewPowerBuilder().Axe().CanCounterAttack().DealsDamage(3).Build()
+	suite.blot = power.NewPowerBuilder().Blot().WithName("Blot").DealsDamage(0).Build()
 
-	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.blot, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, suite.axe, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit2, suite.axe, suite.repos, true)
+}
 
-	suite.forecastBlotOnMultipleBandits = &powerattackforecast.Forecast{
+func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checker *C) {
+	forecastBlotOnMultipleBandits := &powerattackforecast.Forecast{
 		Setup: powerusagescenario.Setup{
 			UserID:          suite.teros.ID(),
 			PowerID:         suite.blot.ID(),
 			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
 			IsCounterAttack: false,
 		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
+		Repositories: suite.repos,
+	}
+	forecastBlotOnMultipleBandits.CalculateForecast()
+	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
+	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
+	resultBlotOnMultipleBanditsAlwaysHits.Commit()
+
+	var forecastOutput strings.Builder
+	suite.viewer.PrintForecast(
+		forecastBlotOnMultipleBandits,
+		forecastBlotOnMultipleBandits.Repositories,
+		&forecastOutput,
+	)
+
+	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +0 (21/36), FATAL\n- also vs Bandit2: -2 (10/36), FATAL\nBandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n")
+}
+
+func (suite *ConsoleShowsFatalAttacksSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
+	suite.bandit.ReduceHitPoints(suite.bandit.MaxHitPoints())
+	resultBlotOnBanditKills := MockResult{
+		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
+			powercommit.NewResultPerTargetBuilder().
+				User(suite.teros).
+				Power(suite.blot).
+				Target(suite.bandit).
+				AttackResult(
+					powercommit.NewAttackResultBuilder().HitTarget().Build(),
+				).
+				Build(),
 		},
 	}
-	suite.resultBlotOnMultipleBandits = powercommit.NewResult(suite.forecastBlotOnMultipleBandits, nil, nil)
 
-	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.PowerID,
-			Targets:         []string{suite.teros.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
+	var output strings.Builder
+	suite.viewer.PrintResult(resultBlotOnBanditKills, suite.repos, nil, &output)
+
+	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, felling\n---\n")
+}
+
+type ConsoleShowsHealingAttempts struct {
+	teros *squaddie.Squaddie
+	lini  *squaddie.Squaddie
+
+	healingStaff *power.Power
+
+	viewer       *actionviewer.ConsoleActionViewer
+	powerRepo    *powerrepository.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
+
+	forecastHealingStaffOnTeros *powerattackforecast.Forecast
+	resultHealingStaffOnTeros   *powercommit.Result
+}
+
+var _ = Suite(&ConsoleShowsHealingAttempts{})
+
+func (suite *ConsoleShowsHealingAttempts) SetUpTest(checker *C) {
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
 	}
-
-	suite.resultHealingStaffOnTeros = powercommit.NewResult(suite.forecastHealingStaffOnTeros, nil, nil)
-
 	suite.viewer = &actionviewer.ConsoleActionViewer{}
 
-	suite.resultBlotOnBanditHit = MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    3,
-						ActualDamageTaken: 3,
-					}).Build(),
-				).
-				Build(),
-		},
-	}
-	suite.resultBlotOnBanditCriticallyHit = MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    4,
-						ActualDamageTaken: 4,
-					}).CriticallyHit().Build(),
-				).
-				Build(),
-		},
-	}
-	suite.resultBlotOnBanditMissed = MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().Build(),
-				).
-				Build(),
-		},
-	}
-	suite.resultBlotOnMultipleBanditsHit = MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    3,
-						ActualDamageTaken: 3,
-					}).Build(),
-				).
-				Build(),
-		},
-	}
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+
+	suite.lini = squaddie.NewSquaddieBuilder().Lini().Mind(1).Build()
+	suite.healingStaff = power.NewPowerBuilder().HealingStaff().WithName("healing Staff").Build()
+
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, nil, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.lini, suite.healingStaff, suite.repos, false)
 }
 
-func (suite *ConsoleViewerSuite) SetUpTerosAttacksBanditsAndSuffersCounterAttack() *powercommit.Result {
-	resultBlotOnMultipleBanditsAlwaysHits := suite.resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
+func (suite *ConsoleShowsHealingAttempts) TestShowPowerHealingEffects(checker *C) {
+	resultLiniHealsTeros := MockResult{
+		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
+			powercommit.NewResultPerTargetBuilder().
+				User(suite.lini).
+				Power(suite.healingStaff).
+				Target(suite.teros).
+				HealResult(
+					powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
+				).
+				Build(),
+		},
+	}
 
-	suite.teros.Offense = *squaddie.OffenseBuilder().Aim(suite.teros.Aim()).Mind(3).Build()
+	var output strings.Builder
+	suite.viewer.PrintResult(resultLiniHealsTeros, suite.repos, nil, &output)
 
-	suite.bandit.Defense = *squaddie.DefenseBuilder().
-		Deflect(suite.bandit.Deflect()).
-		HitPoints(suite.bandit.MaxHitPoints()).
+	checker.Assert(output.String(), Equals, "Lini (healing Staff) heals Teros, for 4 healing\n---\n")
+}
+
+type ConsoleShowsCounterAttackSuite struct {
+	teros   *squaddie.Squaddie
+	bandit  *squaddie.Squaddie
+	bandit2 *squaddie.Squaddie
+	bandit3 *squaddie.Squaddie
+
+	blot         *power.Power
+	criticalBlot *power.Power
+	axe          *power.Power
+
+	viewer       *actionviewer.ConsoleActionViewer
+	powerRepo    *powerrepository.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
+}
+
+var _ = Suite(&ConsoleShowsCounterAttackSuite{})
+
+func (suite *ConsoleShowsCounterAttackSuite) SetUpTest(checker *C) {
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+	suite.viewer = &actionviewer.ConsoleActionViewer{}
+
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Mind(3).Aim(2).Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().WithName("Bandit").WithID("banditID1").
+		Strength(0).
 		Barrier(1).
 		Build()
-	suite.bandit.Defense.SetBarrierToMax()
+	suite.bandit.SetBarrierToMax()
 
-	suite.axe = power.NewPowerBuilder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(3).Build()
-	suite.powerRepo.AddPower(suite.axe)
+	suite.bandit2 = squaddie.NewSquaddieBuilder().Bandit().WithName("Bandit2").WithID("banditID2").
+		HitPoints(2).
+		Deflect(2).
+		Barrier(20).
+		Build()
 
-	suite.bandit.Offense = *squaddie.OffenseBuilder().Strength(0).Build()
-	checkEquip := powerequip.CheckRepositories{}
-	checkEquip.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
+	suite.bandit3 = squaddie.NewSquaddieBuilder().Bandit().WithID("banditID3").
+		Barrier(1).
+		Deflect(-200).
+		Build()
+	suite.bandit3.SetBarrierToMax()
 
-	suite.forecastBlotOnMultipleBandits.CalculateForecast()
+	suite.axe = power.NewPowerBuilder().Axe().CanCounterAttack().DealsDamage(3).Build()
+	suite.blot = power.NewPowerBuilder().Blot().WithName("Blot").DealsDamage(0).Build()
+	suite.criticalBlot = power.NewPowerBuilder().CloneOf(suite.blot).WithID("Critical Blot").CriticalDealsDamage(1).CriticalHitThresholdBonus(1).Build()
+
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.blot, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.criticalBlot, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, suite.axe, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit2, suite.axe, suite.repos, true)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit3, suite.axe, suite.repos, false)
+}
+
+func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToHit(checker *C) {
+	suite.bandit2.SetBarrierToMax()
+	forecastBlotOnMultipleBandits := &powerattackforecast.Forecast{
+		Setup: powerusagescenario.Setup{
+			UserID:          suite.teros.ID(),
+			PowerID:         suite.blot.ID(),
+			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+			IsCounterAttack: false,
+		},
+		Repositories: suite.repos,
+	}
+	forecastBlotOnMultipleBandits.CalculateForecast()
+	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
+	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
 	resultBlotOnMultipleBanditsAlwaysHits.Commit()
-	return resultBlotOnMultipleBanditsAlwaysHits
+
+	var forecastOutput strings.Builder
+	suite.viewer.PrintForecast(
+		forecastBlotOnMultipleBandits,
+		forecastBlotOnMultipleBandits.Repositories,
+		&forecastOutput,
+	)
+
+	checker.Assert(forecastOutput.String(), Equals,
+		"Teros (Blot) vs Bandit: +2 (30/36), for 2 damage + 1 barrier burn\n"+
+			"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
+			"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
+	)
 }
 
-func (suite *ConsoleViewerSuite) SetUpLiniHealsTeros() *powercommit.Result {
-	resultHealingStaffOnTerosAlwaysHits := suite.resultHealingStaffOnTeros.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
+func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToCriticallyHit(checker *C) {
+	suite.bandit2.SetBarrierToMax()
+	forecastBlotOnMultipleBandits := &powerattackforecast.Forecast{
+		Setup: powerusagescenario.Setup{
+			UserID:          suite.teros.ID(),
+			PowerID:         suite.criticalBlot.ID(),
+			Targets:         []string{suite.bandit3.ID(), suite.bandit2.ID()},
+			IsCounterAttack: false,
+		},
+		Repositories: suite.repos,
+	}
+	forecastBlotOnMultipleBandits.CalculateForecast()
+	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
+	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
+	resultBlotOnMultipleBanditsAlwaysHits.Commit()
 
-	suite.teros.Defense.SetHPToMax()
-	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(1).Build()
+	var forecastOutput strings.Builder
+	suite.viewer.PrintForecast(
+		forecastBlotOnMultipleBandits,
+		forecastBlotOnMultipleBandits.Repositories,
+		&forecastOutput,
+	)
 
-	suite.forecastHealingStaffOnTeros.CalculateForecast()
-	resultHealingStaffOnTerosAlwaysHits.Commit()
-	return resultHealingStaffOnTerosAlwaysHits
+	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +202 (36/36), for 2 damage + 1 barrier burn\n"+
+		" crit: 36/36, for 3 damage + 1 barrier burn\n"+
+		"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
+		" crit: 1/36 for NO DAMAGE + 4 barrier burn\n"+
+		"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
+	)
 }
 
-func (suite *ConsoleViewerSuite) TestShowPowerHitTargetAndDamageNew(checker *C) {
-	var output strings.Builder
-	suite.viewer.PrintResult(suite.resultBlotOnBanditHit, suite.repos, nil, &output)
-
-	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, for 3 damage\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowPowerHitTargetAndDamage(checker *C) {
-	var output strings.Builder
-	suite.viewer.PrintResult(suite.resultBlotOnBanditHit, suite.repos, nil, &output)
-
-	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, for 3 damage\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowWhenPowerMisses(checker *C) {
-	var output strings.Builder
-	suite.viewer.PrintResult(suite.resultBlotOnBanditMissed, suite.repos, nil, &output)
-
-	checker.Assert(output.String(), Equals, "Teros (Blot) misses Bandit\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowWhenPowerCriticallyHits(checker *C) {
-	var output strings.Builder
-	suite.viewer.PrintResult(suite.resultBlotOnBanditCriticallyHit, suite.repos, nil, &output)
-	checker.Assert(output.String(), Equals, "Teros (Blot) CRITICALLY hits Bandit, for 4 damage\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
+func (suite *ConsoleShowsCounterAttackSuite) TestShowCounterattacks(checker *C) {
 	resultBlotOnBanditAndCounterAxeOnTeros := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
@@ -327,52 +336,7 @@ func (suite *ConsoleViewerSuite) TestShowCounterattacks(checker *C) {
 	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, for 0 damage\nBandit (axe) counters Teros, for 2 damage\n---\n")
 }
 
-func (suite *ConsoleViewerSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
-	suite.bandit.ReduceHitPoints(suite.bandit.Defense.MaxHitPoints())
-	resultBlotOnBanditKills := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().HitTarget().Build(),
-				).
-				Build(),
-		},
-	}
-
-	var output strings.Builder
-	suite.viewer.PrintResult(resultBlotOnBanditKills, suite.repos, nil, &output)
-
-	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, felling\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowPowerBarrierBurn(checker *C) {
-	resultBlotOnBanditBurnsBarrier := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:       3,
-						ActualDamageTaken:    2,
-						TotalRawBarrierBurnt: 1,
-					}).Build(),
-				).
-				Build(),
-		},
-	}
-
-	var output strings.Builder
-	suite.viewer.PrintResult(resultBlotOnBanditBurnsBarrier, suite.repos, nil, &output)
-
-	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
+func (suite *ConsoleShowsCounterAttackSuite) TestShowMultipleTargets(checker *C) {
 	resultBlotOnBanditsAndBandit2Counters := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
@@ -421,35 +385,181 @@ func (suite *ConsoleViewerSuite) TestShowMultipleTargets(checker *C) {
 	)
 }
 
-func (suite *ConsoleViewerSuite) TestShowPowerHealingEffects(checker *C) {
-	resultLiniHealsTeros := MockResult{
+type ConsoleShowsHitsAndMisses struct {
+	teros  *squaddie.Squaddie
+	bandit *squaddie.Squaddie
+
+	blot *power.Power
+
+	powerRepo    *powerrepository.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
+
+	viewer *actionviewer.ConsoleActionViewer
+}
+
+var _ = Suite(&ConsoleShowsHitsAndMisses{})
+
+func (suite *ConsoleShowsHitsAndMisses) SetUpTest(checker *C) {
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+	suite.viewer = &actionviewer.ConsoleActionViewer{}
+
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
+
+	suite.blot = power.NewPowerBuilder().Blot().WithName("Blot").DealsDamage(0).Build()
+
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.blot, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, nil, suite.repos, false)
+}
+
+func (suite *ConsoleShowsHitsAndMisses) TestShowPowerHitTargetAndDamage(checker *C) {
+	resultBlotOnBanditHit := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
-				User(suite.lini).
-				Power(suite.healingStaff).
-				Target(suite.teros).
-				HealResult(
-					powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
+				User(suite.teros).
+				Power(suite.blot).
+				Target(suite.bandit).
+				AttackResult(
+					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+						RawDamageDealt:    3,
+						ActualDamageTaken: 3,
+					}).Build(),
 				).
 				Build(),
 		},
 	}
 
 	var output strings.Builder
-	suite.viewer.PrintResult(resultLiniHealsTeros, suite.repos, nil, &output)
+	suite.viewer.PrintResult(resultBlotOnBanditHit, suite.repos, nil, &output)
 
-	checker.Assert(output.String(), Equals, "Lini (healing Staff) heals Teros, for 4 healing\n---\n")
+	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, for 3 damage\n---\n")
 }
 
-func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
-	banditWithBarrier := squaddie.NewSquaddieBuilder().WithName("Bandit").Barrier(2).Build()
-	suite.repos.SquaddieRepo.AddSquaddie(banditWithBarrier)
+func (suite *ConsoleShowsHitsAndMisses) TestShowWhenPowerMisses(checker *C) {
+	resultBlotOnBanditMissed := MockResult{
+		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
+			powercommit.NewResultPerTargetBuilder().
+				User(suite.teros).
+				Power(suite.blot).
+				Target(suite.bandit).
+				AttackResult(
+					powercommit.NewAttackResultBuilder().Build(),
+				).
+				Build(),
+		},
+	}
+
+	var output strings.Builder
+	suite.viewer.PrintResult(resultBlotOnBanditMissed, suite.repos, nil, &output)
+
+	checker.Assert(output.String(), Equals, "Teros (Blot) misses Bandit\n---\n")
+}
+
+func (suite *ConsoleShowsHitsAndMisses) TestShowWhenPowerCriticallyHits(checker *C) {
+	resultBlotOnBanditCriticallyHit := MockResult{
+		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
+			powercommit.NewResultPerTargetBuilder().
+				User(suite.teros).
+				Power(suite.blot).
+				Target(suite.bandit).
+				AttackResult(
+					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+						RawDamageDealt:    4,
+						ActualDamageTaken: 4,
+					}).CriticallyHit().Build(),
+				).
+				Build(),
+		},
+	}
+
+	var output strings.Builder
+	suite.viewer.PrintResult(resultBlotOnBanditCriticallyHit, suite.repos, nil, &output)
+	checker.Assert(output.String(), Equals, "Teros (Blot) CRITICALLY hits Bandit, for 4 damage\n---\n")
+}
+
+func (suite *ConsoleShowsHitsAndMisses) TestShowPowerBarrierBurn(checker *C) {
+	resultBlotOnBanditBurnsBarrier := MockResult{
+		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
+			powercommit.NewResultPerTargetBuilder().
+				User(suite.teros).
+				Power(suite.blot).
+				Target(suite.bandit).
+				AttackResult(
+					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+						RawDamageDealt:       3,
+						ActualDamageTaken:    2,
+						TotalRawBarrierBurnt: 1,
+					}).Build(),
+				).
+				Build(),
+		},
+	}
+
+	var output strings.Builder
+	suite.viewer.PrintResult(resultBlotOnBanditBurnsBarrier, suite.repos, nil, &output)
+
+	checker.Assert(output.String(), Equals, "Teros (Blot) hits Bandit, for 2 damage + 1 barrier burn\n---\n")
+}
+
+type ConsoleShowsVerbosity struct {
+	teros             *squaddie.Squaddie
+	lini              *squaddie.Squaddie
+	bandit            *squaddie.Squaddie
+	banditWithBarrier *squaddie.Squaddie
+	bandit2           *squaddie.Squaddie
+
+	blot         *power.Power
+	axe          *power.Power
+	healingStaff *power.Power
+
+	viewer       *actionviewer.ConsoleActionViewer
+	powerRepo    *powerrepository.Repository
+	squaddieRepo *squaddie.Repository
+	repos        *repositories.RepositoryCollection
+}
+
+var _ = Suite(&ConsoleShowsVerbosity{})
+
+func (suite *ConsoleShowsVerbosity) SetUpTest(checker *C) {
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.powerRepo = powerrepository.NewPowerRepository()
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+	suite.viewer = &actionviewer.ConsoleActionViewer{}
+
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.blot = power.NewPowerBuilder().Blot().WithName("Blot").DealsDamage(0).Build()
+
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
+	suite.bandit2 = squaddie.NewSquaddieBuilder().Bandit().WithName("Bandit2").WithID("banditID2").Build()
+	suite.banditWithBarrier = squaddie.NewSquaddieBuilder().WithName("Bandit").Barrier(2).Build()
+	suite.axe = power.NewPowerBuilder().Axe().Build()
+
+	suite.lini = squaddie.NewSquaddieBuilder().Lini().Mind(1).Build()
+	suite.healingStaff = power.NewPowerBuilder().HealingStaff().WithName("healing Staff").Build()
+
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.blot, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.lini, suite.healingStaff, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, suite.axe, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit2, suite.axe, suite.repos, false)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.banditWithBarrier, suite.axe, suite.repos, false)
+}
+
+func (suite *ConsoleShowsVerbosity) TestShowTargetStatusVerbosity(checker *C) {
 	resultBlotOnBanditsAndBandit2Counters := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
 				User(suite.teros).
 				Power(suite.blot).
-				Target(banditWithBarrier).
+				Target(suite.banditWithBarrier).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
 						ActualDamageTaken:    2,
@@ -479,8 +589,8 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 				Build(),
 		},
 	}
-	banditWithBarrier.ReduceHitPoints(2)
-	banditWithBarrier.ReduceBarrier(1)
+	suite.banditWithBarrier.ReduceHitPoints(2)
+	suite.banditWithBarrier.ReduceBarrier(1)
 	suite.bandit2.ReduceHitPoints(3)
 	suite.teros.ReduceHitPoints(3)
 
@@ -503,7 +613,9 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 			"   Teros: 2/5 HP\n"+
 			"---\n",
 	)
+}
 
+func (suite *ConsoleShowsVerbosity) TestShowHealingVerbosity(checker *C) {
 	healResult := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
@@ -516,7 +628,7 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 				Build(),
 		},
 	}
-	suite.teros.Defense.SetHPToMax()
+	suite.teros.SetHPToMax()
 
 	var output strings.Builder
 	suite.viewer.PrintResult(
@@ -531,15 +643,13 @@ func (suite *ConsoleViewerSuite) TestShowTargetStatusVerbosity(checker *C) {
 	checker.Assert(output.String(), Equals, "Lini (healing Staff) heals Teros, for 4 healing\n   Teros: 5/5 HP\n---\n")
 }
 
-func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
-	banditWithBarrier := squaddie.NewSquaddieBuilder().WithName("Bandit").Barrier(2).Build()
-	suite.repos.SquaddieRepo.AddSquaddie(banditWithBarrier)
+func (suite *ConsoleShowsVerbosity) TestShowRollsVerbosity(checker *C) {
 	resultBlotOnBanditsAndBandit2Counters := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
 				User(suite.teros).
 				Power(suite.blot).
-				Target(banditWithBarrier).
+				Target(suite.banditWithBarrier).
 				AttackResult(
 					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
 						ActualDamageTaken:    2,
@@ -591,8 +701,8 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 				Build(),
 		},
 	}
-	banditWithBarrier.ReduceHitPoints(2)
-	banditWithBarrier.ReduceBarrier(1)
+	suite.banditWithBarrier.ReduceHitPoints(2)
+	suite.banditWithBarrier.ReduceBarrier(1)
 	suite.bandit2.ReduceHitPoints(3)
 	suite.teros.ReduceHitPoints(3)
 
@@ -615,7 +725,9 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 			"   Bandit2 rolls 999 + -1 = 998, Teros rolls -999 + 0 = -999\n"+
 			"---\n",
 	)
+}
 
+func (suite *ConsoleShowsVerbosity) TestShowHealingAutoHitVerbosity(checker *C) {
 	healResult := MockResult{
 		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
 			powercommit.NewResultPerTargetBuilder().
@@ -628,7 +740,7 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 				Build(),
 		},
 	}
-	suite.teros.Defense.SetHPToMax()
+	suite.teros.SetHPToMax()
 	var healingOutput strings.Builder
 	suite.viewer.PrintResult(
 		healResult,
@@ -640,84 +752,4 @@ func (suite *ConsoleViewerSuite) TestShowRollsVerbosity(checker *C) {
 	)
 
 	checker.Assert(healingOutput.String(), Equals, "Lini (healing Staff) heals Teros, for 4 healing\n   Auto-hit\n---\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowForecastChanceToHitAndHealing(checker *C) {
-	suite.teros.Offense = *squaddie.OffenseBuilder().
-		Aim(2).
-		Build()
-
-	suite.bandit2.Defense = *squaddie.DefenseBuilder().
-		Deflect(2).
-		Barrier(20).
-		Build()
-	suite.bandit2.Defense.SetBarrierToMax()
-
-	suite.SetUpTerosAttacksBanditsAndSuffersCounterAttack()
-	var forecastOutput strings.Builder
-	suite.viewer.PrintForecast(
-		suite.forecastBlotOnMultipleBandits,
-		suite.repos,
-		&forecastOutput,
-	)
-
-	checker.Assert(forecastOutput.String(), Equals,
-		"Teros (Blot) vs Bandit: +2 (30/36), for 2 damage + 1 barrier burn\n"+
-			"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
-			"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
-	)
-
-	suite.SetUpLiniHealsTeros()
-	var healingOutput strings.Builder
-	suite.viewer.PrintForecast(
-		suite.forecastHealingStaffOnTeros,
-		suite.repos,
-		&healingOutput,
-	)
-
-	checker.Assert(healingOutput.String(), Equals, "Lini (healing Staff) heals Teros, for 4 healing\n")
-}
-
-func (suite *ConsoleViewerSuite) TestShowForecastChanceToCriticallyHitAndGuaranteedMiss(checker *C) {
-	suite.teros.Offense = *squaddie.OffenseBuilder().Aim(2).Build()
-	suite.blot = power.NewPowerBuilder().CloneOf(suite.blot).WithID(suite.blot.ID()).CriticalDealsDamage(1).CriticalHitThresholdBonus(1).Build()
-	suite.powerRepo.AddPower(suite.blot)
-	suite.bandit.Defense = *squaddie.DefenseBuilder().Deflect(-200).Build()
-	suite.bandit2.Defense = *squaddie.DefenseBuilder().Deflect(2).Barrier(20).Build()
-	suite.bandit2.Defense.SetBarrierToMax()
-	suite.SetUpTerosAttacksBanditsAndSuffersCounterAttack()
-
-	var forecastOutput strings.Builder
-	suite.viewer.PrintForecast(
-		suite.forecastBlotOnMultipleBandits,
-		suite.repos,
-		&forecastOutput,
-	)
-
-	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +202 (36/36), for 2 damage + 1 barrier burn\n"+
-		" crit: 36/36, for 3 damage + 1 barrier burn\n"+
-		"- also vs Bandit2: +0 (21/36) for NO DAMAGE + 3 barrier burn\n"+
-		" crit: 1/36 for NO DAMAGE + 4 barrier burn\n"+
-		"Bandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n",
-	)
-}
-
-func (suite *ConsoleViewerSuite) TestShowForecastAttackIsFatal(checker *C) {
-
-	suite.bandit.Defense = *squaddie.DefenseBuilder().HitPoints(2).Build()
-	suite.bandit.Defense.SetHPToMax()
-
-	suite.bandit2.Defense = *squaddie.DefenseBuilder().Deflect(2).HitPoints(2).Build()
-	suite.bandit2.Defense.SetHPToMax()
-
-	suite.SetUpTerosAttacksBanditsAndSuffersCounterAttack()
-
-	var forecastOutput strings.Builder
-	suite.viewer.PrintForecast(
-		suite.forecastBlotOnMultipleBandits,
-		suite.repos,
-		&forecastOutput,
-	)
-
-	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +0 (21/36), FATAL\n- also vs Bandit2: -2 (10/36), FATAL\nBandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n")
 }

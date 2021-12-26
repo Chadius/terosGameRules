@@ -18,8 +18,8 @@ func (suite *SquaddieMovementTests) SetUpTest(checker *C) {
 }
 
 func (suite *SquaddieMovementTests) TestDefaultMovement(checker *C) {
-	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, 3)
-	checker.Assert(reflect.TypeOf(suite.teros.Movement.MovementLogic()).String(), Equals, "*movement.Foot")
+	checker.Assert(suite.teros.MovementDistance(), Equals, 3)
+	checker.Assert(reflect.TypeOf(suite.teros.MovementLogic()).String(), Equals, "*movement.Foot")
 }
 
 type improveMovement struct {

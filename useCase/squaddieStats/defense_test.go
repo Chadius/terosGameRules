@@ -89,7 +89,7 @@ func (suite *squaddieDefense) TestGetDefenderArmorResistance(checker *C) {
 
 func (suite *squaddieDefense) TestGetDefenderBarrierResistance(checker *C) {
 	armoredTeros := squaddie.NewSquaddieBuilder().Teros().Armor(3).Barrier(1).Build()
-	armoredTeros.Defense.SetBarrierToMax()
+	armoredTeros.SetBarrierToMax()
 	suite.squaddieRepo.AddSquaddie(armoredTeros)
 
 	spearBarrier, spearErr := suite.defenseStrategy.GetSquaddieBarrierAgainstPower(armoredTeros.ID(), suite.weakerSpear.ID(), suite.repos)

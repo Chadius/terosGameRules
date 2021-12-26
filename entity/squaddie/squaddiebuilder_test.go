@@ -97,12 +97,12 @@ var _ = Suite(&SquaddieMovementBuilder{})
 
 func (suite *SquaddieMovementBuilder) TestBuildWithDistance(checker *C) {
 	soldier := squaddie.NewSquaddieBuilder().MoveDistance(3).Build()
-	checker.Assert(3, Equals, soldier.Movement.MovementDistance())
+	checker.Assert(3, Equals, soldier.MovementDistance())
 }
 
 func (suite *SquaddieMovementBuilder) TestBuildMovementCanHitAndRun(checker *C) {
 	runner := squaddie.NewSquaddieBuilder().CanHitAndRun().Build()
-	checker.Assert(true, Equals, runner.Movement.CanHitAndRun())
+	checker.Assert(true, Equals, runner.MovementCanHitAndRun())
 }
 
 func (suite *SquaddieMovementBuilder) TestChangeMovementFoot(checker *C) {

@@ -27,7 +27,7 @@ var _ = Suite(&SquaddieUsesLevelUpBenefitSuite{})
 func (suite *SquaddieUsesLevelUpBenefitSuite) SetUpTest(checker *C) {
 	suite.mageClass = squaddieclass.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
 	suite.teros = squaddie.NewSquaddieBuilder().Teros().WithName("teros").Strength(1).Mind(2).Dodge(3).Deflect(4).Barrier(6).Armor(7).AddClassByReference(suite.mageClass.GetReference()).Build()
-	suite.teros.Defense.SetBarrierToMax()
+	suite.teros.SetBarrierToMax()
 
 	suite.statBooster, _ = levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("deadbeef").
@@ -105,26 +105,26 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestUsingLevelSetsBaseClassIfBaseC
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieChangeMovement(checker *C) {
-	startingMovement := suite.teros.Movement.MovementDistance()
+	startingMovement := suite.teros.MovementDistance()
 
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.improveAllMovement, suite.teros)
 	checker.Assert(err, IsNil)
 
-	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
-	checker.Assert(reflect.TypeOf(suite.teros.Movement.MovementLogic()).String(), Equals, "*movement.Fly")
-	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
+	checker.Assert(suite.teros.MovementDistance(), Equals, startingMovement+1)
+	checker.Assert(reflect.TypeOf(suite.teros.MovementLogic()).String(), Equals, "*movement.Fly")
+	checker.Assert(suite.teros.MovementCanHitAndRun(), Equals, true)
 }
 
 func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovement(checker *C) {
-	startingMovement := suite.teros.Movement.MovementDistance()
+	startingMovement := suite.teros.MovementDistance()
 	suite.improveSquaddieStrategy.ImproveSquaddie(suite.improveAllMovement, suite.teros)
 
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(suite.upgradeToLightMovement, suite.teros)
 	checker.Assert(err, IsNil)
 
-	checker.Assert(suite.teros.Movement.MovementDistance(), Equals, startingMovement+1)
-	checker.Assert(reflect.TypeOf(suite.teros.Movement.MovementLogic()).String(), Equals, "*movement.Fly")
-	checker.Assert(suite.teros.Movement.CanHitAndRun(), Equals, true)
+	checker.Assert(suite.teros.MovementDistance(), Equals, startingMovement+1)
+	checker.Assert(reflect.TypeOf(suite.teros.MovementLogic()).String(), Equals, "*movement.Fly")
+	checker.Assert(suite.teros.MovementCanHitAndRun(), Equals, true)
 }
 
 type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
@@ -145,7 +145,7 @@ var _ = Suite(&SquaddieChangePowersWithLevelUpBenefitsSuite{})
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C) {
 	suite.mageClass = squaddieclass.ClassBuilder().WithID("ffffffff").WithName("Mage").Build()
 	suite.teros = squaddie.NewSquaddieBuilder().Teros().AddClassByReference(suite.mageClass.GetReference()).Build()
-	suite.teros.Defense.SetBarrierToMax()
+	suite.teros.SetBarrierToMax()
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
 
@@ -193,7 +193,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.gainPower, suite.teros)
 	checker.Assert(err, IsNil)
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spear.PowerID)
@@ -201,12 +201,12 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePowers(checker *C) {
 	suite.improveSquaddieStrategy.ImproveSquaddie(&suite.gainPower, suite.teros)
-	suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	suite.teros.GetCopyOfPowerReferences()
 
 	err := suite.improveSquaddieStrategy.ImproveSquaddie(&suite.upgradePower, suite.teros)
 	checker.Assert(err, IsNil)
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spearLevel2.PowerID)

@@ -32,7 +32,7 @@ func (suite *SpellPowerSourceSuite) TestBarrierResistance(checker *C) {
 	soldier := squaddie.NewSquaddieBuilder().Barrier(5).Build()
 	checker.Assert(source.BarrierResistance(soldier), Equals, 0)
 
-	soldier.Defense.SetBarrierToMax()
+	soldier.SetBarrierToMax()
 	checker.Assert(source.BarrierResistance(soldier), Equals, 5)
 }
 

@@ -63,7 +63,7 @@ func (v *ValidTargetChecker) userCanTargetDead() bool {
 // targetIsStillAlive returns true if the target is alive.
 func (v *ValidTargetChecker) targetIsStillAlive(targetID string, repos *repositories.RepositoryCollection) bool {
 	target := repos.SquaddieRepo.GetSquaddieByID(targetID)
-	return !target.Defense.IsDead()
+	return !target.IsDead()
 }
 
 // InvalidTargetReason explains why the target is invalid

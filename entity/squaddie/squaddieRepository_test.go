@@ -139,26 +139,26 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 
 	soldier := suite.squaddieRepository.GetSquaddieByID("Soldier")
 	checker.Assert(soldier.Name(), Equals, "Soldier")
-	checker.Assert(soldier.Movement.MovementDistance(), Equals, 5)
+	checker.Assert(soldier.MovementDistance(), Equals, 5)
 	checker.Assert(reflect.TypeOf(soldier.MovementLogic()).String(), Equals, "*movement.Foot")
-	checker.Assert(soldier.Movement.CanHitAndRun(), Equals, false)
+	checker.Assert(soldier.MovementCanHitAndRun(), Equals, false)
 
 	scout := suite.squaddieRepository.GetSquaddieByID("Scout")
 	checker.Assert(scout.Name(), Equals, "Scout")
-	checker.Assert(scout.Movement.MovementDistance(), Equals, 4)
-	checker.Assert(scout.Movement.CanHitAndRun(), Equals, false)
+	checker.Assert(scout.MovementDistance(), Equals, 4)
+	checker.Assert(scout.MovementCanHitAndRun(), Equals, false)
 
 	bird := suite.squaddieRepository.GetSquaddieByID("Bird")
 	checker.Assert(bird.Name(), Equals, "Bird")
-	checker.Assert(bird.Movement.MovementDistance(), Equals, 3)
+	checker.Assert(bird.MovementDistance(), Equals, 3)
 	checker.Assert(reflect.TypeOf(bird.MovementLogic()).String(), Equals, "*movement.Fly")
-	checker.Assert(bird.Movement.CanHitAndRun(), Equals, true)
+	checker.Assert(bird.MovementCanHitAndRun(), Equals, true)
 
 	teleporter := suite.squaddieRepository.GetSquaddieByID("Teleporter")
 	checker.Assert(teleporter.Name(), Equals, "Teleporter")
-	checker.Assert(teleporter.Movement.MovementDistance(), Equals, 2)
+	checker.Assert(teleporter.MovementDistance(), Equals, 2)
 	checker.Assert(reflect.TypeOf(teleporter.MovementLogic()).String(), Equals, "*movement.Teleport")
-	checker.Assert(teleporter.Movement.CanHitAndRun(), Equals, false)
+	checker.Assert(teleporter.MovementCanHitAndRun(), Equals, false)
 }
 
 func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
@@ -254,7 +254,7 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesPowers(checker *C) {
 	suite.base.AddPowerReference(attackA.GetReference())
 	clone, _ := suite.squaddieRepository.CloneSquaddieWithNewID(suite.base, "")
 
-	attackIDNamePairs := clone.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := clone.GetCopyOfPowerReferences()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, attackA.Name())
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, attackA.ID())

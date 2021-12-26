@@ -180,9 +180,12 @@ func (suite *resultOnAttack) TestAttackCanMiss(checker *C) {
 
 func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 	resultBlotOnBanditAlwaysHits := suite.resultBlotOnBandit.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
-	suite.teros.Offense = *squaddie.OffenseBuilder().Mind(2).Build()
-	suite.bandit.Defense = *squaddie.DefenseBuilder().Armor(1).Barrier(3).Build()
-	suite.bandit.Defense.SetBarrierToMax()
+	suite.teros = squaddie.NewSquaddieBuilder().Mind(2).Build()
+	testutility.UpdateForecastWithNewUser(suite.teros, suite.squaddieRepo, suite.forecastBlotOnBandit)
+
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Armor(1).Barrier(3).Build()
+	testutility.UpdateForecastWithNewTarget(suite.bandit, suite.squaddieRepo, suite.forecastBlotOnBandit)
+	suite.bandit.SetBarrierToMax()
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	resultBlotOnBanditAlwaysHits.Commit()
@@ -203,14 +206,15 @@ func (suite *resultOnAttack) TestAttackCanHitButNotCritically(checker *C) {
 
 func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 	resultBlotOnBanditAlwaysHits := suite.resultBlotOnBandit.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
-	suite.teros.Offense = *squaddie.OffenseBuilder().Mind(2).Build()
-
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Mind(2).Build()
 	suite.blot = power.NewPowerBuilder().CloneOf(suite.blot).WithID(suite.blot.ID()).DealsDamage(3).CriticalDealsDamage(3).CriticalHitThresholdBonus(9000).Build()
-	suite.powerRepo.AddPower(suite.blot)
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.blot, suite.repos, true)
+	testutility.UpdateForecastWithNewUser(suite.teros, suite.squaddieRepo, suite.forecastBlotOnBandit)
 
-	suite.bandit.Defense = *squaddie.DefenseBuilder().HitPoints(1).Armor(1).Barrier(3).Build()
-	suite.bandit.Defense.SetBarrierToMax()
-	suite.bandit.Defense.SetHPToMax()
+	suite.bandit = squaddie.NewSquaddieBuilder().HitPoints(1).Armor(1).Barrier(3).Build()
+	testutility.UpdateForecastWithNewTarget(suite.bandit, suite.squaddieRepo, suite.forecastBlotOnBandit)
+	suite.bandit.SetBarrierToMax()
+	suite.bandit.SetHPToMax()
 
 	suite.forecastBlotOnBandit.CalculateForecast()
 	resultBlotOnBanditAlwaysHits.Commit()
@@ -230,20 +234,21 @@ func (suite *resultOnAttack) TestAttackCanHitCritically(checker *C) {
 }
 
 func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
-	resultSpearOnBanditAlwaysHits := suite.resultSpearOnBandit.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
-
-	suite.teros.Offense = *squaddie.OffenseBuilder().Strength(2).Build()
-	suite.teros.Defense = *squaddie.DefenseBuilder().Armor(0).Barrier(0).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Armor(0).Barrier(0).Strength(2).Build()
+	testutility.UpdateForecastWithNewUser(suite.teros, suite.squaddieRepo, suite.forecastSpearOnBandit)
 
 	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).DealsDamage(3).Build()
 	suite.axe = power.NewPowerBuilder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().DealsDamage(3).Build()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.axe})
 
-	suite.bandit.Offense = *squaddie.OffenseBuilder().Strength(0).Build()
-	suite.bandit.Defense = *squaddie.DefenseBuilder().Armor(1).Build()
-	suite.equipCheck.SquaddieEquipPower(suite.bandit, suite.axe.ID(), suite.repos)
+	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Strength(0).Armor(1).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, suite.axe, suite.repos, true)
+	testutility.UpdateForecastWithNewTarget(suite.bandit, suite.squaddieRepo, suite.forecastSpearOnBandit)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
+
+	suite.resultSpearOnBandit = powercommit.NewResult(suite.forecastSpearOnBandit, nil, nil)
+	resultSpearOnBanditAlwaysHits := suite.resultSpearOnBandit.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
 	resultSpearOnBanditAlwaysHits.Commit()
 
 	checker.Assert(resultSpearOnBanditAlwaysHits.ResultPerTarget()[0].PowerID(), Equals, suite.spear.PowerID)
@@ -268,18 +273,18 @@ func (suite *resultOnAttack) TestCounterAttacks(checker *C) {
 }
 
 func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
-	resultFireballOnBanditsAlwaysHits := suite.resultFireballOnBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
-
-	suite.equipCheck.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
-	suite.equipCheck.SquaddieEquipPower(suite.bandit2, suite.axe.PowerID, suite.repos)
-
-	suite.bandit.Defense = *squaddie.DefenseBuilder().HitPoints(suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1).Build()
-	suite.bandit.Defense.SetHPToMax()
-
-	suite.bandit2.Defense = *squaddie.DefenseBuilder().HitPoints(suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1).Build()
-	suite.bandit2.Defense.SetHPToMax()
+	suite.bandit = squaddie.NewSquaddieBuilder().HitPoints(suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, suite.axe, suite.repos, true)
+	testutility.UpdateForecastWithNewTarget(suite.bandit, suite.squaddieRepo, suite.forecastFireballOnBandits)
+	suite.bandit.SetHPToMax()
+	suite.bandit2 = squaddie.NewSquaddieBuilder().HitPoints(suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit2, suite.axe, suite.repos, true)
+	suite.squaddieRepo.AddSquaddie(suite.bandit2)
+	suite.forecastFireballOnBandits.Setup.Targets[1] = suite.bandit2.ID()
+	suite.bandit2.SetHPToMax()
 
 	suite.forecastFireballOnBandits.CalculateForecast()
+	resultFireballOnBanditsAlwaysHits := suite.resultFireballOnBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
 	resultFireballOnBanditsAlwaysHits.Commit()
 
 	checker.Assert(resultFireballOnBanditsAlwaysHits.ResultPerTarget()[0].PowerID(), Equals, suite.fireball.PowerID)
@@ -302,15 +307,13 @@ func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 	resultSpearOnBanditAlwaysHits := suite.resultSpearOnBandit.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
 
-	suite.teros.Offense = *squaddie.OffenseBuilder().Strength(suite.bandit.MaxHitPoints()).Build()
-	suite.teros.Defense = *squaddie.DefenseBuilder().Armor(0).Barrier(0).Build()
+	suite.teros = squaddie.NewSquaddieBuilder().Armor(0).Barrier(0).Strength(suite.bandit.MaxHitPoints()).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.teros, suite.spear, suite.repos, true)
+	testutility.UpdateForecastWithNewUser(suite.teros, suite.squaddieRepo, suite.forecastSpearOnBandit)
 
-	suite.axe = power.NewPowerBuilder().CloneOf(suite.axe).WithID(suite.axe.ID()).CanCounterAttack().Build()
-	suite.powerRepo.AddPower(suite.axe)
-
-	suite.bandit.Offense = *squaddie.OffenseBuilder().Strength(0).Build()
-	suite.bandit.Defense = *squaddie.DefenseBuilder().Armor(0).Build()
-	suite.equipCheck.SquaddieEquipPower(suite.bandit, suite.axe.PowerID, suite.repos)
+	suite.bandit = squaddie.NewSquaddieBuilder().Armor(0).Strength(0).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit, suite.axe, suite.repos, true)
+	testutility.UpdateForecastWithNewTarget(suite.bandit, suite.squaddieRepo, suite.forecastSpearOnBandit)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 	resultSpearOnBanditAlwaysHits.Commit()
@@ -319,7 +322,7 @@ func (suite *resultOnAttack) TestDeadSquaddiesCannotCounterAttack(checker *C) {
 	checker.Assert(resultSpearOnBanditAlwaysHits.ResultPerTarget()[0].UserID(), Equals, suite.teros.ID())
 	checker.Assert(resultSpearOnBanditAlwaysHits.ResultPerTarget()[0].TargetID(), Equals, suite.bandit.ID())
 
-	checker.Assert(suite.bandit.Defense.IsDead(), Equals, true)
+	checker.Assert(suite.bandit.IsDead(), Equals, true)
 	checker.Assert(resultSpearOnBanditAlwaysHits.ResultPerTarget(), HasLen, 1)
 }
 
@@ -533,10 +536,11 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 }
 
 func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
-	suite.teros.Defense.SetHPToMax()
+	suite.teros.SetHPToMax()
 	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(1).Build()
-
+	suite.lini = squaddie.NewSquaddieBuilder().Mind(1).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.lini, suite.healingStaff, suite.repos, true)
+	testutility.UpdateForecastWithNewUser(suite.lini, suite.squaddieRepo, suite.forecastHealingStaffOnTeros)
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 	suite.resultHealingStaffOnTeros.Commit()
 
@@ -551,10 +555,12 @@ func (suite *ResultOnHealing) TestHealResultShowsHitPointsRestored(checker *C) {
 }
 
 func (suite *ResultOnHealing) TestHealResultShowsForEachTarget(checker *C) {
-	suite.teros.Defense.SetHPToMax()
+	suite.teros.SetHPToMax()
 	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
-	suite.lini.Offense = *squaddie.OffenseBuilder().Mind(1).Build()
-	suite.vale.Defense.SetHPToMax()
+	suite.lini = squaddie.NewSquaddieBuilder().Mind(1).Build()
+	testutility.AddSquaddieWithInnatePowersToRepos(suite.lini, suite.healingStaff, suite.repos, true)
+	testutility.UpdateForecastWithNewUser(suite.lini, suite.squaddieRepo, suite.forecastHealingStaffOnTerosAndVale)
+	suite.vale.SetHPToMax()
 	suite.vale.ReduceHitPoints(suite.teros.MaxHitPoints() - 2)
 
 	suite.forecastHealingStaffOnTerosAndVale.CalculateForecast()

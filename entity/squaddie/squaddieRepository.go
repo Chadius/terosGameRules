@@ -66,7 +66,7 @@ func (repository *Repository) unmarshalDataAndAddSquaddies(data []byte, unmarsha
 	for _, instruction := range builderInstructions {
 		newSquaddie := NewSquaddieFromMarshal(instruction).Build()
 
-		newSquaddie.Defense.SetHPToMax()
+		newSquaddie.SetHPToMax()
 		success, err := repository.tryToAddSquaddie(newSquaddie)
 		if success == false {
 			return false, err

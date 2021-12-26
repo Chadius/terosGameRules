@@ -24,7 +24,7 @@ func (suite *SquaddiePowerCollectionTests) SetUpTest(checker *C) {
 func (suite *SquaddiePowerCollectionTests) TestAddPowerReference(checker *C) {
 	suite.teros.AddPowerReference(suite.attackA.GetReference())
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "attack Formation A")
 	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.attackA.ID())
@@ -34,7 +34,7 @@ func (suite *SquaddiePowerCollectionTests) TestAddPowerReferenceIsIdempotent(che
 	suite.teros.AddPowerReference(suite.attackA.GetReference())
 	suite.teros.AddPowerReference(suite.attackA.GetReference())
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 }
 
@@ -42,7 +42,7 @@ func (suite *SquaddiePowerCollectionTests) TestRemovePowerReference(checker *C) 
 	suite.teros.AddPowerReference(suite.attackA.GetReference())
 	suite.teros.RemovePowerReferenceByPowerID(suite.attackA.ID())
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 0)
 }
 
@@ -51,7 +51,7 @@ func (suite *SquaddiePowerCollectionTests) TestRemovePowerReferenceIsIdempotent(
 	suite.teros.RemovePowerReferenceByPowerID(suite.attackA.ID())
 	suite.teros.RemovePowerReferenceByPowerID(suite.attackA.ID())
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 0)
 }
 
@@ -59,7 +59,7 @@ func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
 	suite.teros.AddPowerReference(suite.attackA.GetReference())
 	suite.teros.ClearPowerReferences()
 
-	attackIDNamePairs := suite.teros.PowerCollection.GetCopyOfPowerReferences()
+	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, DeepEquals, []*power.Reference{})
 }
 

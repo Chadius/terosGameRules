@@ -124,7 +124,7 @@ func loadAndInitializeSquaddie(squaddieID string, repositories *repositories.Rep
 		fmt.Sprintf("Squaddie %s does not exist, exiting", squaddieID)
 		log.Panicf("Squaddie %s does not exist, exiting", squaddieID)
 	}
-	squaddie.Defense.SetBarrierToMax()
+	squaddie.SetBarrierToMax()
 
 	equipCheck := powerequip.CheckRepositories{}
 	equipCheck.LoadAllOfSquaddieInnatePowers(squaddie, squaddie.GetCopyOfPowerReferences(), repositories)

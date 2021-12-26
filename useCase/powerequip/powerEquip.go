@@ -36,7 +36,7 @@ func (p *CheckRepositories) EquipDefaultPower(squaddie *squaddie.Squaddie, repos
 // SquaddieEquipPower will make the Squaddie equip a different power.
 //   returns true upon success
 func (p *CheckRepositories) SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repos *repositories.RepositoryCollection) bool {
-	if squaddie.PowerCollection.HasPowerWithID(powerToEquipID) == false {
+	if squaddie.HasPowerWithID(powerToEquipID) == false {
 		return false
 	}
 
@@ -48,14 +48,14 @@ func (p *CheckRepositories) SquaddieEquipPower(squaddie *squaddie.Squaddie, powe
 		return false
 	}
 
-	squaddie.PowerCollection.EquipPower(powerToEquipID)
+	squaddie.EquipPower(powerToEquipID)
 	return true
 }
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
 func (p *CheckRepositories) LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error {
-	squaddie.PowerCollection.ClearPowerReferences()
+	squaddie.ClearPowerReferences()
 
 	for _, powerIDName := range powerReferencesToLoad {
 		powerToAdd := repos.PowerRepo.GetPowerByID(powerIDName.PowerID)
@@ -75,7 +75,7 @@ func (p *CheckRepositories) LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squ
 //   weapon for counterattacks.
 func (p *CheckRepositories) CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error) {
 	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
-	equippedPowerID := squaddie.PowerCollection.GetEquippedPowerID()
+	equippedPowerID := squaddie.GetEquippedPowerID()
 	if equippedPowerID == "" {
 		newError := fmt.Errorf("squaddie has no equipped power, %s", squaddieID)
 		utility.Log(newError.Error(), 0, utility.Error)
