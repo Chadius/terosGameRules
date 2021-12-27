@@ -2,6 +2,7 @@ package squaddie_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -60,7 +61,7 @@ func (suite *SquaddiePowerCollectionTests) TestClearInnatePowers(checker *C) {
 	suite.teros.ClearPowerReferences()
 
 	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
-	checker.Assert(attackIDNamePairs, DeepEquals, []*power.Reference{})
+	checker.Assert(attackIDNamePairs, DeepEquals, []*powerreference.Reference{})
 }
 
 func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker *C) {
@@ -71,7 +72,7 @@ func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker 
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			spear.GetReference(),
 		},
 		&repositories.RepositoryCollection{PowerRepo: powerRepo},

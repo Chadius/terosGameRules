@@ -3,13 +3,13 @@ package levelup
 import (
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
 // ImproveSquaddieStrategy describes objects that can upgrade squaddie stats.
 type ImproveSquaddieStrategy interface {
-	ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) error
+	ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove squaddieinterface.Interface) error
 }
 
 // ImproveSquaddieClass describes objects that can upgrade squaddie stats.
@@ -18,7 +18,7 @@ type ImproveSquaddieClass struct{}
 // ImproveSquaddie uses the LevelUpBenefit to improve the squaddie.
 //   Raises an error if the Squaddie does not have that class.
 //   Raises an error if the Squaddie marked the LevelUpBenefit as consumed.
-func (i *ImproveSquaddieClass) ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) error {
+func (i *ImproveSquaddieClass) ImproveSquaddie(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove squaddieinterface.Interface) error {
 	if squaddieToImprove.HasAddedClass(benefit.ClassID()) == false {
 		newError := fmt.Errorf(`squaddie "%s" cannot add levels to unknown class "%s"`, squaddieToImprove.Name(), benefit.ClassID())
 		utility.Log(newError.Error(), 0, utility.Error)
@@ -38,7 +38,7 @@ func (i *ImproveSquaddieClass) ImproveSquaddie(benefit *levelupbenefit.LevelUpBe
 	return nil
 }
 
-func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
+func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove squaddieinterface.Interface) {
 	squaddieToImprove.ImproveDefense(
 		benefit.MaxHitPoints(),
 		benefit.Dodge(),
@@ -50,12 +50,12 @@ func improveSquaddieStats(benefit *levelupbenefit.LevelUpBenefit, squaddieToImpr
 	squaddieToImprove.ImproveOffense(benefit.Aim(), benefit.Strength(), benefit.Mind())
 }
 
-func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
+func refreshSquaddiePowers(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove squaddieinterface.Interface) {
 	squaddieToImprove.RemovePowerReferences(benefit.PowersLost())
 	squaddieToImprove.AddPowerReferences(benefit.PowersGained())
 }
 
-func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove *squaddie.Squaddie) {
+func improveSquaddieMovement(benefit *levelupbenefit.LevelUpBenefit, squaddieToImprove squaddieinterface.Interface) {
 	squaddieToImprove.ImproveMovement(
 		benefit.MovementDistance(),
 		benefit.CanHitAndRun(),

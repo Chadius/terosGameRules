@@ -2,8 +2,9 @@ package powerequip
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	"github.com/chadius/terosbattleserver/utility"
@@ -11,9 +12,9 @@ import (
 
 // Strategy will equip squaddies with powers.
 type Strategy interface {
-	EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool)
-	SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repos *repositories.RepositoryCollection) bool
-	LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error
+	EquipDefaultPower(squaddie squaddieinterface.Interface, repos *repositories.RepositoryCollection) (powerinterface.Interface, bool)
+	SquaddieEquipPower(squaddie squaddieinterface.Interface, powerToEquipID string, repos *repositories.RepositoryCollection) bool
+	LoadAllOfSquaddieInnatePowers(squaddie squaddieinterface.Interface, powerReferencesToLoad []*powerreference.Reference, repos *repositories.RepositoryCollection) error
 	CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error)
 }
 
@@ -22,7 +23,7 @@ type CheckRepositories struct{}
 
 // EquipDefaultPower will automatically equip the first power the squaddie has.
 //  Returns the power and a boolean value.
-func (p *CheckRepositories) EquipDefaultPower(squaddie *squaddie.Squaddie, repos *repositories.RepositoryCollection) (*power.Power, bool) {
+func (p *CheckRepositories) EquipDefaultPower(squaddie squaddieinterface.Interface, repos *repositories.RepositoryCollection) (powerinterface.Interface, bool) {
 	for _, powerReference := range squaddie.GetCopyOfPowerReferences() {
 		powerToCheck := repos.PowerRepo.GetPowerByID(powerReference.PowerID)
 		if powerToCheck.CanAttack() && powerToCheck.CanBeEquipped() == true {
@@ -35,7 +36,7 @@ func (p *CheckRepositories) EquipDefaultPower(squaddie *squaddie.Squaddie, repos
 
 // SquaddieEquipPower will make the Squaddie equip a different power.
 //   returns true upon success
-func (p *CheckRepositories) SquaddieEquipPower(squaddie *squaddie.Squaddie, powerToEquipID string, repos *repositories.RepositoryCollection) bool {
+func (p *CheckRepositories) SquaddieEquipPower(squaddie squaddieinterface.Interface, powerToEquipID string, repos *repositories.RepositoryCollection) bool {
 	if squaddie.HasPowerWithID(powerToEquipID) == false {
 		return false
 	}
@@ -54,7 +55,7 @@ func (p *CheckRepositories) SquaddieEquipPower(squaddie *squaddie.Squaddie, powe
 
 // LoadAllOfSquaddieInnatePowers loads the powers from the repo the squaddie needs and gives it to them.
 //  Raises an error if the PowerRepository does not have one of the squaddie's powers.
-func (p *CheckRepositories) LoadAllOfSquaddieInnatePowers(squaddie *squaddie.Squaddie, powerReferencesToLoad []*power.Reference, repos *repositories.RepositoryCollection) error {
+func (p *CheckRepositories) LoadAllOfSquaddieInnatePowers(squaddie squaddieinterface.Interface, powerReferencesToLoad []*powerreference.Reference, repos *repositories.RepositoryCollection) error {
 	squaddie.ClearPowerReferences()
 
 	for _, powerIDName := range powerReferencesToLoad {

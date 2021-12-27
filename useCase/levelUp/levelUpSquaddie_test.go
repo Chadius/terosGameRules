@@ -3,6 +3,7 @@ package levelup_test
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
@@ -151,7 +152,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 
 	suite.spear = power.NewPowerBuilder().Spear().WithID("spearlvl1").Build()
 
-	suite.teros.AddPowerReference(&power.Reference{
+	suite.teros.AddPowerReference(&powerreference.Reference{
 		Name:    "spear",
 		PowerID: "spearlvl1",
 	})

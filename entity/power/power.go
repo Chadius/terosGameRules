@@ -3,21 +3,16 @@ package power
 import (
 	"errors"
 	"github.com/chadius/terosbattleserver/entity/healing"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powersource"
 	"github.com/chadius/terosbattleserver/entity/target"
 	"github.com/chadius/terosbattleserver/utility"
 	"reflect"
 )
 
-// Reference is used to identify a power and is used to quickly identify a power.
-type Reference struct {
-	Name    string `json:"name" yaml:"name"`
-	PowerID string `json:"id" yaml:"id"`
-}
-
 // Power are the abilities every Squaddie can use. These range from dealing damage, to opening doors, to healing.
 type Power struct {
-	Reference
+	powerreference.Reference
 	powerSourceLogic powersource.Interface
 	attackEffect     *AttackingEffect
 	healingEffect    *HealingEffect
@@ -26,8 +21,8 @@ type Power struct {
 }
 
 // GetReference returns a new PowerReference.
-func (p Power) GetReference() *Reference {
-	return &Reference{
+func (p Power) GetReference() *powerreference.Reference {
+	return &powerreference.Reference{
 		Name:    p.Name(),
 		PowerID: p.ID(),
 	}
@@ -40,7 +35,7 @@ func NewPower(name, id string, powerSourceLogic powersource.Interface, attackEff
 		powerID = id
 	}
 	newAttackingPower := Power{
-		Reference: Reference{
+		Reference: powerreference.Reference{
 			Name:    name,
 			PowerID: powerID,
 		},

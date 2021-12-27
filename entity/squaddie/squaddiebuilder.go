@@ -2,7 +2,7 @@ package squaddie
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
@@ -15,7 +15,7 @@ type Builder struct {
 	offenseOptions          *OffenseBuilderOptions
 	defenseOptions          *DefenseBuilderOptions
 	movementOptions         *MovementBuilderOptions
-	powerReferencesToAdd    []*power.Reference
+	powerReferencesToAdd    []*powerreference.Reference
 	classReferencesToAdd    []*squaddieclass.ClassReference
 	levelsConsumedByClassID map[string]*[]string
 	classIDToUse            string
@@ -31,7 +31,7 @@ func NewSquaddieBuilder() *Builder {
 		offenseOptions:          OffenseBuilder(),
 		defenseOptions:          DefenseBuilder(),
 		movementOptions:         MovementBuilder(),
-		powerReferencesToAdd:    []*power.Reference{},
+		powerReferencesToAdd:    []*powerreference.Reference{},
 		classReferencesToAdd:    []*squaddieclass.ClassReference{},
 		classIDToUse:            "",
 		baseClassID:             "",
@@ -171,7 +171,7 @@ func (s *Builder) MovementTeleport() *Builder {
 }
 
 // AddPowerByReference adds the power to the squaddie's collection.
-func (s *Builder) AddPowerByReference(newPowerReference *power.Reference) *Builder {
+func (s *Builder) AddPowerByReference(newPowerReference *powerreference.Reference) *Builder {
 	s.powerReferencesToAdd = append(s.powerReferencesToAdd, newPowerReference)
 	return s
 }
@@ -283,8 +283,8 @@ type BuilderOptionMarshal struct {
 	MovementLogic        string `json:"movement_type" yaml:"movement_type"`
 	MovementCanHitAndRun bool   `json:"hit_and_run" yaml:"hit_and_run"`
 
-	ClassProgress   []*classProgressMarshal `json:"class_progress" yaml:"class_progress"`
-	PowerReferences []*power.Reference      `json:"powers" yaml:"powers"`
+	ClassProgress   []*classProgressMarshal     `json:"class_progress" yaml:"class_progress"`
+	PowerReferences []*powerreference.Reference `json:"powers" yaml:"powers"`
 }
 
 type classProgressMarshal struct {

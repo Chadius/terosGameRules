@@ -2,6 +2,7 @@ package powercommit_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
@@ -73,7 +74,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 		},
@@ -82,7 +83,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.bandit,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.axe.GetReference(),
 		},
 		suite.repos,
@@ -90,7 +91,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.bandit2,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.axe.GetReference(),
 		},
 		suite.repos,
@@ -98,7 +99,7 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.mysticMage,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.fireball.GetReference(),
 		},
 		suite.repos,
@@ -376,7 +377,7 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 		},
@@ -385,7 +386,7 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.mysticMage,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.fireball.GetReference(),
 		},
 		suite.repos,

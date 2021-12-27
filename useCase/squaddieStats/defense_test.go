@@ -2,6 +2,7 @@ package squaddiestats_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -46,7 +47,7 @@ func (suite *squaddieDefense) SetUpTest(checker *C) {
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.weakerSpear.GetReference(),
 			suite.weakerBlot.GetReference(),
 		},

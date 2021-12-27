@@ -1,8 +1,8 @@
 package powercommit
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 )
 
 // ResultPerTarget shows what happened to each target.
@@ -60,19 +60,19 @@ func NewResultPerTargetBuilder() *ResultPerTargetBuilder {
 }
 
 // User sets the field.
-func (rp *ResultPerTargetBuilder) User(user *squaddie.Squaddie) *ResultPerTargetBuilder {
+func (rp *ResultPerTargetBuilder) User(user squaddieinterface.Interface) *ResultPerTargetBuilder {
 	rp.userID = user.ID()
 	return rp
 }
 
 // Power sets the field.
-func (rp *ResultPerTargetBuilder) Power(pow *power.Power) *ResultPerTargetBuilder {
+func (rp *ResultPerTargetBuilder) Power(pow powerinterface.Interface) *ResultPerTargetBuilder {
 	rp.powerID = pow.ID()
 	return rp
 }
 
 // Target sets the field.
-func (rp *ResultPerTargetBuilder) Target(target *squaddie.Squaddie) *ResultPerTargetBuilder {
+func (rp *ResultPerTargetBuilder) Target(target squaddieinterface.Interface) *ResultPerTargetBuilder {
 	rp.targetID = target.ID()
 	return rp
 }

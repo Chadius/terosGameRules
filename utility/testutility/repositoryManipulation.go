@@ -2,6 +2,7 @@ package testutility
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -15,7 +16,7 @@ func AddSquaddieWithInnatePowersToRepos(squaddieToAdd *squaddie.Squaddie, powerT
 		checkEquip := powerequip.CheckRepositories{}
 		checkEquip.LoadAllOfSquaddieInnatePowers(
 			squaddieToAdd,
-			[]*power.Reference{
+			[]*powerreference.Reference{
 				powerToAdd.GetReference(),
 			},
 			repos,

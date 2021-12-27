@@ -1,27 +1,27 @@
 package squaddie
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 )
 
 // PowerCollection tracks what powers the squaddie has as well as what is in use.
 type PowerCollection struct {
-	powerReferences          []*power.Reference
+	powerReferences          []*powerreference.Reference
 	currentlyEquippedPowerID string
 }
 
 // GetCopyOfPowerReferences returns a list of all the powers the squaddie has access to.
-func (powerCollection *PowerCollection) GetCopyOfPowerReferences() []*power.Reference {
-	powerIDNames := []*power.Reference{}
+func (powerCollection *PowerCollection) GetCopyOfPowerReferences() []*powerreference.Reference {
+	powerIDNames := []*powerreference.Reference{}
 	for _, reference := range powerCollection.powerReferences {
-		powerIDNames = append(powerIDNames, &power.Reference{Name: reference.Name, PowerID: reference.PowerID})
+		powerIDNames = append(powerIDNames, &powerreference.Reference{Name: reference.Name, PowerID: reference.PowerID})
 	}
 	return powerIDNames
 }
 
 // ClearPowerReferences removes all squaddie's powers.
 func (powerCollection *PowerCollection) ClearPowerReferences() {
-	powerCollection.powerReferences = []*power.Reference{}
+	powerCollection.powerReferences = []*powerreference.Reference{}
 	powerCollection.currentlyEquippedPowerID = ""
 }
 
@@ -53,7 +53,7 @@ func (powerCollection *PowerCollection) GetEquippedPowerID() string {
 }
 
 // AddPowerReference adds a power reference, assuming it doesn't exist
-func (powerCollection *PowerCollection) AddPowerReference(reference *power.Reference) {
+func (powerCollection *PowerCollection) AddPowerReference(reference *powerreference.Reference) {
 	for _, ref := range powerCollection.powerReferences {
 		if ref.PowerID == reference.PowerID {
 			return
@@ -61,7 +61,7 @@ func (powerCollection *PowerCollection) AddPowerReference(reference *power.Refer
 	}
 
 	if powerCollection.powerReferences == nil {
-		powerCollection.powerReferences = []*power.Reference{}
+		powerCollection.powerReferences = []*powerreference.Reference{}
 	}
 
 	powerCollection.powerReferences = append(powerCollection.powerReferences, reference)

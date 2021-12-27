@@ -2,6 +2,7 @@ package squaddiestats_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -48,7 +49,7 @@ func (suite *squaddieOffense) SetUpTest(checker *C) {
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 		},
@@ -91,7 +92,7 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.spear.GetReference(),
 			suite.blot.GetReference(),
 			wait.GetReference(),
@@ -235,7 +236,7 @@ func (suite *healingPower) SetUpTest(checker *C) {
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.lini,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.healingStaff.GetReference(),
 		},
 		suite.repos,

@@ -4,7 +4,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/affiliation"
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 	"github.com/chadius/terosbattleserver/entity/movement"
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
 	"reflect"
 )
@@ -287,19 +287,19 @@ func (s *Squaddie) GetEquippedPowerID() string {
 }
 
 // AddPowerReference delegates.
-func (s *Squaddie) AddPowerReference(reference *power.Reference) {
+func (s *Squaddie) AddPowerReference(reference *powerreference.Reference) {
 	s.powerCollection.AddPowerReference(reference)
 }
 
 // RemovePowerReferences removes multiple powers.
-func (s *Squaddie) RemovePowerReferences(powersToRemove []*power.Reference) {
+func (s *Squaddie) RemovePowerReferences(powersToRemove []*powerreference.Reference) {
 	for _, powerReferenceLost := range powersToRemove {
 		s.RemovePowerReferenceByPowerID(powerReferenceLost.PowerID)
 	}
 }
 
 // AddPowerReferences adds multiple powers.
-func (s *Squaddie) AddPowerReferences(powersToAdd []*power.Reference) {
+func (s *Squaddie) AddPowerReferences(powersToAdd []*powerreference.Reference) {
 	for _, powerReferenceGained := range powersToAdd {
 		s.AddPowerReference(powerReferenceGained)
 	}
@@ -346,7 +346,7 @@ func (s *Squaddie) AddClass(classReference *squaddieclass.ClassReference) {
 }
 
 // GetCopyOfPowerReferences delegates.
-func (s *Squaddie) GetCopyOfPowerReferences() []*power.Reference {
+func (s *Squaddie) GetCopyOfPowerReferences() []*powerreference.Reference {
 	return s.powerCollection.GetCopyOfPowerReferences()
 }
 

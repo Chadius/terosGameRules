@@ -3,7 +3,7 @@ package levelupbenefit
 import (
 	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/movement"
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
@@ -29,8 +29,8 @@ type Builder struct {
 	movementLogic        movement.Interface
 	movementCanHitAndRun bool
 
-	powersGained []*power.Reference
-	powersLost   []*power.Reference
+	powersGained []*powerreference.Reference
+	powersLost   []*powerreference.Reference
 }
 
 // NewLevelUpBenefitBuilder returns a new object used to build Term objects.
@@ -54,8 +54,8 @@ func NewLevelUpBenefitBuilder() *Builder {
 		movementLogic:        movement.NewMovementLogic("foot"),
 		movementCanHitAndRun: false,
 
-		powersGained: []*power.Reference{},
-		powersLost:   []*power.Reference{},
+		powersGained: []*powerreference.Reference{},
+		powersLost:   []*powerreference.Reference{},
 	}
 }
 
@@ -182,7 +182,7 @@ func (b *Builder) CanHitAndRun() *Builder {
 func (b *Builder) GainPower(powerID, powerName string) *Builder {
 	b.powersGained = append(
 		b.powersGained,
-		&power.Reference{
+		&powerreference.Reference{
 			Name:    powerName,
 			PowerID: powerID,
 		},
@@ -194,7 +194,7 @@ func (b *Builder) GainPower(powerID, powerName string) *Builder {
 func (b *Builder) LosePower(powerID string) *Builder {
 	b.powersLost = append(
 		b.powersLost,
-		&power.Reference{
+		&powerreference.Reference{
 			Name:    "power name does not matter",
 			PowerID: powerID,
 		},
@@ -268,8 +268,8 @@ type BuilderMarshal struct {
 	MovementLogic        string `json:"movement_type" yaml:"movement_type"`
 	MovementCanHitAndRun bool   `json:"can_hit_and_run" yaml:"can_hit_and_run"`
 
-	PowersGained []*power.Reference `json:"powers_gained" yaml:"powers_gained"`
-	PowersLost   []string           `json:"powers_lost" yaml:"powers_lost"`
+	PowersGained []*powerreference.Reference `json:"powers_gained" yaml:"powers_gained"`
+	PowersLost   []string                    `json:"powers_lost" yaml:"powers_lost"`
 }
 
 // unmarshalAndApplyDataStream consumes a given bytestream of the given sourceType and tries to analyze it.

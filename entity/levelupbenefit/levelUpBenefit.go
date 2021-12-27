@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/chadius/terosbattleserver/entity/movement"
-	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/utility"
 )
@@ -184,11 +184,11 @@ func (l LevelUpBenefit) CanHitAndRun() bool {
 }
 
 // PowersGained is a getter.
-func (l LevelUpBenefit) PowersGained() []*power.Reference {
+func (l LevelUpBenefit) PowersGained() []*powerreference.Reference {
 	return l.powerChanges.Gained()
 }
 
 // PowersLost is a getter.
-func (l LevelUpBenefit) PowersLost() []*power.Reference {
+func (l LevelUpBenefit) PowersLost() []*powerreference.Reference {
 	return l.powerChanges.Lost()
 }

@@ -2,6 +2,7 @@ package powercantarget_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powercantarget"
@@ -80,7 +81,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.meditation.GetReference(),
 			suite.axe.GetReference(),
 			suite.healingStaff.GetReference(),
@@ -91,7 +92,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.lini,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.healingStaff.GetReference(),
 		},
 		suite.repos,
@@ -99,7 +100,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.bandit,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.meditation.GetReference(),
 			suite.axe.GetReference(),
 			suite.healingStaff.GetReference(),
@@ -110,7 +111,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.bandit2,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.axe.GetReference(),
 		},
 		suite.repos,
@@ -118,7 +119,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.citizen,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.meditation.GetReference(),
 			suite.axe.GetReference(),
 			suite.healingStaff.GetReference(),
@@ -129,7 +130,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.mayor,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.healingStaff.GetReference(),
 		},
 		suite.repos,
@@ -137,7 +138,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.bomb,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.meditation.GetReference(),
 			suite.axe.GetReference(),
 			suite.healingStaff.GetReference(),
@@ -148,7 +149,7 @@ func (suite *TargetingCheck) SetUpTest(checker *C) {
 
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.bomb2,
-		[]*power.Reference{
+		[]*powerreference.Reference{
 			suite.selfDestruct.GetReference(),
 		},
 		suite.repos,

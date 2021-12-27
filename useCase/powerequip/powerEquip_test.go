@@ -2,6 +2,7 @@ package powerequip_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
@@ -50,7 +51,7 @@ func (suite *SquaddieEquipPowersFromRepo) SetUpTest(checker *C) {
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieEquipsFirstPowerByDefault(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
 		suite.blot.GetReference(),
@@ -61,7 +62,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieEquipsFirstPowerByDefault(
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieSkipsUnequippablePowersWhenDefaultEquipping(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.blot.GetReference(),
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
@@ -72,7 +73,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieSkipsUnequippablePowersWhe
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieWillNotEquipIfNoEquippablePowers(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.blot.GetReference(),
 	}
 	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
@@ -81,7 +82,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieWillNotEquipIfNoEquippable
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestCanChangeEquippedPower(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
 		suite.blot.GetReference(),
@@ -94,7 +95,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestCanChangeEquippedPower(checker *C)
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnequibbablePower(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
 		suite.blot.GetReference(),
@@ -119,7 +120,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C
 		notTerosPower,
 	})
 
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
 		suite.blot.GetReference(),
@@ -132,7 +133,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestFailToEquipUnownedPower(checker *C
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCanCounter(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
 		suite.blot.GetReference(),
@@ -144,7 +145,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCanCounter(checker *C) {
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCannotCounterWithUncounterablePower(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.spear.GetReference(),
 		suite.scimitar.GetReference(),
 		suite.blot.GetReference(),
@@ -156,7 +157,7 @@ func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCannotCounterWithUncounter
 }
 
 func (suite *SquaddieEquipPowersFromRepo) TestSquaddieCannotCounterWithUnequippablePower(checker *C) {
-	terosPowerReferences := []*power.Reference{
+	terosPowerReferences := []*powerreference.Reference{
 		suite.blot.GetReference(),
 	}
 	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)

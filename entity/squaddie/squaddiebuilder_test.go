@@ -2,6 +2,7 @@ package squaddie_test
 
 import (
 	powerEntity "github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	classEntity "github.com/chadius/terosbattleserver/entity/squaddieclass"
 	. "gopkg.in/check.v1"
@@ -435,10 +436,10 @@ func (suite *BuildCopySuite) TestCopySquaddieMovement(checker *C) {
 }
 
 func (suite *BuildCopySuite) TestCopySquaddiePowers(checker *C) {
-	armedTeros := squaddie.NewSquaddieBuilder().CloneOf(suite.teros).AddPowerByReference(&powerEntity.Reference{
+	armedTeros := squaddie.NewSquaddieBuilder().CloneOf(suite.teros).AddPowerByReference(&powerreference.Reference{
 		Name:    "Spear",
 		PowerID: "powerIDForSpear",
-	}).AddPowerByReference(&powerEntity.Reference{
+	}).AddPowerByReference(&powerreference.Reference{
 		Name:    "Blot",
 		PowerID: "powerIDForBlot",
 	}).Build()
