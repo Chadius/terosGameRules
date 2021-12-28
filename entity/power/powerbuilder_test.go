@@ -2,6 +2,7 @@ package power_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	. "gopkg.in/check.v1"
 	"reflect"
 )
@@ -265,8 +266,8 @@ func (suite *JSONBuilderSuite) TestHealingMatchesNewPower(checker *C) {
 }
 
 type BuildCopySuite struct {
-	spear        *power.Power
-	healingStaff *power.Power
+	spear        powerinterface.Interface
+	healingStaff powerinterface.Interface
 }
 
 var _ = Suite(&BuildCopySuite{})

@@ -2,8 +2,8 @@ package levelup
 
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility"
 )
@@ -11,12 +11,12 @@ import (
 // SelectLevelUpBasedOnSquaddieStrategy describes how to select the Level Up Benefit needed to improve a squaddie.
 type SelectLevelUpBasedOnSquaddieStrategy interface {
 	GetSquaddieClassLevels(
-		squaddieToInspect *squaddie.Squaddie,
+		squaddieToInspect squaddieinterface.Interface,
 		repos *repositories.RepositoryCollection,
 	) map[string]int
 
 	ImproveSquaddieBasedOnLevel(
-		squaddieToLevelUp *squaddie.Squaddie,
+		squaddieToLevelUp squaddieinterface.Interface,
 		bigLevelID string,
 		repos *repositories.RepositoryCollection,
 	) error
@@ -27,7 +27,7 @@ type SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels struct{}
 
 // GetSquaddieClassLevels counts the levels for each class.
 func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) GetSquaddieClassLevels(
-	squaddieToInspect *squaddie.Squaddie,
+	squaddieToInspect squaddieinterface.Interface,
 	repos *repositories.RepositoryCollection,
 ) map[string]int {
 	levels := map[string]int{}
@@ -46,7 +46,7 @@ func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) GetSquaddieClassLeve
 
 // ImproveSquaddieBasedOnLevel selects the levels the squaddie should get and then applies them.
 func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) ImproveSquaddieBasedOnLevel(
-	squaddieToLevelUp *squaddie.Squaddie,
+	squaddieToLevelUp squaddieinterface.Interface,
 	bigLevelID string,
 	repos *repositories.RepositoryCollection,
 ) error {
@@ -83,7 +83,7 @@ func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) ImproveSquaddieBased
 //    If the squaddie does not qualify for a Big level up, this will return nil.
 //    If there are no big levels, return nil
 func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) selectBigLevelUpForSquaddie(
-	squaddieToLevelUp *squaddie.Squaddie,
+	squaddieToLevelUp squaddieinterface.Interface,
 	bigLevelSelectedID string,
 	squaddieLevels map[string]int,
 	classToUse *squaddieclass.Class,
@@ -116,7 +116,7 @@ func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) selectBigLevelUpForS
 //    and returns a pointer to it. It is selected randomly.
 //    If there are no small levels to choose from, return nil
 func (s *SelectLevelUpBasedOnSquaddieBigLevelsOnEvenLevels) selectSmallLevelUpForSquaddie(
-	squaddieToLevelUp *squaddie.Squaddie,
+	squaddieToLevelUp squaddieinterface.Interface,
 	levelsFromClass map[levelupbenefit.Size][]*levelupbenefit.LevelUpBenefit,
 ) *levelupbenefit.LevelUpBenefit {
 	smallLevelsToChooseFrom := levelupbenefit.FilterLevelUpBenefits(levelsFromClass[levelupbenefit.Small],

@@ -2,16 +2,18 @@ package squaddie_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	squaddieClassBuilder "github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	. "gopkg.in/check.v1"
 	"reflect"
 )
 
 type SquaddieRepositorySuite struct {
 	squaddieRepository *squaddie.Repository
-	teros              *squaddie.Squaddie
-	attackA            *power.Power
+	teros              squaddieinterface.Interface
+	attackA            powerinterface.Interface
 }
 
 var _ = Suite(&SquaddieRepositorySuite{})
@@ -32,10 +34,10 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
 	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
 	checker.Assert(err, IsNil)
 
-	suite.teros = suite.squaddieRepository.GetSquaddieByID("squaddieID")
-	checker.Assert(suite.teros, NotNil)
-	checker.Assert(suite.teros.Name(), Equals, "teros")
-	checker.Assert(suite.teros.Aim(), Equals, 5)
+	teros := suite.squaddieRepository.GetSquaddieByID("squaddieID")
+	checker.Assert(teros, NotNil)
+	checker.Assert(teros.Name(), Equals, "teros")
+	checker.Assert(teros.Aim(), Equals, 5)
 
 	missingno := suite.squaddieRepository.GetSquaddieByID("Does not exist")
 	checker.Assert(missingno, IsNil)
@@ -51,10 +53,10 @@ func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C)
 	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
 	checker.Assert(err, IsNil)
 
-	suite.teros = suite.squaddieRepository.GetSquaddieByID("12345")
-	checker.Assert(suite.teros, NotNil)
-	checker.Assert(suite.teros.Name(), Equals, "teros")
-	checker.Assert(suite.teros.Aim(), Equals, 5)
+	teros := suite.squaddieRepository.GetSquaddieByID("12345")
+	checker.Assert(teros, NotNil)
+	checker.Assert(teros.Name(), Equals, "teros")
+	checker.Assert(teros.Aim(), Equals, 5)
 
 	missingno := suite.squaddieRepository.GetSquaddieByID("Does not exist")
 	checker.Assert(missingno, IsNil)
@@ -96,8 +98,8 @@ func (suite *SquaddieRepositorySuite) TestLoadClassLevels(checker *C) {
 	err := suite.squaddieRepository.AddSquaddiesUsingJSON(jsonByteStream)
 	checker.Assert(err, IsNil)
 
-	suite.teros = suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
-	checker.Assert(suite.teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
+	teros := suite.squaddieRepository.GetSquaddieByID("terosSquaddieID")
+	checker.Assert(teros.GetLevelCountsByClass(), DeepEquals, map[string]int{"1": 1, "2": 0})
 }
 
 func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C) {
@@ -163,13 +165,13 @@ func (suite *SquaddieRepositorySuite) TestCreateSquaddiesWithMovement(checker *C
 
 func (suite *SquaddieRepositorySuite) TestCanGetExistingSquaddies(checker *C) {
 	originalSquaddie := squaddie.NewSquaddieBuilder().WithName("Original").AsAlly().Build()
-	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{originalSquaddie})
+	suite.squaddieRepository.AddSquaddies([]squaddieinterface.Interface{originalSquaddie})
 	referencedSquaddie := suite.squaddieRepository.GetOriginalSquaddieByID(originalSquaddie.ID())
 	checker.Assert(referencedSquaddie, Equals, originalSquaddie)
 }
 
 func (suite *SquaddieRepositorySuite) TestAddSquaddieDirectly(checker *C) {
-	success, err := suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{
+	success, err := suite.squaddieRepository.AddSquaddies([]squaddieinterface.Interface{
 		squaddie.NewSquaddieBuilder().Build(),
 	})
 	checker.Assert(success, Equals, true)
@@ -183,7 +185,7 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddie(checker *C) {
 
 type SquaddieCloneSuite struct {
 	squaddieRepository *squaddie.Repository
-	base               *squaddie.Squaddie
+	base               squaddieinterface.Interface
 }
 
 var _ = Suite(&SquaddieCloneSuite{})
@@ -191,7 +193,7 @@ var _ = Suite(&SquaddieCloneSuite{})
 func (suite *SquaddieCloneSuite) SetUpTest(checker *C) {
 	suite.base = squaddie.NewSquaddieBuilder().WithName("Base").Build()
 	suite.squaddieRepository = squaddie.NewSquaddieRepository()
-	suite.squaddieRepository.AddSquaddies([]*squaddie.Squaddie{suite.base})
+	suite.squaddieRepository.AddSquaddies([]squaddieinterface.Interface{suite.base})
 }
 
 func (suite *SquaddieCloneSuite) TestCloneHasAffiliationAndNameNotID(checker *C) {

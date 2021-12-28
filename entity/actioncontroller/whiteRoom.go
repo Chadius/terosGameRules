@@ -29,14 +29,17 @@ func (controller *WhiteRoomController) SetupAction(userID string, targetIDs []st
 
 // GenerateForecast uses the action to predict results.
 func (controller *WhiteRoomController) GenerateForecast(action *powerusagescenario.Setup, repos *repositories.RepositoryCollection) *powerattackforecast.Forecast {
-	powerForecast := &powerattackforecast.Forecast{
-		Setup: *action,
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: repos.SquaddieRepo,
-			PowerRepo:    repos.PowerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	powerForecast := powerattackforecast.NewForecastBuilder().
+		Setup(action).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: repos.SquaddieRepo,
+				PowerRepo:    repos.PowerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	powerForecast.CalculateForecast()
 	return powerForecast
 }

@@ -3,11 +3,12 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddieIdentificationCreationTests struct {
-	teros         *squaddie.Squaddie
+	teros         squaddieinterface.Interface
 	mageClass     *squaddieclass.Class
 	mushroomClass *squaddieclass.Class
 }

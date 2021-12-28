@@ -2,17 +2,19 @@ package squaddie_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddiePowerCollectionTests struct {
-	teros   *squaddie.Squaddie
-	attackA *power.Power
+	teros   squaddieinterface.Interface
+	attackA powerinterface.Interface
 }
 
 var _ = Suite(&SquaddiePowerCollectionTests{})
@@ -68,7 +70,7 @@ func (suite *SquaddiePowerCollectionTests) TestSquaddieHasEquippedPower(checker 
 	spear := power.NewPowerBuilder().Spear().Build()
 
 	powerRepo := powerrepository.NewPowerRepository()
-	powerRepo.AddSlicePowerSource([]*power.Power{spear})
+	powerRepo.AddSlicePowerSource([]powerinterface.Interface{spear})
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
 		suite.teros,

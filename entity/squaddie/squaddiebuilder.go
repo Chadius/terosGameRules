@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/utility"
 	"gopkg.in/yaml.v2"
 	"reflect"
@@ -200,8 +201,8 @@ func (s *Builder) SetBaseClassByID(targetClassID string) *Builder {
 	return s
 }
 
-// Build uses the Builder to create a Movement.
-func (s *Builder) Build() *Squaddie {
+// Build uses the Builder to create a Squaddie.
+func (s *Builder) Build() squaddieinterface.Interface {
 	newSquaddie := NewSquaddie(
 		s.identificationOptions.Build(),
 		s.offenseOptions.Build(),
@@ -354,7 +355,7 @@ func (s *Builder) usingByteStream(data []byte, unmarshal utility.UnmarshalFunc) 
 }
 
 // CloneOf modifies the Builder based on the source, except for the classID.
-func (s *Builder) CloneOf(source *Squaddie) *Builder {
+func (s *Builder) CloneOf(source squaddieinterface.Interface) *Builder {
 	s.WithName(source.Name()).
 		HitPoints(source.MaxHitPoints()).Deflect(source.Deflect()).Barrier(source.MaxBarrier()).Armor(source.Armor()).Dodge(source.Dodge()).
 		Aim(source.Aim()).Strength(source.Strength()).Mind(source.Mind()).
@@ -366,7 +367,7 @@ func (s *Builder) CloneOf(source *Squaddie) *Builder {
 	return s
 }
 
-func (s *Builder) cloneMovement(source *Squaddie) {
+func (s *Builder) cloneMovement(source squaddieinterface.Interface) {
 	s.WithMovementLogicKeyword(reflect.TypeOf(source.MovementLogic()).String())
 
 	if source.MovementCanHitAndRun() {
@@ -374,17 +375,17 @@ func (s *Builder) cloneMovement(source *Squaddie) {
 	}
 }
 
-func (s *Builder) cloneAffiliation(source *Squaddie) {
+func (s *Builder) cloneAffiliation(source squaddieinterface.Interface) {
 	s.WithAffiliationLogic(source.AffiliationLogic().Name())
 }
 
-func (s *Builder) clonePowerReferences(source *Squaddie) {
+func (s *Builder) clonePowerReferences(source squaddieinterface.Interface) {
 	for _, reference := range source.GetCopyOfPowerReferences() {
 		s.AddPowerByReference(reference)
 	}
 }
 
-func (s *Builder) cloneClassProgress(source *Squaddie) {
+func (s *Builder) cloneClassProgress(source squaddieinterface.Interface) {
 	for classID, classLevelsConsumed := range *source.ClassLevelsConsumed() {
 		s.AddClassByReference(&squaddieclass.ClassReference{
 			ID:   classID,

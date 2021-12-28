@@ -17,6 +17,7 @@ type AttackerContextStrategy interface {
 	CanCritical() bool
 	CriticalHitThreshold() int
 	CriticalHitDamage() int
+	PowerSourceLogic() powersource.Interface
 }
 
 // AttackerContext lists the attacker's relevant information when attacking

@@ -29,7 +29,7 @@ I also had to make squaddie.interface. There is promise here to avoid all depend
 How do I easily copy logic objects?
 - I can give a string to a logic factory and that will return an object 
 
-# Logic objects progress
-## In progress
-Healing multipliers as objects
-## Converted
+# Interfaces contain 2 pieces of information
+They have a type and a value.
+So comparing against nil only works if you return a nil value.
+Otherwise, the interface has a type, and the value is nil.

@@ -4,7 +4,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 )
 
-// VersusContextStrategy describes objects that compares attack and defender contexts to figure out what happens when they attack.
+// VersusContextStrategy describes objects that compare attack and defender contexts to figure out what happens when they attack.
 type VersusContextStrategy interface {
 	Calculate(attackerContext AttackerContext, defenderContext DefenderContext)
 	ToHit() *damagedistribution.ToHitComparison

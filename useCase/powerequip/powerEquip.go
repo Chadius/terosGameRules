@@ -6,7 +6,6 @@ import (
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	"github.com/chadius/terosbattleserver/utility"
 )
 
@@ -15,7 +14,6 @@ type Strategy interface {
 	EquipDefaultPower(squaddie squaddieinterface.Interface, repos *repositories.RepositoryCollection) (powerinterface.Interface, bool)
 	SquaddieEquipPower(squaddie squaddieinterface.Interface, powerToEquipID string, repos *repositories.RepositoryCollection) bool
 	LoadAllOfSquaddieInnatePowers(squaddie squaddieinterface.Interface, powerReferencesToLoad []*powerreference.Reference, repos *repositories.RepositoryCollection) error
-	CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error)
 }
 
 // CheckRepositories uses the repositories to make sure powers and squaddies exist.
@@ -70,20 +68,4 @@ func (p *CheckRepositories) LoadAllOfSquaddieInnatePowers(squaddie squaddieinter
 	}
 
 	return nil
-}
-
-// CanSquaddieCounterWithEquippedWeapon returns true if the squaddie can use the currently equipped
-//   weapon for counterattacks.
-func (p *CheckRepositories) CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error) {
-	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
-	equippedPowerID := squaddie.GetEquippedPowerID()
-	if equippedPowerID == "" {
-		newError := fmt.Errorf("squaddie has no equipped power, %s", squaddieID)
-		utility.Log(newError.Error(), 0, utility.Error)
-		return false, newError
-	}
-
-	offenseStrategy := squaddiestats.CalculateSquaddieOffenseStats{}
-	canCounter, counterErr := offenseStrategy.GetSquaddieCanCounterAttackWithPower(squaddieID, equippedPowerID, repos)
-	return canCounter, counterErr
 }

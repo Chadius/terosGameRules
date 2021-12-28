@@ -52,45 +52,45 @@ func (result *Result) ResultPerTarget() []*ResultPerTarget {
 
 // Commit tries to use the power and records the effects.
 func (result *Result) Commit() {
-	for _, calculation := range result.forecast.ForecastedResultPerTarget {
-		attackResultForTarget := result.getAttackResult(&calculation)
+	for _, calculation := range result.forecast.ForecastedResultPerTarget() {
+		attackResultForTarget := result.getAttackResult(calculation)
 		if attackResultForTarget != nil {
 			result.resultPerTarget = append(result.resultPerTarget, attackResultForTarget)
 		}
 
-		healResultForTarget := result.getHealingResult(&calculation)
+		healResultForTarget := result.getHealingResult(calculation)
 		if healResultForTarget != nil {
 			result.resultPerTarget = append(result.resultPerTarget, healResultForTarget)
 		}
 	}
-	for _, calculation := range result.forecast.ForecastedResultPerTarget {
+	for _, calculation := range result.forecast.ForecastedResultPerTarget() {
 		if result.isCounterAttackPossible(calculation) {
-			counterAttackResultForTarget := result.calculateAttackResultForThisTarget(calculation.CounterAttackSetup, calculation.CounterAttack, result.forecast.Repositories)
+			counterAttackResultForTarget := result.calculateAttackResultForThisTarget(calculation.CounterAttackSetup(), calculation.CounterAttack(), result.forecast.Repositories())
 			result.resultPerTarget = append(result.resultPerTarget, counterAttackResultForTarget)
 		}
 	}
 }
 
-func (result *Result) getAttackResult(calculation *powerattackforecast.Calculation) *ResultPerTarget {
-	if calculation.Attack == nil {
+func (result *Result) getAttackResult(calculation powerattackforecast.CalculationInterface) *ResultPerTarget {
+	if calculation.Attack() == nil {
 		return nil
 	}
-	return result.calculateAttackResultForThisTarget(calculation.Setup, calculation.Attack, result.forecast.Repositories)
+	return result.calculateAttackResultForThisTarget(calculation.Setup(), calculation.Attack(), result.forecast.Repositories())
 }
 
-func (result *Result) getHealingResult(calculation *powerattackforecast.Calculation) *ResultPerTarget {
-	if calculation.HealingForecast == nil {
+func (result *Result) getHealingResult(calculation powerattackforecast.CalculationInterface) *ResultPerTarget {
+	if calculation.HealingForecast() == nil {
 		return nil
 	}
-	return result.calculateHealingResultForThisTarget(calculation.Setup, calculation.HealingForecast, result.forecast.Repositories)
+	return result.calculateHealingResultForThisTarget(calculation.Setup(), calculation.HealingForecast(), result.forecast.Repositories())
 }
 
-func (result *Result) isCounterAttackPossible(calculation powerattackforecast.Calculation) bool {
-	if calculation.CounterAttack == nil {
+func (result *Result) isCounterAttackPossible(calculation powerattackforecast.CalculationInterface) bool {
+	if calculation.CounterAttack() == nil {
 		return false
 	}
 
-	counterAttacker := calculation.Repositories.SquaddieRepo.GetOriginalSquaddieByID(calculation.CounterAttackSetup.UserID)
+	counterAttacker := calculation.Repositories().SquaddieRepo.GetOriginalSquaddieByID(calculation.CounterAttackSetup().UserID)
 	if counterAttacker.IsDead() {
 		return false
 	}

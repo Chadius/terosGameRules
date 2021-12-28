@@ -2,9 +2,11 @@ package squaddiestats_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
@@ -15,10 +17,10 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type squaddieOffense struct {
-	teros *squaddie.Squaddie
+	teros squaddieinterface.Interface
 
-	spear *power.Power
-	blot  *power.Power
+	spear powerinterface.Interface
+	blot  powerinterface.Interface
 
 	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
@@ -36,10 +38,10 @@ func (suite *squaddieOffense) SetUpTest(checker *C) {
 	suite.blot = power.NewPowerBuilder().Blot().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
+	suite.squaddieRepo.AddSquaddie(suite.teros)
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
-	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot})
+	suite.powerRepo.AddSlicePowerSource([]powerinterface.Interface{suite.spear, suite.blot})
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
@@ -87,7 +89,7 @@ func (suite *squaddieOffense) TestReturnsAnErrorIfPowerDoesNotExist(checker *C) 
 
 func (suite *squaddieOffense) TestReturnsAnErrorIfPowerHasNoAttackEffect(checker *C) {
 	wait := power.NewPowerBuilder().WithID("powerWait").Build()
-	suite.powerRepo.AddSlicePowerSource([]*power.Power{wait})
+	suite.powerRepo.AddSlicePowerSource([]powerinterface.Interface{wait})
 
 	checkEquip := powerequip.CheckRepositories{}
 	checkEquip.LoadAllOfSquaddieInnatePowers(
@@ -205,8 +207,8 @@ func (suite *squaddieOffense) TestCanCriticallyHitWithPower(checker *C) {
 }
 
 type healingPower struct {
-	lini         *squaddie.Squaddie
-	healingStaff *power.Power
+	lini         squaddieinterface.Interface
+	healingStaff powerinterface.Interface
 
 	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
@@ -223,10 +225,10 @@ func (suite *healingPower) SetUpTest(checker *C) {
 	suite.healingStaff = power.NewPowerBuilder().HealingStaff().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.lini})
+	suite.squaddieRepo.AddSquaddie(suite.lini)
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
-	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.healingStaff})
+	suite.powerRepo.AddSlicePowerSource([]powerinterface.Interface{suite.healingStaff})
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
@@ -269,4 +271,78 @@ func (suite *improveOffense) TestWhenImproveIsCalled_ThenAimStrengthMindIncrease
 	checker.Assert(suite.initialOffense.Aim(), Equals, 9)
 	checker.Assert(suite.initialOffense.Strength(), Equals, 14)
 	checker.Assert(suite.initialOffense.Mind(), Equals, 18)
+}
+
+type CounterAttackEquipmentCheck struct {
+	teros           squaddieinterface.Interface
+	spear           powerinterface.Interface
+	scimitar        powerinterface.Interface
+	blot            powerinterface.Interface
+	powerRepo       *powerrepository.Repository
+	squaddieRepo    *squaddie.Repository
+	repos           *repositories.RepositoryCollection
+	equipCheck      powerequip.Strategy
+	offenseStrategy squaddiestats.CalculateSquaddieOffenseStatsStrategy
+}
+
+var _ = Suite(&CounterAttackEquipmentCheck{})
+
+func (suite *CounterAttackEquipmentCheck) SetUpTest(checker *C) {
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.scimitar = power.NewPowerBuilder().WithName("scimitar the second").CanBeEquipped().Build()
+	suite.blot = power.NewPowerBuilder().Blot().CannotBeEquipped().Build()
+
+	suite.powerRepo = powerrepository.NewPowerRepository()
+	suite.powerRepo.AddSlicePowerSource([]powerinterface.Interface{
+		suite.spear,
+		suite.scimitar,
+		suite.blot,
+	})
+
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.squaddieRepo.AddSquaddie(suite.teros)
+
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+
+	suite.equipCheck = &powerequip.CheckRepositories{}
+
+	suite.offenseStrategy = &squaddiestats.CalculateSquaddieOffenseStats{}
+}
+
+func (suite *CounterAttackEquipmentCheck) TestSquaddieCanCounter(checker *C) {
+	terosPowerReferences := []*powerreference.Reference{
+		suite.spear.GetReference(),
+		suite.scimitar.GetReference(),
+		suite.blot.GetReference(),
+	}
+	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
+	suite.equipCheck.EquipDefaultPower(suite.teros, suite.repos)
+	canCounter, _ := suite.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
+	checker.Assert(canCounter, Equals, true)
+}
+
+func (suite *CounterAttackEquipmentCheck) TestSquaddieCannotCounterWithUncounterablePower(checker *C) {
+	terosPowerReferences := []*powerreference.Reference{
+		suite.spear.GetReference(),
+		suite.scimitar.GetReference(),
+		suite.blot.GetReference(),
+	}
+	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
+	suite.equipCheck.SquaddieEquipPower(suite.teros, suite.scimitar.ID(), suite.repos)
+	canCounter, _ := suite.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
+	checker.Assert(canCounter, Equals, false)
+}
+
+func (suite *CounterAttackEquipmentCheck) TestSquaddieCannotCounterWithUnequippablePower(checker *C) {
+	terosPowerReferences := []*powerreference.Reference{
+		suite.blot.GetReference(),
+	}
+	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
+	suite.equipCheck.EquipDefaultPower(suite.teros, suite.repos)
+	canCounter, _ := suite.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
+	checker.Assert(canCounter, Equals, false)
 }

@@ -3,10 +3,12 @@ package levelup_test
 import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	. "gopkg.in/check.v1"
@@ -16,7 +18,7 @@ import (
 type SquaddieUsesLevelUpBenefitSuite struct {
 	mageClass              *squaddieclass.Class
 	statBooster            *levelupbenefit.LevelUpBenefit
-	teros                  *squaddie.Squaddie
+	teros                  squaddieinterface.Interface
 	improveAllMovement     *levelupbenefit.LevelUpBenefit
 	upgradeToLightMovement *levelupbenefit.LevelUpBenefit
 
@@ -130,14 +132,14 @@ func (suite *SquaddieUsesLevelUpBenefitSuite) TestSquaddieCannotDowngradeMovemen
 
 type SquaddieChangePowersWithLevelUpBenefitsSuite struct {
 	mageClass               *squaddieclass.Class
-	teros                   *squaddie.Squaddie
+	teros                   squaddieinterface.Interface
 	powerRepo               *powerrepository.Repository
 	squaddieRepo            *squaddie.Repository
 	repos                   *repositories.RepositoryCollection
 	gainPower               levelupbenefit.LevelUpBenefit
 	upgradePower            levelupbenefit.LevelUpBenefit
-	spear                   *power.Power
-	spearLevel2             *power.Power
+	spear                   powerinterface.Interface
+	spearLevel2             powerinterface.Interface
 	improveSquaddieStrategy levelup.ImproveSquaddieStrategy
 }
 
@@ -158,14 +160,14 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 	})
 
 	suite.spearLevel2 = power.NewPowerBuilder().Spear().WithID("spearlvl2").Build()
-	newPowers := []*power.Power{suite.spear, suite.spearLevel2}
+	newPowers := []powerinterface.Interface{suite.spear, suite.spearLevel2}
 	suite.powerRepo.AddSlicePowerSource(newPowers)
 
 	newLevel, _ := levelupbenefit.NewLevelUpBenefitBuilder().
 		WithID("aaab1234").
 		WithClassID(suite.mageClass.ID()).
 		BigLevel().
-		GainPower(suite.spear.PowerID, "spear").
+		GainPower(suite.spear.ID(), "spear").
 		Build()
 
 	suite.gainPower = *newLevel
@@ -174,14 +176,14 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) SetUpTest(checker *C)
 		WithID("aaab1235").
 		WithClassID(suite.mageClass.ID()).
 		BigLevel().
-		GainPower(suite.spearLevel2.PowerID, "spear").
-		LosePower(suite.spear.PowerID).
+		GainPower(suite.spearLevel2.ID(), "spear").
+		LosePower(suite.spear.ID()).
 		Build()
 
 	suite.upgradePower = *upgradePowerLevel
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
+	suite.squaddieRepo.AddSquaddies([]squaddieinterface.Interface{suite.teros})
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,
@@ -197,7 +199,7 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieGainPower
 	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(len(attackIDNamePairs), Equals, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
-	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spear.PowerID)
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spear.ID())
 }
 
 func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePowers(checker *C) {
@@ -210,5 +212,5 @@ func (suite *SquaddieChangePowersWithLevelUpBenefitsSuite) TestSquaddieLosePower
 	attackIDNamePairs := suite.teros.GetCopyOfPowerReferences()
 	checker.Assert(attackIDNamePairs, HasLen, 1)
 	checker.Assert(attackIDNamePairs[0].Name, Equals, "spear")
-	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spearLevel2.PowerID)
+	checker.Assert(attackIDNamePairs[0].PowerID, Equals, suite.spearLevel2.ID())
 }

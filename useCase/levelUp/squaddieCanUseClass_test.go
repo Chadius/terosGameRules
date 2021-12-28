@@ -4,6 +4,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/levelup"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/utility/testutility/builder"
@@ -32,7 +33,7 @@ type SquaddieQualifiesForClassSuite struct {
 	atLeastTenLevelsBaseClass *squaddieclass.Class
 	lotsOfLevels              []*levelupbenefit.LevelUpBenefit
 
-	teros                   *squaddie.Squaddie
+	teros                   squaddieinterface.Interface
 	improveSquaddieStrategy levelup.ImproveSquaddieStrategy
 	levelUpCheck            levelup.SquaddieCanSwitchClassStrategy
 }

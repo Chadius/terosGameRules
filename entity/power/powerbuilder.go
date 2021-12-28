@@ -3,6 +3,7 @@ package power
 import (
 	"encoding/json"
 	"github.com/chadius/terosbattleserver/entity/healing"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powersource"
 	"github.com/chadius/terosbattleserver/entity/target"
 	"github.com/chadius/terosbattleserver/utility"
@@ -363,7 +364,7 @@ func (p *Builder) usingMarshaledOptions(marshaledOptions *BuilderOptionMarshal) 
 }
 
 // CloneOf modifies the Builder based on the source, except for the classID.
-func (p *Builder) CloneOf(source *Power) *Builder {
+func (p *Builder) CloneOf(source powerinterface.Interface) *Builder {
 	p.WithName(source.Name())
 
 	p.clonePowerType(source)
@@ -374,12 +375,12 @@ func (p *Builder) CloneOf(source *Power) *Builder {
 	return p
 }
 
-func (p *Builder) cloneHealingEffect(source *Power) {
+func (p *Builder) cloneHealingEffect(source powerinterface.Interface) {
 	p.HitPointsHealed(source.HitPointsHealed())
 	p.WithHealingLogic(reflect.TypeOf(source.HealingLogic()).String())
 }
 
-func (p *Builder) cloneAttackEffect(source *Power) {
+func (p *Builder) cloneAttackEffect(source powerinterface.Interface) {
 	if source.CanAttack() {
 		p.ToHitBonus(source.ToHitBonus()).DealsDamage(source.DamageBonus()).ExtraBarrierBurn(source.ExtraBarrierBurn()).
 			CounterAttackPenaltyReduction(source.CounterAttackPenaltyReduction())
@@ -407,7 +408,7 @@ func (p *Builder) cloneAttackEffect(source *Power) {
 	}
 }
 
-func (p *Builder) cloneTargeting(source *Power) {
+func (p *Builder) cloneTargeting(source powerinterface.Interface) {
 	if source.CanPowerTargetFoe() {
 		p.TargetsFoe()
 	}
@@ -421,7 +422,7 @@ func (p *Builder) cloneTargeting(source *Power) {
 	}
 }
 
-func (p *Builder) clonePowerType(source *Power) {
+func (p *Builder) clonePowerType(source powerinterface.Interface) {
 	p.powerSourceLogic = powersource.NewPowerSourceLogic(
 		source.PowerSourceLogic().Name(),
 	)

@@ -2,6 +2,7 @@ package powerrepository_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	. "gopkg.in/check.v1"
 	"testing"
@@ -10,8 +11,8 @@ import (
 func Test(t *testing.T) { TestingT(t) }
 
 type PowerCreationSuite struct {
-	spear  *power.Power
-	spear2 *power.Power
+	spear  powerinterface.Interface
+	spear2 powerinterface.Interface
 	repo   *powerrepository.Repository
 }
 
@@ -21,7 +22,7 @@ func (suite *PowerCreationSuite) SetUpTest(checker *C) {
 	suite.spear = power.NewPowerBuilder().Spear().WithName("Spear").WithID("spearLevel1").Build()
 	suite.spear2 = power.NewPowerBuilder().Spear().WithName("Spear").WithID("spearLevel2").Build()
 
-	newPowers := []*power.Power{suite.spear, suite.spear2}
+	newPowers := []powerinterface.Interface{suite.spear, suite.spear2}
 
 	suite.repo = powerrepository.NewPowerRepository()
 	suite.repo.AddSlicePowerSource(newPowers)
@@ -31,7 +32,7 @@ func (suite *PowerCreationSuite) TestAddPowersToNewRepository(checker *C) {
 	newRepo := powerrepository.NewPowerRepository()
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 0)
 	spear := power.NewPowerBuilder().Spear().Build()
-	newPowers := []*power.Power{spear}
+	newPowers := []powerinterface.Interface{spear}
 	success, _ := newRepo.AddSlicePowerSource(newPowers)
 	checker.Assert(success, Equals, true)
 	checker.Assert(newRepo.GetNumberOfPowers(), Equals, 1)
@@ -63,10 +64,10 @@ func (suite *PowerCreationSuite) TestSearchForPowerByName(checker *C) {
 	hasSpearPower := false
 	hasSpear2Power := false
 	for _, power := range allSpearPowers {
-		if power.PowerID == suite.spear.PowerID {
+		if power.ID() == suite.spear.ID() {
 			hasSpearPower = true
 		}
-		if power.PowerID == suite.spear2.PowerID {
+		if power.ID() == suite.spear2.ID() {
 			hasSpear2Power = true
 		}
 	}

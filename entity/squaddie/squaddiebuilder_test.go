@@ -5,6 +5,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	classEntity "github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	. "gopkg.in/check.v1"
 	"reflect"
 )
@@ -403,7 +404,7 @@ func (suite *JSONBuilderSuite) TestClassesMatchesNewSquaddie(checker *C) {
 }
 
 type BuildCopySuite struct {
-	teros *squaddie.Squaddie
+	teros squaddieinterface.Interface
 }
 
 var _ = Suite(&BuildCopySuite{})

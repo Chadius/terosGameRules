@@ -1,7 +1,6 @@
 package healing
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 )
 
@@ -9,9 +8,9 @@ import (
 type FullMindBonus struct{}
 
 // CalculateExpectedHeal determines how much the healer can heal the target using the given healing Power.
-func (f *FullMindBonus) CalculateExpectedHeal(healer squaddieinterface.Interface, healingPower powerinterface.Interface, target squaddieinterface.Interface) int {
+func (f *FullMindBonus) CalculateExpectedHeal(healer squaddieinterface.Interface, powerHealingAmount int, target squaddieinterface.Interface) int {
 	squaddieMindBonus := healer.Mind()
-	maximumHealing := healingPower.HitPointsHealed() + squaddieMindBonus
+	maximumHealing := powerHealingAmount + squaddieMindBonus
 	missingHitPoints := target.MaxHitPoints() - target.CurrentHitPoints()
 	if missingHitPoints < maximumHealing {
 		return missingHitPoints

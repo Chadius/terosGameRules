@@ -2,9 +2,11 @@ package squaddiestats_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
@@ -12,10 +14,10 @@ import (
 )
 
 type squaddieDefense struct {
-	teros *squaddie.Squaddie
+	teros squaddieinterface.Interface
 
-	weakerSpear *power.Power
-	weakerBlot  *power.Power
+	weakerSpear powerinterface.Interface
+	weakerBlot  powerinterface.Interface
 
 	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
@@ -34,10 +36,10 @@ func (suite *squaddieDefense) SetUpTest(checker *C) {
 	suite.weakerBlot = power.NewPowerBuilder().Blot().DealsDamage(0).ToHitBonus(0).Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
+	suite.squaddieRepo.AddSquaddie(suite.teros)
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
-	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.weakerSpear, suite.weakerBlot})
+	suite.powerRepo.AddSlicePowerSource([]powerinterface.Interface{suite.weakerSpear, suite.weakerBlot})
 
 	suite.repos = &repositories.RepositoryCollection{
 		SquaddieRepo: suite.squaddieRepo,

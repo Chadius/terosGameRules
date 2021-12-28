@@ -3,6 +3,7 @@ package power
 import (
 	"errors"
 	"github.com/chadius/terosbattleserver/entity/healing"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/powersource"
 	"github.com/chadius/terosbattleserver/entity/target"
@@ -212,7 +213,7 @@ func (p *Power) HealingLogic() healing.Interface {
 
 // HasSameStatsAs returns true if other's stats matches this one.
 //   The comparison ignores the ID.
-func (p *Power) HasSameStatsAs(other *Power) bool {
+func (p *Power) HasSameStatsAs(other powerinterface.Interface) bool {
 	if p.Name() != other.Name() {
 		return false
 	}
@@ -235,7 +236,7 @@ func (p *Power) HasSameStatsAs(other *Power) bool {
 	return true
 }
 
-func (p *Power) hasSameHealingEffectAs(other *Power) bool {
+func (p *Power) hasSameHealingEffectAs(other powerinterface.Interface) bool {
 	if p.HitPointsHealed() != other.HitPointsHealed() {
 		return false
 	}
@@ -245,7 +246,7 @@ func (p *Power) hasSameHealingEffectAs(other *Power) bool {
 	return true
 }
 
-func (p *Power) hasSameAttackEffectAs(other *Power) bool {
+func (p *Power) hasSameAttackEffectAs(other powerinterface.Interface) bool {
 	if p.CanAttack() != other.CanAttack() {
 		return false
 	}
@@ -284,7 +285,7 @@ func (p *Power) hasSameAttackEffectAs(other *Power) bool {
 	return true
 }
 
-func (p *Power) hasSameTargetingAs(other *Power) bool {
+func (p *Power) hasSameTargetingAs(other powerinterface.Interface) bool {
 	if p.CanPowerTargetFriend() != other.CanPowerTargetFriend() {
 		return false
 	}

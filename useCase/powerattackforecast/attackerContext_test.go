@@ -2,26 +2,29 @@ package powerattackforecast_test
 
 import (
 	"github.com/chadius/terosbattleserver/entity/power"
+	"github.com/chadius/terosbattleserver/entity/powerinterface"
 	"github.com/chadius/terosbattleserver/entity/powerrepository"
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	. "gopkg.in/check.v1"
 	"reflect"
 )
 
 type AttackContextTestSuite struct {
-	teros  *squaddie.Squaddie
-	bandit *squaddie.Squaddie
-	spear  *power.Power
-	blot   *power.Power
+	teros  squaddieinterface.Interface
+	bandit squaddieinterface.Interface
+	spear  powerinterface.Interface
+	blot   powerinterface.Interface
 
 	powerRepo    *powerrepository.Repository
 	squaddieRepo *squaddie.Repository
 
-	forecastSpearOnBandit *powerattackforecast.Forecast
-	forecastBlotOnBandit  *powerattackforecast.Forecast
+	attackerContextSpearOnBandit powerattackforecast.AttackerContextStrategy
+	attackerContextBlotOnBandit  powerattackforecast.AttackerContextStrategy
 }
 
 var _ = Suite(&AttackContextTestSuite{})
@@ -35,87 +38,106 @@ func (suite *AttackContextTestSuite) SetUpTest(checker *C) {
 	suite.bandit = squaddie.NewSquaddieBuilder().Bandit().Build()
 
 	suite.squaddieRepo = squaddie.NewSquaddieRepository()
-	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros, suite.bandit})
+	suite.squaddieRepo.AddSquaddies([]squaddieinterface.Interface{suite.teros, suite.bandit})
 
 	suite.powerRepo = powerrepository.NewPowerRepository()
-	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot})
+	suite.powerRepo.AddSlicePowerSource([]powerinterface.Interface{suite.spear, suite.blot})
 
-	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.PowerID,
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
+	suite.attackerContextSpearOnBandit = powerattackforecast.NewAttackerContext(&squaddiestats.CalculateSquaddieOffenseStats{})
+	suite.CalculateSpearOnBandit(nil)
+
+	suite.attackerContextBlotOnBandit = powerattackforecast.NewAttackerContext(&squaddiestats.CalculateSquaddieOffenseStats{})
+	suite.CalculateBlotOnBandit(nil)
+}
+
+func (suite *AttackContextTestSuite) CalculateSpearOnBandit(setup *powerusagescenario.Setup) {
+	setupToUse := powerusagescenario.Setup{
+		UserID:          suite.teros.ID(),
+		PowerID:         suite.spear.ID(),
+		Targets:         []string{suite.bandit.ID()},
+		IsCounterAttack: false,
+	}
+	if setup != nil {
+		setupToUse = *setup
+	}
+
+	suite.attackerContextSpearOnBandit.Calculate(
+		setupToUse,
+		&repositories.RepositoryCollection{
 			SquaddieRepo: suite.squaddieRepo,
 			PowerRepo:    suite.powerRepo,
 		},
+	)
+}
+
+func (suite *AttackContextTestSuite) CalculateBlotOnBandit(setup *powerusagescenario.Setup) {
+	setupToUse := powerusagescenario.Setup{
+		UserID:          suite.teros.ID(),
+		PowerID:         suite.blot.ID(),
+		Targets:         []string{suite.bandit.ID()},
+		IsCounterAttack: false,
+	}
+	if setup != nil {
+		setupToUse = *setup
 	}
 
-	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.PowerID,
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
+	suite.attackerContextBlotOnBandit.Calculate(
+		setupToUse,
+		&repositories.RepositoryCollection{
 			SquaddieRepo: suite.squaddieRepo,
 			PowerRepo:    suite.powerRepo,
 		},
-	}
+	)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerHitBonus(checker *C) {
-	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus(), Equals, 3)
+	suite.CalculateSpearOnBandit(nil)
+	checker.Assert(suite.attackerContextSpearOnBandit.TotalToHitBonus(), Equals, 3)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerHitBonusOnCounterAttacks(checker *C) {
-	forecastCounterSpearOnBandit := &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.PowerID,
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: true,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
-	forecastCounterSpearOnBandit.CalculateForecast()
-	checker.Assert(forecastCounterSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.TotalToHitBonus(), Equals, 1)
+	suite.CalculateSpearOnBandit(&powerusagescenario.Setup{
+		UserID:          suite.teros.ID(),
+		PowerID:         suite.spear.ID(),
+		Targets:         []string{suite.bandit.ID()},
+		IsCounterAttack: true,
+	})
+	checker.Assert(suite.attackerContextSpearOnBandit.TotalToHitBonus(), Equals, 1)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerPhysicalRawDamage(checker *C) {
-	suite.forecastSpearOnBandit.CalculateForecast()
 	checker.Assert(
-		reflect.TypeOf(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.PowerSourceLogic()).String(),
+		reflect.TypeOf(suite.attackerContextSpearOnBandit.PowerSourceLogic()).String(),
 		Equals,
 		"*powersource.Physical",
 	)
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage(), Equals, 3)
+	checker.Assert(suite.attackerContextSpearOnBandit.RawDamage(), Equals, 3)
 }
 
 func (suite *AttackContextTestSuite) TestGetAttackerSpellDamage(checker *C) {
-	suite.forecastBlotOnBandit.CalculateForecast()
+	suite.CalculateBlotOnBandit(nil)
 	checker.Assert(
-		reflect.TypeOf(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.PowerSourceLogic()).String(),
+		reflect.TypeOf(suite.attackerContextBlotOnBandit.PowerSourceLogic()).String(),
 		Equals,
 		"*powersource.Spell",
 	)
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.RawDamage(), Equals, 5)
+	checker.Assert(suite.attackerContextBlotOnBandit.RawDamage(), Equals, 5)
 }
 
 func (suite *AttackContextTestSuite) TestCriticalHits(checker *C) {
 	suite.spear = power.NewPowerBuilder().CloneOf(suite.spear).WithID(suite.spear.ID()).CriticalDealsDamage(3).CriticalHitThresholdBonus(0).Build()
 	suite.powerRepo.AddPower(suite.spear)
 
-	suite.forecastSpearOnBandit.CalculateForecast()
+	suite.CalculateSpearOnBandit(
+		&powerusagescenario.Setup{
+			UserID:          suite.teros.ID(),
+			PowerID:         suite.spear.ID(),
+			Targets:         []string{suite.bandit.ID()},
+			IsCounterAttack: true,
+		},
+	)
 
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CanCritical(), Equals, true)
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitThreshold(), Equals, 6)
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.AttackerContext.CriticalHitDamage(), Equals, 6)
+	checker.Assert(suite.attackerContextSpearOnBandit.CanCritical(), Equals, true)
+	checker.Assert(suite.attackerContextSpearOnBandit.CriticalHitThreshold(), Equals, 6)
+	checker.Assert(suite.attackerContextSpearOnBandit.CriticalHitDamage(), Equals, 6)
 }

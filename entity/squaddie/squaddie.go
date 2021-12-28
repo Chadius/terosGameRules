@@ -6,6 +6,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/movement"
 	"github.com/chadius/terosbattleserver/entity/powerreference"
 	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"reflect"
 )
 
@@ -174,7 +175,7 @@ func (s *Squaddie) MovementCanHitAndRun() bool {
 
 // HasSameStatsAs returns true if other's stats matches this one.
 //   The comparison ignores the ID.
-func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
+func (s *Squaddie) HasSameStatsAs(other squaddieinterface.Interface) bool {
 	if s.Name() != other.Name() {
 		return false
 	}
@@ -201,7 +202,7 @@ func (s *Squaddie) HasSameStatsAs(other *Squaddie) bool {
 	return true
 }
 
-func (s *Squaddie) hasSameMovementAs(other *Squaddie) bool {
+func (s *Squaddie) hasSameMovementAs(other squaddieinterface.Interface) bool {
 	if reflect.TypeOf(s.MovementLogic()).String() != reflect.TypeOf(other.MovementLogic()).String() {
 		return false
 	}
@@ -215,7 +216,7 @@ func (s *Squaddie) hasSameMovementAs(other *Squaddie) bool {
 	return true
 }
 
-func (s *Squaddie) hasSameOffenseAs(other *Squaddie) bool {
+func (s *Squaddie) hasSameOffenseAs(other squaddieinterface.Interface) bool {
 	if s.Aim() != other.Aim() {
 		return false
 	}
@@ -228,7 +229,7 @@ func (s *Squaddie) hasSameOffenseAs(other *Squaddie) bool {
 	return true
 }
 
-func (s *Squaddie) hasSameDefenseAs(other *Squaddie) bool {
+func (s *Squaddie) hasSameDefenseAs(other squaddieinterface.Interface) bool {
 	if s.MaxHitPoints() != other.MaxHitPoints() {
 		return false
 	}
@@ -253,12 +254,75 @@ func (s *Squaddie) hasSameDefenseAs(other *Squaddie) bool {
 	return true
 }
 
-func (s *Squaddie) hasSamePowersAs(other *Squaddie) bool {
-	return s.powerCollection.HasSamePowersAs(&other.powerCollection)
+func (s *Squaddie) hasSamePowersAs(other squaddieinterface.Interface) bool {
+	powerCollection := s.GetCopyOfPowerReferences()
+	otherCollection := other.GetCopyOfPowerReferences()
+
+	if len(powerCollection) != len(otherCollection) {
+		return false
+	}
+
+	powersByID := map[string]bool{}
+	for _, reference := range powerCollection {
+		powersByID[reference.PowerID] = false
+	}
+
+	for _, reference := range otherCollection {
+		alreadyFound, exists := powersByID[reference.PowerID]
+		if !exists {
+			return false
+		}
+		if alreadyFound {
+			return false
+		}
+		powersByID[reference.PowerID] = true
+	}
+
+	for _, wasFound := range powersByID {
+		if wasFound == false {
+			return false
+		}
+	}
+
+	return true
 }
 
-func (s *Squaddie) hasSameClassesAs(other *Squaddie) bool {
-	return s.classProgress.HasSameClassesAs(&other.classProgress)
+func (s *Squaddie) hasSameClassesAs(other squaddieinterface.Interface) bool {
+	if s.BaseClassID() != other.BaseClassID() {
+		return false
+	}
+	if s.CurrentClassID() != other.CurrentClassID() {
+		return false
+	}
+
+	otherClassLevelsConsumed := *other.ClassLevelsConsumed()
+	if len(*s.ClassLevelsConsumed()) != len(otherClassLevelsConsumed) {
+		return false
+	}
+
+	classLevelsConsumedByClassID := map[string]bool{}
+	for classLevelsConsumedClassID := range *s.ClassLevelsConsumed() {
+		classLevelsConsumedByClassID[classLevelsConsumedClassID] = false
+	}
+
+	for classID, classLevelsConsumed := range otherClassLevelsConsumed {
+		_, exists := classLevelsConsumedByClassID[classID]
+		if !exists {
+			return false
+		}
+		if !(*s.ClassLevelsConsumed())[classID].HasSameConsumptionAs(classLevelsConsumed) {
+			return false
+		}
+		classLevelsConsumedByClassID[classID] = true
+	}
+
+	for _, wasFound := range classLevelsConsumedByClassID {
+		if wasFound == false {
+			return false
+		}
+	}
+
+	return true
 }
 
 // ClearPowerReferences delegates.

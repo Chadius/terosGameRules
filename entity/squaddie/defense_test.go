@@ -3,11 +3,12 @@ package squaddie_test
 import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	. "gopkg.in/check.v1"
 )
 
 type SquaddieDefenseSuite struct {
-	teros *squaddie.Squaddie
+	teros squaddieinterface.Interface
 }
 
 var _ = Suite(&SquaddieDefenseSuite{})
