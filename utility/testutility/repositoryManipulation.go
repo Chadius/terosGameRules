@@ -28,12 +28,16 @@ func AddSquaddieWithInnatePowersToRepos(squaddieToAdd *squaddie.Squaddie, powerT
 	}
 }
 
+// TODO Either Forecast should have these permanently or we should work on getting rid of these
+
+// UpdateForecastWithNewTarget updates the forecast setup with a new target
 func UpdateForecastWithNewTarget(squaddieToTarget *squaddie.Squaddie, squaddieRepo *squaddie.Repository, forecast *powerattackforecast.Forecast) {
 	squaddieRepo.AddSquaddie(squaddieToTarget)
-	forecast.Setup.Targets[0] = squaddieToTarget.ID()
+	forecast.UpdateForecastWithNewTarget(0, squaddieToTarget.ID())
 }
 
+// UpdateForecastWithNewUser updates the forecast setup with a new user
 func UpdateForecastWithNewUser(squaddieToUse *squaddie.Squaddie, squaddieRepo *squaddie.Repository, forecast *powerattackforecast.Forecast) {
 	squaddieRepo.AddSquaddie(squaddieToUse)
-	forecast.Setup.UserID = squaddieToUse.ID()
+	forecast.UpdateForecastWithNewUser(squaddieToUse.ID())
 }

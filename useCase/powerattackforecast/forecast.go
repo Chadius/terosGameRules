@@ -2,30 +2,146 @@ package powerattackforecast
 
 import (
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
-	"github.com/chadius/terosbattleserver/usecase/powerequip"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
 	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 )
 
+// ForecastBuilder is used to make new Forecast objects.
+type ForecastBuilder struct {
+	setup                     *powerusagescenario.Setup
+	repositories              *repositories.RepositoryCollection
+	forecastedResultPerTarget []Calculation
+	offenseStrategy           squaddiestats.CalculateSquaddieOffenseStatsStrategy
+}
+
+// NewForecastBuilder returns a new object.
+func NewForecastBuilder() *ForecastBuilder {
+	return &ForecastBuilder{
+		setup:                     nil,
+		repositories:              nil,
+		forecastedResultPerTarget: nil,
+		offenseStrategy:           nil,
+	}
+}
+
+// Setup sets the field.
+func (fb *ForecastBuilder) Setup(setup *powerusagescenario.Setup) *ForecastBuilder {
+	fb.setup = setup
+	return fb
+}
+
+// Repositories sets the field.
+func (fb *ForecastBuilder) Repositories(repositories *repositories.RepositoryCollection) *ForecastBuilder {
+	fb.repositories = repositories
+	return fb
+}
+
+// ForecastedResultPerTarget sets the field.
+func (fb *ForecastBuilder) ForecastedResultPerTarget(forecastedResultPerTarget []Calculation) *ForecastBuilder {
+	fb.forecastedResultPerTarget = forecastedResultPerTarget
+	return fb
+}
+
+// OffenseStrategy sets the field.
+func (fb *ForecastBuilder) OffenseStrategy(offenseStrategy squaddiestats.CalculateSquaddieOffenseStatsStrategy) *ForecastBuilder {
+	fb.offenseStrategy = offenseStrategy
+	return fb
+}
+
+// Build returns the builder object
+func (fb *ForecastBuilder) Build() *Forecast {
+	return NewForecast(
+		fb.setup,
+		fb.repositories,
+		fb.forecastedResultPerTarget,
+		fb.offenseStrategy,
+	)
+}
+
 // Forecast will store the information needed to explain what will happen when a squaddie
 //  uses a given power. It can be asked multiple questions.
 type Forecast struct {
-	Setup                     powerusagescenario.Setup
-	Repositories              *repositories.RepositoryCollection
-	ForecastedResultPerTarget []Calculation
-	OffenseStrategy           squaddiestats.CalculateSquaddieOffenseStatsStrategy
+	setup                     powerusagescenario.Setup
+	repositories              *repositories.RepositoryCollection
+	forecastedResultPerTarget []Calculation
+	offenseStrategy           squaddiestats.CalculateSquaddieOffenseStatsStrategy
+}
+
+// NewForecast returns a new Forecast object.
+func NewForecast(
+	setup *powerusagescenario.Setup,
+	collection *repositories.RepositoryCollection,
+	forecastedResults []Calculation,
+	offenseStrategy squaddiestats.CalculateSquaddieOffenseStatsStrategy,
+) *Forecast {
+	return &Forecast{
+		setup:                     *setup,
+		repositories:              collection,
+		forecastedResultPerTarget: forecastedResults,
+		offenseStrategy:           offenseStrategy,
+	}
+}
+
+// Repositories gets the object
+func (forecast *Forecast) Repositories() *repositories.RepositoryCollection {
+	return forecast.repositories
+}
+
+// ForecastedResultPerTarget gets the object
+func (forecast *Forecast) ForecastedResultPerTarget() []Calculation {
+	return forecast.forecastedResultPerTarget
+}
+
+// CalculationInterface describes what all calculations will subscribe to
+type CalculationInterface interface {
+	Setup() *powerusagescenario.Setup
+	Attack() *AttackForecast
+	CounterAttackSetup() *powerusagescenario.Setup
+	CounterAttack() *AttackForecast
+	Repositories() *repositories.RepositoryCollection
+	HealingForecast() *HealingForecast
 }
 
 // Calculation holds the results of the forecast.
 type Calculation struct {
-	Repositories *repositories.RepositoryCollection
-	Setup        *powerusagescenario.Setup
+	repositories *repositories.RepositoryCollection
+	setup        *powerusagescenario.Setup
 
-	Attack             *AttackForecast
-	CounterAttackSetup *powerusagescenario.Setup
-	CounterAttack      *AttackForecast
+	attack              *AttackForecast
+	counterAttackSetup2 *powerusagescenario.Setup
+	counterAttack       *AttackForecast
 
-	HealingForecast *HealingForecast
+	healingForecast *HealingForecast
+}
+
+// Attack is a getter.
+func (c *Calculation) Attack() *AttackForecast {
+	return c.attack
+}
+
+// CounterAttack is a getter.
+func (c *Calculation) CounterAttack() *AttackForecast {
+	return c.counterAttack
+}
+
+// CounterAttackSetup is a getter.
+func (c *Calculation) CounterAttackSetup() *powerusagescenario.Setup {
+	return c.counterAttackSetup2
+}
+
+// Setup is a getter.
+func (c *Calculation) Setup() *powerusagescenario.Setup {
+	return c.setup
+}
+
+// Repositories is a getter.
+func (c *Calculation) Repositories() *repositories.RepositoryCollection {
+	return c.repositories
+}
+
+//HealingForecast is a getter.
+func (c *Calculation) HealingForecast() *HealingForecast {
+	return c.healingForecast
 }
 
 // AttackForecast shows what will happen if the power used is offensive.
@@ -37,19 +153,19 @@ type AttackForecast struct {
 
 // CalculateForecast gives a numerical prediction of the power's effect.
 func (forecast *Forecast) CalculateForecast() {
-	powerToUse := forecast.Repositories.PowerRepo.GetPowerByID(forecast.Setup.PowerID)
+	powerToUse := forecast.repositories.PowerRepo.GetPowerByID(forecast.setup.PowerID)
 
-	for _, targetID := range forecast.Setup.Targets {
+	for _, targetID := range forecast.setup.Targets {
 		calculation := Calculation{
-			Setup: &powerusagescenario.Setup{
-				UserID:          forecast.Setup.UserID,
-				PowerID:         forecast.Setup.PowerID,
+			setup: &powerusagescenario.Setup{
+				UserID:          forecast.setup.UserID,
+				PowerID:         forecast.setup.PowerID,
 				Targets:         []string{targetID},
 				IsCounterAttack: false,
 			},
-			Repositories: &repositories.RepositoryCollection{
-				SquaddieRepo: forecast.Repositories.SquaddieRepo,
-				PowerRepo:    forecast.Repositories.PowerRepo,
+			repositories: &repositories.RepositoryCollection{
+				SquaddieRepo: forecast.repositories.SquaddieRepo,
+				PowerRepo:    forecast.repositories.PowerRepo,
 			},
 		}
 
@@ -60,7 +176,7 @@ func (forecast *Forecast) CalculateForecast() {
 			forecast.addHealingEffectToCalculation(targetID, &calculation)
 		}
 
-		forecast.ForecastedResultPerTarget = append(forecast.ForecastedResultPerTarget, calculation)
+		forecast.forecastedResultPerTarget = append(forecast.forecastedResultPerTarget, calculation)
 	}
 }
 
@@ -68,23 +184,23 @@ func (forecast *Forecast) addAttackAndCounterAttackToCalculation(targetID string
 	attack := forecast.CalculateAttackForecast(targetID)
 	var counterAttack *AttackForecast
 	var counterAttackSetup *powerusagescenario.Setup
-	if forecast.isCounterattackPossible(targetID) {
+	if forecast.IsCounterattackPossible(targetID, forecast.repositories) {
 		counterAttackSetup, counterAttack = forecast.createCounterAttackForecast(targetID)
 	}
 
-	calculation.Attack = attack
-	calculation.CounterAttackSetup = counterAttackSetup
-	calculation.CounterAttack = counterAttack
+	calculation.attack = attack
+	calculation.counterAttackSetup2 = counterAttackSetup
+	calculation.counterAttack = counterAttack
 }
 
 func (forecast *Forecast) addHealingEffectToCalculation(targetID string, calculation *Calculation) {
-	calculation.HealingForecast = forecast.CalculateHealingForecast(targetID)
+	calculation.healingForecast = forecast.CalculateHealingForecast(targetID)
 }
 
-func (forecast *Forecast) isCounterattackPossible(targetID string) bool {
-	if forecast.Setup.IsCounterAttack == false {
-		checkEquip := powerequip.CheckRepositories{}
-		canCounter, _ := checkEquip.CanSquaddieCounterWithEquippedWeapon(targetID, forecast.Repositories)
+// IsCounterattackPossible returns true if the squaddie with the targetID can currently counterattack.
+func (forecast *Forecast) IsCounterattackPossible(targetID string, collection *repositories.RepositoryCollection) bool {
+	if forecast.setup.IsCounterAttack == false {
+		canCounter, _ := forecast.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(targetID, collection)
 		if canCounter {
 			return true
 		}
@@ -93,9 +209,9 @@ func (forecast *Forecast) isCounterattackPossible(targetID string) bool {
 }
 
 func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID string) (*powerusagescenario.Setup, *AttackForecast) {
-	counterAttackingSquaddie := forecast.Repositories.SquaddieRepo.GetOriginalSquaddieByID(counterAttackingSquaddieID)
+	counterAttackingSquaddie := forecast.repositories.SquaddieRepo.GetOriginalSquaddieByID(counterAttackingSquaddieID)
 	counterAttackingPowerID := counterAttackingSquaddie.GetEquippedPowerID()
-	counterAttackingTargetID := forecast.Setup.UserID
+	counterAttackingTargetID := forecast.setup.UserID
 
 	counterForecastSetup := powerusagescenario.Setup{
 		UserID:          counterAttackingSquaddieID,
@@ -105,10 +221,10 @@ func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID
 	}
 
 	counterAttackForecast := Forecast{
-		Setup: counterForecastSetup,
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: forecast.Repositories.SquaddieRepo,
-			PowerRepo:    forecast.Repositories.PowerRepo,
+		setup: counterForecastSetup,
+		repositories: &repositories.RepositoryCollection{
+			SquaddieRepo: forecast.repositories.SquaddieRepo,
+			PowerRepo:    forecast.repositories.PowerRepo,
 		},
 	}
 
@@ -120,10 +236,10 @@ func (forecast *Forecast) createCounterAttackForecast(counterAttackingSquaddieID
 // CalculateAttackForecast figures out what will happen when this attack power is used.
 func (forecast *Forecast) CalculateAttackForecast(targetID string) *AttackForecast {
 	attackerContext := *NewAttackerContext(&squaddiestats.CalculateSquaddieOffenseStats{})
-	attackerContext.Calculate(forecast.Setup, forecast.Repositories)
+	attackerContext.Calculate(forecast.setup, forecast.repositories)
 
 	defenderContext := *NewDefenderContext(targetID, &squaddiestats.CalculateSquaddieDefenseStats{})
-	defenderContext.Calculate(&forecast.Setup, forecast.Repositories)
+	defenderContext.Calculate(&forecast.setup, forecast.repositories)
 
 	versusContext := VersusContext{}
 	versusContext.Calculate(attackerContext, defenderContext)
@@ -143,11 +259,11 @@ type HealingForecast struct {
 
 // CalculateHealingForecast figures out what will happen when this attack power is used.
 func (forecast *Forecast) CalculateHealingForecast(targetID string) *HealingForecast {
-	maximumHealing, err := forecast.OffenseStrategy.GetHitPointsHealedWithPower(
-		forecast.Setup.UserID,
-		forecast.Setup.PowerID,
+	maximumHealing, err := forecast.offenseStrategy.GetHitPointsHealedWithPower(
+		forecast.setup.UserID,
+		forecast.setup.PowerID,
 		targetID,
-		forecast.Repositories,
+		forecast.repositories,
 	)
 	if err != nil {
 		return &HealingForecast{
@@ -160,4 +276,16 @@ func (forecast *Forecast) CalculateHealingForecast(targetID string) *HealingFore
 		RawHitPointsRestored: maximumHealing,
 		TargetID:             targetID,
 	}
+}
+
+// TODO Delete test hook functions
+
+// UpdateForecastWithNewTarget is a test hook and should be deleted.
+func (forecast *Forecast) UpdateForecastWithNewTarget(i int, squaddieID string) {
+	forecast.setup.Targets[i] = squaddieID
+}
+
+// UpdateForecastWithNewUser is a test hook and should be deleted.
+func (forecast *Forecast) UpdateForecastWithNewUser(squaddieID string) {
+	forecast.setup.UserID = squaddieID
 }

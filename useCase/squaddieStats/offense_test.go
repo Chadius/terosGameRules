@@ -270,3 +270,77 @@ func (suite *improveOffense) TestWhenImproveIsCalled_ThenAimStrengthMindIncrease
 	checker.Assert(suite.initialOffense.Strength(), Equals, 14)
 	checker.Assert(suite.initialOffense.Mind(), Equals, 18)
 }
+
+type CounterAttackEquipmentCheck struct {
+	teros           *squaddie.Squaddie
+	spear           *power.Power
+	scimitar        *power.Power
+	blot            *power.Power
+	powerRepo       *powerrepository.Repository
+	squaddieRepo    *squaddie.Repository
+	repos           *repositories.RepositoryCollection
+	equipCheck      powerequip.Strategy
+	offenseStrategy squaddiestats.CalculateSquaddieOffenseStatsStrategy
+}
+
+var _ = Suite(&CounterAttackEquipmentCheck{})
+
+func (suite *CounterAttackEquipmentCheck) SetUpTest(checker *C) {
+	suite.teros = squaddie.NewSquaddieBuilder().Teros().Build()
+	suite.spear = power.NewPowerBuilder().Spear().Build()
+	suite.scimitar = power.NewPowerBuilder().WithName("scimitar the second").CanBeEquipped().Build()
+	suite.blot = power.NewPowerBuilder().Blot().CannotBeEquipped().Build()
+
+	suite.powerRepo = powerrepository.NewPowerRepository()
+	suite.powerRepo.AddSlicePowerSource([]*power.Power{
+		suite.spear,
+		suite.scimitar,
+		suite.blot,
+	})
+
+	suite.squaddieRepo = squaddie.NewSquaddieRepository()
+	suite.squaddieRepo.AddSquaddies([]*squaddie.Squaddie{suite.teros})
+
+	suite.repos = &repositories.RepositoryCollection{
+		SquaddieRepo: suite.squaddieRepo,
+		PowerRepo:    suite.powerRepo,
+	}
+
+	suite.equipCheck = &powerequip.CheckRepositories{}
+
+	suite.offenseStrategy = &squaddiestats.CalculateSquaddieOffenseStats{}
+}
+
+func (suite *CounterAttackEquipmentCheck) TestSquaddieCanCounter(checker *C) {
+	terosPowerReferences := []*powerreference.Reference{
+		suite.spear.GetReference(),
+		suite.scimitar.GetReference(),
+		suite.blot.GetReference(),
+	}
+	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
+	suite.equipCheck.EquipDefaultPower(suite.teros, suite.repos)
+	canCounter, _ := suite.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
+	checker.Assert(canCounter, Equals, true)
+}
+
+func (suite *CounterAttackEquipmentCheck) TestSquaddieCannotCounterWithUncounterablePower(checker *C) {
+	terosPowerReferences := []*powerreference.Reference{
+		suite.spear.GetReference(),
+		suite.scimitar.GetReference(),
+		suite.blot.GetReference(),
+	}
+	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
+	suite.equipCheck.SquaddieEquipPower(suite.teros, suite.scimitar.ID(), suite.repos)
+	canCounter, _ := suite.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
+	checker.Assert(canCounter, Equals, false)
+}
+
+func (suite *CounterAttackEquipmentCheck) TestSquaddieCannotCounterWithUnequippablePower(checker *C) {
+	terosPowerReferences := []*powerreference.Reference{
+		suite.blot.GetReference(),
+	}
+	suite.equipCheck.LoadAllOfSquaddieInnatePowers(suite.teros, terosPowerReferences, suite.repos)
+	suite.equipCheck.EquipDefaultPower(suite.teros, suite.repos)
+	canCounter, _ := suite.offenseStrategy.CanSquaddieCounterWithEquippedWeapon(suite.teros.ID(), suite.repos)
+	checker.Assert(canCounter, Equals, false)
+}

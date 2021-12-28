@@ -10,6 +10,7 @@ import (
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/powercommit"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	"github.com/chadius/terosbattleserver/utility"
 	"github.com/chadius/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
@@ -83,16 +84,22 @@ func (suite *ConsoleShowsFatalAttacksSuite) SetUpTest(checker *C) {
 	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit2, suite.axe, suite.repos, true)
 }
 
+// TODO This file knows too much, just stub out the counterattack logic with a simple boolean
+
 func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checker *C) {
-	forecastBlotOnMultipleBandits := &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: suite.repos,
-	}
+	forecastBlotOnMultipleBandits := powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.blot.ID(),
+				Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(suite.repos).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	forecastBlotOnMultipleBandits.CalculateForecast()
 	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
 	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
@@ -101,7 +108,7 @@ func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checke
 	var forecastOutput strings.Builder
 	suite.viewer.PrintForecast(
 		forecastBlotOnMultipleBandits,
-		forecastBlotOnMultipleBandits.Repositories,
+		forecastBlotOnMultipleBandits.Repositories(),
 		&forecastOutput,
 	)
 
@@ -243,15 +250,19 @@ func (suite *ConsoleShowsCounterAttackSuite) SetUpTest(checker *C) {
 
 func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToHit(checker *C) {
 	suite.bandit2.SetBarrierToMax()
-	forecastBlotOnMultipleBandits := &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: suite.repos,
-	}
+	forecastBlotOnMultipleBandits := powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.blot.ID(),
+				Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(suite.repos).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	forecastBlotOnMultipleBandits.CalculateForecast()
 	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
 	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
@@ -260,7 +271,7 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToHit(checker
 	var forecastOutput strings.Builder
 	suite.viewer.PrintForecast(
 		forecastBlotOnMultipleBandits,
-		forecastBlotOnMultipleBandits.Repositories,
+		forecastBlotOnMultipleBandits.Repositories(),
 		&forecastOutput,
 	)
 
@@ -273,15 +284,19 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToHit(checker
 
 func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToCriticallyHit(checker *C) {
 	suite.bandit2.SetBarrierToMax()
-	forecastBlotOnMultipleBandits := &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.criticalBlot.ID(),
-			Targets:         []string{suite.bandit3.ID(), suite.bandit2.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: suite.repos,
-	}
+	forecastBlotOnMultipleBandits := powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.criticalBlot.ID(),
+				Targets:         []string{suite.bandit3.ID(), suite.bandit2.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(suite.repos).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	forecastBlotOnMultipleBandits.CalculateForecast()
 	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
 	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
@@ -290,7 +305,7 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToCriticallyH
 	var forecastOutput strings.Builder
 	suite.viewer.PrintForecast(
 		forecastBlotOnMultipleBandits,
-		forecastBlotOnMultipleBandits.Repositories,
+		forecastBlotOnMultipleBandits.Repositories(),
 		&forecastOutput,
 	)
 

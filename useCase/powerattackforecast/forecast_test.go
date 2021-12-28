@@ -52,37 +52,47 @@ func (suite *CounterAttackCalculate) SetUpTest(checker *C) {
 
 	suite.repos = &repositories.RepositoryCollection{PowerRepo: suite.powerRepo, SquaddieRepo: suite.squaddieRepo}
 
-	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID(),
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastSpearOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.spear.ID(),
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 
-	suite.forecastSpearOnMysticMage = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID(),
-			Targets:         []string{suite.mysticMage.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastSpearOnMysticMage = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.spear.ID(),
+				Targets:         []string{suite.mysticMage.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 }
 
 func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfNoEquippedPower(checker *C) {
 	suite.forecastSpearOnMysticMage.CalculateForecast()
 
-	checker.Assert(suite.forecastSpearOnMysticMage.ForecastedResultPerTarget[0].CounterAttack, IsNil)
+	checker.Assert(suite.forecastSpearOnMysticMage.ForecastedResultPerTarget()[0].CounterAttack(), IsNil)
 }
 
 func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCannotCounter(checker *C) {
@@ -94,7 +104,7 @@ func (suite *CounterAttackCalculate) TestNoCounterAttackHappensIfEquippedPowerCa
 
 	suite.forecastSpearOnMysticMage.CalculateForecast()
 
-	checker.Assert(suite.forecastSpearOnMysticMage.ForecastedResultPerTarget[0].CounterAttack, IsNil)
+	checker.Assert(suite.forecastSpearOnMysticMage.ForecastedResultPerTarget()[0].CounterAttack(), IsNil)
 }
 
 func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker *C) {
@@ -106,7 +116,7 @@ func (suite *CounterAttackCalculate) TestCounterAttackHappensIfPossible(checker 
 
 	suite.forecastSpearOnBandit.CalculateForecast()
 
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].CounterAttack.VersusContext.ToHit().ToHitBonus, Equals, -1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget()[0].CounterAttack().VersusContext.ToHit().ToHitBonus, Equals, -1)
 }
 
 type HealingEffectForecast struct {
@@ -141,33 +151,41 @@ func (suite *HealingEffectForecast) SetUpTest(checker *C) {
 
 	suite.repos = &repositories.RepositoryCollection{PowerRepo: suite.powerRepo, SquaddieRepo: suite.squaddieRepo}
 
-	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID(),
-			Targets:         []string{suite.teros.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastHealingStaffOnTeros = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.lini.ID(),
+				PowerID:         suite.healingStaff.ID(),
+				Targets:         []string{suite.teros.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 
-	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.ID(),
-			Targets:         []string{suite.teros.ID(), suite.vale.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastHealingStaffOnTerosAndVale = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.lini.ID(),
+				PowerID:         suite.healingStaff.ID(),
+				Targets:         []string{suite.teros.ID(), suite.vale.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(checker *C) {
@@ -175,8 +193,8 @@ func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(check
 	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed())
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast(), NotNil)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed())
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker *C) {
@@ -189,7 +207,7 @@ func (suite *HealingEffectForecast) TestForecastedHealingAppliesMindStat(checker
 	testutility.UpdateForecastWithNewUser(suite.lini, suite.squaddieRepo, suite.forecastHealingStaffOnTeros)
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed()+suite.lini.Mind())
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed()+suite.lini.Mind())
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C) {
@@ -204,7 +222,7 @@ func (suite *HealingEffectForecast) TestForecastedHealingCanBeHalved(checker *C)
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed()+(suite.lini.Mind())/2)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed()+(suite.lini.Mind())/2)
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C) {
@@ -218,23 +236,23 @@ func (suite *HealingEffectForecast) TestForecastedHealingCanBeZeroed(checker *C)
 
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed())
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed())
 }
 
 func (suite *HealingEffectForecast) TestForecastedHealingCapsAtMaxHP(checker *C) {
 	suite.teros.ReduceHitPoints(1)
 	suite.forecastHealingStaffOnTeros.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget[0].HealingForecast.RawHitPointsRestored, Equals, 1)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast(), NotNil)
+	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, 1)
 }
 
 func (suite *HealingEffectForecast) TestHealMultipleTargets(checker *C) {
 	suite.forecastHealingStaffOnTerosAndVale.CalculateForecast()
 
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget, HasLen, 2)
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[0].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[0].HealingForecast.TargetID, Equals, suite.teros.ID())
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[1].HealingForecast, NotNil)
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget[1].HealingForecast.TargetID, Equals, suite.vale.ID())
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget(), HasLen, 2)
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[0].HealingForecast(), NotNil)
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[0].HealingForecast().TargetID, Equals, suite.teros.ID())
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[1].HealingForecast(), NotNil)
+	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[1].HealingForecast().TargetID, Equals, suite.vale.ID())
 }

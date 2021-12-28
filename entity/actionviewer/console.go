@@ -50,28 +50,28 @@ func (viewer *ConsoleActionViewer) PrintForecast(powerForecast *powerattackforec
 
 // PrepareForecast creates messages to show the attack preview.
 func (viewer *ConsoleActionViewer) PrepareForecast(powerForecast *powerattackforecast.Forecast, repositories *repositories.RepositoryCollection) {
-	for resultIndex, forecast := range powerForecast.ForecastedResultPerTarget {
-		if forecast.Attack != nil {
+	for resultIndex, forecast := range powerForecast.ForecastedResultPerTarget() {
+		if forecast.Attack() != nil {
 			viewer.createMessagesForAttackOrCounterAttack(forecast, repositories, resultIndex, false)
 		}
 
-		if forecast.CounterAttack != nil {
+		if forecast.CounterAttack() != nil {
 			viewer.createMessagesForAttackOrCounterAttack(forecast, repositories, resultIndex, true)
 		}
 
-		if forecast.HealingForecast != nil {
+		if forecast.HealingForecast() != nil {
 			viewer.createMessagesForHealing(repositories, forecast, resultIndex)
 		}
 	}
 }
 
 func (viewer *ConsoleActionViewer) createMessagesForHealing(repositories *repositories.RepositoryCollection, forecast powerattackforecast.Calculation, resultIndex int) {
-	healer := repositories.SquaddieRepo.GetSquaddieByID(forecast.Setup.UserID)
-	target := repositories.SquaddieRepo.GetSquaddieByID(forecast.Setup.Targets[0])
-	powerToUse := repositories.PowerRepo.GetPowerByID(forecast.Setup.PowerID)
+	healer := repositories.SquaddieRepo.GetSquaddieByID(forecast.Setup().UserID)
+	target := repositories.SquaddieRepo.GetSquaddieByID(forecast.Setup().Targets[0])
+	powerToUse := repositories.PowerRepo.GetPowerByID(forecast.Setup().PowerID)
 
-	damageHealedDescription := fmt.Sprintf(", for %d healing", forecast.HealingForecast.RawHitPointsRestored)
-	if forecast.HealingForecast.RawHitPointsRestored == 0 {
+	damageHealedDescription := fmt.Sprintf(", for %d healing", forecast.HealingForecast().RawHitPointsRestored)
+	if forecast.HealingForecast().RawHitPointsRestored == 0 {
 		damageHealedDescription = " for NO HEALING"
 	}
 
@@ -93,11 +93,11 @@ func (viewer *ConsoleActionViewer) createMessagesForHealing(repositories *reposi
 }
 
 func (viewer *ConsoleActionViewer) createMessagesForAttackOrCounterAttack(forecast powerattackforecast.Calculation, repositories *repositories.RepositoryCollection, resultIndex int, isACounterAttack bool) {
-	attackForecast := forecast.Attack
-	attackSetup := forecast.Setup
+	attackForecast := forecast.Attack()
+	attackSetup := forecast.Setup()
 	if isACounterAttack {
-		attackForecast = forecast.CounterAttack
-		attackSetup = forecast.CounterAttackSetup
+		attackForecast = forecast.CounterAttack()
+		attackSetup = forecast.CounterAttackSetup()
 	}
 
 	attackerHitBonus := attackForecast.VersusContext.ToHit()

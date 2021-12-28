@@ -19,6 +19,7 @@ type CalculateSquaddieOffenseStatsStrategy interface {
 	GetSquaddieExtraBarrierBurnWithPower(squaddieID, powerID string, repos *repositories.RepositoryCollection) (int, error)
 	GetSquaddieCanCriticallyHitWithPower(squaddieID, powerID string, repos *repositories.RepositoryCollection) (bool, error)
 	GetHitPointsHealedWithPower(squaddieID, powerID, targetID string, repos *repositories.RepositoryCollection) (int, error)
+	CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error)
 }
 
 // CalculateSquaddieOffenseStats returns information about a squaddie's attacks with a given power.
@@ -81,7 +82,7 @@ func (c *CalculateSquaddieOffenseStats) GetSquaddieCriticalRawDamageWithPower(sq
 	return rawDamage + powerToMeasure.ExtraCriticalHitDamage(), nil
 }
 
-// GetSquaddieCanCounterAttackWithPower returns true if the squaddie can counter attack with this power.
+// GetSquaddieCanCounterAttackWithPower returns true if the squaddie can counterattack with this power.
 func (c *CalculateSquaddieOffenseStats) GetSquaddieCanCounterAttackWithPower(squaddieID, powerID string, repos *repositories.RepositoryCollection) (bool, error) {
 	_, powerToMeasure, err := getSquaddieAndAttackPower(squaddieID, powerID, repos)
 	if err != nil {
@@ -205,4 +206,18 @@ func getSquaddieAndAttackPower(squaddieID, powerID string, repos *repositories.R
 	}
 
 	return squaddie, power, nil
+}
+
+// CanSquaddieCounterWithEquippedWeapon returns true if the squaddie can use the currently equipped weapon for counterattacks.
+func (c *CalculateSquaddieOffenseStats) CanSquaddieCounterWithEquippedWeapon(squaddieID string, repos *repositories.RepositoryCollection) (bool, error) {
+	squaddie := repos.SquaddieRepo.GetOriginalSquaddieByID(squaddieID)
+	equippedPowerID := squaddie.GetEquippedPowerID()
+	if equippedPowerID == "" {
+		newError := fmt.Errorf("squaddie has no equipped power, %s", squaddieID)
+		utility.Log(newError.Error(), 0, utility.Error)
+		return false, newError
+	}
+
+	canCounter, counterErr := c.GetSquaddieCanCounterAttackWithPower(squaddieID, equippedPowerID, repos)
+	return canCounter, counterErr
 }

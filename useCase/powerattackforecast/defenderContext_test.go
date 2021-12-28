@@ -7,6 +7,7 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
 	. "gopkg.in/check.v1"
 )
 
@@ -44,55 +45,65 @@ func (suite *DefenderContextTestSuite) SetUpTest(checker *C) {
 	suite.powerRepo = powerrepository.NewPowerRepository()
 	suite.powerRepo.AddSlicePowerSource([]*power.Power{suite.spear, suite.blot, suite.axe})
 
-	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID(),
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastSpearOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.spear.ID(),
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 
-	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastBlotOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.blot.ID(),
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderDodge(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty(), Equals, 1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget()[0].Attack().DefenderContext.TotalToHitPenalty(), Equals, 1)
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderArmorResistance(checker *C) {
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance(), Equals, 1)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget()[0].Attack().DefenderContext.ArmorResistance(), Equals, 1)
 
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.ArmorResistance(), Equals, 0)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget()[0].Attack().DefenderContext.ArmorResistance(), Equals, 0)
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderDeflect(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.TotalToHitPenalty(), Equals, 2)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget()[0].Attack().DefenderContext.TotalToHitPenalty(), Equals, 2)
 }
 
 func (suite *DefenderContextTestSuite) TestGetDefenderBarrierAbsorb(checker *C) {
 	suite.forecastBlotOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance(), Equals, 3)
+	checker.Assert(suite.forecastBlotOnBandit.ForecastedResultPerTarget()[0].Attack().DefenderContext.BarrierResistance(), Equals, 3)
 
 	suite.forecastSpearOnBandit.CalculateForecast()
-	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget[0].Attack.DefenderContext.BarrierResistance(), Equals, 3)
+	checker.Assert(suite.forecastSpearOnBandit.ForecastedResultPerTarget()[0].Attack().DefenderContext.BarrierResistance(), Equals, 3)
 }

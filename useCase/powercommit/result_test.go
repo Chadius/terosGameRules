@@ -105,59 +105,82 @@ func (suite *resultOnAttack) SetUpTest(checker *C) {
 		suite.repos,
 	)
 
-	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID(),
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastSpearOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.spear.ID(),
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultSpearOnBandit = powercommit.NewResult(suite.forecastSpearOnBandit, nil, nil)
 
-	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastBlotOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.blot.ID(),
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultBlotOnBandit = powercommit.NewResult(suite.forecastBlotOnBandit, nil, nil)
 
-	suite.forecastSpearOnMysticMage = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.ID(),
-			Targets:         []string{suite.mysticMage.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastSpearOnMysticMage = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.spear.ID(),
+				Targets:         []string{suite.mysticMage.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
 
-	suite.forecastFireballOnBandits = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.mysticMage.ID(),
-			PowerID:         suite.fireball.ID(),
-			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-	}
+	suite.forecastFireballOnBandits = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.mysticMage.ID(),
+				PowerID:         suite.fireball.ID(),
+				Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultFireballOnBandits = powercommit.NewResult(suite.forecastFireballOnBandits, nil, nil)
 	suite.equipCheck = &powerequip.CheckRepositories{}
 }
@@ -281,7 +304,7 @@ func (suite *resultOnAttack) TestCounterAttacksApplyLast(checker *C) {
 	suite.bandit2 = squaddie.NewSquaddieBuilder().HitPoints(suite.fireball.DamageBonus() + suite.mysticMage.Mind() + 1).Build()
 	testutility.AddSquaddieWithInnatePowersToRepos(suite.bandit2, suite.axe, suite.repos, true)
 	suite.squaddieRepo.AddSquaddie(suite.bandit2)
-	suite.forecastFireballOnBandits.Setup.Targets[1] = suite.bandit2.ID()
+	suite.forecastFireballOnBandits.UpdateForecastWithNewTarget(1, suite.bandit2.ID())
 	suite.bandit2.SetHPToMax()
 
 	suite.forecastFireballOnBandits.CalculateForecast()
@@ -392,49 +415,64 @@ func (suite *EquipPowerWhenCommitting) SetUpTest(checker *C) {
 		suite.repos,
 	)
 
-	suite.forecastSpearOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.spear.PowerID,
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastSpearOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.spear.PowerID,
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultSpearOnBandit = powercommit.NewResult(suite.forecastSpearOnBandit, nil, nil)
 
-	suite.forecastBlotOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.PowerID,
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastBlotOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.teros.ID(),
+				PowerID:         suite.blot.PowerID,
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultBlotOnBandit = powercommit.NewResult(suite.forecastBlotOnBandit, nil, nil)
 
-	suite.forecastFireballOnBandit = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.mysticMage.ID(),
-			PowerID:         suite.fireball.PowerID,
-			Targets:         []string{suite.bandit.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastFireballOnBandit = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.mysticMage.ID(),
+				PowerID:         suite.fireball.PowerID,
+				Targets:         []string{suite.bandit.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultFireballOnBandit = powercommit.NewResult(suite.forecastFireballOnBandit, nil, nil)
 	suite.equipCheck = &powerequip.CheckRepositories{}
 }
@@ -505,34 +543,44 @@ func (suite *ResultOnHealing) SetUpTest(checker *C) {
 
 	suite.repos = &repositories.RepositoryCollection{PowerRepo: suite.powerRepo, SquaddieRepo: suite.squaddieRepo}
 
-	suite.forecastHealingStaffOnTeros = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.PowerID,
-			Targets:         []string{suite.teros.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastHealingStaffOnTeros = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.lini.ID(),
+				PowerID:         suite.healingStaff.PowerID,
+				Targets:         []string{suite.teros.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultHealingStaffOnTeros = powercommit.NewResult(suite.forecastHealingStaffOnTeros, nil, nil)
 
-	suite.forecastHealingStaffOnTerosAndVale = &powerattackforecast.Forecast{
-		Setup: powerusagescenario.Setup{
-			UserID:          suite.lini.ID(),
-			PowerID:         suite.healingStaff.PowerID,
-			Targets:         []string{suite.teros.ID(), suite.vale.ID()},
-			IsCounterAttack: false,
-		},
-		Repositories: &repositories.RepositoryCollection{
-			SquaddieRepo: suite.squaddieRepo,
-			PowerRepo:    suite.powerRepo,
-		},
-		OffenseStrategy: &squaddiestats.CalculateSquaddieOffenseStats{},
-	}
+	suite.forecastHealingStaffOnTerosAndVale = powerattackforecast.NewForecastBuilder().
+		Setup(
+			&powerusagescenario.Setup{
+				UserID:          suite.lini.ID(),
+				PowerID:         suite.healingStaff.PowerID,
+				Targets:         []string{suite.teros.ID(), suite.vale.ID()},
+				IsCounterAttack: false,
+			},
+		).
+		Repositories(
+			&repositories.RepositoryCollection{
+				SquaddieRepo: suite.squaddieRepo,
+				PowerRepo:    suite.powerRepo,
+			},
+		).
+		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
+		Build()
+
 	suite.resultHealingStaffOnTerosAndVale = powercommit.NewResult(suite.forecastHealingStaffOnTerosAndVale, nil, nil)
 }
 
