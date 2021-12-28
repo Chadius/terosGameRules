@@ -38,6 +38,86 @@ func (g MockResult) ResultPerTarget() []*powercommit.ResultPerTarget {
 
 func (g MockResult) Commit() {}
 
+type MockForecast struct {
+	ReturnedSetup                     *powerusagescenario.Setup
+	ReturnedForecastedResultPerTarget []powerattackforecast.CalculationInterface
+	ReturnedRepositories              *repositories.RepositoryCollection
+}
+
+func (f MockForecast) Repositories() *repositories.RepositoryCollection {
+	return f.ReturnedRepositories
+}
+
+func (f MockForecast) Setup() *powerusagescenario.Setup {
+	return f.ReturnedSetup
+}
+
+func (f MockForecast) ForecastedResultPerTarget() []powerattackforecast.CalculationInterface {
+	return f.ReturnedForecastedResultPerTarget
+}
+
+func (f MockForecast) CalculateForecast() {}
+
+type MockCalculation struct {
+	ReturnedSetup  *powerusagescenario.Setup
+	ReturnedAttack *powerattackforecast.AttackForecast
+}
+
+func (c MockCalculation) Setup() *powerusagescenario.Setup {
+	return c.ReturnedSetup
+}
+
+func (c MockCalculation) Attack() *powerattackforecast.AttackForecast {
+	return c.ReturnedAttack
+}
+
+func (c MockCalculation) CounterAttackSetup() *powerusagescenario.Setup {
+	return nil
+}
+
+func (c MockCalculation) CounterAttack() *powerattackforecast.AttackForecast {
+	return nil
+}
+
+func (c MockCalculation) Repositories() *repositories.RepositoryCollection {
+	return nil
+}
+
+func (c MockCalculation) HealingForecast() *powerattackforecast.HealingForecast {
+	return nil
+}
+
+type MockVersusContext struct {
+	ReturnedToHit                *damagedistribution.ToHitComparison
+	ReturnedNormalDamage         *damagedistribution.DamageDistribution
+	ReturnedCriticalHitDamage    *damagedistribution.DamageDistribution
+	ReturnedCanCritical          bool
+	ReturnedCriticalHitThreshold int
+}
+
+func (v MockVersusContext) Calculate(attackerContext powerattackforecast.AttackerContext, defenderContext powerattackforecast.DefenderContext) {
+}
+
+func (v MockVersusContext) ToHit() *damagedistribution.ToHitComparison {
+	return v.ReturnedToHit
+}
+
+func (v MockVersusContext) NormalDamage() *damagedistribution.DamageDistribution {
+	return v.ReturnedNormalDamage
+}
+
+func (v MockVersusContext) CriticalHitDamage() *damagedistribution.DamageDistribution {
+	return v.ReturnedCriticalHitDamage
+}
+
+func (v MockVersusContext) CanCritical() bool {
+	return v.ReturnedCanCritical
+}
+
+func (v MockVersusContext) CriticalHitThreshold() int {
+	return v.ReturnedCriticalHitThreshold
+}
+
 type ConsoleShowsFatalAttacksSuite struct {
 	teros   *squaddie.Squaddie
 	bandit  *squaddie.Squaddie
@@ -87,23 +167,53 @@ func (suite *ConsoleShowsFatalAttacksSuite) SetUpTest(checker *C) {
 // TODO This file knows too much, just stub out the counterattack logic with a simple boolean
 
 func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checker *C) {
-	forecastBlotOnMultipleBandits := powerattackforecast.NewForecastBuilder().
-		Setup(
-			&powerusagescenario.Setup{
-				UserID:          suite.teros.ID(),
-				PowerID:         suite.blot.ID(),
-				Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
-				IsCounterAttack: false,
+	killFirstBanditCalculation := &MockCalculation{
+		ReturnedSetup: &powerusagescenario.Setup{
+			UserID:          suite.teros.ID(),
+			PowerID:         suite.blot.ID(),
+			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+			IsCounterAttack: false,
+		},
+		ReturnedAttack: &powerattackforecast.AttackForecast{
+			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit.ID(), nil),
+			VersusContext: &MockVersusContext{
+				ReturnedToHit: &damagedistribution.ToHitComparison{
+					ToHitBonus: 0,
+				},
+				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+					IsFatalToTarget: true,
+				},
 			},
-		).
-		Repositories(suite.repos).
-		OffenseStrategy(&squaddiestats.CalculateSquaddieOffenseStats{}).
-		Build()
-
-	forecastBlotOnMultipleBandits.CalculateForecast()
-	resultBlotOnMultipleBandits := powercommit.NewResult(forecastBlotOnMultipleBandits, nil, nil)
-	resultBlotOnMultipleBanditsAlwaysHits := resultBlotOnMultipleBandits.CopyResultWithNewDieRoller(&testutility.AlwaysHitDieRoller{})
-	resultBlotOnMultipleBanditsAlwaysHits.Commit()
+		},
+	}
+	hitSecondBanditCalculation := &MockCalculation{
+		ReturnedSetup: &powerusagescenario.Setup{
+			UserID:          suite.teros.ID(),
+			PowerID:         suite.blot.ID(),
+			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+			IsCounterAttack: false,
+		},
+		ReturnedAttack: &powerattackforecast.AttackForecast{
+			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit2.ID(), nil),
+			VersusContext: &MockVersusContext{
+				ReturnedToHit: &damagedistribution.ToHitComparison{
+					ToHitBonus: -2,
+				},
+				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+					ActualDamageTaken: 2,
+					IsFatalToTarget:   true,
+				},
+			},
+		},
+	}
+	forecastBlotOnMultipleBandits := &MockForecast{
+		ReturnedForecastedResultPerTarget: []powerattackforecast.CalculationInterface{
+			killFirstBanditCalculation,
+			hitSecondBanditCalculation,
+		},
+		ReturnedSetup:        nil,
+		ReturnedRepositories: suite.repos,
+	}
 
 	var forecastOutput strings.Builder
 	suite.viewer.PrintForecast(
@@ -112,7 +222,7 @@ func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checke
 		&forecastOutput,
 	)
 
-	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +0 (21/36), FATAL\n- also vs Bandit2: -2 (10/36), FATAL\nBandit2 (axe) counters Teros: -1 (15/36), for 3 damage\n")
+	checker.Assert(forecastOutput.String(), Equals, "Teros (Blot) vs Bandit: +0 (21/36), FATAL\n- also vs Bandit2: -2 (10/36), FATAL\n")
 }
 
 func (suite *ConsoleShowsFatalAttacksSuite) TestIndicateIfItIsAKillingBlow(checker *C) {

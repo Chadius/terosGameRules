@@ -10,7 +10,7 @@ import (
 type ForecastBuilder struct {
 	setup                     *powerusagescenario.Setup
 	repositories              *repositories.RepositoryCollection
-	forecastedResultPerTarget []Calculation
+	forecastedResultPerTarget []CalculationInterface
 	offenseStrategy           squaddiestats.CalculateSquaddieOffenseStatsStrategy
 }
 
@@ -37,7 +37,7 @@ func (fb *ForecastBuilder) Repositories(repositories *repositories.RepositoryCol
 }
 
 // ForecastedResultPerTarget sets the field.
-func (fb *ForecastBuilder) ForecastedResultPerTarget(forecastedResultPerTarget []Calculation) *ForecastBuilder {
+func (fb *ForecastBuilder) ForecastedResultPerTarget(forecastedResultPerTarget []CalculationInterface) *ForecastBuilder {
 	fb.forecastedResultPerTarget = forecastedResultPerTarget
 	return fb
 }
@@ -58,12 +58,19 @@ func (fb *ForecastBuilder) Build() *Forecast {
 	)
 }
 
+// ForecastInterface describes the shape of interface objects.
+type ForecastInterface interface {
+	Repositories() *repositories.RepositoryCollection
+	ForecastedResultPerTarget() []CalculationInterface
+	CalculateForecast()
+}
+
 // Forecast will store the information needed to explain what will happen when a squaddie
 //  uses a given power. It can be asked multiple questions.
 type Forecast struct {
 	setup                     powerusagescenario.Setup
 	repositories              *repositories.RepositoryCollection
-	forecastedResultPerTarget []Calculation
+	forecastedResultPerTarget []CalculationInterface
 	offenseStrategy           squaddiestats.CalculateSquaddieOffenseStatsStrategy
 }
 
@@ -71,7 +78,7 @@ type Forecast struct {
 func NewForecast(
 	setup *powerusagescenario.Setup,
 	collection *repositories.RepositoryCollection,
-	forecastedResults []Calculation,
+	forecastedResults []CalculationInterface,
 	offenseStrategy squaddiestats.CalculateSquaddieOffenseStatsStrategy,
 ) *Forecast {
 	return &Forecast{
@@ -88,7 +95,7 @@ func (forecast *Forecast) Repositories() *repositories.RepositoryCollection {
 }
 
 // ForecastedResultPerTarget gets the object
-func (forecast *Forecast) ForecastedResultPerTarget() []Calculation {
+func (forecast *Forecast) ForecastedResultPerTarget() []CalculationInterface {
 	return forecast.forecastedResultPerTarget
 }
 
@@ -148,7 +155,7 @@ func (c *Calculation) HealingForecast() *HealingForecast {
 type AttackForecast struct {
 	AttackerContext AttackerContext
 	DefenderContext DefenderContext
-	VersusContext   VersusContext
+	VersusContext   VersusContextStrategy
 }
 
 // CalculateForecast gives a numerical prediction of the power's effect.
@@ -176,7 +183,7 @@ func (forecast *Forecast) CalculateForecast() {
 			forecast.addHealingEffectToCalculation(targetID, &calculation)
 		}
 
-		forecast.forecastedResultPerTarget = append(forecast.forecastedResultPerTarget, calculation)
+		forecast.forecastedResultPerTarget = append(forecast.forecastedResultPerTarget, &calculation)
 	}
 }
 
@@ -247,7 +254,7 @@ func (forecast *Forecast) CalculateAttackForecast(targetID string) *AttackForeca
 	return &AttackForecast{
 		AttackerContext: attackerContext,
 		DefenderContext: defenderContext,
-		VersusContext:   versusContext,
+		VersusContext:   &versusContext,
 	}
 }
 
