@@ -35,7 +35,6 @@ func (suite *SquaddieRepositorySuite) TestCloneSquaddies(checker *C) {
 	checker.Assert(err, IsNil)
 
 	teros := suite.squaddieRepository.GetSquaddieByID("squaddieID")
-	checker.Assert(teros, NotNil)
 	checker.Assert(teros.Name(), Equals, "teros")
 	checker.Assert(teros.Aim(), Equals, 5)
 
@@ -54,7 +53,6 @@ func (suite *SquaddieRepositorySuite) TestGetExistingSquaddieUsingID(checker *C)
 	checker.Assert(err, IsNil)
 
 	teros := suite.squaddieRepository.GetSquaddieByID("12345")
-	checker.Assert(teros, NotNil)
 	checker.Assert(teros.Name(), Equals, "teros")
 	checker.Assert(teros.Aim(), Equals, 5)
 
@@ -277,8 +275,6 @@ func (suite *SquaddieCloneSuite) TestCloneCopiesClasses(checker *C) {
 	checker.Assert(clone.BaseClassID(), Equals, suite.base.BaseClassID())
 	checker.Assert(clone.CurrentClassID(), Equals, suite.base.CurrentClassID())
 	for classID, levelsConsumed := range *suite.base.ClassLevelsConsumed() {
-		checker.Assert((*clone.ClassLevelsConsumed())[classID], NotNil)
-
 		cloneLevelsConsumed := (*clone.ClassLevelsConsumed())[classID]
 		checker.Assert(cloneLevelsConsumed, Not(Equals), levelsConsumed)
 		checker.Assert(cloneLevelsConsumed, DeepEquals, levelsConsumed)

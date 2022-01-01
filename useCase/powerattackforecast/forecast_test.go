@@ -201,7 +201,6 @@ func (suite *HealingEffectForecast) TestForecastedHealingUsesHealingEffect(check
 	suite.teros.ReduceHitPoints(suite.teros.MaxHitPoints() - 1)
 	suite.CalculateHealing(nil)
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast(), NotNil)
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, suite.healingStaff.HitPointsHealed())
 }
 
@@ -251,7 +250,6 @@ func (suite *HealingEffectForecast) TestForecastedHealingCapsAtMaxHP(checker *C)
 	suite.teros.ReduceHitPoints(1)
 	suite.CalculateHealing(nil)
 
-	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast(), NotNil)
 	checker.Assert(suite.forecastHealingStaffOnTeros.ForecastedResultPerTarget()[0].HealingForecast().RawHitPointsRestored, Equals, 1)
 }
 
@@ -259,8 +257,6 @@ func (suite *HealingEffectForecast) TestHealMultipleTargets(checker *C) {
 	suite.forecastHealingStaffOnTerosAndVale.CalculateForecast()
 
 	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget(), HasLen, 2)
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[0].HealingForecast(), NotNil)
 	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[0].HealingForecast().TargetID, Equals, suite.teros.ID())
-	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[1].HealingForecast(), NotNil)
 	checker.Assert(suite.forecastHealingStaffOnTerosAndVale.ForecastedResultPerTarget()[1].HealingForecast().TargetID, Equals, suite.vale.ID())
 }
