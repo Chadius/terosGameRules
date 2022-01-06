@@ -1,5 +1,7 @@
 package powerattackforecast
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
 import (
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
@@ -58,6 +60,7 @@ func (fb *ForecastBuilder) Build() *Forecast {
 	)
 }
 
+//counterfeiter:generate . ForecastInterface
 // ForecastInterface describes the shape of interface objects.
 type ForecastInterface interface {
 	Repositories() *repositories.RepositoryCollection
@@ -99,6 +102,7 @@ func (forecast *Forecast) ForecastedResultPerTarget() []CalculationInterface {
 	return forecast.forecastedResultPerTarget
 }
 
+//counterfeiter:generate . CalculationInterface
 // CalculationInterface describes what all calculations will subscribe to
 type CalculationInterface interface {
 	Setup() *powerusagescenario.Setup

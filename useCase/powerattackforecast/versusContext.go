@@ -1,9 +1,12 @@
 package powerattackforecast
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
 import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 )
 
+//counterfeiter:generate . VersusContextStrategy
 // VersusContextStrategy describes objects that compare attack and defender contexts to figure out what happens when they attack.
 type VersusContextStrategy interface {
 	Calculate(attackerContext AttackerContext, defenderContext DefenderContext)

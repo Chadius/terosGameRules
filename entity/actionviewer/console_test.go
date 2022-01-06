@@ -10,9 +10,10 @@ import (
 	"github.com/chadius/terosbattleserver/entity/squaddie"
 	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
 	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
+	"github.com/chadius/terosbattleserver/usecase/powerattackforecast/powerattackforecastfakes"
 	"github.com/chadius/terosbattleserver/usecase/powercommit"
+	"github.com/chadius/terosbattleserver/usecase/powercommit/powercommitfakes"
 	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility"
 	"github.com/chadius/terosbattleserver/utility/testutility"
 	. "gopkg.in/check.v1"
 	"strings"
@@ -20,106 +21,6 @@ import (
 )
 
 func Test(t *testing.T) { TestingT(t) }
-
-type MockResult struct {
-	ResultsPerTargetToReturn []*powercommit.ResultPerTarget
-}
-
-func (g MockResult) Forecast() *powerattackforecast.Forecast {
-	return nil
-}
-
-func (g MockResult) DieRoller() utility.SixSideGenerator {
-	return testutility.AlwaysHitDieRoller{}
-}
-
-func (g MockResult) ResultPerTarget() []*powercommit.ResultPerTarget {
-	return g.ResultsPerTargetToReturn
-}
-
-func (g MockResult) Commit() {}
-
-type MockForecast struct {
-	ReturnedSetup                     *powerusagescenario.Setup
-	ReturnedForecastedResultPerTarget []powerattackforecast.CalculationInterface
-	ReturnedRepositories              *repositories.RepositoryCollection
-}
-
-func (f MockForecast) Repositories() *repositories.RepositoryCollection {
-	return f.ReturnedRepositories
-}
-
-func (f MockForecast) Setup() *powerusagescenario.Setup {
-	return f.ReturnedSetup
-}
-
-func (f MockForecast) ForecastedResultPerTarget() []powerattackforecast.CalculationInterface {
-	return f.ReturnedForecastedResultPerTarget
-}
-
-func (f MockForecast) CalculateForecast() {}
-
-type MockCalculation struct {
-	ReturnedSetup              *powerusagescenario.Setup
-	ReturnedAttack             *powerattackforecast.AttackForecast
-	ReturnedCounterAttackSetup *powerusagescenario.Setup
-	ReturnedCounterAttack      *powerattackforecast.AttackForecast
-}
-
-func (c MockCalculation) Setup() *powerusagescenario.Setup {
-	return c.ReturnedSetup
-}
-
-func (c MockCalculation) Attack() *powerattackforecast.AttackForecast {
-	return c.ReturnedAttack
-}
-
-func (c MockCalculation) CounterAttackSetup() *powerusagescenario.Setup {
-	return c.ReturnedCounterAttackSetup
-}
-
-func (c MockCalculation) CounterAttack() *powerattackforecast.AttackForecast {
-	return c.ReturnedCounterAttack
-}
-
-func (c MockCalculation) Repositories() *repositories.RepositoryCollection {
-	return nil
-}
-
-func (c MockCalculation) HealingForecast() *powerattackforecast.HealingForecast {
-	return nil
-}
-
-type MockVersusContext struct {
-	ReturnedToHit                *damagedistribution.ToHitComparison
-	ReturnedNormalDamage         *damagedistribution.DamageDistribution
-	ReturnedCriticalHitDamage    *damagedistribution.DamageDistribution
-	ReturnedCanCritical          bool
-	ReturnedCriticalHitThreshold int
-}
-
-func (v MockVersusContext) Calculate(attackerContext powerattackforecast.AttackerContext, defenderContext powerattackforecast.DefenderContext) {
-}
-
-func (v MockVersusContext) ToHit() *damagedistribution.ToHitComparison {
-	return v.ReturnedToHit
-}
-
-func (v MockVersusContext) NormalDamage() *damagedistribution.DamageDistribution {
-	return v.ReturnedNormalDamage
-}
-
-func (v MockVersusContext) CriticalHitDamage() *damagedistribution.DamageDistribution {
-	return v.ReturnedCriticalHitDamage
-}
-
-func (v MockVersusContext) CanCritical() bool {
-	return v.ReturnedCanCritical
-}
-
-func (v MockVersusContext) CriticalHitThreshold() int {
-	return v.ReturnedCriticalHitThreshold
-}
 
 type ConsoleShowsFatalAttacksSuite struct {
 	teros   squaddieinterface.Interface
@@ -165,53 +66,58 @@ func (suite *ConsoleShowsFatalAttacksSuite) SetUpTest(checker *C) {
 }
 
 func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checker *C) {
-	killFirstBanditCalculation := &MockCalculation{
-		ReturnedSetup: &powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
-			IsCounterAttack: false,
-		},
-		ReturnedAttack: &powerattackforecast.AttackForecast{
-			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit.ID(), nil),
-			VersusContext: &MockVersusContext{
-				ReturnedToHit: &damagedistribution.ToHitComparison{
-					ToHitBonus: 0,
-				},
-				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+	killFirstBanditCalculation := &powerattackforecastfakes.FakeCalculationInterface{}
+	killFirstBanditCalculation.SetupReturns(&powerusagescenario.Setup{
+		UserID:          suite.teros.ID(),
+		PowerID:         suite.blot.ID(),
+		Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+		IsCounterAttack: false,
+	})
+	killFirstBanditCalculation.AttackReturns(&powerattackforecast.AttackForecast{
+		DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit.ID(), nil),
+		VersusContext: &powerattackforecastfakes.FakeVersusContextStrategy{
+			NormalDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					IsFatalToTarget: true,
-				},
+				}
+			},
+			ToHitStub: func() *damagedistribution.ToHitComparison {
+				return &damagedistribution.ToHitComparison{
+					ToHitBonus: 0,
+				}
 			},
 		},
-	}
-	killSecondBanditCalculation := &MockCalculation{
-		ReturnedSetup: &powerusagescenario.Setup{
-			UserID:          suite.teros.ID(),
-			PowerID:         suite.blot.ID(),
-			Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
-			IsCounterAttack: false,
-		},
-		ReturnedAttack: &powerattackforecast.AttackForecast{
-			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit2.ID(), nil),
-			VersusContext: &MockVersusContext{
-				ReturnedToHit: &damagedistribution.ToHitComparison{
-					ToHitBonus: -2,
-				},
-				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+	})
+	killSecondBanditCalculation := &powerattackforecastfakes.FakeCalculationInterface{}
+	killSecondBanditCalculation.SetupReturns(&powerusagescenario.Setup{
+		UserID:          suite.teros.ID(),
+		PowerID:         suite.blot.ID(),
+		Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
+		IsCounterAttack: false,
+	})
+	killSecondBanditCalculation.AttackReturns(&powerattackforecast.AttackForecast{
+		DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit2.ID(), nil),
+		VersusContext: &powerattackforecastfakes.FakeVersusContextStrategy{
+			NormalDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					ActualDamageTaken: 2,
 					IsFatalToTarget:   true,
-				},
+				}
+			},
+			ToHitStub: func() *damagedistribution.ToHitComparison {
+				return &damagedistribution.ToHitComparison{
+					ToHitBonus: -2,
+				}
 			},
 		},
-	}
-	forecastBlotOnMultipleBandits := &MockForecast{
-		ReturnedForecastedResultPerTarget: []powerattackforecast.CalculationInterface{
-			killFirstBanditCalculation,
-			killSecondBanditCalculation,
-		},
-		ReturnedSetup:        nil,
-		ReturnedRepositories: suite.repos,
-	}
+	})
+
+	forecastBlotOnMultipleBandits := &powerattackforecastfakes.FakeForecastInterface{}
+	forecastBlotOnMultipleBandits.ForecastedResultPerTargetReturns([]powerattackforecast.CalculationInterface{
+		killFirstBanditCalculation,
+		killSecondBanditCalculation,
+	})
+	forecastBlotOnMultipleBandits.RepositoriesReturns(suite.repos)
 
 	var forecastOutput strings.Builder
 	suite.viewer.PrintForecast(
@@ -225,18 +131,17 @@ func (suite *ConsoleShowsFatalAttacksSuite) TestShowForecastAttackIsFatal(checke
 
 func (suite *ConsoleShowsFatalAttacksSuite) TestIndicateIfItIsAKillingBlow(checker *C) {
 	suite.bandit.ReduceHitPoints(suite.bandit.MaxHitPoints())
-	resultBlotOnBanditKills := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().HitTarget().Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditKills := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditKills.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().HitTarget().Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditKills, suite.repos, nil, &output)
@@ -280,18 +185,17 @@ func (suite *ConsoleShowsHealingAttempts) SetUpTest(checker *C) {
 }
 
 func (suite *ConsoleShowsHealingAttempts) TestShowPowerHealingEffects(checker *C) {
-	resultLiniHealsTeros := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.lini).
-				Power(suite.healingStaff).
-				Target(suite.teros).
-				HealResult(
-					powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
-				).
-				Build(),
-		},
-	}
+	resultLiniHealsTeros := &powercommitfakes.FakeResultStrategy{}
+	resultLiniHealsTeros.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.lini).
+			Power(suite.healingStaff).
+			Target(suite.teros).
+			HealResult(
+				powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultLiniHealsTeros, suite.repos, nil, &output)
@@ -363,65 +267,72 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToHit(checker
 		Targets:         []string{suite.bandit.ID(), suite.bandit2.ID()},
 		IsCounterAttack: false,
 	}
-	hitFirstBanditCalculation := &MockCalculation{
-		ReturnedSetup: attackSetup,
-		ReturnedAttack: &powerattackforecast.AttackForecast{
-			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit.ID(), nil),
-			VersusContext: &MockVersusContext{
-				ReturnedToHit: &damagedistribution.ToHitComparison{
-					ToHitBonus: 2,
-				},
-				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+	hitFirstBanditCalculation := &powerattackforecastfakes.FakeCalculationInterface{}
+	hitFirstBanditCalculation.SetupReturns(attackSetup)
+	hitFirstBanditCalculation.AttackReturns(&powerattackforecast.AttackForecast{
+		DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit.ID(), nil),
+		VersusContext: &powerattackforecastfakes.FakeVersusContextStrategy{
+			NormalDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					RawDamageDealt:       2,
 					TotalRawBarrierBurnt: 1,
-				},
+				}
+			},
+			ToHitStub: func() *damagedistribution.ToHitComparison {
+				return &damagedistribution.ToHitComparison{
+					ToHitBonus: 2,
+				}
 			},
 		},
-	}
-	hitSecondBanditCalculation := &MockCalculation{
-		ReturnedSetup: attackSetup,
-		ReturnedAttack: &powerattackforecast.AttackForecast{
-			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit2.ID(), nil),
-			VersusContext: &MockVersusContext{
-				ReturnedToHit: &damagedistribution.ToHitComparison{
-					ToHitBonus: 0,
-				},
-				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+	})
+	hitSecondBanditCalculation := &powerattackforecastfakes.FakeCalculationInterface{}
+	hitSecondBanditCalculation.SetupReturns(attackSetup)
+	hitSecondBanditCalculation.AttackReturns(&powerattackforecast.AttackForecast{
+		DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit2.ID(), nil),
+		VersusContext: &powerattackforecastfakes.FakeVersusContextStrategy{
+			NormalDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					TotalRawBarrierBurnt: 3,
-				},
+				}
+			},
+			ToHitStub: func() *damagedistribution.ToHitComparison {
+				return &damagedistribution.ToHitComparison{
+					ToHitBonus: 0,
+				}
 			},
 		},
-	}
-	secondBanditCountersCalculation := &MockCalculation{
-		ReturnedCounterAttackSetup: &powerusagescenario.Setup{
-			UserID:          suite.bandit.ID(),
-			PowerID:         suite.axe.ID(),
-			Targets:         []string{suite.teros.ID()},
-			IsCounterAttack: true,
-		},
-		ReturnedCounterAttack: &powerattackforecast.AttackForecast{
-			DefenderContext: *powerattackforecast.NewDefenderContext(suite.teros.ID(), nil),
-			VersusContext: &MockVersusContext{
-				ReturnedToHit: &damagedistribution.ToHitComparison{
-					ToHitBonus: -1,
-				},
-				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+	})
+
+	secondBanditCountersCalculation := &powerattackforecastfakes.FakeCalculationInterface{}
+	secondBanditCountersCalculation.CounterAttackSetupReturns(&powerusagescenario.Setup{
+		UserID:          suite.bandit.ID(),
+		PowerID:         suite.axe.ID(),
+		Targets:         []string{suite.teros.ID()},
+		IsCounterAttack: true,
+	})
+	secondBanditCountersCalculation.CounterAttackReturns(&powerattackforecast.AttackForecast{
+		DefenderContext: *powerattackforecast.NewDefenderContext(suite.teros.ID(), nil),
+		VersusContext: &powerattackforecastfakes.FakeVersusContextStrategy{
+			NormalDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					RawDamageDealt: 3,
-				},
+				}
+			},
+			ToHitStub: func() *damagedistribution.ToHitComparison {
+				return &damagedistribution.ToHitComparison{
+					ToHitBonus: -1,
+				}
 			},
 		},
-	}
+	})
 
-	forecastBlotOnMultipleBandits := &MockForecast{
-		ReturnedForecastedResultPerTarget: []powerattackforecast.CalculationInterface{
-			hitFirstBanditCalculation,
-			hitSecondBanditCalculation,
-			secondBanditCountersCalculation,
-		},
-		ReturnedSetup:        nil,
-		ReturnedRepositories: suite.repos,
-	}
-
+	forecastBlotOnMultipleBandits := &powerattackforecastfakes.FakeForecastInterface{}
+	forecastBlotOnMultipleBandits.ForecastedResultPerTargetReturns([]powerattackforecast.CalculationInterface{
+		hitFirstBanditCalculation,
+		hitSecondBanditCalculation,
+		secondBanditCountersCalculation,
+	})
+	forecastBlotOnMultipleBandits.RepositoriesReturns(suite.repos)
 	forecastBlotOnMultipleBandits.CalculateForecast()
 
 	var forecastOutput strings.Builder
@@ -445,35 +356,38 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToCriticallyH
 		Targets:         []string{suite.bandit3.ID()},
 		IsCounterAttack: false,
 	}
-	hitFirstBanditCalculation := &MockCalculation{
-		ReturnedSetup: attackSetup,
-		ReturnedAttack: &powerattackforecast.AttackForecast{
-			DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit3.ID(), nil),
-			VersusContext: &MockVersusContext{
-				ReturnedToHit: &damagedistribution.ToHitComparison{
-					ToHitBonus: 202,
-				},
-				ReturnedCanCritical: true,
-				ReturnedNormalDamage: &damagedistribution.DamageDistribution{
+	hitFirstBanditCalculation := &powerattackforecastfakes.FakeCalculationInterface{}
+	hitFirstBanditCalculation.SetupReturns(attackSetup)
+	hitFirstBanditCalculation.AttackReturns(&powerattackforecast.AttackForecast{
+		DefenderContext: *powerattackforecast.NewDefenderContext(suite.bandit3.ID(), nil),
+		VersusContext: &powerattackforecastfakes.FakeVersusContextStrategy{
+			NormalDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					RawDamageDealt:       2,
 					TotalRawBarrierBurnt: 1,
-				},
-				ReturnedCriticalHitThreshold: 12,
-				ReturnedCriticalHitDamage: &damagedistribution.DamageDistribution{
+				}
+			},
+			ToHitStub: func() *damagedistribution.ToHitComparison {
+				return &damagedistribution.ToHitComparison{
+					ToHitBonus: 202,
+				}
+			},
+			CriticalHitThresholdStub: func() int { return 12 },
+			CanCriticalStub:          func() bool { return true },
+			CriticalHitDamageStub: func() *damagedistribution.DamageDistribution {
+				return &damagedistribution.DamageDistribution{
 					RawDamageDealt:       3,
 					TotalRawBarrierBurnt: 1,
-				},
+				}
 			},
 		},
-	}
+	})
 
-	forecastBlotOnMultipleBandits := &MockForecast{
-		ReturnedForecastedResultPerTarget: []powerattackforecast.CalculationInterface{
-			hitFirstBanditCalculation,
-		},
-		ReturnedSetup:        nil,
-		ReturnedRepositories: suite.repos,
-	}
+	forecastBlotOnMultipleBandits := &powerattackforecastfakes.FakeForecastInterface{}
+	forecastBlotOnMultipleBandits.ForecastedResultPerTargetReturns([]powerattackforecast.CalculationInterface{
+		hitFirstBanditCalculation,
+	})
+	forecastBlotOnMultipleBandits.RepositoriesReturns(suite.repos)
 	forecastBlotOnMultipleBandits.CalculateForecast()
 
 	var forecastOutput strings.Builder
@@ -487,32 +401,31 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowForecastChanceToCriticallyH
 }
 
 func (suite *ConsoleShowsCounterAttackSuite) TestShowCounterattackResults(checker *C) {
-	resultBlotOnBanditAndCounterAxeOnTeros := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    0,
-						ActualDamageTaken: 0,
-					}).Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.bandit).
-				Power(suite.axe).
-				Target(suite.teros).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    2,
-						ActualDamageTaken: 2,
-					}).CounterAttack().Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditAndCounterAxeOnTeros := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditAndCounterAxeOnTeros.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					RawDamageDealt:    0,
+					ActualDamageTaken: 0,
+				}).Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.bandit).
+			Power(suite.axe).
+			Target(suite.teros).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					RawDamageDealt:    2,
+					ActualDamageTaken: 2,
+				}).CounterAttack().Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditAndCounterAxeOnTeros, suite.repos, nil, &output)
@@ -521,42 +434,41 @@ func (suite *ConsoleShowsCounterAttackSuite) TestShowCounterattackResults(checke
 }
 
 func (suite *ConsoleShowsCounterAttackSuite) TestShowMultipleTargets(checker *C) {
-	resultBlotOnBanditsAndBandit2Counters := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:       3,
-						ActualDamageTaken:    2,
-						TotalRawBarrierBurnt: 1,
-					}).Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit2).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 3,
-					}).Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.bandit2).
-				Power(suite.axe).
-				Target(suite.teros).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 3,
-					}).CounterAttack().Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditsAndBandit2Counters := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditsAndBandit2Counters.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					RawDamageDealt:       3,
+					ActualDamageTaken:    2,
+					TotalRawBarrierBurnt: 1,
+				}).Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit2).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken: 3,
+				}).Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.bandit2).
+			Power(suite.axe).
+			Target(suite.teros).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken: 3,
+				}).CounterAttack().Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditsAndBandit2Counters, suite.repos, nil, &output)
@@ -603,21 +515,20 @@ func (suite *ConsoleShowsHitsAndMisses) SetUpTest(checker *C) {
 }
 
 func (suite *ConsoleShowsHitsAndMisses) TestShowPowerHitTargetAndDamage(checker *C) {
-	resultBlotOnBanditHit := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    3,
-						ActualDamageTaken: 3,
-					}).Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditHit := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditHit.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					RawDamageDealt:    3,
+					ActualDamageTaken: 3,
+				}).Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditHit, suite.repos, nil, &output)
@@ -626,18 +537,17 @@ func (suite *ConsoleShowsHitsAndMisses) TestShowPowerHitTargetAndDamage(checker 
 }
 
 func (suite *ConsoleShowsHitsAndMisses) TestShowWhenPowerMisses(checker *C) {
-	resultBlotOnBanditMissed := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditMissed := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditMissed.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditMissed, suite.repos, nil, &output)
@@ -646,21 +556,20 @@ func (suite *ConsoleShowsHitsAndMisses) TestShowWhenPowerMisses(checker *C) {
 }
 
 func (suite *ConsoleShowsHitsAndMisses) TestShowWhenPowerCriticallyHits(checker *C) {
-	resultBlotOnBanditCriticallyHit := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:    4,
-						ActualDamageTaken: 4,
-					}).CriticallyHit().Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditCriticallyHit := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditCriticallyHit.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					RawDamageDealt:    4,
+					ActualDamageTaken: 4,
+				}).CriticallyHit().Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditCriticallyHit, suite.repos, nil, &output)
@@ -668,22 +577,21 @@ func (suite *ConsoleShowsHitsAndMisses) TestShowWhenPowerCriticallyHits(checker 
 }
 
 func (suite *ConsoleShowsHitsAndMisses) TestShowPowerBarrierBurn(checker *C) {
-	resultBlotOnBanditBurnsBarrier := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						RawDamageDealt:       3,
-						ActualDamageTaken:    2,
-						TotalRawBarrierBurnt: 1,
-					}).Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditBurnsBarrier := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditBurnsBarrier.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					RawDamageDealt:       3,
+					ActualDamageTaken:    2,
+					TotalRawBarrierBurnt: 1,
+				}).Build(),
+			).
+			Build(),
+	})
 
 	var output strings.Builder
 	suite.viewer.PrintResult(resultBlotOnBanditBurnsBarrier, suite.repos, nil, &output)
@@ -738,41 +646,41 @@ func (suite *ConsoleShowsVerbosity) SetUpTest(checker *C) {
 }
 
 func (suite *ConsoleShowsVerbosity) TestShowTargetStatusVerbosity(checker *C) {
-	resultBlotOnBanditsAndBandit2Counters := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.banditWithBarrier).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken:    2,
-						TotalRawBarrierBurnt: 1,
-					}).Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit2).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 3,
-					}).Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.bandit2).
-				Power(suite.axe).
-				Target(suite.teros).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 3,
-					}).CounterAttack().Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditsAndBandit2Counters := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditsAndBandit2Counters.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.banditWithBarrier).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken:    2,
+					TotalRawBarrierBurnt: 1,
+				}).Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit2).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken: 3,
+				}).Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.bandit2).
+			Power(suite.axe).
+			Target(suite.teros).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken: 3,
+				}).CounterAttack().Build(),
+			).
+			Build(),
+	})
+
 	suite.banditWithBarrier.ReduceHitPoints(2)
 	suite.banditWithBarrier.ReduceBarrier(1)
 	suite.bandit2.ReduceHitPoints(3)
@@ -800,18 +708,17 @@ func (suite *ConsoleShowsVerbosity) TestShowTargetStatusVerbosity(checker *C) {
 }
 
 func (suite *ConsoleShowsVerbosity) TestShowHealingVerbosity(checker *C) {
-	healResult := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.lini).
-				Power(suite.healingStaff).
-				Target(suite.teros).
-				HealResult(
-					powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
-				).
-				Build(),
-		},
-	}
+	healResult := &powercommitfakes.FakeResultStrategy{}
+	healResult.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.lini).
+			Power(suite.healingStaff).
+			Target(suite.teros).
+			HealResult(
+				powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
+			).
+			Build(),
+	})
 	suite.teros.SetHPToMax()
 
 	var output strings.Builder
@@ -828,63 +735,63 @@ func (suite *ConsoleShowsVerbosity) TestShowHealingVerbosity(checker *C) {
 }
 
 func (suite *ConsoleShowsVerbosity) TestShowRollsVerbosity(checker *C) {
-	resultBlotOnBanditsAndBandit2Counters := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.banditWithBarrier).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken:    2,
-						TotalRawBarrierBurnt: 1,
-					}).
-						AttackRoll(999).
-						AttackerToHitBonus(0).
-						AttackerTotal(999).
-						DefendRoll(-999).
-						DefenderToHitPenalty(0).
-						DefenderTotal(-999).
-						Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.teros).
-				Power(suite.blot).
-				Target(suite.bandit2).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 3,
-					}).
-						AttackRoll(999).
-						AttackerToHitBonus(0).
-						AttackerTotal(999).
-						DefendRoll(-999).
-						DefenderToHitPenalty(0).
-						DefenderTotal(-999).
-						Build(),
-				).
-				Build(),
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.bandit2).
-				Power(suite.axe).
-				Target(suite.teros).
-				AttackResult(
-					powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
-						ActualDamageTaken: 3,
-					}).
-						CounterAttack().
-						AttackRoll(999).
-						AttackerToHitBonus(-1).
-						AttackerTotal(998).
-						DefendRoll(-999).
-						DefenderToHitPenalty(0).
-						DefenderTotal(-999).
-						Build(),
-				).
-				Build(),
-		},
-	}
+	resultBlotOnBanditsAndBandit2Counters := &powercommitfakes.FakeResultStrategy{}
+	resultBlotOnBanditsAndBandit2Counters.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.banditWithBarrier).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken:    2,
+					TotalRawBarrierBurnt: 1,
+				}).
+					AttackRoll(999).
+					AttackerToHitBonus(0).
+					AttackerTotal(999).
+					DefendRoll(-999).
+					DefenderToHitPenalty(0).
+					DefenderTotal(-999).
+					Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.teros).
+			Power(suite.blot).
+			Target(suite.bandit2).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken: 3,
+				}).
+					AttackRoll(999).
+					AttackerToHitBonus(0).
+					AttackerTotal(999).
+					DefendRoll(-999).
+					DefenderToHitPenalty(0).
+					DefenderTotal(-999).
+					Build(),
+			).
+			Build(),
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.bandit2).
+			Power(suite.axe).
+			Target(suite.teros).
+			AttackResult(
+				powercommit.NewAttackResultBuilder().DamageDistribution(&damagedistribution.DamageDistribution{
+					ActualDamageTaken: 3,
+				}).
+					CounterAttack().
+					AttackRoll(999).
+					AttackerToHitBonus(-1).
+					AttackerTotal(998).
+					DefendRoll(-999).
+					DefenderToHitPenalty(0).
+					DefenderTotal(-999).
+					Build(),
+			).
+			Build(),
+	})
+
 	suite.banditWithBarrier.ReduceHitPoints(2)
 	suite.banditWithBarrier.ReduceBarrier(1)
 	suite.bandit2.ReduceHitPoints(3)
@@ -912,18 +819,17 @@ func (suite *ConsoleShowsVerbosity) TestShowRollsVerbosity(checker *C) {
 }
 
 func (suite *ConsoleShowsVerbosity) TestShowHealingAutoHitVerbosity(checker *C) {
-	healResult := MockResult{
-		ResultsPerTargetToReturn: []*powercommit.ResultPerTarget{
-			powercommit.NewResultPerTargetBuilder().
-				User(suite.lini).
-				Power(suite.healingStaff).
-				Target(suite.teros).
-				HealResult(
-					powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
-				).
-				Build(),
-		},
-	}
+	healResult := &powercommitfakes.FakeResultStrategy{}
+	healResult.ResultPerTargetReturns([]*powercommit.ResultPerTarget{
+		powercommit.NewResultPerTargetBuilder().
+			User(suite.lini).
+			Power(suite.healingStaff).
+			Target(suite.teros).
+			HealResult(
+				powercommit.NewHealResultBuilder().HitPointsRestored(4).Build(),
+			).
+			Build(),
+	})
 	suite.teros.SetHPToMax()
 	var healingOutput strings.Builder
 	suite.viewer.PrintResult(

@@ -1,5 +1,7 @@
 package powercommit
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
 import (
 	"github.com/chadius/terosbattleserver/entity/damagedistribution"
 	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
@@ -10,6 +12,7 @@ import (
 	"github.com/chadius/terosbattleserver/utility"
 )
 
+//counterfeiter:generate . ResultStrategy
 // ResultStrategy describes the shape of Result objects.
 type ResultStrategy interface {
 	Forecast() *powerattackforecast.Forecast
