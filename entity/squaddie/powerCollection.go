@@ -1,7 +1,7 @@
 package squaddie
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/powerreference"
 )
 
 // PowerCollection tracks what powers the squaddie has as well as what is in use.

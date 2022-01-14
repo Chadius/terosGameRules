@@ -1,7 +1,7 @@
 package builder
 
 import (
-	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosgamerules/entity/levelupbenefit"
 	"strconv"
 )
 

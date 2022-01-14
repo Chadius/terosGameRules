@@ -1,7 +1,7 @@
 package powersource_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powersource"
+	"github.com/chadius/terosgamerules/entity/powersource"
 	. "gopkg.in/check.v1"
 	"reflect"
 	"testing"

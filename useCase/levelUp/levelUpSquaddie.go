@@ -2,9 +2,9 @@ package levelup
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/levelupbenefit"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // ImproveSquaddieStrategy describes objects that can upgrade squaddie stats.

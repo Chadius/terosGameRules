@@ -1,10 +1,10 @@
 package repositories
 
 import (
-	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/powerrepository"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosgamerules/entity/levelupbenefit"
+	"github.com/chadius/terosgamerules/entity/powerrepository"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/entity/squaddieclass"
 )
 
 // RepositoryCollection holds all of the repositories used in the setup.

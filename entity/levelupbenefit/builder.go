@@ -2,10 +2,10 @@ package levelupbenefit
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/movement"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/movement"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/utility"
 	"gopkg.in/yaml.v2"
 )
 

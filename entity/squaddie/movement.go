@@ -1,6 +1,6 @@
 package squaddie
 
-import "github.com/chadius/terosbattleserver/entity/movement"
+import "github.com/chadius/terosgamerules/entity/movement"
 
 // Movement contains all information needed to describe a Squaddie's movement.
 type Movement struct {

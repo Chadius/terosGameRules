@@ -1,7 +1,7 @@
 package power_test
 
 import (
-	powerBuilder "github.com/chadius/terosbattleserver/entity/power"
+	powerBuilder "github.com/chadius/terosgamerules/entity/power"
 	. "gopkg.in/check.v1"
 	"testing"
 )

@@ -3,7 +3,7 @@ package squaddieclass
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // Repository will interact with external devices to manage Squaddie Classes.

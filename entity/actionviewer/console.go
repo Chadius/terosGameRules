@@ -2,10 +2,10 @@ package actionviewer
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/damagedistribution"
-	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
-	"github.com/chadius/terosbattleserver/usecase/powercommit"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosgamerules/entity/damagedistribution"
+	"github.com/chadius/terosgamerules/usecase/powerattackforecast"
+	"github.com/chadius/terosgamerules/usecase/powercommit"
+	"github.com/chadius/terosgamerules/usecase/repositories"
 	"io"
 )
 

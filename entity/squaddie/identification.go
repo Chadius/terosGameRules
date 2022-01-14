@@ -1,8 +1,8 @@
 package squaddie
 
 import (
-	"github.com/chadius/terosbattleserver/entity/affiliation"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/affiliation"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // Identification is akin to an squaddieID card for each Squaddie. Each Squaddie carries a unique Identification.

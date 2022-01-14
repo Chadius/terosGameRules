@@ -1,7 +1,7 @@
 package movement_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/movement"
+	"github.com/chadius/terosgamerules/entity/movement"
 	. "gopkg.in/check.v1"
 	"reflect"
 	"testing"

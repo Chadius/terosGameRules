@@ -1,6 +1,6 @@
 package target
 
-import "github.com/chadius/terosbattleserver/entity/squaddieinterface"
+import "github.com/chadius/terosgamerules/entity/squaddieinterface"
 
 // Foe means the squaddie can target Foes.
 type Foe struct{}

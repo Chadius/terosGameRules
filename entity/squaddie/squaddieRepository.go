@@ -2,8 +2,8 @@ package squaddie
 
 import (
 	"encoding/json"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/utility"
 	"gopkg.in/yaml.v2"
 )
 

@@ -1,7 +1,7 @@
 package powersource
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 )
 
 // Physical measures physical attacks.

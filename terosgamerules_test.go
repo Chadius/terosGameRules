@@ -1,8 +1,8 @@
-package terosbattleserver_test
+package terosgamerules_test
 
 import (
 	"bytes"
-	"github.com/chadius/terosbattleserver"
+	"github.com/chadius/terosgamerules"
 	. "gopkg.in/check.v1"
 	"strings"
 	"testing"
@@ -93,7 +93,8 @@ actions:
 	scriptByteStream := bytes.NewBuffer(scriptData)
 
 	var output strings.Builder
-	err := terosbattleserver.ReplayBattleScript(scriptByteStream, squaddieByteStream, powerByteStream, &output)
+	gameRunner := terosgamerules.GameRules{}
+	err := gameRunner.ReplayBattleScript(scriptByteStream, squaddieByteStream, powerByteStream, &output)
 
 	checker.Assert(err, IsNil)
 

@@ -1,7 +1,7 @@
 package levelupbenefit_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
+	"github.com/chadius/terosgamerules/entity/levelupbenefit"
 	. "gopkg.in/check.v1"
 )
 

@@ -2,7 +2,7 @@ package squaddieclass
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // ClassProgress tracks the ClassProgress's current class and any levels they have taken so far.

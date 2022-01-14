@@ -1,7 +1,7 @@
 package affiliation_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/affiliation"
+	"github.com/chadius/terosgamerules/entity/affiliation"
 	. "gopkg.in/check.v1"
 )
 

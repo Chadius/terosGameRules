@@ -1,28 +1,38 @@
-package terosbattleserver
+package terosgamerules
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/actioncontroller"
-	"github.com/chadius/terosbattleserver/entity/actionviewer"
-	"github.com/chadius/terosbattleserver/entity/powerrepository"
-	"github.com/chadius/terosbattleserver/entity/replay"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/usecase/powerequip"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/actioncontroller"
+	"github.com/chadius/terosgamerules/entity/actionviewer"
+	"github.com/chadius/terosgamerules/entity/powerrepository"
+	"github.com/chadius/terosgamerules/entity/replay"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/usecase/powerequip"
+	"github.com/chadius/terosgamerules/usecase/repositories"
+	"github.com/chadius/terosgamerules/utility"
 	"io"
 	"io/ioutil"
 	"log"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+//counterfeiter:generate . RulesStrategy
+// RulesStrategy shapes the expected messages and the expected responses when running the rules.
+type RulesStrategy interface {
+	ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io.Reader, output io.Writer) error
+}
+
+type GameRules struct{}
+
 // ReplayBattleScript uses the input streams to read and replay several rounds of combat,
 //  writing the results to a supplied output stream.
-func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io.Reader, output io.Writer) error {
+func (g *GameRules) ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io.Reader, output io.Writer) error {
 	utility.Logger = &utility.FileLogger{}
 
-	squaddieRepo := createSquaddieRepo(squaddieFileHandle)
-	powerRepo := createPowerRepo(powerFileHandle)
-	chapterReplay := createChapterReplay(scriptFileHandle)
+	squaddieRepo := g.createSquaddieRepo(squaddieFileHandle)
+	powerRepo := g.createPowerRepo(powerFileHandle)
+	chapterReplay := g.createChapterReplay(scriptFileHandle)
 
 	repos := &repositories.RepositoryCollection{
 		PowerRepo:    powerRepo,
@@ -31,20 +41,20 @@ func ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io
 
 	controller := actioncontroller.WhiteRoomController{}
 	viewer := actionviewer.ConsoleActionViewer{}
-	processSquaddieActions(chapterReplay, &viewer, &controller, repos)
+	g.processSquaddieActions(chapterReplay, &viewer, &controller, repos)
 
 	viewer.PrintMessages(output)
 	return nil
 }
 
-func processSquaddieActions(
+func (g *GameRules) processSquaddieActions(
 	chapterReplay *replay.ChapterReplay,
 	viewer *actionviewer.ConsoleActionViewer,
 	controller *actioncontroller.WhiteRoomController,
 	repositories *repositories.RepositoryCollection) {
-	initializeAllSquaddies(chapterReplay, repositories)
+	g.initializeAllSquaddies(chapterReplay, repositories)
 	for _, action := range chapterReplay.Actions {
-		continueProcessing := processSquaddieAction(
+		continueProcessing := g.processSquaddieAction(
 			action,
 			viewer,
 			controller,
@@ -57,7 +67,7 @@ func processSquaddieActions(
 	}
 }
 
-func processSquaddieAction(
+func (g *GameRules) processSquaddieAction(
 	action *replay.SquaddieAction,
 	viewer *actionviewer.ConsoleActionViewer,
 	controller *actioncontroller.WhiteRoomController,
@@ -85,7 +95,7 @@ func processSquaddieAction(
 	return true
 }
 
-func loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
+func (g *GameRules) loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
 	squaddieRepo := squaddie.NewSquaddieRepository()
 	err := squaddieRepo.AddSquaddiesUsingYAML(squaddieYamlData)
 	if err != nil {
@@ -94,30 +104,30 @@ func loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Repository) {
 	return squaddieRepo
 }
 
-func loadPowerRepo(powerYamlData []byte) (repo *powerrepository.Repository) {
+func (g *GameRules) loadPowerRepo(powerYamlData []byte) (repo *powerrepository.Repository) {
 	powerRepo := powerrepository.NewPowerRepository()
 	powerRepo.AddYAMLSource(powerYamlData)
 	return powerRepo
 }
 
-func initializeAllSquaddies(replay *replay.ChapterReplay, repositories *repositories.RepositoryCollection) {
+func (g *GameRules) initializeAllSquaddies(replay *replay.ChapterReplay, repositories *repositories.RepositoryCollection) {
 	squaddiesFound := map[string]bool{}
 
 	for _, action := range replay.Actions {
 		if squaddiesFound[action.UserID] != true {
-			loadAndInitializeSquaddie(action.UserID, repositories)
+			g.loadAndInitializeSquaddie(action.UserID, repositories)
 			squaddiesFound[action.UserID] = true
 		}
 		for _, targetID := range action.TargetIDs {
 			if squaddiesFound[targetID] != true {
-				loadAndInitializeSquaddie(targetID, repositories)
+				g.loadAndInitializeSquaddie(targetID, repositories)
 				squaddiesFound[targetID] = true
 			}
 		}
 	}
 }
 
-func loadAndInitializeSquaddie(squaddieID string, repositories *repositories.RepositoryCollection) {
+func (g *GameRules) loadAndInitializeSquaddie(squaddieID string, repositories *repositories.RepositoryCollection) {
 	squaddieRepo := repositories.SquaddieRepo
 	squaddie := squaddieRepo.GetOriginalSquaddieByID(squaddieID)
 	if squaddie == nil {
@@ -131,33 +141,33 @@ func loadAndInitializeSquaddie(squaddieID string, repositories *repositories.Rep
 	equipCheck.EquipDefaultPower(squaddie, repositories)
 }
 
-func createSquaddieRepo(input io.Reader) *squaddie.Repository {
+func (g *GameRules) createSquaddieRepo(input io.Reader) *squaddie.Repository {
 	squaddieData, squaddieErr := ioutil.ReadAll(input)
 	if squaddieErr != nil {
 		log.Fatal(squaddieErr)
 	}
 
-	repo := loadSquaddieRepo(squaddieData)
+	repo := g.loadSquaddieRepo(squaddieData)
 	if repo == nil {
 		log.Fatal("Squaddie Repo is nil")
 	}
 	return repo
 }
 
-func createPowerRepo(input io.Reader) *powerrepository.Repository {
+func (g *GameRules) createPowerRepo(input io.Reader) *powerrepository.Repository {
 	powerData, powerErr := ioutil.ReadAll(input)
 	if powerErr != nil {
 		log.Fatal(powerErr)
 	}
 
-	repo := loadPowerRepo(powerData)
+	repo := g.loadPowerRepo(powerData)
 	if repo == nil {
 		log.Fatal("Power Repo is nil")
 	}
 	return repo
 }
 
-func createChapterReplay(input io.Reader) *replay.ChapterReplay {
+func (g *GameRules) createChapterReplay(input io.Reader) *replay.ChapterReplay {
 	scriptData, scriptErr := ioutil.ReadAll(input)
 	if scriptErr != nil {
 		log.Fatal(scriptErr)

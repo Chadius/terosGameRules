@@ -2,12 +2,12 @@ package power
 
 import (
 	"errors"
-	"github.com/chadius/terosbattleserver/entity/healing"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/powersource"
-	"github.com/chadius/terosbattleserver/entity/target"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/healing"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/powersource"
+	"github.com/chadius/terosgamerules/entity/target"
+	"github.com/chadius/terosgamerules/utility"
 	"reflect"
 )
 

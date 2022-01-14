@@ -3,9 +3,9 @@ package powerattackforecast
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosgamerules/entity/powerusagescenario"
+	"github.com/chadius/terosgamerules/usecase/repositories"
+	"github.com/chadius/terosgamerules/usecase/squaddiestats"
 )
 
 // ForecastBuilder is used to make new Forecast objects.

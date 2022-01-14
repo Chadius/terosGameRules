@@ -1,8 +1,8 @@
 package powersource_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powersource"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
+	"github.com/chadius/terosgamerules/entity/powersource"
+	"github.com/chadius/terosgamerules/entity/squaddie"
 	. "gopkg.in/check.v1"
 )
 

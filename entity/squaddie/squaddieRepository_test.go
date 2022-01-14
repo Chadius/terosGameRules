@@ -1,11 +1,11 @@
 package squaddie_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	squaddieClassBuilder "github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/power"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	squaddieClassBuilder "github.com/chadius/terosgamerules/entity/squaddieclass"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 	. "gopkg.in/check.v1"
 	"reflect"
 )

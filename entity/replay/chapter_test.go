@@ -1,7 +1,7 @@
 package replay_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/replay"
+	"github.com/chadius/terosgamerules/entity/replay"
 	. "gopkg.in/check.v1"
 	"testing"
 )

@@ -1,7 +1,7 @@
 package squaddiestats
 
 import (
-	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosgamerules/usecase/repositories"
 )
 
 // CalculateSquaddieDefenseStatsStrategy describes the shape of the defense calculator.

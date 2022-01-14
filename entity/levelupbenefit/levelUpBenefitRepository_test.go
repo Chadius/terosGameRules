@@ -1,9 +1,9 @@
 package levelupbenefit_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/utility/testutility/builder"
+	"github.com/chadius/terosgamerules/entity/levelupbenefit"
+	"github.com/chadius/terosgamerules/entity/squaddieclass"
+	"github.com/chadius/terosgamerules/utility/testutility/builder"
 	. "gopkg.in/check.v1"
 	"testing"
 )

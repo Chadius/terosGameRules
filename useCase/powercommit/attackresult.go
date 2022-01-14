@@ -1,6 +1,6 @@
 package powercommit
 
-import "github.com/chadius/terosbattleserver/entity/damagedistribution"
+import "github.com/chadius/terosgamerules/entity/damagedistribution"
 
 // AttackResult shows what happens when the power was an attack.
 type AttackResult struct {

@@ -1,7 +1,7 @@
 package levelupbenefit
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/powerreference"
 )
 
 // PowerChanges tracks changes to the squaddie's innate powers.

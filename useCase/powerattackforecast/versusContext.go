@@ -3,7 +3,7 @@ package powerattackforecast
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
 
 import (
-	"github.com/chadius/terosbattleserver/entity/damagedistribution"
+	"github.com/chadius/terosgamerules/entity/damagedistribution"
 )
 
 //counterfeiter:generate . VersusContextStrategy

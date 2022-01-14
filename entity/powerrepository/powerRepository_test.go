@@ -1,9 +1,9 @@
 package powerrepository_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/powerrepository"
+	"github.com/chadius/terosgamerules/entity/power"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/powerrepository"
 	. "gopkg.in/check.v1"
 	"testing"
 )

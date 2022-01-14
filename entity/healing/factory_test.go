@@ -1,7 +1,7 @@
 package healing_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/healing"
+	"github.com/chadius/terosgamerules/entity/healing"
 	. "gopkg.in/check.v1"
 	"reflect"
 )

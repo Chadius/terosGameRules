@@ -1,9 +1,9 @@
 package powerinterface
 
 import (
-	"github.com/chadius/terosbattleserver/entity/healing"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/powersource"
+	"github.com/chadius/terosgamerules/entity/healing"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/powersource"
 )
 
 // Interface shapes the power.

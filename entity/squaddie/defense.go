@@ -1,7 +1,7 @@
 package squaddie
 
 import (
-	"github.com/chadius/terosbattleserver/entity/damagedistribution"
+	"github.com/chadius/terosgamerules/entity/damagedistribution"
 )
 
 // Defense holds everything needed to prevent the squaddie from getting hindered.

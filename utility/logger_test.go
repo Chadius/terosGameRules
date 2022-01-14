@@ -2,7 +2,7 @@ package utility_test
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/utility"
 	. "gopkg.in/check.v1"
 	"runtime"
 	"strings"

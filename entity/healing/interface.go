@@ -1,7 +1,7 @@
 package healing
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 )
 
 // Interface will shape how healing powers work with squaddies.

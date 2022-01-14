@@ -4,9 +4,9 @@ package powerattackforecastfakes
 import (
 	"sync"
 
-	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
-	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosgamerules/entity/powerusagescenario"
+	"github.com/chadius/terosgamerules/usecase/powerattackforecast"
+	"github.com/chadius/terosgamerules/usecase/repositories"
 )
 
 type FakeCalculationInterface struct {

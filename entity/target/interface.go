@@ -1,7 +1,7 @@
 package target
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 )
 
 // Interface describes how target logic works.

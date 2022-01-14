@@ -1,16 +1,16 @@
 package levelup_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/levelupbenefit"
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/powerrepository"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
-	"github.com/chadius/terosbattleserver/usecase/levelup"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosgamerules/entity/levelupbenefit"
+	"github.com/chadius/terosgamerules/entity/power"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/powerrepository"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/entity/squaddieclass"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/usecase/levelup"
+	"github.com/chadius/terosgamerules/usecase/repositories"
 	. "gopkg.in/check.v1"
 	"reflect"
 )

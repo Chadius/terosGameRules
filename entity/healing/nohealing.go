@@ -1,7 +1,7 @@
 package healing
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 )
 
 // NoHealing does no healing to the target.

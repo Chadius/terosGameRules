@@ -1,7 +1,7 @@
 package healing
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 )
 
 // FullMindBonus applies the healer's Mind as a bonus to the healing amount.

@@ -1,6 +1,6 @@
 package squaddie
 
-import "github.com/chadius/terosbattleserver/entity/movement"
+import "github.com/chadius/terosgamerules/entity/movement"
 
 // MovementBuilderOptions is used to create healing effects.
 type MovementBuilderOptions struct {

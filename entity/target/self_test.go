@@ -1,8 +1,8 @@
 package target_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/entity/target"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/entity/target"
 	. "gopkg.in/check.v1"
 )
 

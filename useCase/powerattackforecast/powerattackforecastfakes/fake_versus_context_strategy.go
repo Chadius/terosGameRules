@@ -4,8 +4,8 @@ package powerattackforecastfakes
 import (
 	"sync"
 
-	"github.com/chadius/terosbattleserver/entity/damagedistribution"
-	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
+	"github.com/chadius/terosgamerules/entity/damagedistribution"
+	"github.com/chadius/terosgamerules/usecase/powerattackforecast"
 )
 
 type FakeVersusContextStrategy struct {

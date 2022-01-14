@@ -2,11 +2,11 @@ package powerequip
 
 import (
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/usecase/repositories"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // Strategy will equip squaddies with powers.

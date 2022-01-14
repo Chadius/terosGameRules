@@ -1,6 +1,6 @@
 package powersource
 
-import "github.com/chadius/terosbattleserver/entity/squaddieinterface"
+import "github.com/chadius/terosgamerules/entity/squaddieinterface"
 
 // Interface shapes the power type and how it is calculated
 type Interface interface {

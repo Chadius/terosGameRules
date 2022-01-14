@@ -1,6 +1,6 @@
 package powersource
 
-import "github.com/chadius/terosbattleserver/entity/squaddieinterface"
+import "github.com/chadius/terosgamerules/entity/squaddieinterface"
 
 // Spell measures Spell attacks.
 type Spell struct{}

@@ -2,7 +2,7 @@ package power
 
 import (
 	"errors"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // CounterAttackPenaltyInitialValue is the default penalty counterattacks suffer on to hit rolls.

@@ -2,9 +2,9 @@ package powerrepository
 
 import (
 	"errors"
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/power"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // Repository will interact with external devices to manage Powers.

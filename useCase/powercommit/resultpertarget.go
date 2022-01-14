@@ -1,8 +1,8 @@
 package powercommit
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 )
 
 // ResultPerTarget shows what happened to each target.

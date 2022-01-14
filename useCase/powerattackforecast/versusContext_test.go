@@ -1,15 +1,15 @@
 package powerattackforecast_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/power"
-	"github.com/chadius/terosbattleserver/entity/powerinterface"
-	"github.com/chadius/terosbattleserver/entity/powerrepository"
-	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
-	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosgamerules/entity/power"
+	"github.com/chadius/terosgamerules/entity/powerinterface"
+	"github.com/chadius/terosgamerules/entity/powerrepository"
+	"github.com/chadius/terosgamerules/entity/powerusagescenario"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/usecase/powerattackforecast"
+	"github.com/chadius/terosgamerules/usecase/repositories"
+	"github.com/chadius/terosgamerules/usecase/squaddiestats"
 	. "gopkg.in/check.v1"
 )
 

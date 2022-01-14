@@ -3,10 +3,10 @@ package levelupbenefit
 import (
 	"errors"
 	"fmt"
-	"github.com/chadius/terosbattleserver/entity/movement"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/entity/movement"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 // LevelUpBenefit describes how a Squaddie improves upon levelling up.

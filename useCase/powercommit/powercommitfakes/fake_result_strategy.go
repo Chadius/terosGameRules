@@ -4,9 +4,9 @@ package powercommitfakes
 import (
 	"sync"
 
-	"github.com/chadius/terosbattleserver/usecase/powerattackforecast"
-	"github.com/chadius/terosbattleserver/usecase/powercommit"
-	"github.com/chadius/terosbattleserver/utility"
+	"github.com/chadius/terosgamerules/usecase/powerattackforecast"
+	"github.com/chadius/terosgamerules/usecase/powercommit"
+	"github.com/chadius/terosgamerules/utility"
 )
 
 type FakeResultStrategy struct {

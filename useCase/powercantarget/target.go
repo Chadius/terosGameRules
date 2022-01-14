@@ -1,7 +1,7 @@
 package powercantarget
 
 import (
-	"github.com/chadius/terosbattleserver/usecase/repositories"
+	"github.com/chadius/terosgamerules/usecase/repositories"
 )
 
 // ValidTargetStrategy describes the shape of classes that check for valid attacks.

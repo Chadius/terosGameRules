@@ -1,9 +1,9 @@
 package powerattackforecast
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosgamerules/entity/powerusagescenario"
+	"github.com/chadius/terosgamerules/usecase/repositories"
+	"github.com/chadius/terosgamerules/usecase/squaddiestats"
 )
 
 // DefenderContextStrategy describes the shape of a DefenderContext.

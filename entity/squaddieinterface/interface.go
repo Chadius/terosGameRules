@@ -1,11 +1,11 @@
 package squaddieinterface
 
 import (
-	"github.com/chadius/terosbattleserver/entity/affiliation"
-	"github.com/chadius/terosbattleserver/entity/damagedistribution"
-	"github.com/chadius/terosbattleserver/entity/movement"
-	"github.com/chadius/terosbattleserver/entity/powerreference"
-	"github.com/chadius/terosbattleserver/entity/squaddieclass"
+	"github.com/chadius/terosgamerules/entity/affiliation"
+	"github.com/chadius/terosgamerules/entity/damagedistribution"
+	"github.com/chadius/terosgamerules/entity/movement"
+	"github.com/chadius/terosgamerules/entity/powerreference"
+	"github.com/chadius/terosgamerules/entity/squaddieclass"
 )
 
 // Interface will shape how healing powers work with squaddies.

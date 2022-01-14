@@ -1,7 +1,7 @@
 package squaddie
 
 import (
-	"github.com/chadius/terosbattleserver/entity/affiliation"
+	"github.com/chadius/terosgamerules/entity/affiliation"
 )
 
 // IdentificationBuilderOptions is used to create healing effects.

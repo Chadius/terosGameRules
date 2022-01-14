@@ -1,9 +1,9 @@
 package squaddie_test
 
 import (
-	"github.com/chadius/terosbattleserver/entity/damagedistribution"
-	"github.com/chadius/terosbattleserver/entity/squaddie"
-	"github.com/chadius/terosbattleserver/entity/squaddieinterface"
+	"github.com/chadius/terosgamerules/entity/damagedistribution"
+	"github.com/chadius/terosgamerules/entity/squaddie"
+	"github.com/chadius/terosgamerules/entity/squaddieinterface"
 	. "gopkg.in/check.v1"
 )
 

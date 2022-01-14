@@ -1,10 +1,10 @@
 package powerattackforecast
 
 import (
-	"github.com/chadius/terosbattleserver/entity/powersource"
-	"github.com/chadius/terosbattleserver/entity/powerusagescenario"
-	"github.com/chadius/terosbattleserver/usecase/repositories"
-	"github.com/chadius/terosbattleserver/usecase/squaddiestats"
+	"github.com/chadius/terosgamerules/entity/powersource"
+	"github.com/chadius/terosgamerules/entity/powerusagescenario"
+	"github.com/chadius/terosgamerules/usecase/repositories"
+	"github.com/chadius/terosgamerules/usecase/squaddiestats"
 )
 
 // AttackerContextStrategy describes the shape of an AttackContext.
