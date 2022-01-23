@@ -7,7 +7,7 @@ help:
 .PHONY=help
 
 test: ## Test all files using ginkgo
-	go test -v ./...
+	go test ./...
 lint: ## Lint all the files using golint
 	for d in $$(go list -f {{.Dir}} ./...); do \
 		gofmt -w $${d}/*.go; \

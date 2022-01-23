@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.4.1
+	github.com/stretchr/testify v1.7.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 	gopkg.in/yaml.v2 v2.4.0
 )

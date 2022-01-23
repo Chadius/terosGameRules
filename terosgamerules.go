@@ -1,6 +1,7 @@
 package terosgamerules
 
 import (
+	"errors"
 	"fmt"
 	"github.com/chadius/terosgamerules/entity/actioncontroller"
 	"github.com/chadius/terosgamerules/entity/actionviewer"
@@ -12,7 +13,7 @@ import (
 	"github.com/chadius/terosgamerules/utility"
 	"io"
 	"io/ioutil"
-	"log"
+	"reflect"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
@@ -30,9 +31,20 @@ type GameRules struct{}
 func (g *GameRules) ReplayBattleScript(scriptFileHandle, squaddieFileHandle, powerFileHandle io.Reader, output io.Writer) error {
 	utility.Logger = &utility.FileLogger{}
 
-	squaddieRepo := g.createSquaddieRepo(squaddieFileHandle)
-	powerRepo := g.createPowerRepo(powerFileHandle)
-	chapterReplay := g.createChapterReplay(scriptFileHandle)
+	squaddieRepo, squaddieErr := g.createSquaddieRepo(squaddieFileHandle)
+	if squaddieErr != nil {
+		return squaddieErr
+	}
+
+	powerRepo, powerErr := g.createPowerRepo(powerFileHandle)
+	if powerErr != nil {
+		return powerErr
+	}
+
+	chapterReplay, scriptErr := g.createChapterReplay(scriptFileHandle)
+	if scriptErr != nil {
+		return scriptErr
+	}
 
 	repos := &repositories.RepositoryCollection{
 		PowerRepo:    powerRepo,
@@ -99,15 +111,18 @@ func (g *GameRules) loadSquaddieRepo(squaddieYamlData []byte) (repo *squaddie.Re
 	squaddieRepo := squaddie.NewSquaddieRepository()
 	err := squaddieRepo.AddSquaddiesUsingYAML(squaddieYamlData)
 	if err != nil {
-		panic(err.Error())
+		return nil
 	}
 	return squaddieRepo
 }
 
-func (g *GameRules) loadPowerRepo(powerYamlData []byte) (repo *powerrepository.Repository) {
+func (g *GameRules) loadPowerRepo(powerYamlData []byte) (*powerrepository.Repository, error) {
 	powerRepo := powerrepository.NewPowerRepository()
-	powerRepo.AddYAMLSource(powerYamlData)
-	return powerRepo
+	_, err := powerRepo.AddYAMLSource(powerYamlData)
+	if err != nil {
+		return nil, err
+	}
+	return powerRepo, nil
 }
 
 func (g *GameRules) initializeAllSquaddies(replay *replay.ChapterReplay, repositories *repositories.RepositoryCollection) {
@@ -132,7 +147,6 @@ func (g *GameRules) loadAndInitializeSquaddie(squaddieID string, repositories *r
 	squaddie := squaddieRepo.GetOriginalSquaddieByID(squaddieID)
 	if squaddie == nil {
 		fmt.Sprintf("Squaddie %s does not exist, exiting", squaddieID)
-		log.Panicf("Squaddie %s does not exist, exiting", squaddieID)
 	}
 	squaddie.SetBarrierToMax()
 
@@ -141,41 +155,54 @@ func (g *GameRules) loadAndInitializeSquaddie(squaddieID string, repositories *r
 	equipCheck.EquipDefaultPower(squaddie, repositories)
 }
 
-func (g *GameRules) createSquaddieRepo(input io.Reader) *squaddie.Repository {
-	squaddieData, squaddieErr := ioutil.ReadAll(input)
+func (g *GameRules) createSquaddieRepo(input io.Reader) (*squaddie.Repository, error) {
+	if input == nil || reflect.ValueOf(input).IsNil() {
+		return nil, errors.New("no squaddie data found")
+	}
+
+	squaddieData, squaddieErr := io.ReadAll(input)
 	if squaddieErr != nil {
-		log.Fatal(squaddieErr)
+		return nil, squaddieErr
 	}
 
 	repo := g.loadSquaddieRepo(squaddieData)
 	if repo == nil {
-		log.Fatal("Squaddie Repo is nil")
+		return nil, errors.New("squaddie data is invalid")
 	}
-	return repo
+	return repo, nil
 }
 
-func (g *GameRules) createPowerRepo(input io.Reader) *powerrepository.Repository {
+func (g *GameRules) createPowerRepo(input io.Reader) (*powerrepository.Repository, error) {
+	if input == nil || reflect.ValueOf(input).IsNil() {
+		return nil, errors.New("no power data found")
+	}
+
 	powerData, powerErr := ioutil.ReadAll(input)
 	if powerErr != nil {
-		log.Fatal(powerErr)
+		return nil, powerErr
 	}
 
-	repo := g.loadPowerRepo(powerData)
-	if repo == nil {
-		log.Fatal("Power Repo is nil")
+	repo, loadErr := g.loadPowerRepo(powerData)
+	if loadErr != nil {
+		return nil, errors.New("power data is invalid")
 	}
-	return repo
+	return repo, nil
 }
 
-func (g *GameRules) createChapterReplay(input io.Reader) *replay.ChapterReplay {
+func (g *GameRules) createChapterReplay(input io.Reader) (*replay.ChapterReplay, error) {
+	if input == nil || reflect.ValueOf(input).IsNil() {
+		return nil, errors.New("no script data found")
+	}
+
 	scriptData, scriptErr := ioutil.ReadAll(input)
 	if scriptErr != nil {
-		log.Fatal(scriptErr)
+		return nil, scriptErr
 	}
 
 	chapterReplay, replayErr := replay.NewCreateMapReplayFromYAML(scriptData)
 	if replayErr != nil {
-		log.Fatal(replayErr)
+		return nil, errors.New("script data is invalid")
 	}
-	return chapterReplay
+
+	return chapterReplay, nil
 }
